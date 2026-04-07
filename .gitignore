@@ -1,0 +1,157 @@
+result
+result-*
+.direnv/
+.envrc
+.envrc.local
+
+# ============================
+#  Editor / IDE
+# ============================
+# VSCode
+.vscode/
+.history/
+*.code-workspace
+# IntelliJ / IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+# Vim
+*.swp
+*.swo
+*~
+*.un~
+Session.vim
+.netrwhist
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+# Neovim
+nvim/.netrwhist
+# Jupyter
+.ipynb_checkpoints/
+
+# ============================
+#  Sistema Operativo
+# ============================
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*.orig
+*.old
+*.pid
+*.seed
+*.log
+*.tmp
+*.temp
+*.bak
+*.cache
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+*.AppleDB
+*.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+*.dmg
+*.app
+*.pkg
+*.swp
+
+# ============================
+#  Dependencias y builds
+# ============================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.tsbuildinfo
+
+# Python (si hay scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.ruff_cache/
+
+# ============================
+#  Seguridad / Secretos
+# ============================
+.env
+*.pem
+*.key
+*.crt
+*.p12
+secrets/
+.credentials
+*.secret
+
+# ============================
+#  Logs y bases de datos
+# ============================
+*.log
+*.sql
+*.sqlite
+*.db
+
+# ============================
+#  Archivos de respaldo temporales
+# ============================
+*.backup
+*.old
+*.orig
+*.rej
+
+# ============================
+#  Herramientas de CI/CD
+# ============================
+/.github/.tmp/
+/.gitlab/.tmp/
+*.stamp
+
+# ============================
+#  Otros
+# ============================
+*.tar.gz
+*.zip
+*.rar
+*.7z
+*.iso
