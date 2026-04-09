@@ -41,6 +41,8 @@
     mac-app-util = {
       url = "github:hraban/mac-app-util";
     };
+
+
   };
 
   outputs = {self, nixpkgs, nixpkgs-unstablem, argononed, nixos-images, darwin,
