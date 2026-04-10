@@ -29,8 +29,8 @@
       inputs.nixos-unstable.follows = "nixpkgs";
     };
 
-    darwin = {
-      url = "github:nix-darwin/nix-darwin/master";
+    nix-darwin = {
+      url = "github:nix-darwin/nix-darwin/nix-darwin-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -42,11 +42,15 @@
       url = "github:hraban/mac-app-util";
     };
 
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
   };
 
-  outputs = {self, nixpkgs, nixpkgs-unstablem, argononed, nixos-images, darwin,
-    nix-homebrew, mac-app-util, ...}@inputs:
+  outputs = {self, nixpkgs, nixpkgs-unstablem, argononed, nixos-images, nix-darwin,
+    nix-homebrew, mac-app-util, home-manager, ...}@inputs:
 
     let
 
