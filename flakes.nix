@@ -9,24 +9,11 @@
     connect-timeout = 5;
   };
 
-  imputs = {
+  inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-unstable = {
       url = "github:NixOS/nixpkgs/nixos-unstable";
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    argononed = {
-      url = "github:nvmd/argononed";
-      flake = false;
-    };
-
-    flake-compat.url = "github:edolstra/flake-compat";
-
-    nixos-images = {
-      url = "github:nvmd/nixos-images/sdimage-installer";
-      inputs.nixos-stable.follows = "nixpkgs";
-      inputs.nixos-unstable.follows = "nixpkgs";
     };
 
     nix-darwin = {
@@ -47,17 +34,60 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nixos-hardware.url = "github:NixOS/nixos-hardware";
   };
 
-  outputs = {self, nixpkgs, nixpkgs-unstablem, argononed, nixos-images, nix-darwin,
-    nix-homebrew, mac-app-util, home-manager, ...}@inputs:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      nixpkgs-unstablem,
+      nix-darwin,
+      nix-homebrew,
+      mac-app-util,
+      home-manager,
+      nixos-hardware,
+      ...
+    }@inputs:
 
     let
 
-    lib = import ./lib/default.nix {
-      inherit (nixpkgs) lib;
-      inputs = inputs // { inherit self; };
+      lib = import ./lib { inherit inputs; };
+    in
+    {
+      nixosConfigurations = {
+        rpi5 = lib.mkNixosSystem {
+          system = "aarch64-linux";
+          hostname = "rpi-lab";
+          username = "personal";
+          extraModules = [
+            nixos-hardware.nixosModules.raspberry-pi-5
+            "${nixpkgs}/nixos/modules/install/sd-card/sd-image-aarch64.nix"
+          ];
+        };
+        rpi02 = lib.mkNixosSystem {
+          system = "aarch64-linux";
+          hostname = "pihole";
+          username = "generic-admin";
+          extraModules = [
+            nixos-hardware.nixosModules.rasperry-pi-zero-2
+            "${nixpkgs}/nixos/modules/install/sd-card/sd-image-aarch64.nix"
+          ];
+        };
+
+      };
+
+      darwinConfigurations = {
+        personal = lib.mkDarwinSystem {
+          system = "aarch64-darwin";
+          hostname = "kanagawa";
+          username = "personal";
+        };
+        thoughtworoks = lib.mkDarwinSystem {
+          system = "aarch64-darwin";
+          hostname = "outer-heaven";
+          username = "thoughtworks";
+        };
+      };
     };
-
-
 }
