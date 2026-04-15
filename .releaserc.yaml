@@ -3,4 +3,7 @@ branches:
 plugins:
   - "@semantic-release/commit-analyzer"
   - "@semantic-release/release-notes-generator"
-  - "@semantic-release/git"
+  - - "@semantic-release/github"
+    - assets:
+        - path: release-artifacts/*.img.zst
+          label: Raspberry Pi Image
