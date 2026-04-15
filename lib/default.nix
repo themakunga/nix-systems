@@ -23,6 +23,7 @@ in
       modules = [
         ../hosts/linux/${hostname}/default.nix
         ../users/${username}/home.nix
+        ../shared/overlays/default.nix
         inputs.home-manager.nixosModule.home-manager
       ]
       ++ extraModules;
@@ -48,6 +49,7 @@ in
       modules = [
         ../hosts/darwin/${hostname}/default.nix
         ../users/${username}/home.nix
+        ../shared/overlays/default.nix
         inputs.home-manager.darwinModules.home-manager
       ]
       ++ extraModules;
