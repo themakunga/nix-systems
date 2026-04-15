@@ -1,7 +1,7 @@
 {
   description = "Flake build rpi installers and multi host systems";
 
-  nicConfig = {
+  nixConfig = {
     extra-subtitutions = [ "https://nixos-raspberrypi.cachix.org" ];
     extra-trusted-public-keys = [
       "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
