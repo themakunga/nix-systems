@@ -26,3 +26,7 @@ overrides:
   - files: "*.toml"
     options:
       parser: "toml"
+  - files: "*.md"
+    options:
+      printWidth: 80
+      proseWrap: always
