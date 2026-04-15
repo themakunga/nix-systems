@@ -89,5 +89,10 @@
           username = "thoughtworks";
         };
       };
+
+      packages.aarch64-linux = {
+        image-rpi5 = lib.mkSdImage self.nixosConfigurations.rpi5;
+        image-rpi02 = lib.mkSdImage self.nixosConfigations.rpi02;
+      };
     };
 }
