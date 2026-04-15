@@ -1,58 +1,44 @@
-# Sistemas y Usuarios
+# Multi-Architecture Infrastructure Flake
 
-este proyecto es para poder tener un mantenimiento, repoductividad y vision de
-las aplicaciones que utilizo, en distintos sistemas linux y darwin, por lo que
-esta fuertemente relacionada con mis ambientes de trabajo
+This repository contains a unified Nix Flake to manage configurations across multiple architectures and operating systems. It supports macOS (nix-darwin), standard Linux x86_64 servers (NixOS), and ARM-based single-board computers like the Raspberry Pi 5 and Raspberry Pi Zero 2.
 
+## 1. Installation Prerequisites
 
-<!-- mtoc-start -->
-
-* [Estructura de archivos](#estructura-de-archivos)
-* [Sistemas](#sistemas)
-  * [Linux](#linux)
-  * [Darwin](#darwin)
-* [Aplicaciones](#aplicaciones)
-* [Usuarios](#usuarios)
-* [Desarrollo](#desarrollo)
-
-<!-- mtoc-end -->
-
-
-## Estructura de archivos
+Before deploying, ensure the Nix package manager is installed on your controlling machine:
 
 ```bash
-    applications # Aplicaciones con configuraciones especificas
-        - ...
-    builders # nixos image builders
-        - ... 
-    hosts # hosts de sistema separados por darwin/linux con sus configs
-        - Darwin
-        - Linix
-    lib # refactorizacion y helpers de flakes.nix
-        - ...
-    modules # modulos reutilizables muti host
-        - ...
-    packages # paqueter de apps personalizadas o builds
-        - ...
-    users # usuarios segmentados por tipo
-        - ... 
-    .editorconfig
-    .gitignore
-    .pre-commit-config.yaml
-    .prettierrc.yaml
-    flakes.nix
-    README.md #
-```
+curl --proto '=https' --tlsv1.2 -sSf -L [https://install.determinate.systems/nix](https://install.determinate.systems/nix) | sh -s -- install
+2. Deploying to macOS (nix-darwin)
+To apply the configuration to a macOS machine (e.g., mac-work or mac-home), clone this repository and run the darwin switch command:
 
-##  Sistemas
+Bash
+nix run nix-darwin -- switch --flake .#mac-work
+3. Remote Provisioning with nixos-anywhere
+For the standard Linux servers, you can perform a remote, unattended installation using nixos-anywhere. The target machine must be booted into a NixOS live ISO and accessible via SSH as the root user.
 
-### Linux
+Bash
+# Provision linux-server1
+nix run github:nix-community/nixos-anywhere -- --flake .#linux-server1 root@<target-ip>
 
-### Darwin
+# Provision linux-server2
+nix run github:nix-community/nixos-anywhere -- --flake .#linux-server2 root@<target-ip>
+Note: Ensure the target machines have their specific hardware-configuration.nix properly referenced inside their respective hosts/<hostname>/configuration.nix files.
 
-## Aplicaciones
+4. Building Raspberry Pi SD Images
+You can generate ready-to-flash SD card images for the Raspberry Pi boards directly from this flake. These images include the fully baked OS, users, and dotfiles.
 
-## Usuarios
+Build the image for the Raspberry Pi 5:
 
-## Desarrollo
+Bash
+nix build .#packages.aarch64-linux.image-rpi5
+Build the image for the Raspberry Pi Zero 2:
 
+Bash
+nix build .#packages.aarch64-linux.image-rpi-zero2
+The build process will output a compressed .img.zst file located in the result/sd-image/ directory.
+
+Flashing the Image
+Decompress and write the image to your SD card (replace /dev/sdX with your actual block device):
+
+Bash
+zstdcat result/sd-image/nixos-sd-image-*.img.zst | sudo dd of=/dev/sdX bs=4M conv=fsync status=progress
