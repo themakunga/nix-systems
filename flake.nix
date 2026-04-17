@@ -2,9 +2,9 @@
   description = "Flake build rpi installers and multi host systems";
 
   nixConfig = {
-    extra-subtitutions = [ "https://nixos-raspberrypi.cachix.org" ];
+    extra-substitutions = [ "https://themakunga.cachix.org" ];
     extra-trusted-public-keys = [
-      "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
+      "themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0="
     ];
     connect-timeout = 5;
   };
@@ -53,8 +53,26 @@
     let
 
       lib = import ./lib { inherit inputs; };
+
+      supportedSystems = [
+        "aarch64-darwin"
+        "aarch64-linux"
+        "x86_64-linux"
+      ];
+      forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
     in
     {
+      ## development environments
+      devShell = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
+          default = ./modules/shell.nix { inherit pkgs; };
+        }
+      );
+      # nixOS/Linux base configurations
       nixosConfigurations = {
         rpi5 = lib.mkNixosSystem {
           system = "aarch64-linux";
@@ -76,7 +94,7 @@
         };
 
       };
-
+      ## darwin (osx) configurations
       darwinConfigurations = {
         personal = lib.mkDarwinSystem {
           system = "aarch64-darwin";
@@ -89,7 +107,7 @@
           username = "thoughtworks";
         };
       };
-
+      ## SD image builders
       packages.aarch64-linux = {
         image-rpi5 = lib.mkSdImage self.nixosConfigurations.rpi5;
         image-rpi02 = lib.mkSdImage self.nixosConfigations.rpi02;
