@@ -12,7 +12,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-unstable = {
-      url = "github:NixOS/nixpkgs/nixos-unstable";
+      url = "github:NixOS/nixpkgs/nixpkgs-unstable";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -41,7 +41,7 @@
     {
       self,
       nixpkgs,
-      nixpkgs-unstablem,
+      nixpkgs-unstable,
       nix-darwin,
       nix-homebrew,
       mac-app-util,
@@ -110,7 +110,7 @@
       ## SD image builders
       packages.aarch64-linux = {
         image-rpi5 = lib.mkSdImage self.nixosConfigurations.rpi5;
-        image-rpi02 = lib.mkSdImage self.nixosConfigations.rpi02;
+        image-rpi02 = lib.mkSdImage self.nixosConfigurations.rpi02;
       };
     };
 }
