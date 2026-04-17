@@ -1,37 +1,30 @@
 name: CI/CD Pipeline
-
 on:
   push:
     branches:
       - main
   pull_request:
-
 permissions:
   contents: write
   issues: write
   pull-requests: write
-
 jobs:
   tests:
     name: Run Nix Checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Install Nix
         uses: cachix/install-nix-action@v30
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Setup Cachix
         uses: cachix/cachix-action@v15
         with:
           name: themakunga
           authToken: ${{ secrets.CACHIX_TOKEN }}
-
       - name: Run Nix Flake Checks
         run: nix flake check -L
-
   build-image:
     name: Build RPi Images
     needs: tests
@@ -45,35 +38,29 @@ jobs:
             target: image-rpi02
     steps:
       - uses: actions/checkout@v4
-
       - name: Install Nix
         uses: cachix/install-nix-action@v30
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Setup Cachix
         uses: cachix/cachix-action@v15
         with:
           name: themakunga
           authToken: ${{ secrets.CACHIX_TOKEN }}
-
       - name: Setup QEMU (ARM)
         uses: docker/setup-qemu-action@v3
         with:
           platform: arm64
-
       - name: Build SD Image
         run: |
           nix build .#packages.aarch64-linux.${{ matrix.target }} -L
           mkdir -p output
           cp -L result/sd-image/*.img.zst output/${{ matrix.device }}.img.zst
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.device }}-image
           path: output/${{ matrix.device }}.img.zst
-
   release:
     name: Semantic Release
     needs: build-image
@@ -83,18 +70,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           featch-depth: 0
-
       - name: Download all Artifacts
         uses: actions/download-artifact@v4
         with:
           path: release-assets
           merge-multiple: true
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-
       - name: Run Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
