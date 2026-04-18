@@ -1,8 +1,8 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, system, ... }:
 {
   nixpkgs.overlays = [
-    (final: prev: {
-      feedr = prev.callPackage ../../packages/feedr { };
-    })
+    (import ./feedr.nix { inherit inputs system; })
+
+    (import ./unstable.nix {inherit inputs system; })
   ];
 }
