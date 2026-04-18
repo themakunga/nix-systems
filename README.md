@@ -17,7 +17,7 @@ standard Linux x86_64 servers (NixOS), and ARM-based single-board computers like
 Before deploying, ensure the Nix package manager is installed on your controlling machine:
 
 ```bash
-curl --proto '=https' --tlsv1.2 -sSf -L [https://install.determinate.systems/nix](https://install.determinate.systems/nix) | sh -s -- install
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 ```
 
 
