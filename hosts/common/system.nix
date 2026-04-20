@@ -1,17 +1,5 @@
-{ pkgs, ... }:
-{
-  nix.settings.experimental-featutures = [
-    "nix-command"
-    "flakes"
-  ];
+{inputs, ...}: {
+  inputs.nixkpkgs = {
 
-  environment.systemPackages = with pkgs; [
-    git
-    vim
-    wget
-    curl
-    htop
-    btop
-    ctop
-  ];
+  }
 }
