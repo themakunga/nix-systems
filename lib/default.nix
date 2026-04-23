@@ -1,59 +1,69 @@
 { inputs }:
 let
-  inherit (inputs.nixpkgs) lib;
+  inherit (inputs)
+    nixpkgs
+    nix-darwin
+    sops-nix
+    secrets
+    nix-homebrew
+    ;
+
 in
 {
-  mkNixosSystem =
-    {
-      system,
-      hostname,
-      username,
-      extraModules ? [ ],
-    }:
-    lib.nixosSystem {
+
+  mkDarwin =
+    system: modules:
+    nix-darwin.lib.darwinSystem {
       inherit system;
-      specialArgs = {
-        inherit
-          inputs
-          hostname
-          system
-          username
-          ;
-      };
+      specialArgs = { inherit secrets; };
       modules = [
-        ../hosts/linux/${hostname}/default.nix
-        ../users/${username}/home.nix
-        ../shared/overlays/default.nix
-        inputs.home-manager.nixosModule.home-manager
+        sops-nix.darwinModules.sops
+        nix-homebrew.darwinModules.nix-homebrew
+        {
+          nix-homebrew = {
+            enable = true;
+            autoMigrate = true;
+          };
+        }
       ]
-      ++ extraModules;
+      ++ modules;
     };
 
-  mkDarwinSystem =
-    {
-      system,
-      hostname,
-      username,
-      extraModules ? [ ],
-    }:
-    inputs.darwin.lib.darwinSystem {
+  mkNixOS =
+    system: modules:
+    nixpkgs.lib.nixpkgsSystem {
       inherit system;
-      specialArgs = {
-        inherit
-          inputs
-          hostname
-          system
-          username
-          ;
-      };
+      specialArgs = { inherit secrets; };
       modules = [
-        ../hosts/darwin/${hostname}/default.nix
-        ../users/${username}/home.nix
-        ../shared/overlays/default.nix
-        inputs.home-manager.darwinModules.home-manager
+        sops-nix.nixosModules.sops
       ]
-      ++ extraModules;
+      ++ modules;
     };
 
-  mkSdImage = nixosConfig: nixosConfig.config.system.build.sdImage;
+  mkSDImage =
+    system: hostname: hostModule:
+    nixpkgs.lib.nixpkgsSystem {
+      inherit system;
+      modules = [
+        "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+        {
+          networking.hostName = hostname;
+
+          boot.supportedFilesystems = nixpkgs.lib.mkForce [
+            "btrfs"
+            "reiserfs"
+            "vfat"
+            "f2fs"
+            "xfs"
+            "ntfs"
+            "cifs"
+          ];
+          sdImage = {
+            compressImage = true;
+            imageName = "${hostname}-sd-image.img";
+          };
+        }
+      ];
+
+    };
 }

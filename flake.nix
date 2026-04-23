@@ -32,6 +32,16 @@
     };
 
     nixos-hardware.url = "github:NixOS/nixos-hardware";
+
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    secrets = {
+      url = "git+ssh://git.github.com/TheMakunga/.secrets";
+      flake = false;
+    };
   };
 
   outputs =
@@ -44,70 +54,51 @@
       mac-app-util,
       home-manager,
       nixos-hardware,
+      sops-nix,
+      secrets,
       ...
     }@inputs:
 
     let
+      system_x86_64 = "x86_64-linux";
+      system_aarch64_linux = "aarch64-linux";
+      system_aarch64_darwin = "aarch64-darwin";
 
-      lib = import ./lib { inherit inputs; };
+      customLib = import ./lib { inherit inputs; };
 
-      supportedSystems = [
-        "aarch64-darwin"
-        "aarch64-linux"
-        "x86_64-linux"
-      ];
-      forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
+      inherit (customLib) mkNixOS mkDarwin mkSDImage;
     in
     {
-      ## development environments
-      devShell = forAllSystems (
-        system:
-        let
-          pkgs = nixpkgs.legacyPackages.${system};
-        in
-        {
-          default = ./modules/shell.nix { inherit pkgs; };
-        }
-      );
-      # nixOS/Linux base configurations
       nixosConfigurations = {
-        rpi5 = lib.mkNixosSystem {
-          system = "aarch64-linux";
-          hostname = "rpi-lab";
-          username = "personal";
-          extraModules = [
-            nixos-hardware.nixosModules.raspberry-pi-5
-            "${nixpkgs}/nixos/modules/install/sd-card/sd-image-aarch64.nix"
-          ];
-        };
-        rpi02 = lib.mkNixosSystem {
-          system = "aarch64-linux";
-          hostname = "pihole";
-          username = "generic-admin";
-          extraModules = [
-            nixos-hardware.nixosModules.rasperry-pi-zero-2
-            "${nixpkgs}/nixos/modules/install/sd-card/sd-image-aarch64.nix"
-          ];
+        agent = mkNixOS system_aarch64_linux [ ./hosts/linux/agent.nix ];
+        pihole = mkNixOS system_aarch64_linux [ ./hosts/linux/pihole.nix ];
+        lab-42devs = mkNixOS system_x86_64 [ ./hosts/linux/lab-42devs.nix ];
+        mediacenter = mkNixOS system_x86_64 [ ./hosts/linux/mediacenter.nix ];
+        steamdeck = mkNixOS system_x86_64 [ ./hosts/linux/steamdeck.nix ];
+      };
+
+      packages = {
+        agent-image = mkSDImage system_aarch64_linux "agent" ./hosts/linux/agent.nix;
+        pihole-image = mkSDImage system_aarch64_linux "pihole" ./hosts/linux/pihole.abort.nix;
+      };
+
+      darwinConfigurations = {
+        kanagawa = mkDarwin system_aarch64_darwin [ ./hosts/darwin/kanagawa.nix ];
+        outer-heaven = mkDarwin system_aarch64_darwin [
+          ./hosts/darwin/thoughtworks.nix
+        ];
+      };
+
+      devShell = {
+
+        ${system_aarch64_darwin}.default = import ./devShell {
+          pkgs = nixpkgs.legacyPackages.${system_aarch64_darwin};
         };
 
-      };
-      ## darwin (osx) configurations
-      darwinConfigurations = {
-        personal = lib.mkDarwinSystem {
-          system = "aarch64-darwin";
-          hostname = "kanagawa";
-          username = "personal";
-        };
-        thoughtworoks = lib.mkDarwinSystem {
-          system = "aarch64-darwin";
-          hostname = "outer-heaven";
-          username = "thoughtworks";
+        ${system_aarch64_linux}.default = import ./devShell {
+          pkgs = nixpkgs.legacyPackages.${system_aarch64_linux};
         };
       };
-      ## SD image builders
-      packages.aarch64-linux = {
-        image-rpi5 = lib.mkSdImage self.nixosConfigurations.rpi5;
-        image-rpi02 = lib.mkSdImage self.nixosConfigurations.rpi02;
-      };
+
     };
 }

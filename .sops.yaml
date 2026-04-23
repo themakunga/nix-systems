@@ -1,0 +1,59 @@
+keys:
+  - &main_key
+  - &host_kanagawa
+  - &host_outer-heaven
+
+  - &host_agent
+  - &host_pihole
+  - &host_lab-42devs
+  - &host_steamdeck
+  - &host_mediacenter
+
+creation_rules:
+  - path_regex: secrets/agent\.yaml$
+    key_groups:
+      age:
+        - *main_key
+        - *host_kanagawa
+        - *host_outer-heaven
+        - *host_agent
+  - parh_regex: secrets/pihole\.yaml$
+    key_groups:
+      age:
+        - *main_key
+        - *host_kanagawa
+        - *host_outer-heaven
+        - *host_pihole
+  - path_regex: secrets/outer-heaven\.yaml$
+    key_groups:
+      age:
+        - *main_key
+        - *host_kanagawa
+        - *host_outer-heaven
+  - path_regex: secrets/kanagawa\.yaml$
+    key_groups:
+      age:
+        - *main_key
+        - *host_kanagawa
+        - *host_outer-heaven
+  - path_regex: secrets/mediacenter\.yaml$
+    key_groups:
+      age:
+        - *main_key
+        - *host_kanagawa
+        - *host_outer-heaven
+        - *host_mediacenter
+  - path_regex: secrets/lab-42devs\.yaml$
+    key_groups:
+      age:
+        - *main_key
+        - *host_kanagawa
+        - *host_outer-heaven
+        - *host_lab-42devs
+  - path_regex: secrets/steamdeck\.yaml$
+    key_groups:
+      age:
+        - *main_key
+        - *host_kanagawa
+        - *host_outer-heaven
+        - *host_steamdeck
