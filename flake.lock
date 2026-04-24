@@ -38,6 +38,23 @@
         "type": "github"
       }
     },
+    "dotfiles": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1777003287,
+        "narHash": "sha256-IJ2QgLBSjewaxECqs1a+WiOQdUt4b1jvwEStrA32/dE=",
+        "ref": "main",
+        "rev": "e4a51ce458abc25e693d8c52cddc1df0df8be10e",
+        "revCount": 1,
+        "type": "git",
+        "url": "ssh://git@github.com/TheMakunga/public-dotfiles"
+      },
+      "original": {
+        "ref": "main",
+        "type": "git",
+        "url": "ssh://git@github.com/TheMakunga/public-dotfiles"
+      }
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -303,13 +320,53 @@
     },
     "root": {
       "inputs": {
+        "dotfiles": "dotfiles",
         "home-manager": "home-manager",
         "mac-app-util": "mac-app-util",
         "nix-darwin": "nix-darwin",
         "nix-homebrew": "nix-homebrew",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_5",
-        "nixpkgs-unstable": "nixpkgs-unstable"
+        "nixpkgs-unstable": "nixpkgs-unstable",
+        "secrets": "secrets",
+        "sops-nix": "sops-nix"
+      }
+    },
+    "secrets": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1777000901,
+        "narHash": "sha256-ZRC3EJdPFcJGejqFhFqCAUEFoHyQ158Ha8qtKwHYzgA=",
+        "ref": "main",
+        "rev": "d5e1d9cdfc17eb142f4f4b8671dd7869df23667f",
+        "revCount": 1,
+        "type": "git",
+        "url": "ssh://git@github.com/TheMakunga/.secrets"
+      },
+      "original": {
+        "ref": "main",
+        "type": "git",
+        "url": "ssh://git@github.com/TheMakunga/.secrets"
+      }
+    },
+    "sops-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1776771786,
+        "narHash": "sha256-DRFGPfFV6hbrfO9a1PH1FkCi7qR5FgjSqsQGGvk1rdI=",
+        "owner": "Mic92",
+        "repo": "sops-nix",
+        "rev": "bef289e2248991f7afeb95965c82fbcd8ff72598",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mic92",
+        "repo": "sops-nix",
+        "type": "github"
       }
     },
     "systems": {

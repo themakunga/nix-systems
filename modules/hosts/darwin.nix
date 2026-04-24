@@ -2,10 +2,13 @@
   config,
   lib,
   pkgs,
-  ...
 }:
 with lib;
 {
+  imports = [
+    ./common.nix
+  ];
+
   system = {
     stateVersion = 6;
     defaults = {

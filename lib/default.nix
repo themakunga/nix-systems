@@ -31,7 +31,7 @@ in
 
   mkNixOS =
     system: modules:
-    nixpkgs.lib.nixpkgsSystem {
+    nixpkgs.lib.nixosSystem {
       inherit system;
       specialArgs = { inherit secrets; };
       modules = [
@@ -42,7 +42,7 @@ in
 
   mkSDImage =
     system: hostname: hostModule:
-    nixpkgs.lib.nixpkgsSystem {
+    nixpkgs.lib.nixosSystem {
       inherit system;
       modules = [
         "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"

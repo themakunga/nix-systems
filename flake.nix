@@ -39,7 +39,12 @@
     };
 
     secrets = {
-      url = "git+ssh://git.github.com/TheMakunga/.secrets";
+      url = "git+ssh://git@github.com/TheMakunga/.secrets?ref=main";
+      flake = false;
+    };
+
+    dotfiles = {
+      url = "git+ssh://git@github.com/TheMakunga/public-dotfiles?ref=main";
       flake = false;
     };
   };
@@ -56,6 +61,7 @@
       nixos-hardware,
       sops-nix,
       secrets,
+      dotfiles,
       ...
     }@inputs:
 
@@ -70,32 +76,46 @@
     in
     {
       nixosConfigurations = {
-        agent = mkNixOS system_aarch64_linux [ ./hosts/linux/agent.nix ];
-        pihole = mkNixOS system_aarch64_linux [ ./hosts/linux/pihole.nix ];
-        lab-42devs = mkNixOS system_x86_64 [ ./hosts/linux/lab-42devs.nix ];
-        mediacenter = mkNixOS system_x86_64 [ ./hosts/linux/mediacenter.nix ];
-        steamdeck = mkNixOS system_x86_64 [ ./hosts/linux/steamdeck.nix ];
+        agent = mkNixOS system_aarch64_linux [
+          ./hosts/linux/agent
+        ];
+        pihole = mkNixOS system_aarch64_linux [
+          ./hosts/linux/pihole
+        ];
+        lab-42devs = mkNixOS system_x86_64 [
+          ./hosts/linux/lab-42devs
+        ];
+        mediacenter = mkNixOS system_x86_64 [
+          ./hosts/linux/mediacenter
+        ];
+        steamdeck = mkNixOS system_x86_64 [
+          ./hosts/linux/steamdeck
+        ];
       };
 
       packages = {
-        agent-image = mkSDImage system_aarch64_linux "agent" ./hosts/linux/agent.nix;
-        pihole-image = mkSDImage system_aarch64_linux "pihole" ./hosts/linux/pihole.abort.nix;
+        agent-image = mkSDImage system_aarch64_linux "agent"
+          ./hosts/linux/agent/default.nix;
+        pihole-image = mkSDImage system_aarch64_linux "pihole"
+          ./hosts/linux/pihole/default.nix;
       };
 
       darwinConfigurations = {
-        kanagawa = mkDarwin system_aarch64_darwin [ ./hosts/darwin/kanagawa.nix ];
+        kanagawa = mkDarwin system_aarch64_darwin [
+          ./hosts/darwin/kanagawa
+        ];
         outer-heaven = mkDarwin system_aarch64_darwin [
-          ./hosts/darwin/thoughtworks.nix
+          ./hosts/darwin/thoughtworks
         ];
       };
 
       devShell = {
 
-        ${system_aarch64_darwin}.default = import ./devShell {
+        ${system_aarch64_darwin}.default = import ./shells/dev {
           pkgs = nixpkgs.legacyPackages.${system_aarch64_darwin};
         };
 
-        ${system_aarch64_linux}.default = import ./devShell {
+        ${system_aarch64_linux}.default = import ./shells/term {
           pkgs = nixpkgs.legacyPackages.${system_aarch64_linux};
         };
       };
