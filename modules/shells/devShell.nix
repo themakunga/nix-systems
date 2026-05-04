@@ -9,6 +9,10 @@
 
         packages = with pkgs; [
           git
+          fd
+          fzf
+          bat
+          lazygit
           pre-commit
           nixpkgs-fmt
           nodePackages.prettier

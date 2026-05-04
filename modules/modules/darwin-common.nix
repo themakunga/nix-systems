@@ -2,7 +2,25 @@
 {
   flake = {
     darwinModules = {
-      homebrew =
+      nix-homebrew-config =
+        {
+          nix-homebrew,
+          brew-core,
+          brew-cask,
+          ...
+        }:
+        {
+          nix-homebrew = {
+            enable = true;
+            autoMigrate = true;
+            mutableTaps = false;
+            taps = {
+              "homebrew/homebrew-core" = brew-core;
+              "homebrew/homebrew-cask" = brew-cask;
+            };
+          };
+        };
+      homebrew-config =
         { pkgs, config, ... }:
         {
           homebrew = {
@@ -26,7 +44,29 @@
 
           };
         };
-      configuration =
+      gui-common-browsers = {
+        homebrew.casks = [
+          "google-chome"
+          "firefox"
+          "firefox-dev"
+        ];
+      };
+      gui-common-documents = {
+        homebrew.casks = [
+          "typora"
+        ];
+        homebrew.brews = [
+          "pandoc"
+        ];
+      };
+      gui-common-socials = {
+        homebrew.casks = [
+          "slack"
+          "discord"
+          "mattermost"
+        ];
+      };
+      common-config =
         {
           config,
           lib,
@@ -57,6 +97,7 @@
                   "/System/Applications/Calendar.app"
                   "/Applications/Safari.app"
                   "/System/Applications/Notes.app"
+                  "/System/Applications/Phone.app"
                   {
                     spacer.small = true;
                   }

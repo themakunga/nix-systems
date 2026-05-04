@@ -2,6 +2,12 @@
 {
   flake = {
     commonModules = {
+      home-manager-conf =
+        { pkgs, ... }:
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+        };
       nix-settings =
         { pkgs, ... }:
         {
