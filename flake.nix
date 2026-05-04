@@ -42,6 +42,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nvf.url = "github:notashelf/nvf";
+
     secrets = {
       url = "git+ssh://git@github.com/TheMakunga/.secrets?ref=main";
       flake = false;

@@ -1,7 +1,7 @@
 { inputs, ... }:
 {
   flake = {
-    darwinGuiModules = {
+    darwinModules = {
       browsers = {
         homebrew.casks = [
           "google-chrome"

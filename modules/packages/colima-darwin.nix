@@ -8,20 +8,16 @@
         lib,
         ...
       }:
-      with lib;
-      let
-        isDarwin = pkgs.stdenv.isDarwin;
-      in
       {
         modules = [
-          seld.nixosModules.docker
+          self.nixosModules.docker
         ];
         environment.systemPackaces = with pkgs; [
           docker-client
           colima
         ];
 
-        lanuchd.daemon.docker-socket = mkIf isDarwin {
+        lanuchd.daemon.docker-socket = {
           serviceConfig = {
             ProgramArguments = [
               "/bin/sh"
