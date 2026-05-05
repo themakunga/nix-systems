@@ -1,4 +1,4 @@
-{ inputs, ... }:
+{ inputs, self, ... }:
 let
   inherit (inputs)
     self
@@ -11,7 +11,7 @@ let
     ;
 in
 {
-  flake.darwinModules = {
+  flake.darwinConfigurations = {
     "kanagawa" = nix-darwin.lib.darwinSystem {
       specialArgs = { inherit secrets dotfiles; };
       system = "aarch64-darwin";
@@ -22,7 +22,7 @@ in
           nix-homebrew.user = "nicolas";
         }
         home-manager.darwinModules.home-manager
-        self.userModules.personal
+        self.usersModules.personal
       ];
     };
   };

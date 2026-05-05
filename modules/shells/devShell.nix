@@ -7,7 +7,7 @@
       devShells.default = pkgs.mkShell {
         name = "Infra-development-environment";
 
-        packages = with pkgs; [
+        nativeBuildInputs = with pkgs; [
           git
           fd
           fzf
@@ -20,6 +20,8 @@
           python3
           commitlint
 
+          nixd
+          alejandra
           unstable.neovim
         ];
 

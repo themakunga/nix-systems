@@ -26,6 +26,16 @@
       url = "github:zhaofengli-wip/nix-homebrew";
     };
 
+    homebrew-core = {
+      url = "github:homebrew/homebrew-core";
+      flake = false;
+    };
+
+    homebrew-cask = {
+      url = "github:homebrew/homebrew-cask";
+      flake = false;
+    };
+
     mac-app-util = {
       url = "github:hraban/mac-app-util";
     };

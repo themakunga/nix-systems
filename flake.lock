@@ -185,6 +185,38 @@
         "type": "github"
       }
     },
+    "homebrew-cask": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1777922428,
+        "narHash": "sha256-4nAq/hUbA4FsUd0kmLqtxY0j0whjLO8LaTCWf70ZY5w=",
+        "owner": "homebrew",
+        "repo": "homebrew-cask",
+        "rev": "e01e2a8c06835b9acf2b8bbc6f01799d98ae31f3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "homebrew",
+        "repo": "homebrew-cask",
+        "type": "github"
+      }
+    },
+    "homebrew-core": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1777916008,
+        "narHash": "sha256-7ij5pGhtDlNZLRx4xXSLQFIjaJw4Gqpe0q6DxR97nMg=",
+        "owner": "homebrew",
+        "repo": "homebrew-core",
+        "rev": "a906121c23203d98781b4b965cdbecf1bb6092a0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "homebrew",
+        "repo": "homebrew-core",
+        "type": "github"
+      }
+    },
     "import-tree": {
       "locked": {
         "lastModified": 1773693634,
@@ -484,6 +516,8 @@
         "dotfiles": "dotfiles",
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
+        "homebrew-cask": "homebrew-cask",
+        "homebrew-core": "homebrew-core",
         "import-tree": "import-tree",
         "mac-app-util": "mac-app-util",
         "nix-darwin": "nix-darwin",
