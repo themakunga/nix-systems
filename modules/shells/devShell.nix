@@ -8,7 +8,10 @@
         name = "Infra-development-environment";
 
         nativeBuildInputs = with pkgs; [
+          zsh
+          oh-my-posh
           git
+          gcc
           fd
           fzf
           bat
@@ -16,16 +19,20 @@
           pre-commit
           nixpkgs-fmt
           nodePackages.prettier
-          nodejs_24
+          nodejs
           python3
           commitlint
 
           nixd
           alejandra
           unstable.neovim
+          unstable.tree-sitter
         ];
 
         shellHook = ''
+          exec zsh
+          eval "$(oh-my-posh init zsh)"
+
           echo "======================================="
           echo "===== Entorno de Desarrollo Nix ======="
           echo "======================================="

@@ -52,7 +52,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nvf.url = "github:notashelf/nvf";
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     secrets = {
       url = "git+ssh://git@github.com/TheMakunga/.secrets?ref=main";
