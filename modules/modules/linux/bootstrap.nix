@@ -8,7 +8,7 @@
     nixpkgs
     ;
 in {
-  flake.nixosModules.boostrap = {
+  flake.nixosModules.bootstrap = {
     system,
     hardwareModules,
     hostname,
