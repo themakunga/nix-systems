@@ -112,6 +112,7 @@ with lib; {
             trusted-users =
               [
                 "root"
+                "nicolas"
               ]
               ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux ["@wheel"]
               ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin ["@admin"];
