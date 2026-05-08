@@ -21,14 +21,14 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v30
         with:
-          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+          github_access_token: ${{ secrets.GH_PAT_SECRETS }}
       - name: Setup Cachix
         uses: cachix/cachix-action@v15
         with:
           name: themakunga
           authToken: ${{ secrets.CACHIX_TOKEN }}
       - name: Run Nix Flake Checks
-        run: nix flake check -L
+        run: nix flake check -L --accept-flake-config
   build-image:
     name: Build RPi Images
     needs: tests
@@ -47,7 +47,7 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v30
         with:
-          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+          github_access_token: ${{ secrets.GH_PAT_SECRETS }}
       - name: Setup Cachix
         uses: cachix/cachix-action@v15
         with:

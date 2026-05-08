@@ -58,12 +58,12 @@
     };
 
     secrets = {
-      url = "git+ssh://git@github.com/TheMakunga/.secrets";
+      url = "github:TheMakunga/.secrets";
       flake = false;
     };
 
     dotfiles = {
-      url = "git+ssh://git@github.com/TheMakunga/public-dotfiles";
+      url = "github:TheMakunga/public-dotfiles";
       flake = false;
     };
   };
