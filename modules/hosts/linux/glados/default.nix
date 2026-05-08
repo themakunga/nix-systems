@@ -8,6 +8,7 @@
     nixpkgs
     disko
     sops-nix
+    nixos-hardware
     ;
   inherit
     (self)
