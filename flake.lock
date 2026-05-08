@@ -63,14 +63,13 @@
       "locked": {
         "lastModified": 1777003287,
         "narHash": "sha256-IJ2QgLBSjewaxECqs1a+WiOQdUt4b1jvwEStrA32/dE=",
-        "ref": "main",
+        "ref": "refs/heads/main",
         "rev": "e4a51ce458abc25e693d8c52cddc1df0df8be10e",
         "revCount": 1,
         "type": "git",
         "url": "ssh://git@github.com/TheMakunga/public-dotfiles"
       },
       "original": {
-        "ref": "main",
         "type": "git",
         "url": "ssh://git@github.com/TheMakunga/public-dotfiles"
       }
@@ -171,11 +170,11 @@
     "homebrew-cask": {
       "flake": false,
       "locked": {
-        "lastModified": 1778253209,
-        "narHash": "sha256-ouudw0FLS9CCS32pu6nksntgPGEp+buvBLwoxLOPs5E=",
+        "lastModified": 1778259240,
+        "narHash": "sha256-rBzxFpjkE8qqmlYymbKOwkbv+AxRRKdAFQRuDJp9RFw=",
         "owner": "homebrew",
         "repo": "homebrew-cask",
-        "rev": "8b52a10df8ade147b6cf6632ce9af87d17cc106e",
+        "rev": "2a6d45ee3fbc2694a12efbb19860b9b1803f31d1",
         "type": "github"
       },
       "original": {
@@ -187,11 +186,11 @@
     "homebrew-core": {
       "flake": false,
       "locked": {
-        "lastModified": 1778256180,
-        "narHash": "sha256-zYxKgyL51GVviuQraS1Ez1NNNZGMNDGJUde70ZRO8yI=",
+        "lastModified": 1778259077,
+        "narHash": "sha256-G4PTVqzmwtF9K0mtnM7w2QEB2ta2v0UeKqf9uHeF71M=",
         "owner": "homebrew",
         "repo": "homebrew-core",
-        "rev": "33dac0f7e58a028f7185bf7ddbf888acd6a02ba6",
+        "rev": "458fc34e680f3049f36f11478c27ac73b8b146bf",
         "type": "github"
       },
       "original": {
@@ -442,14 +441,13 @@
       "locked": {
         "lastModified": 1778173054,
         "narHash": "sha256-QiE0vVLrHeH+ZdvEZv57beB/KKDkOIfbEiwhvWent9U=",
-        "ref": "main",
+        "ref": "refs/heads/main",
         "rev": "0a7c57e4f1c92159fde660e06a3d395f6b71a98c",
         "revCount": 3,
         "type": "git",
         "url": "ssh://git@github.com/TheMakunga/.secrets"
       },
       "original": {
-        "ref": "main",
         "type": "git",
         "url": "ssh://git@github.com/TheMakunga/.secrets"
       }
