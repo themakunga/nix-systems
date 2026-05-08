@@ -36,7 +36,7 @@ in {
 
           services.openssh.enable = true;
 
-          zrawSwap.enable = true;
+          zramSwap.enable = true;
         }
       ];
     };
