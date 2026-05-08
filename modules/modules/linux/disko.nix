@@ -1,7 +1,7 @@
 {
   flake.diskModules = {
     glaDOS = {
-      disko.device = {
+      disko.devices = {
         disk = {
           main = {
             type = "disk";
