@@ -1,46 +1,50 @@
-{ inputs, ... }:
-let
-  inherit (inputs)
-    nixpkgs
-    sops-nix
-    secrets
-    dotfiles
-    ;
-in
 {
+  self,
+  inputs,
+  ...
+}: let
+  inherit
+    (inputs)
+    nixpkgs
+    disko
+    sops-nix
+    ;
+  inherit
+    (self)
+    nixosModules
+    commonModules
+    diskModules
+    ;
+in {
   flake = {
     nixosConfigurations.glaDOS = nixpkgs.lib.nixosSystem {
       system = "aarch64-linux";
-      specialArgs = { inherit secrets dotfiles; };
+      specialArgs = {};
       modules = [
+        commonModules.nix-settings
+        commonModules.state-version
+
+        disko.nixosModules.disko
+        diskModules.glaDOS
+        commonModules.secrets-management
+
         sops-nix.nixosModules.sops
+        nixosModules.boot-loader
         {
-          boot.loader.grub.enable = false;
+          networking.hostName = "glaDOS";
+
+          services.openssh.enable = true;
+
+          zrawSwap.enable = true;
         }
       ];
     };
-    nixosModules.glaDOS = nixpkgs.lib.nixosSystem {
-      modules = [
-        "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
-        {
-          network.hostName = "glados.local";
-          boot.supportedFileSystem = nixpkgs.lib.mkForce [
-            "btrfs"
-            "reiserfs"
-            "vfat"
-            "f2fs"
-            "xfs"
-            "ntfs"
-            "cifs"
-          ];
-          sdImage = {
-            compressImage = true;
-            imageName = "glaDOS-sd-image-aarch64.img";
-          };
-        }
-      ];
-
+    nixosModules.glaDOS = nixosModules.bootstrap {
+      system = "aarch64-linux";
+      hardware = nixos-hardware.nixosModules.raspberry-pi-5;
+      hostname = "glaDOS";
+      authorizedKeys = [];
+      extraModules = [];
     };
-
   };
 }

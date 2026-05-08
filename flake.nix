@@ -2,7 +2,7 @@
   description = "Flake build rpi installers and multi host systems";
 
   nixConfig = {
-    extra-substitutions = [ "https://themakunga.cachix.org" ];
+    extra-substitutions = ["https://themakunga.cachix.org"];
     extra-trusted-public-keys = [
       "themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0="
     ];
@@ -68,9 +68,8 @@
     };
   };
 
-  outputs =
-    inputs:
-    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+  outputs = inputs:
+    inputs.flake-parts.lib.mkFlake {inherit inputs;} {
       systems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -81,5 +80,4 @@
         (inputs.import-tree ./modules)
       ];
     };
-
 }

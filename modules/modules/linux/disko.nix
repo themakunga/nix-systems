@@ -1,37 +1,30 @@
-{ inputs, ... }:
-{
+{...}: {
   flake.diskModules = {
-    glaDOS =
-      {
-        disko,
-        ...
-      }:
-      {
-        disco.device = {
-          disk = {
-            main = {
-              type = "disk";
-              device = "/dev/mmcdlk0";
-              content = {
-                type = "gpt";
-                partitions = {
-                  boot = {
-                    size = "512M";
-                    type = "EF00";
-                    content = {
-                      type = "filesystem";
-                      format = "vfat";
-                      mountpoint = "/boot";
-                      mountOptions = [ "umask=0077" ];
-                    };
+    glaDOS = {...}: {
+      disco.device = {
+        disk = {
+          main = {
+            type = "disk";
+            device = "/dev/mmcdlk0";
+            content = {
+              type = "gpt";
+              partitions = {
+                boot = {
+                  size = "512M";
+                  type = "EF00";
+                  content = {
+                    type = "filesystem";
+                    format = "vfat";
+                    mountpoint = "/boot";
+                    mountOptions = ["umask=0077"];
                   };
-                  root = {
-                    size = "100%";
-                    content = {
-                      type = "filesystem";
-                      format = "ext4";
-                      mountpoint = "/";
-                    };
+                };
+                root = {
+                  size = "100%";
+                  content = {
+                    type = "filesystem";
+                    format = "ext4";
+                    mountpoint = "/";
                   };
                 };
               };
@@ -39,37 +32,32 @@
           };
         };
       };
-    conholio =
-      {
-        disko,
-        ...
-      }:
-      {
-        disko.device = {
-          disk = {
-            main = {
-              type = "disk";
-              device = "/dev/nvme0n1";
-              content = {
-                type = "gpt";
-                partitions = {
-                  boot = {
-                    size = "512M";
-                    type = "EF00";
-                    content = {
-                      type = "filesystem";
-                      format = "vfar";
-                      mountpoint = "/boot";
-                      mountOptions = [ "umask=0077" ];
-                    };
+    };
+    cornholio = {...}: {
+      disko.devices = {
+        disk = {
+          main = {
+            type = "disk";
+            device = "/dev/nvme0n1";
+            content = {
+              type = "gpt";
+              partitions = {
+                boot = {
+                  size = "512M";
+                  type = "EF00";
+                  content = {
+                    type = "filesystem";
+                    format = "vfar";
+                    mountpoint = "/boot";
+                    mountOptions = ["umask=0077"];
                   };
-                  root = {
-                    sizxe = "100%";
-                    content = {
-                      type = "filesystem";
-                      format = "ext4";
-                      mountpoint = "/";
-                    };
+                };
+                root = {
+                  size = "100%";
+                  content = {
+                    type = "filesystem";
+                    format = "ext4";
+                    mountpoint = "/";
                   };
                 };
               };
@@ -77,5 +65,6 @@
           };
         };
       };
+    };
   };
 }

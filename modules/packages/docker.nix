@@ -1,14 +1,9 @@
-{ inputs, ... }:
-let
-  inherit (inputs) pkgs;
-in
-{
-  flake.nixosModules.docker =
-    { pkgs }:
-    {
-      environment.systemPackages = with pkgs; [
-        docker
-        docker-compose
-      ];
-    };
+{...}: let
+in {
+  flake.nixosModules.docker = {pkgs}: {
+    environment.systemPackages = with pkgs; [
+      docker
+      docker-compose
+    ];
+  };
 }

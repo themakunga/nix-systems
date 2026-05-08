@@ -14,7 +14,7 @@
     commonModules
     ;
 in {
-  flake.nixosConfigurations.steamdeck = nixpkgs.lib.nixosSystem {
+  flake.nixosConfigurations.mediacenter = nixpkgs.lib.nixosSystem {
     system = "x86_64-linux";
     specialArgs = {};
     modules = [
@@ -26,16 +26,12 @@ in {
 
       nixosModules.boot-loader
       {
-        networking.hostName = "steamdeck";
+        networking.hostName = "mediacenter";
 
         services.openssh.enable = true;
 
         fileSystems = {
           "/" = {
-            device = "/dev/disk/by-id/[Partition ID]";
-            fsType = "ext4";
-          };
-          "/opt" = {
             device = "/dev/disk/by-id/[Partition ID]";
             fsType = "ext4";
           };

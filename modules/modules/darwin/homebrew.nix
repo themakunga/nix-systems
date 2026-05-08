@@ -1,10 +1,14 @@
-{self, inputs,lib, config, ...}: {
+{
+  lib,
+  config,
+  ...
+}: {
   flake.darwinModules.homebrew-config = {
-    nix-homebrew,
     homebrew-core,
     homebrew-cask,
     ...
-    }: lib.mkForce {
+  }:
+    lib.mkForce {
       nix-homebrew = {
         enable = true;
         autoMigrate = true;

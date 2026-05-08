@@ -1,14 +1,10 @@
-{ inputs, ... }:
-let
-  inherit (inputs)
+{inputs, ...}: let
+  inherit
+    (inputs)
     nixpkgs
     ;
-in
-{
-  flake.nixosModules.sd-builder =
-    {
-      config,
-    }:
+in {
+  flake.nixosModules.sd-builder = {config}:
     nixpkgs.lib.nixosSystem {
       modules = [
         "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
@@ -29,6 +25,5 @@ in
           };
         }
       ];
-
     };
 }

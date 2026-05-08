@@ -9,27 +9,32 @@ repos:
       - id: check-merge-conflict
   - repo: local
     hooks:
-      - id: nixfmt
-        name: Format Nix files
-        entry: nixfmt
-        language: system
-        files: \.nix$
       - id: statix
         name: Linter Nix (static)
-        entry: statix
+        # 'nix run' descarga el paquete desde el repositorio de Nixpkgs
+        # y lo ejecuta sin instalarlo globalmente.
+        entry: nix run nixpkgs#statix -- check
         language: system
         files: \.nix$
+        pass_filenames: false
+      - id: alejandra
+        name: Formatter nix
+        entry: nix run nixpkgs#alejandra --
+        language: system
+        files: \.nix$
+  - repo: https://github.com/astro/deadnix
+    rev: v1.3.1
+    hooks:
       - id: deadnix
         name: Nix dead code
-        entry: deadnix --fail
-        language: system
-        files: \.nix$
+        args:
+          - --fail
   - repo: https://github.com/google/yamlfmt
     rev: v0.21.0
     hooks:
       - id: yamlfmt
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-    rev: v9.22.0
+    rev: v9.25.0
     hooks:
       - id: commitlint
         stage: [commit-mgs]

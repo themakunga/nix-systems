@@ -2,13 +2,11 @@ keys:
   - &main_key
   - &host_kanagawa
   - &host_outer-heaven
-
   - &host_agent
   - &host_pihole
   - &host_lab-42devs
   - &host_steamdeck
   - &host_mediacenter
-
 creation_rules:
   - path_regex: secrets/agent\.yaml$
     key_groups:

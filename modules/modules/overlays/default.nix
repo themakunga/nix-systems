@@ -1,24 +1,20 @@
-{ inputs, ... }:
-{
+{inputs, ...}: {
   flake = {
     overlays = {
-      unstable = final: prev: {
+      unstable = {system, ...} {
         unstable = import inputs.nixpkgs-unstable {
-          system = prev.system;
+          inherit system;
           config.allowUnfree = true;
         };
       };
     };
   };
 
-  perSystem =
-    { system, ... }:
-    {
-      _module.args.pkgs = import inputs.nixpkgs {
-        inherit system;
-        config.allowUnfree = true;
-        overlays = [ inputs.self.overlays.unstable ];
-      };
-
+  perSystem = {system, ...}: {
+    _module.args.pkgs = import inputs.nixpkgs {
+      inherit system;
+      config.allowUnfree = true;
+      overlays = [inputs.self.overlays.unstable];
     };
+  };
 }
