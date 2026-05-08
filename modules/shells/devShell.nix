@@ -1,4 +1,4 @@
-{...}: {
+{
   perSystem = {pkgs, ...}: {
     devShells.default = pkgs.mkShell {
       name = "Infra-development-environment";

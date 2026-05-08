@@ -1,4 +1,4 @@
-{...}: {
+{
   flake = {
     sharedPackages = {pkgs, ...}: {
       environment.systemPackages = with pkgs; [

@@ -1,7 +1,7 @@
-{...}: {
+{
   flake = {
     linuxModules = {
-      common = {...}: {};
+      common = {};
     };
   };
 }

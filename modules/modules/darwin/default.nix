@@ -1,7 +1,7 @@
-{...}: {
+{
   flake = {
     darwinModules = {
-      common = {...}: {
+      common = {
         lib.generators.toPlist.escape = true;
         security = {
           pam = {

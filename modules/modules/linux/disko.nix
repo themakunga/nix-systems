@@ -1,6 +1,6 @@
-{...}: {
+{
   flake.diskModules = {
-    glaDOS = {...}: {
+    glaDOS = {
       disco.device = {
         disk = {
           main = {
@@ -33,7 +33,7 @@
         };
       };
     };
-    cornholio = {...}: {
+    cornholio = {
       disko.devices = {
         disk = {
           main = {

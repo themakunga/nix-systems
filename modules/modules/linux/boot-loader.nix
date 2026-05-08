@@ -1,5 +1,5 @@
-{...}: {
-  flake.nixosModules.boot-loader = {...}: {
+{
+  flake.nixosModules.boot-loader = {
     boot.loader = {
       grub.enable = false;
       systemd-boot.enable = true;

@@ -80,7 +80,7 @@ with lib; {
             };
           };
         };
-        home-manager-conf = {...}: {
+        home-manager-conf = {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
         };

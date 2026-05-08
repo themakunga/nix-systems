@@ -1,4 +1,4 @@
-{...}: {
+{
   flake = {
     nixosModules.colima = {
       config,

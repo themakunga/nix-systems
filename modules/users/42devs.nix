@@ -1,5 +1,5 @@
-{...}: {
-  flake.usersModules.nicolas-42devs = {...}: {
+{
+  flake.usersModules.nicolas-42devs = {
     home-manager.users.nicolas-42devs = {
       pkgs,
       lib,
