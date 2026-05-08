@@ -1,4 +1,4 @@
-{
+{inputs, ...}: {
   flake.overlays = {
     unstable = _final: prev: {
       unstable = import inputs.nixpkgs-unstable {
