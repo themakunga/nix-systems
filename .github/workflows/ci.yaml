@@ -59,7 +59,7 @@ jobs:
           platform: arm64
       - name: Build SD Image
         run: |
-          nix build .#builderModules.${{ matrix.host }}.config.system.build.sdImage -L
+          nix build .#builderModules.${{ matrix.host }}.config.system.build.sdImage -L --accept-flake-config
           mkdir -p output
           cp -L result/sd-image/*.img.zst output/${{ matrix.host }}.img.zst
       - name: Upload artifact
