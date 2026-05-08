@@ -1,19 +1,14 @@
 {
-  inputs,
-  system,
-}: {
-  flake = {
-    overlays = {
-      unstable = {
-        unstable = import inputs.nixpkgs-unstable {
-          inherit system;
-          config.allowUnfree = true;
-        };
+  flake.overlays = {
+    unstable = _final: prev: {
+      unstable = import inputs.nixpkgs-unstable {
+        inherit (prev) system;
+        config.allowUnfree = true;
       };
     };
   };
 
-  perSystem = {
+  perSystem = {system, ...}: {
     _module.args.pkgs = import inputs.nixpkgs {
       inherit system;
       config.allowUnfree = true;

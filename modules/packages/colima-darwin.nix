@@ -3,9 +3,10 @@
     nixosModules.colima = {
       config,
       pkgs,
+      nixosModules,
     }: {
       modules = [
-        self.nixosModules.docker
+        nixosModules.docker
       ];
       environment.systemPackaces = with pkgs; [
         docker-client
