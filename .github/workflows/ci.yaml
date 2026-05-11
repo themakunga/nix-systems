@@ -22,7 +22,7 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
-          github_access_token: ${{ secretis.GH_TOKEN_SECRETS }}
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
       - name: Setup Cachix
         uses: cachix/cachix-action@v15
         with:
