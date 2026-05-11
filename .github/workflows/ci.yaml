@@ -21,6 +21,9 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v30
         with:
+          extra-nix-config: |
+            experimental-features = nix-command flakes
+            extra-platforms = aarch64-linux
           github_access_token: ${{ secrets.GH_PAT_SECRETS }}
       - name: Setup Cachix
         uses: cachix/cachix-action@v15
