@@ -27,7 +27,7 @@ with lib; {
         type = types.attrsOf types.raw;
         default = {};
       };
-      buildModules = mkOption {
+      builderModules = mkOption {
         type = types.attrsOf types.raw;
         default = {};
       };

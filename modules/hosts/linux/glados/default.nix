@@ -13,39 +13,42 @@
   inherit
     (self)
     nixosModules
+    builderModules
     commonModules
     diskModules
     ;
 in {
   flake = {
-    nixosConfigurations.glaDOS = nixpkgs.lib.nixosSystem {
-      system = "aarch64-linux";
-      specialArgs = {};
-      modules = [
-        commonModules.nix-settings
-        commonModules.state-version
+    nixosConfigurations = {
+      glados = nixpkgs.lib.nixosSystem {
+        system = "aarch64-linux";
+        specialArgs = {};
+        modules = [
+          commonModules.nix-settings
+          commonModules.state-version
 
-        disko.nixosModules.disko
-        diskModules.glaDOS
-        commonModules.secrets-management
+          disko.nixosModules.disko
+          diskModules.glaDOS
+          commonModules.secrets-management
 
-        sops-nix.nixosModules.sops
-        nixosModules.boot-loader
-        {
-          networking.hostName = "glaDOS";
+          sops-nix.nixosModules.sops
+          nixosModules.boot-loader
+          {
+            networking.hostName = "glaDOS";
 
-          services.openssh.enable = true;
+            services.openssh.enable = true;
 
-          zramSwap.enable = true;
-        }
-      ];
-    };
-    nixosModules.glaDOS = nixosModules.bootstrap {
-      system = "aarch64-linux";
-      hardware = nixos-hardware.nixosModules.raspberry-pi-5;
-      hostname = "glaDOS";
-      authorizedKeys = [];
-      extraModules = [];
+            zramSwap.enable = true;
+          }
+        ];
+      };
+      glados-builder = builderModules.bootstrap {
+        system = "aarch64-linux";
+        hardware = nixos-hardware.nixosModules.raspberry-pi-5;
+        hostname = "glaDOS";
+        authorizedKeys = [];
+        extraModules = [];
+      };
     };
   };
 }

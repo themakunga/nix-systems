@@ -3,16 +3,16 @@
     "brew-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1776478798,
-        "narHash": "sha256-ERStG27tf83VbCfYMxtDSs+sa8FUMJ/3jSu/QfX9rKE=",
+        "lastModified": 1778146321,
+        "narHash": "sha256-HeBwuJmuBioZHyZqDOcf7W/xsMFupSD583v6I5Cl7a8=",
         "owner": "Homebrew",
         "repo": "brew",
-        "rev": "3aae056b8d072624255bc8fd27febb7f327b2265",
+        "rev": "af835384ac574f76025adb38b292b04cecee1f1f",
         "type": "github"
       },
       "original": {
         "owner": "Homebrew",
-        "ref": "5.1.7",
+        "ref": "5.1.10",
         "repo": "brew",
         "type": "github"
       }
@@ -63,15 +63,15 @@
       "locked": {
         "lastModified": 1777003287,
         "narHash": "sha256-IJ2QgLBSjewaxECqs1a+WiOQdUt4b1jvwEStrA32/dE=",
-        "ref": "refs/heads/main",
+        "owner": "TheMakunga",
+        "repo": "public-dotfiles",
         "rev": "e4a51ce458abc25e693d8c52cddc1df0df8be10e",
-        "revCount": 1,
-        "type": "git",
-        "url": "ssh://git@github.com/TheMakunga/public-dotfiles"
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "ssh://git@github.com/TheMakunga/public-dotfiles"
+        "owner": "TheMakunga",
+        "repo": "public-dotfiles",
+        "type": "github"
       }
     },
     "flake-compat": {
@@ -154,11 +154,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1778248595,
-        "narHash": "sha256-dhFgEjoeJMYN/7OY6xfxS799YB4IjbbYXTjyGIJyLpc=",
+        "lastModified": 1778503501,
+        "narHash": "sha256-08L/X4/do7nET4rzidJ76eV/1r+mB7DchVpdPypsghc=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "fdb2ccba9d5e1238d32e0c4a3ec1a277efa80c1d",
+        "rev": "85ba629c79449badf4338117c27f0ee92b4b9f1a",
         "type": "github"
       },
       "original": {
@@ -170,11 +170,11 @@
     "homebrew-cask": {
       "flake": false,
       "locked": {
-        "lastModified": 1778259240,
-        "narHash": "sha256-rBzxFpjkE8qqmlYymbKOwkbv+AxRRKdAFQRuDJp9RFw=",
+        "lastModified": 1778508083,
+        "narHash": "sha256-N4YPj0PSE9SzPOW0pR1taz0HqVYYW7DWnpqd6jJVksk=",
         "owner": "homebrew",
         "repo": "homebrew-cask",
-        "rev": "2a6d45ee3fbc2694a12efbb19860b9b1803f31d1",
+        "rev": "dee8166d0485036cd2f8c39ee6d70afd004e7110",
         "type": "github"
       },
       "original": {
@@ -186,11 +186,11 @@
     "homebrew-core": {
       "flake": false,
       "locked": {
-        "lastModified": 1778259077,
-        "narHash": "sha256-G4PTVqzmwtF9K0mtnM7w2QEB2ta2v0UeKqf9uHeF71M=",
+        "lastModified": 1778511327,
+        "narHash": "sha256-ilddmWMsfHmirc7I0jMkh4k+40XW6TB6ddrZdwVdc18=",
         "owner": "homebrew",
         "repo": "homebrew-core",
-        "rev": "458fc34e680f3049f36f11478c27ac73b8b146bf",
+        "rev": "2c866318ec7c624fc4b976ba9d84a7a164f2c7d1",
         "type": "github"
       },
       "original": {
@@ -263,11 +263,11 @@
         "brew-src": "brew-src"
       },
       "locked": {
-        "lastModified": 1777250621,
-        "narHash": "sha256-WynkkG0hdZ5niYPJUbVg7oMfu8MVwGGzKZ6lKmfa+O8=",
+        "lastModified": 1778332591,
+        "narHash": "sha256-ctJ3ADtugrnbMfMBobA645gCqXVIyHnsCNMkVaIuSiM=",
         "owner": "zhaofengli-wip",
         "repo": "nix-homebrew",
-        "rev": "aeb2069920742d0d6570089e8b3b8620050bacf2",
+        "rev": "7d0038b5bb60568ec41f5f4ef5067cd221ca7c0d",
         "type": "github"
       },
       "original": {
@@ -339,11 +339,11 @@
     },
     "nixpkgs-unstable": {
       "locked": {
-        "lastModified": 1778124196,
-        "narHash": "sha256-pYEytCNic/czazbV9r3tbQ6BZzqRBg/41x2dIC5ymOo=",
+        "lastModified": 1778458615,
+        "narHash": "sha256-cY07EsdhBJ8tFXPzDYevgqxRev9ZLxFonuq9wmq5kwg=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "68a8af93ff4297686cb68880845e61e5e2e41d92",
+        "rev": "c6e5ca3c836a5f4dd9af9f2c1fc1c38f0fac988a",
         "type": "github"
       },
       "original": {

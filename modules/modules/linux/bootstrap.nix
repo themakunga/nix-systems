@@ -8,21 +8,21 @@
     nixpkgs
     ;
 in {
-  flake.nixosModules.bootstrap = {
+  flake.builderModules.bootstrap = {
     system,
-    hardwareModules,
+    hardware,
     hostname,
     authorizedKeys,
     extraModules ? [],
   }:
     nixpkgs.lib.nixosSystem {
       inherit system;
-      specialArfs = {inherit inputs;};
+      specialArgs = {inherit inputs;};
       modules =
         [
           "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
 
-          hardwareModules
+          hardware
 
           self.commonModules.state-version
 
@@ -32,9 +32,10 @@ in {
               settings.PermitRootLogin = "yes";
             };
 
-            users.users.root.openssh.authorizedKets.keys = [
-              authorizedKeys
-            ];
+            users.users.root.openssh.authorizedKeys.keys =
+              if builtins.isList authorizedKeys
+              then authorizedKeys
+              else [authorizedKeys];
 
             nix.settings.experimental-features = [
               "nix-command"
