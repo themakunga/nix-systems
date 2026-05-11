@@ -42,6 +42,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Setup QEMU (ARM)
+        uses: docker/setup-qemu-action@v3
+        with:
+          platform: arm64
       - name: Setup SSH for private inputs
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -50,15 +54,13 @@ jobs:
         uses: cachix/install-nix-action@v31
         with:
           github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            extra-platforms = aarch64-linux
       - name: Setup Cachix
         uses: cachix/cachix-action@v15
         with:
           name: themakunga
           authToken: ${{ secrets.CACHIX_TOKEN }}
-      - name: Setup QEMU (ARM)
-        uses: docker/setup-qemu-action@v3
-        with:
-          platform: arm64
       - name: Build SD Image
         run: |
           nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.sdImage -L --accept-flake-config

@@ -70,6 +70,7 @@
       },
       "original": {
         "owner": "TheMakunga",
+        "ref": "main",
         "repo": "public-dotfiles",
         "type": "github"
       }
@@ -441,15 +442,16 @@
       "locked": {
         "lastModified": 1778173054,
         "narHash": "sha256-QiE0vVLrHeH+ZdvEZv57beB/KKDkOIfbEiwhvWent9U=",
-        "ref": "refs/heads/main",
+        "owner": "TheMakunga",
+        "repo": ".secrets",
         "rev": "0a7c57e4f1c92159fde660e06a3d395f6b71a98c",
-        "revCount": 3,
-        "type": "git",
-        "url": "ssh://git@github.com/TheMakunga/.secrets"
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "ssh://git@github.com/TheMakunga/.secrets"
+        "owner": "TheMakunga",
+        "ref": "main",
+        "repo": ".secrets",
+        "type": "github"
       }
     },
     "sops-nix": {
