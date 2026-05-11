@@ -13,18 +13,16 @@ jobs:
     name: Run Nix Checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v5
       - name: Setup SSH for private inputs
-        uses: webfactory/ssh-agent@v0.9.0
+        uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY }}
       - name: Install Nix
-        uses: cachix/install-nix-action@v30
+        uses: cachix/install-nix-action@v31
         with:
-          extra-nix-config: |
-            experimental-features = nix-command flakes
-            extra-platforms = aarch64-linux
-            access_token = github.com=${{ secrets.GH_TOKEN_SECRETS }}
+          github_access_token: ${{ secretis.GH_TOKEN_SECRETS }}
       - name: Setup Cachix
         uses: cachix/cachix-action@v15
         with:
@@ -42,26 +40,21 @@ jobs:
           - host: glados
           - host: cornholio
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Setup SSH for private inputs
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY }}
       - name: Install Nix
-        uses: cachix/install-nix-action@v30
+        uses: cachix/install-nix-action@v31
         with:
-          extra_nix_config: |
-            experimental-features = nix-command flakes
-            extra-platforms = aarch64-linux
-            access_token = github.com=${{ secrets.GH_TOKEN_SECRETS }}
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
       - name: Setup Cachix
         uses: cachix/cachix-action@v15
         with:
           name: themakunga
           authToken: ${{ secrets.CACHIX_TOKEN }}
-      # - run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y qemu-user-static
       - name: Setup QEMU (ARM)
         uses: docker/setup-qemu-action@v3
         with:
