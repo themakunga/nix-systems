@@ -47,16 +47,22 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v30
         with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            extra-platforms = aarch64-linux
           github_access_token: ${{ secrets.GH_PAT_SECRETS }}
       - name: Setup Cachix
         uses: cachix/cachix-action@v15
         with:
           name: themakunga
           authToken: ${{ secrets.CACHIX_TOKEN }}
-      - name: Setup QEMU (ARM)
-        uses: docker/setup-qemu-action@v3
-        with:
-          platform: arm64
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+      # - name: Setup QEMU (ARM)
+      #   uses: docker/setup-qemu-action@v3
+      #   with:
+      #     platform: arm64
       - name: Build SD Image
         run: |
           nix build .#builderModules.${{ matrix.host }}.config.system.build.sdImage -L --accept-flake-config
