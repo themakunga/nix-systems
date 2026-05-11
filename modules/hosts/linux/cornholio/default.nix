@@ -45,7 +45,7 @@ in {
       };
       cornholio-builder = builderModules.bootstrap {
         system = "aarch64-linux";
-        hardware = nixos-hardware.nixosModules.raspberry-pi-zero-two;
+        hardware = nixos-hardware.nixosModules.raspberry-pi-3;
         hostname = "cornholio";
         authorizedKeys = [];
         extraModules = [];
