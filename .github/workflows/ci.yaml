@@ -63,7 +63,7 @@ jobs:
           authToken: ${{ secrets.CACHIX_TOKEN }}
       - name: Build SD Image
         run: |
-          nix build .#nixosConfigurations.${{ matrix.host }}-build.config.system.build.sdImage -L --accept-flake-config
+          nix build .#nixosConfigurations.${{ matrix.host }}-builder.config.system.build.sdImage -L --accept-flake-config
           mkdir -p output
           cp -L result/sd-image/*.img.zst output/${{ matrix.host }}.img.zst
       - name: Upload artifact
