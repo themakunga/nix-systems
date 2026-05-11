@@ -42,10 +42,9 @@ in {
               "flakes"
             ];
 
-            sdImage = {
-              compressImage = true;
-              imageName = "${hostname}-sd_image-aarch64.img";
-            };
+            sdImage.compressImage = true;
+
+            image.fileName = "${hostname}-sd_image-aarch64.img";
 
             environment.systemPackages = with inputs.nixpkgs.legacyPackages.${system}; [
               git
