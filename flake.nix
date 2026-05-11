@@ -58,12 +58,12 @@
     };
 
     secrets = {
-      url = "github:TheMakunga/.secrets";
+      url = "github:TheMakunga/.secrets/main";
       flake = false;
     };
 
     dotfiles = {
-      url = "github:TheMakunga/public-dotfiles";
+      url = "github:TheMakunga/public-dotfiles/main";
       flake = false;
     };
   };
