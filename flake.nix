@@ -58,7 +58,7 @@
     };
 
     secrets = {
-      url = "git+ssh://git@github.com/TheMakunga/.secrets";
+      url = "github:TheMakunga/.secrets";
       flake = false;
     };
 
