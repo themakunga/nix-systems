@@ -1,5 +1,6 @@
 # Variables - Asegúrate de que coincidan exactamente
-NIXCONF = sudo nix rebuild switch .\#nixosConfigurations
+NIXCONF = nix rebuild switch .\#nixosConfigurations
+NIXBUILD = nix build .\#nixosConfigurations
 DARWINCONF = sudo darwin-rebuild switch .\#darwinConfigurations
 TAIL = -L --accept-flake-config
 
@@ -19,12 +20,12 @@ darwin-outer-heaven:
 ## sd-cornholio: Build SD image Cornholio host
 sd-cornholio:
 	@echo "Build SD image host Cornholio"
-	@${NIXCONF}.cornholio-builder.config.system.build.sdImage ${TAIL}
+	@${NIXBUILD}.cornholio-builder.config.system.build.sdImage ${TAIL}
 
 ## sd-glados: Build SD image GlaDOS host
 sd-glados:
 	@echo "Build SD image host GlaDOS"
-	@${NIXCONF}.glados-builder.config.system.build.sdImage ${TAIL}
+	@${NIXBUILD}.glados-builder.config.system.build.sdImage ${TAIL}
 
 ## ---
 ## nix-cornholio: Rebuild Nix Cornholio host
