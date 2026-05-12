@@ -7,8 +7,19 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
       - id: check-merge-conflict
+      - id: mixed-line-ending
+  - repo: https://github.com/mrtazz/checkmake
+    rev: 0.3.2
+    hooks:
+      - id: checkmake
   - repo: local
     hooks:
+      - id: makefile-config
+        name: Makefile System Config
+        entry: make --dry-run --warn-undefined-variables
+        language: system
+        files: ^Makefile$
+        pass_filenames: false
       - id: statix
         name: Linter Nix (static)
         # 'nix run' descarga el paquete desde el repositorio de Nixpkgs
