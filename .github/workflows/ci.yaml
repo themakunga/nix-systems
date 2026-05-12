@@ -33,7 +33,7 @@ jobs:
   build-image:
     name: Build RPi Images
     needs: tests
-    runs-on: ubuntu-latest-arm
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
@@ -42,10 +42,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      # - name: Setup QEMU (ARM)
-      #   uses: docker/setup-qemu-action@v4
-      #   with:
-      #     platforms: arm64
+      - name: Setup QEMU (ARM)
+        uses: docker/setup-qemu-action@v4
+        with:
+          platforms: arm64
       - name: Setup SSH for private inputs
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -63,7 +63,7 @@ jobs:
           authToken: ${{ secrets.CACHIX_TOKEN }}
       - name: Build SD Image
         run: |
-          nix build .#nixosConfigurations.${{ matrix.host }}-builder.config.system.build.sdImage -L --accept-flake-config
+          make sd-${{ matrix.host }}
           mkdir -p output
           cp -L result/sd-image/*.img.zst output/${{ matrix.host }}.img.zst
       - name: Upload artifact
