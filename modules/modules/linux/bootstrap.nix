@@ -27,10 +27,10 @@ in {
           self.commonModules.state-version
 
           {
-            nixpkgs = {
-              buildPlatform = "x86_64-linux";
-              hostPlatform = "aarch64-linux";
-            };
+            # nixpkgs = {
+            #   buildPlatform = "x86_64-linux";
+            #   hostPlatform = "aarch64-linux";
+            # };
 
             services.openssh = {
               enable = true;
