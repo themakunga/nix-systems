@@ -17,15 +17,10 @@ darwin-outer-heaven:
 	@${DARWINCONF}.outer-heaven ${TAIL}
 
 ## ---
-## sd-cornholio: Build SD image Cornholio host
-sd-cornholio:
+## sd-image: Build SD image with a generich host
+sd-image:
 	@echo "Build SD image host Cornholio"
-	@${NIXBUILD}.cornholio-builder.config.system.build.sdImage ${TAIL}
-
-## sd-glados: Build SD image GlaDOS host
-sd-glados:
-	@echo "Build SD image host GlaDOS"
-	@${NIXBUILD}.glados-builder.config.system.build.sdImage ${TAIL}
+	@${NIXBUILD}.sd-image.config.system.build.sdImage ${TAIL}
 
 ## ---
 ## nix-cornholio: Rebuild Nix Cornholio host

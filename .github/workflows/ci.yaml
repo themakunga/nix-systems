@@ -34,11 +34,6 @@ jobs:
     name: Build RPi Images
     needs: tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - host: glados
-          - host: cornholio
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -63,7 +58,7 @@ jobs:
           authToken: ${{ secrets.CACHIX_TOKEN }}
       - name: Build SD Image
         run: |
-          make sd-${{ matrix.host }}
+          make sd-image
           mkdir -p output
           cp -L result/sd-image/*.img.zst output/${{ matrix.host }}.img.zst
       - name: Upload artifact
