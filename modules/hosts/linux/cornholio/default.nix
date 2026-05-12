@@ -13,7 +13,6 @@
   inherit
     (self)
     nixosModules
-    builderModules
     commonModules
     diskModules
     ;
@@ -24,6 +23,7 @@ in {
         system = "aarch64-linux";
         specialArgs = {};
         modules = [
+          nixos-hardware.nixosModules.raspberry-pi-3
           commonModules.nix-settings
           commonModules.state-version
 
@@ -42,13 +42,6 @@ in {
             zramSwap.enable = true;
           }
         ];
-      };
-      cornholio-builder = builderModules.bootstrap {
-        system = "aarch64-linux";
-        hardware = nixos-hardware.nixosModules.raspberry-pi-3;
-        hostname = "cornholio";
-        authorizedKeys = [];
-        extraModules = [];
       };
     };
   };

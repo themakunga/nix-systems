@@ -13,7 +13,6 @@
   inherit
     (self)
     nixosModules
-    builderModules
     commonModules
     diskModules
     ;
@@ -24,6 +23,7 @@ in {
         system = "aarch64-linux";
         specialArgs = {};
         modules = [
+          nixos-hardware.nixosModules.raspberry-pi-5
           commonModules.nix-settings
           commonModules.state-version
 
@@ -41,13 +41,6 @@ in {
             zramSwap.enable = true;
           }
         ];
-      };
-      glados-builder = builderModules.bootstrap {
-        system = "aarch64-linux";
-        hardware = nixos-hardware.nixosModules.raspberry-pi-5;
-        hostname = "glaDOS";
-        authorizedKeys = [];
-        extraModules = [];
       };
     };
   };
