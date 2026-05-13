@@ -1,6 +1,6 @@
 # Target branches for the release process
 branches:
-  - main
+  - release/v*
 # Plugin execution order and configuration
 plugins:
   # Analyzes commits to determine the next version type (major, minor, patch)
