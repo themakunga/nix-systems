@@ -3,8 +3,9 @@ NIXCONF = nix rebuild switch .\#nixosConfigurations
 NIXBUILD = nix build .\#nixosConfigurations
 DARWINCONF = sudo darwin-rebuild switch .\#darwinConfigurations
 TAIL = -L --accept-flake-config
+NXRUN = nix run nixpkgs#
 
-.PHONY: all clean test help darwin-kanagawa darwin-outer-heaven sd-cornholio sd-glados nix-cornholio nix-glados nix-mediaserver nix-motherbase nix-steamdeck install-darwin install-nixos help
+.PHONY: all clean test help darwin-kanagawa darwin-outer-heaven sd-cornholio sd-glados nix-cornholio nix-glados nix-mediaserver nix-motherbase nix-steamdeck install-darwin install-nixos help formatting statix deadnix check
 
 ## darwin-kanagawa: Rebuild darwin in Kanagawa host
 darwin-kanagawa:
@@ -58,6 +59,27 @@ install-darwin:
 install-nixos:
 	@echo "Install NixOS"
 	sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install)
+
+## ---
+## formatting: Format code using alejandra
+formatting:
+	@echo "Formmating Flakes using Alejandra"
+	@${NXRUN}alejandra -- --check .
+
+## statix: Perform static analysis
+statix:
+	@echo "Perform Static analysis"
+	@${NXRUN}statix -- check .
+
+## deadnix: Dectect unused code
+deadnix:
+	@echo "Detect unused code"
+	@${NIXRUN}deadnix -- .
+
+## check: Run nix flake Checker
+check:
+	@echo "Run Nix Flake check"
+	@nix flake check ${TAIL}
 
 ## ---
 ## all: (Default) Muestra la ayuda
