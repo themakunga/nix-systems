@@ -3,7 +3,7 @@ NIXCONF = nix rebuild switch .\#nixosConfigurations
 NIXBUILD = nix build .\#nixosConfigurations
 DARWINCONF = sudo darwin-rebuild switch .\#darwinConfigurations
 TAIL = -L --accept-flake-config
-NXRUN = nix run nixpkgs#
+NXRUN = nix run nixpkgs\#
 
 .PHONY: all clean test help darwin-kanagawa darwin-outer-heaven sd-cornholio sd-glados nix-cornholio nix-glados nix-mediaserver nix-motherbase nix-steamdeck install-darwin install-nixos help formatting statix deadnix check
 
