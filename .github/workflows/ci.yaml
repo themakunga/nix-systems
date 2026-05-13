@@ -60,12 +60,12 @@ jobs:
         run: |
           make sd-image
           mkdir -p output
-          cp -L result/sd-image/*.img.zst output/${{ matrix.host }}.img.zst
+          cp -L result/sd-image/*.img.zst output/*.img.zst
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.host }}-image
-          path: output/${{ matrix.host}}.img.zst
+          name: sd-image
+          path: output/*.img.zst
   release:
     name: Semantic Release
     needs: build-image
