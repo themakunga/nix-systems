@@ -49,7 +49,7 @@ jobs:
             @semantic-release/git
             @semantic-release/github
         env:
-          GITHUB_TOKEN: ${{ secrets.GIHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN  }}
       - name: Upload Image to GitHub Release
         if: steps.semantic.output.new_release_publisbh == 'true'
         uses: svenstaro/upload-release-action@v2
