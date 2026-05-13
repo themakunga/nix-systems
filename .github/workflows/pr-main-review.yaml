@@ -1,0 +1,35 @@
+name: PR - Exhaustive Revision
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  pr-security-gate:
+    name: Enforce Branches Flow
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify Seource Branch
+        run: |
+          if [ "${{ github.head_ref }}" != "develop" ]; then
+            echo "::error::Pull requests to 'main' mush originate from 'develop'."
+            exit 1
+          fi
+  exhaustive-evaluation:
+    name: Dry-run Evaluation
+    needs: pr-security-gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Branch
+        uses: actions/checkout@v6
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{secrets.SECRETS_REPO_SSH_KEY }}
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{secrets.GH_TOKEN_SECRETS }}
+      - name: Evaluate Hosts
+        run: |
+          nix eval .#nixosConfigurations --apply builtins.attrNames
+          nix eval .#darwinConfigurations --apply builtins.attrNames

@@ -1,0 +1,35 @@
+name: CI - Quality and Lintering
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+jobs:
+  linter-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v6
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY }}
+      - name: Install Nix Package Manager
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+      - name: Setup Nix with Cachix
+        uses: cachix/cachix-action@v15
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_TOKEN }}
+      - name: Check Formatting
+        run: make formatting
+      - name: Perform Static Analysis and linter unsing Statix
+        run: make statix
+      - name: Detects unused code variables using deadnix
+        run: make deadnix
+      - name: Nix Flake Check
+        run: make check
