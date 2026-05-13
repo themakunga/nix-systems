@@ -2,8 +2,8 @@
   flake.nixosModules.boot-loader = {
     boot.loader = {
       grub.enable = false;
-      systemd-boot.enable = true;
-      efi.canTouchEfiVariables = true;
+      systemd-boot.enable = false;
+      efi.canTouchEfiVariables = false;
     };
   };
 }
