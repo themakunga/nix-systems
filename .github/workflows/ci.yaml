@@ -2,8 +2,10 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main
+      - '**'
   pull_request:
+    branches:
+      - main
 permissions:
   contents: write
   issues: write
@@ -33,6 +35,7 @@ jobs:
   build-image:
     name: Build RPi Images
     needs: tests
+    if: github.event_name == 'push' && github.ref == 'ref/head/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -70,7 +73,7 @@ jobs:
     name: Semantic Release
     needs: build-image
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'ref/head/main'
     steps:
       - uses: actions/checkout@v4
         with:
