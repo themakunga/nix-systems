@@ -7,18 +7,48 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
       - id: check-merge-conflict
+      - id: mixed-line-ending
+  - repo: https://github.com/mrtazz/checkmake
+    rev: V0.3.2
+    hooks:
+      - id: checkmake
+  - repo: local
+    hooks:
+      - id: makefile-config
+        name: Makefile System Config
+        entry: make --dry-run --warn-undefined-variables --file
+        language: system
+        files: ^Makefile$
+        pass_filenames: true
+      - id: statix
+        name: Linter Nix (static)
+        # 'nix run' descarga el paquete desde el repositorio de Nixpkgs
+        # y lo ejecuta sin instalarlo globalmente.
+        entry: nix run nixpkgs#statix -- check
+        language: system
+        files: \.nix$
+        pass_filenames: false
+      - id: alejandra
+        name: Formatter nix
+        entry: nix run nixpkgs#alejandra --
+        language: system
+        files: \.nix$
+  - repo: https://github.com/astro/deadnix
+    rev: v1.3.1
+    hooks:
+      - id: deadnix
+        name: Nix dead code
+        args:
+          - --fail
   - repo: https://github.com/google/yamlfmt
     rev: v0.21.0
     hooks:
       - id: yamlfmt
-  - repo: https://github.com/NixOS/nixfmt
-    rev: v1.2.0
-    hooks:
-      - id: nixfmt
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-    rev: v9.22.0
+    rev: v9.25.0
     hooks:
       - id: commitlint
-        stage: [commit-mgs]
+        stages:
+          - commit-msg
         additional_dependencies:
           - "@commitlint/config-conventional"

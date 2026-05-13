@@ -1,0 +1,93 @@
+name: CI/CD Pipeline
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - main
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+jobs:
+  tests:
+    name: Run Nix Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup SSH for private inputs
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY }}
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v15
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_TOKEN }}
+      - name: Run Nix Flake Checks
+        run: nix flake check -L --accept-flake-config
+  build-image:
+    name: Build RPi Images
+    needs: tests
+    if: github.event_name == 'push' && github.ref == 'ref/head/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup QEMU (ARM)
+        uses: docker/setup-qemu-action@v4
+        with:
+          platforms: arm64
+      - name: Setup SSH for private inputs
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY }}
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            extra-platforms = aarch64-linux
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v15
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_TOKEN }}
+      - name: Build SD Image
+        run: |
+          make sd-image
+          mkdir -p output
+          cp -L result/sd-image/*.img.zst output/
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sd-image
+          path: output/*.img.zst
+  release:
+    name: Semantic Release
+    needs: build-image
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'ref/head/main'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download all Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: Run Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release

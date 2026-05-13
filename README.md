@@ -2,7 +2,7 @@
 
 This repository contains a unified Nix Flake to manage configurations across multiple architectures and operating systems. It supports macOS (nix-darwin),
 standard Linux x86_64 servers (NixOS), and ARM-based single-board computers like the Raspberry Pi 5 and Raspberry Pi Zero 2.
- 
+
 <!-- mtoc-start -->
 
 * [1. Installation Prerequisites](#1-installation-prerequisites)
@@ -17,7 +17,7 @@ standard Linux x86_64 servers (NixOS), and ARM-based single-board computers like
 Before deploying, ensure the Nix package manager is installed on your controlling machine:
 
 ```bash
-curl --proto '=https' --tlsv1.2 -sSf -L [https://install.determinate.systems/nix](https://install.determinate.systems/nix) | sh -s -- install
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 ```
 
 
@@ -41,7 +41,7 @@ nix run github:nix-community/nixos-anywhere -- --flake .#linux-server1 root@<tar
 nix run github:nix-community/nixos-anywhere -- --flake .#linux-server2 root@<target-ip>
 ```
 
->[!NOTE] Ensure the target machines have their specific hardware-configuration.nix properly referenced inside their respective hosts/<hostname>/configuration.nix files. 
+>[!NOTE] Ensure the target machines have their specific hardware-configuration.nix properly referenced inside their respective hosts/<hostname>/configuration.nix files.
 
 ## 4. Building Raspberry Pi SD Images
 

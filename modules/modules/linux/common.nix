@@ -1,0 +1,7 @@
+{
+  flake = {
+    linuxModules = {
+      common = {};
+    };
+  };
+}
