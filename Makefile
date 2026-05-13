@@ -74,7 +74,7 @@ statix:
 ## deadnix: Dectect unused code
 deadnix:
 	@echo "Detect unused code"
-	@${NIXRUN}deadnix -- .
+	@${NXRUN}deadnix -- .
 
 ## check: Run nix flake Checker
 check:
