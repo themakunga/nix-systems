@@ -1,3 +1,18 @@
+# [1.1.0](https://github.com/themakunga/nix-systems/compare/v1.0.0...v1.1.0) (2026-05-14)
+
+
+### Bug Fixes
+
+* module name ([15fc894](https://github.com/themakunga/nix-systems/commit/15fc8949cedb80225a5e38f3388f1c1a65e01b26))
+* rename project ([379ead9](https://github.com/themakunga/nix-systems/commit/379ead98282e5437877eb65aa689e97807706ab7))
+
+
+### Features
+
+* bootloader image ([e0b61bc](https://github.com/themakunga/nix-systems/commit/e0b61bc0d45a59f37ba78283e30c74c04152d432))
+* disko images ([b1072ac](https://github.com/themakunga/nix-systems/commit/b1072ac50da909ad3ed208dcf1a192eec36850cc))
+* refactor naming ([fe00187](https://github.com/themakunga/nix-systems/commit/fe00187e19562b3611f3f9c08abe0e75469cdaa9))
+
 # 1.0.0 (2026-05-13)
 
 

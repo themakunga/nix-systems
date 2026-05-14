@@ -1,69 +1,127 @@
-# Multi-Architecture Infrastructure Flake
+# Nix Systems Infraestructures
 
-This repository contains a unified Nix Flake to manage configurations across multiple architectures and operating systems. It supports macOS (nix-darwin),
-standard Linux x86_64 servers (NixOS), and ARM-based single-board computers like the Raspberry Pi 5 and Raspberry Pi Zero 2.
 
 <!-- mtoc-start -->
 
-* [1. Installation Prerequisites](#1-installation-prerequisites)
-* [2. Deploying to macOS (nix-darwin)](#2-deploying-to-macos-nix-darwin)
-* [3. Remote Provisioning with nixos-anywhere](#3-remote-provisioning-with-nixos-anywhere)
-* [4. Building Raspberry Pi SD Images](#4-building-raspberry-pi-sd-images)
+* [english](#english)
+  * [Overview](#overview)
+  * [Architecture & Features](#architecture--features)
+  * [Repository Workflow (GitFlow)](#repository-workflow-gitflow)
+  * [CI/CD Pipelines](#cicd-pipelines)
+  * [Local Development](#local-development)
+* [español](#español)
+  * [Descripcion](#descripcion)
+  * [Arquitectura y Functiones](#arquitectura-y-functiones)
+  * [Flujo de Repositorio](#flujo-de-repositorio)
+  * [Pipelines CI/CD](#pipelines-cicd)
+  * [Desarrollo Local](#desarrollo-local)
 
 <!-- mtoc-end -->
 
-## 1. Installation Prerequisites
+[English](#englis) | [Español](#espanol)
 
-Before deploying, ensure the Nix package manager is installed on your controlling machine:
+---
+
+## english
+
+### Overview
+
+This repository contains the declarative and reproducible infrastructure for
+the personal homelab and IoT devices using NixOS and Flakes. It emphasizes
+strict CI/CD pipelines, secure secret management, and automated artifact
+generation.
+
+### Architecture & Features
+
+- **NixOS Flakes:** Fully reproducible system configurations across different
+host architectures (x86_64, aarch64).
+- **Automated SD Image Generation:** Cross-compiles customized NixOS SD card
+images for Raspberry Pi devices (e.g., `Wheatley`, `glaDOS`) directly from
+GitHub Actions using QEMU.
+- **Secrets Management:** Utilizes `sops-nix` combined with `age` and SSH keys
+to securely encrypt private keys and tokens, isolating secrets per host while
+maintaining a shared repository.
+- **Binary Caching:** Integrated with Cachix to cache build outputs and
+significantly reduce CI/CD execution times.
+- **Semantic Release:** Fully automated versioning, changelog generation, git
+tagging, and GitHub Release deployment based on Conventional Commits.
+
+### Repository Workflow (GitFlow)
+
+This repository enforces a strict GitFlow architecture to ensure stability:
+1. **Protected `main` branch:** Direct pushes and force-pushes are disabled.
+2. **Pull Requests Required:** All changes must be integrated via Pull Requests.
+3. **Branch Enforcement:** PRs targeting `main` must originate exclusively from the `develop` branch.
+4. **Release Strategy:** Pushing to a `release/v*` branch triggers the build process, generating the SD images and publishing them as release artifacts.
+
+### CI/CD Pipelines
+
+- **Quality & Linting:** Runs on every push to check Nix flake validity, format code (`alejandra`), run linters (`statix`), and detect unused code (`deadnix`).
+- **PR Exhaustive Review:** Runs on PRs to `main`. Validates branch origins and performs a dry-run evaluation of all NixOS hosts to prevent bootloader clashes or evaluation errors.
+- **Release Build & Publish:** Cross-compiles the system, packages the `.img.zst` files, and delegates versioning/tagging to Semantic Release.
+
+
+### Local Development
+
+To enter the development environment with all required tools (`alejandra`, `statix`, `deadnix`, `sops`), use:
 
 ```bash
-curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+nix develop
 ```
 
-
-## 2. Deploying to macOS (nix-darwin)
-
-To apply the configuration to a macOS machine (e.g., mac-work or mac-home), clone this repository and run the darwin switch command:
+Alternatively, use the provided `Makefile` commands to run checks locally:
 
 ```bash
-nix run nix-darwin -- switch --flake .#mac-work
+make alejandra
+make statix
+make deadnix
 ```
 
-## 3. Remote Provisioning with nixos-anywhere
+---
+## español
 
-For the standard Linux servers, you can perform a remote, unattended installation using nixos-anywhere. The target machine must be booted into a NixOS live ISO and accessible via SSH as the root user.
+
+### Descripcion
+
+Este repositorio contiene la infraestructura declarativa y reproducible para un homelab personal y dispositivos IoT utilizando NixOS y Flakes. Destaca por sus estrictos pipelines de CI/CD, gestión segura de secretos y generación automatizada de artefactos.
+
+### Arquitectura y Functiones
+
+- **NixOS Flakes:** Configuraciones de sistema completamente reproducibles a través de múltiples arquitecturas (x86_64, aarch64).
+- **Generación Automatizada de Imágenes SD:** Compilación cruzada (cross-compilation) de imágenes de NixOS personalizadas para Raspberry Pi (ej. cornholio, glaDOS) directamente desde GitHub Actions usando QEMU.
+- **Gestión de Secretos:** Utiliza sops-nix combinado con llaves age y SSH para encriptar claves privadas y tokens de forma segura, aislando los secretos por host.
+- **Caché Binario:** Integración con Cachix para almacenar los resultados de compilación y reducir drásticamente los tiempos de ejecución en el CI/CD.
+- **Semantic Release:** Versionado, generación de changelogs, etiquetado en git (tags) y despliegue de GitHub Releases completamente automatizados basados en Conventional Commits.
+
+### Flujo de Repositorio
+
+Este repositorio impone una arquitectura estricta para garantizar la estabilidad:
+
+1. **Rama `main` protegida:** Los push directos y force-pushes están deshabilitados.
+2. **Pull Requests Obligatorios:** Todos los cambios deben integrarse mediante Pull Requests.
+3. **Restricción de Origen:** Los PRs hacia `main` deben provenir exclusivamente de la rama `develop`.
+4. **Estrategia de Release:** Al enviar código a una rama `release/v*`, se dispara el proceso de compilación, generando las imágenes SD y publicándolas como artefactos de lanzamiento.
+
+### Pipelines CI/CD
+
+- **Calidad y Linting:** Se ejecuta en cada push para validar la estructura del flake, formatear el código (`alejandra`), ejecutar linters (`statix`) y detectar código sin uso (`deadnix`).
+- **Revisión Exhaustiva de PR:** Se ejecuta en los PRs hacia `main`. Valida el origen de la rama y realiza una evaluación en seco (dry-run) de todos los hosts para prevenir conflictos (ej. colisión de bootloaders) o errores de evaluación.
+- **Compilación y Publicación (Release):** Compila el sistema operativo, empaqueta los archivos `.img.zst` y delega el versionado a Semantic Release.
+
+### Desarrollo Local
+
+Para entrar al entorno de desarrollo con todas las herramientas necesarias (`alejandra`, `statix`, `deadnix`, `sops`), utiliza:
 
 ```bash
-# Provision linux-server1
-nix run github:nix-community/nixos-anywhere -- --flake .#linux-server1 root@<target-ip>
+nix develop
 
-# Provision linux-server2
-nix run github:nix-community/nixos-anywhere -- --flake .#linux-server2 root@<target-ip>
 ```
 
->[!NOTE] Ensure the target machines have their specific hardware-configuration.nix properly referenced inside their respective hosts/<hostname>/configuration.nix files.
-
-## 4. Building Raspberry Pi SD Images
-
-You can generate ready-to-flash SD card images for the Raspberry Pi boards directly from this flake. These images include the fully baked OS, users, and dotfiles.
-
-Build the image for the Raspberry Pi 5:
+De forma alternativa, utiliza los comandos provistos en el `Makefile` para realizar validaciones locales:
 
 ```bash
-nix build .#packages.aarch64-linux.image-rpi5
-```
+make alejandra
+make statix
+make deadnix
 
-Build the image for the Raspberry Pi Zero 2:
-
-```bash
-nix build .#packages.aarch64-linux.image-rpi02
-```
-
-The build process will output a compressed .img.zst file located in the result/sd-image/ directory.
-
-Flashing the Image
-Decompress and write the image to your SD card (replace /dev/sdX with your actual block device):
-
-```bash
-zstdcat result/sd-image/nixos-sd-image-*.img.zst | sudo dd of=/dev/sdX bs=4M conv=fsync status=progress
 ```
