@@ -3,7 +3,7 @@
   inputs,
   ...
 }: let
-  inherit (inputs) nixpkgs sops-nix secrets;
+  inherit (inputs) nixpkgs nixos-hardware sops-nix secrets;
   inherit (self) commonModules;
 in {
   flake.nixosConfigurations.sd-image = nixpkgs.lib.nixosSystem {
@@ -12,7 +12,7 @@ in {
     modules = [
       sops-nix.nixosModules.sops
       "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
-
+      nixos-hardware.nixosModules.raspberry-pi-5
       commonModules.state-version
       {
         networking.hostName = "sdimage-install";
