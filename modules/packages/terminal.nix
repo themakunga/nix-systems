@@ -1,6 +1,6 @@
 {
   flake = {
-    sharedPackages = {pkgs, ...}: {
+    commonModules.terminal = {pkgs, ...}: {
       environment.systemPackages = with pkgs; [
         git
         vim

@@ -1,6 +1,6 @@
 {
   flake = {
-    nixosModules.colima = {
+    darwinModules.colima = {
       config,
       pkgs,
       nixosModules,

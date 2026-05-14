@@ -14,7 +14,6 @@
     (self)
     nixosModules
     commonModules
-    diskModules
     ;
 in {
   flake = {
@@ -28,7 +27,7 @@ in {
           commonModules.state-version
 
           disko.nixosModules.disko
-          diskModules.glaDOS
+          nixosModules.glaDOS-disk
           commonModules.secrets-management
 
           sops-nix.nixosModules.sops
