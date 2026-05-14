@@ -1,6 +1,6 @@
 {
   flake = {
-    linuxModules = {
+    nixosModules = {
       common = {};
     };
   };

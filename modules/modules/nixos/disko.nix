@@ -1,6 +1,6 @@
 {
-  flake.diskModules = {
-    sd-image = {
+  flake.nixosModules = {
+    sd-image-disk = {
       disco.devices = {
         disk = {
           main = {
@@ -29,7 +29,7 @@
         };
       };
     };
-    wheatley = {
+    wheatley-disk = {
       disko.devices = {
         disk = {
           main = {
@@ -62,7 +62,7 @@
         };
       };
     };
-    glaDOS = {
+    glaDOS-disk = {
       disko.devices = {
         disk = {
           main = {

@@ -14,12 +14,11 @@
     (self)
     nixosModules
     commonModules
-    diskModules
     ;
 in {
   flake = {
     nixosConfigurations = {
-      cornholio = nixpkgs.lib.nixosSystem {
+      wheatley = nixpkgs.lib.nixosSystem {
         system = "aarch64-linux";
         specialArgs = {};
         modules = [
@@ -28,14 +27,14 @@ in {
           commonModules.state-version
 
           disko.nixosModules.disko
-          diskModules.cornholio
+          nixosModules.wheatley-disk
 
           sops-nix.nixosModules.sops
           commonModules.secrets-management
 
           nixosModules.boot-loader
           {
-            networking.hostName = "cornholio";
+            networking.hostName = "wheatley";
 
             services.openssh.enable = true;
 

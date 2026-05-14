@@ -1,5 +1,5 @@
 {inputs, ...}: {
-  flake.homeModules = {
+  flake.commonModules = {
     dotfiles = {
       pkgs,
       lib,

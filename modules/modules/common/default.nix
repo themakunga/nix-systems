@@ -23,26 +23,6 @@ with lib; {
         type = types.attrsOf types.raw;
         default = {};
       };
-      diskModules = mkOption {
-        type = types.attrsOf types.raw;
-        default = {};
-      };
-      builderModules = mkOption {
-        type = types.attrsOf types.raw;
-        default = {};
-      };
-      linuxModules = mkOption {
-        type = types.attrsOf types.raw;
-        default = {};
-      };
-      sharedModules = mkOption {
-        type = types.attrsOf types.raw;
-        default = {};
-      };
-      homeModules = mkOption {
-        type = types.attrsOf types.raw;
-        default = {};
-      };
     };
   };
 
