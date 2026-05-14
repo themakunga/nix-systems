@@ -48,6 +48,16 @@ in {
         ];
 
         boot = {
+          initrd = {
+            availableKernelModules = lib.mkForce [
+              "usbhid"
+              "usb_storage"
+              "vc4"
+              "pcie_brcmstb" # Esencial para el bus PCIe en RPi
+              "nvme"
+            ];
+            includeDefaultModules = false;
+          };
           loader = {
             grub.enable = false;
             generic-extlinux-compatible.enable = true;
