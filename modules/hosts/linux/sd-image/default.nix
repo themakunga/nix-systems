@@ -1,6 +1,7 @@
 {
   self,
   inputs,
+  lib,
   ...
 }: let
   inherit (inputs) nixpkgs nixos-hardware sops-nix secrets;
