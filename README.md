@@ -48,12 +48,16 @@ tagging, and GitHub Release deployment based on Conventional Commits.
 ### Repository Workflow (GitFlow)
 
 This repository enforces a strict GitFlow architecture to ensure stability:
-1. **Protected**
-
+1. **Protected `main` branch:** Direct pushes and force-pushes are disabled.
+2. **Pull Requests Required:** All changes must be integrated via Pull Requests.
+3. **Branch Enforcement:** PRs targeting `main` must originate exclusively from the `develop` branch.
+4. **Release Strategy:** Pushing to a `release/v*` branch triggers the build process, generating the SD images and publishing them as release artifacts.
 
 ### CI/CD Pipelines
 
--
+- **Quality & Linting:** Runs on every push to check Nix flake validity, format code (`alejandra`), run linters (`statix`), and detect unused code (`deadnix`).
+- **PR Exhaustive Review:** Runs on PRs to `main`. Validates branch origins and performs a dry-run evaluation of all NixOS hosts to prevent bootloader clashes or evaluation errors.
+- **Release Build & Publish:** Cross-compiles the system, packages the `.img.zst` files, and delegates versioning/tagging to Semantic Release.
 
 ---
 
