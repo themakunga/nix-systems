@@ -5,7 +5,7 @@ DARWINCONF = sudo darwin-rebuild switch .\#darwinConfigurations
 TAIL = -L --accept-flake-config
 NXRUN = nix run nixpkgs\#
 
-.PHONY: all clean test help darwin-kanagawa darwin-outer-heaven sd-cornholio sd-glados nix-cornholio nix-glados nix-mediaserver nix-motherbase nix-steamdeck install-darwin install-nixos help formatting statix deadnix check
+.PHONY: all clean test help darwin-kanagawa darwin-outer-heaven nix-wheatley nix-glados nix-mediaserver nix-motherbase nix-steamdeck install-darwin install-nixos help formatting statix deadnix check
 
 ## darwin-kanagawa: Rebuild darwin in Kanagawa host
 darwin-kanagawa:
@@ -24,8 +24,8 @@ sd-image:
 	@${NIXBUILD}.sd-image.config.system.build.sdImage ${TAIL}
 
 ## ---
-## nix-cornholio: Rebuild Nix Cornholio host
-nix-cornholio:
+## nix-wheatley: Rebuild Nix Wheatley host
+nix-wheatley:
 	@echo "Rebuild Nix host Cornholio"
 	@${NIXCONF}.cornholio ${TAIL}
 
