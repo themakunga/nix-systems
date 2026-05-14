@@ -27,7 +27,7 @@ in {
           commonModules.state-version
 
           disko.nixosModules.disko
-          nixosModules.glaDOS
+          nixosModules.glaDOS-disk
           commonModules.secrets-management
 
           sops-nix.nixosModules.sops
