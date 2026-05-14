@@ -12,7 +12,6 @@ in {
     modules = [
       sops-nix.nixosModules.sops
       "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
-
       nixos-hardware.nixosModules.raspberry-pi-5
       commonModules.state-version
       {
@@ -21,6 +20,7 @@ in {
           buildPlatform = "x86_64-linux";
           hostPlatform = "aarch64-linux";
         };
+        hardware.raspberry-pi-5.apply-overlays-dtmerge.enable = true;
 
         services.openssh = {
           enable = true;
@@ -47,8 +47,6 @@ in {
           curl
           disko
         ];
-
-        raspberry-pi-5.apply-overlays-dtmerge.enable = true;
 
         boot = {
           loader = {
