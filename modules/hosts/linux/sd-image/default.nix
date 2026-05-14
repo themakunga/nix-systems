@@ -20,7 +20,6 @@ in {
           buildPlatform = "x86_64-linux";
           hostPlatform = "aarch64-linux";
         };
-        hardware.raspberry-pi-5.apply-overlays-dtmerge.enable = true;
 
         services.openssh = {
           enable = true;
