@@ -38,7 +38,10 @@ in {
           "flakes"
         ];
 
-        sdImage.compressImage = true;
+        sdImage = {
+          firmwareSize = 512;
+          compressImage = true;
+        };
 
         image.fileName = "sd-image-aarch64-generic.img";
 
@@ -48,13 +51,16 @@ in {
           disko
         ];
 
+        hardware.deviceTree.enable = true;
+
         boot = {
+          kernelParams = ["pcie_aspm=off"];
           initrd = {
             availableKernelModules = lib.mkForce [
               "usbhid"
               "usb_storage"
               "vc4"
-              "pcie_brcmstb" # Esencial para el bus PCIe en RPi
+              "pcie_brcmstb"
               "nvme"
             ];
             includeDefaultModules = false;
