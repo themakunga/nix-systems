@@ -26,6 +26,11 @@ in {
           };
         };
 
+        fileSystems."/" = {
+          device = "/dev/disk/by-label/NIXOS_SD";
+          fsType = "ext4";
+        };
+
         networking.hostName = "sdimage-install";
 
         nixpkgs = {
