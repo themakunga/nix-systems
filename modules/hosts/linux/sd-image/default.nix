@@ -41,22 +41,12 @@ in {
             kernelParams = ["pcie_aspm=off"];
             initrd = {
               availableKernelModules = lib.mkForce [
-                # --- USB y Video ---
                 "usbhid"
                 "usb_storage"
                 "vc4"
-                # --- PCIe y NVMe ---
                 "pcie_brcmstb"
                 "nvme"
-                # --- Lector MicroSD (AQUÍ ESTÁ EL FIX) ---
-                "mmc_block"
-                "sdhci"
-                "sdhci_pci"
-                "sdhci_iproc"
-                "sdhci_bcm2835"
-                # --- Sistemas de Archivos ---
-                "ext4"
-                "vfat"
+                "mmc_block" # Solo dejamos este para la SD              ];
               ];
               includeDefaultModules = false;
             };
