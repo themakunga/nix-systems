@@ -1,3 +1,13 @@
+## [1.1.3](https://github.com/themakunga/nix-systems/compare/v1.1.2...v1.1.3) (2026-05-15)
+
+
+### Bug Fixes
+
+* add filesystem ([3d747eb](https://github.com/themakunga/nix-systems/commit/3d747eb516b60d48ea7e7cf408133b4f7ac5dc67))
+* old imager builder ([6a38873](https://github.com/themakunga/nix-systems/commit/6a388733078a146670fef6877295353dbc3d9a2b))
+* refactor dir ([c6f9b30](https://github.com/themakunga/nix-systems/commit/c6f9b3023c3ba43939d485a7ba3dbbc43f07130a))
+* rollback makefile ([08ff026](https://github.com/themakunga/nix-systems/commit/08ff026a00d926847bbfbd7c2af40318f8d266fc))
+
 ## [1.1.2](https://github.com/themakunga/nix-systems/compare/v1.1.1...v1.1.2) (2026-05-15)
 
 
