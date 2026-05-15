@@ -30,11 +30,13 @@ in {
             "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
           ];
 
+          # --- ARQUITECTURA ---
           nixpkgs = {
-            buildPlatform = "x86_64-linux";
-            hostPlatform = "aarch64-linux";
+            buildPlatform = "x86_64-linux"; # Compilando desde Mac (Apple Silicon)
+            hostPlatform = "aarch64-linux"; # Compilando para Raspberry Pi (ARM64)
           };
 
+          # --- BOOT Y HARDWARE ---
           boot = {
             kernelParams = ["pcie_aspm=off"];
             initrd = {
@@ -42,8 +44,8 @@ in {
                 "usbhid"
                 "usb_storage"
                 "vc4"
-                "pcie_brcmstb"
-                "nvme"
+                "pcie_brcmstb" # Controlador PCIe de la Pi 5
+                "nvme" # Soporte para tu disco SSD
               ];
               includeDefaultModules = false;
             };
@@ -54,10 +56,13 @@ in {
             };
           };
 
+          hardware.deviceTree.enable = true;
+
+          # --- GENERACIÓN DE LA IMAGEN SD ---
           sdImage = {
-            imageName = "nixos-rpi-anywhere.img";
+            imageName = "nixos-rpi5-anywhere.img";
             firmwareSize = 512;
-            compressImage = true;
+            compressImage = true; # Puedes cambiar a 'false' si quieres acelerar las pruebas locales
 
             populateFirmwareCommands = let
               configTxt = pkgs.writeText "config.txt" ''
@@ -79,22 +84,26 @@ in {
               '';
             in
               lib.mkForce ''
-                # 1. Limpiamos cualquier rastro de firmware antiguo (U-Boot RPi4)
+                # 1. Limpiamos cualquier rastro de firmware antiguo genérico
                 rm -rf firmware/*
 
                 # 2. Copiamos el firmware base oficial de la Raspberry Pi
                 cp -r ${pkgs.raspberrypifw}/share/raspberrypi/boot/* firmware/
 
-                # 3. Extraemos el Kernel y Ramdisk exactos de tu build de NixOS
-                cp ${config.system.build.kernel}/Image firmware/kernel.img
-                cp ${config.system.build.initialRamdisk}/initrd firmware/initrd.img
+                # 3. FIX: Damos permisos de escritura a la carpeta para que Nix no se queje de permisos
+                chmod -R +w firmware/
 
-                # 4. Inyectamos nuestros archivos de arranque
-                cp ${configTxt} firmware/config.txt
-                cp ${cmdlineTxt} firmware/cmdline.txt
+                # 4. Extraemos el Kernel y Ramdisk exactos de tu build de NixOS (forzando sobreescritura con -f)
+                cp -f ${config.system.build.kernel}/Image firmware/kernel.img
+                cp -f ${config.system.build.initialRamdisk}/initrd firmware/initrd.img
+
+                # 5. Inyectamos nuestros archivos de configuración de arranque
+                cp -f ${configTxt} firmware/config.txt
+                cp -f ${cmdlineTxt} firmware/cmdline.txt
               '';
           };
 
+          # --- SISTEMA DE ARCHIVOS Y RED ---
           fileSystems."/" = {
             device = "/dev/disk/by-label/NIXOS_SD";
             fsType = "ext4";
@@ -122,8 +131,6 @@ in {
             pciutils
             disko
           ];
-
-          hardware.deviceTree.enable = true;
         }
       )
     ];
