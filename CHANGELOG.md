@@ -1,3 +1,12 @@
+## [1.1.4](https://github.com/themakunga/nix-systems/compare/v1.1.3...v1.1.4) (2026-05-15)
+
+
+### Bug Fixes
+
+* bootloader manual ([3e32546](https://github.com/themakunga/nix-systems/commit/3e32546bf609258bf24f7fb9a1a06c35385608ae))
+* firmware module manual ([1e37f74](https://github.com/themakunga/nix-systems/commit/1e37f74473d48f0b8cc3f92b428b02f5b9a8b607))
+* move build host ([8c5ad93](https://github.com/themakunga/nix-systems/commit/8c5ad937525590de4122b4761205ee3fc73f3b16))
+
 ## [1.1.3](https://github.com/themakunga/nix-systems/compare/v1.1.2...v1.1.3) (2026-05-15)
 
 
