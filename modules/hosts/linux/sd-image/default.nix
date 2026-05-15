@@ -1,7 +1,6 @@
 {
   self,
   inputs,
-  lib,
   ...
 }: let
   inherit
@@ -10,22 +9,31 @@
     nixos-hardware
     sops-nix
     secrets
-    config
     ;
   inherit (self) commonModules;
 in {
   flake.nixosConfigurations.sd-image = nixpkgs.lib.nixosSystem {
-    system = "aarch64-linux";
     specialArgs = {inherit inputs;};
     modules = [
       sops-nix.nixosModules.sops
       nixos-hardware.nixosModules.raspberry-pi-5
       commonModules.state-version
+
       (
-        {pkgs, ...}: {
+        {
+          config,
+          pkgs,
+          lib,
+          ...
+        }: {
           imports = [
             "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
           ];
+
+          nixpkgs = {
+            buildPlatform = "x86_64-linux";
+            hostPlatform = "aarch64-linux";
+          };
 
           boot = {
             kernelParams = ["pcie_aspm=off"];
@@ -46,11 +54,11 @@ in {
             };
           };
 
-          image.fileName = "nixos-rpi-anywhere.img";
-
           sdImage = {
+            imageName = "nixos-rpi-anywhere.img";
             firmwareSize = 512;
             compressImage = true;
+
             populateFirmwareCommands = let
               configTxt = pkgs.writeText "config.txt" ''
                 [pi5]
@@ -94,11 +102,6 @@ in {
 
           networking.hostName = "sdimage-install";
 
-          nixpkgs = {
-            buildPlatform = "x86_64-linux";
-            hostPlatform = "aarch64-linux";
-          };
-
           services.openssh = {
             enable = true;
             settings.PermitRootLogin = "yes";
@@ -113,7 +116,7 @@ in {
             "flakes"
           ];
 
-          environment.systemPackages = with inputs.nixpkgs.legacyPackages.aarch64-linux; [
+          environment.systemPackages = with pkgs; [
             git
             curl
             pciutils
