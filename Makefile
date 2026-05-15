@@ -20,19 +20,19 @@ darwin-outer-heaven:
 ## ---
 ## sd-image: Build SD image with a generich host
 sd-image:
-	@echo "Build SD image host Cornholio"
-	@${NIXBUILD}.sd-image.config.system.build.sdImage ${TAIL}
+	@echo "Build SD image RPI"
+	@${NIXBUILD}.sd-image.config.system.build.images.rpi5-installer ${TAIL}
 
 ## ---
 ## nix-wheatley: Rebuild Nix Wheatley host
 nix-wheatley:
 	@echo "Rebuild Nix host Cornholio"
-	@${NIXCONF}.cornholio ${TAIL}
+	@${NIXCONF}.wheatley ${TAIL}
 
 ## nix-glados: Rebuild Nix GlaDOS host
 nix-glados:
 	@echo "Rebuild Nix host GlaDOS"
-	@${NIXCONF}.glados ${TAIL}
+	@${NIXCONF}.glaDOS ${TAIL}
 
 ## nix-mediaserver: Rebuild Nix MediaCenter host
 nix-mediaserver:

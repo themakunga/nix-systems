@@ -12,11 +12,22 @@ in {
     specialArgs = {inherit inputs;};
     modules = [
       sops-nix.nixosModules.sops
-      "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
       nixos-hardware.nixosModules.raspberry-pi-5
       commonModules.state-version
       {
+        image.modules = {
+          imports = [
+            "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+          ];
+          sdImage = {
+            imageName = "nixos-rpi-anywhere.img";
+            firmwareSize = 512;
+            compressImage = true;
+          };
+        };
+
         networking.hostName = "sdimage-install";
+
         nixpkgs = {
           buildPlatform = "x86_64-linux";
           hostPlatform = "aarch64-linux";
@@ -24,9 +35,7 @@ in {
 
         services.openssh = {
           enable = true;
-          settings = {
-            PermitRootLogin = "yes";
-          };
+          settings.PermitRootLogin = "yes";
         };
 
         users.users.root.openssh.authorizedKeys.keys = [
@@ -38,16 +47,10 @@ in {
           "flakes"
         ];
 
-        sdImage = {
-          firmwareSize = 512;
-          compressImage = true;
-        };
-
-        image.fileName = "sd-image-aarch64-generic.img";
-
         environment.systemPackages = with inputs.nixpkgs.legacyPackages.aarch64-linux; [
           git
           curl
+          pciutils
           disko
         ];
 
