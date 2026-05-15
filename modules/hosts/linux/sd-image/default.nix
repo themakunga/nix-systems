@@ -41,11 +41,22 @@ in {
             kernelParams = ["pcie_aspm=off"];
             initrd = {
               availableKernelModules = lib.mkForce [
+                # --- USB y Video ---
                 "usbhid"
                 "usb_storage"
                 "vc4"
-                "pcie_brcmstb" # Controlador PCIe de la Pi 5
-                "nvme" # Soporte para tu disco SSD
+                # --- PCIe y NVMe ---
+                "pcie_brcmstb"
+                "nvme"
+                # --- Lector MicroSD (AQUÍ ESTÁ EL FIX) ---
+                "mmc_block"
+                "sdhci"
+                "sdhci_pci"
+                "sdhci_iproc"
+                "sdhci_bcm2835"
+                # --- Sistemas de Archivos ---
+                "ext4"
+                "vfat"
               ];
               includeDefaultModules = false;
             };
@@ -80,7 +91,7 @@ in {
               '';
 
               cmdlineTxt = pkgs.writeText "cmdline.txt" ''
-                console=ttyAMA0,115200 console=tty1 root=/dev/disk/by-label/NIXOS_SD rootfstype=ext4 init=${config.system.build.toplevel}/init loglevel=7
+                console=ttyAMA0,115200 console=tty1 root=/dev/disk/by-label/NIXOS_SD rootwait rootfstype=ext4 init=${config.system.build.toplevel}/init loglevel=7
               '';
             in
               lib.mkForce ''
