@@ -15,15 +15,13 @@ in {
       nixos-hardware.nixosModules.raspberry-pi-5
       commonModules.state-version
       {
-        image.modules = {
-          imports = [
-            "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
-          ];
-          sdImage = {
-            imageName = "nixos-rpi-anywhere.img";
-            firmwareSize = 512;
-            compressImage = true;
-          };
+        imports = [
+          "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
+        ];
+        sdImage = {
+          imageName = "nixos-rpi-anywhere.img";
+          firmwareSize = 512;
+          compressImage = true;
         };
 
         fileSystems."/" = {
