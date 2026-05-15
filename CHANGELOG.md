@@ -1,3 +1,14 @@
+## [1.1.1](https://github.com/themakunga/nix-systems/compare/v1.1.0...v1.1.1) (2026-05-15)
+
+
+### Bug Fixes
+
+* add firmware override ([1ec8c21](https://github.com/themakunga/nix-systems/commit/1ec8c21da770ad011141316a9efe123023099e12))
+* add lib ([e9109eb](https://github.com/themakunga/nix-systems/commit/e9109ebb5be3d6dabece39d071bd18be020f122a))
+* correct hardware derivation ([9a6ed4a](https://github.com/themakunga/nix-systems/commit/9a6ed4adf142eb67c642a49c350cb8cc83826406))
+* disk manage ([cad8fad](https://github.com/themakunga/nix-systems/commit/cad8fad753cc18b2e462dc1f256a75be8d9df445))
+* remove overrride ([086f11d](https://github.com/themakunga/nix-systems/commit/086f11d62abb75469f28c5ce583cba18f606c510))
+
 # [1.1.0](https://github.com/themakunga/nix-systems/compare/v1.0.0...v1.1.0) (2026-05-14)
 
 
