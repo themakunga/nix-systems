@@ -3,15 +3,23 @@ repos:
     rev: v6.0.0
     hooks:
       - id: trailing-whitespace
+        # Forzamos a que estos solo corran en pre-commit para evitar conflictos
+        stages: [pre-commit]
       - id: end-of-file-fixer
+        stages: [pre-commit]
       - id: check-yaml
+        stages: [pre-commit]
       - id: check-added-large-files
+        stages: [pre-commit]
       - id: check-merge-conflict
+        stages: [pre-commit]
       - id: mixed-line-ending
+        stages: [pre-commit]
   - repo: https://github.com/mrtazz/checkmake
     rev: V0.3.2
     hooks:
       - id: checkmake
+        stages: [pre-commit]
   - repo: local
     hooks:
       - id: makefile-config
@@ -20,41 +28,44 @@ repos:
         language: system
         files: ^Makefile$
         pass_filenames: true
+        stages: [pre-commit]
       - id: statix
         name: Linter Nix (static)
-        # 'nix run' descarga el paquete desde el repositorio de Nixpkgs
-        # y lo ejecuta sin instalarlo globalmente.
         entry: nix run nixpkgs#statix -- check
         language: system
         files: \.nix$
         pass_filenames: false
+        stages: [pre-commit]
       - id: alejandra
         name: Formatter nix
         entry: nix run nixpkgs#alejandra --
         language: system
         files: \.nix$
-      - id: checks
-        name: Run checks before puhs
+        stages: [pre-commit]
+      - id: nix-flake-check
+        name: Nix Flake Check (Pre-Push)
         entry: nix flake check
         language: system
-        stages:
-          - pre-push
+        stages: [pre-push]
+        always_run: true
+        pass_filenames: false
   - repo: https://github.com/astro/deadnix
     rev: v1.3.1
     hooks:
       - id: deadnix
         name: Nix dead code
+        stages: [pre-commit]
         args:
           - --fail
   - repo: https://github.com/google/yamlfmt
     rev: v0.21.0
     hooks:
       - id: yamlfmt
+        stages: [pre-commit]
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v9.25.0
     hooks:
       - id: commitlint
-        stages:
-          - commit-msg
+        stages: [commit-msg]
         additional_dependencies:
           - "@commitlint/config-conventional"
