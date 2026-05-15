@@ -21,7 +21,7 @@ darwin-outer-heaven:
 ## sd-image: Build SD image with a generich host
 sd-image:
 	@echo "Build SD image RPI"
-	@${NIXBUILD}.sd-image.config.system.build.images.rpi5-installer ${TAIL}
+	@${NIXBUILD}.sd-image.config.system.build.sdImage ${TAIL}
 
 ## ---
 ## nix-wheatley: Rebuild Nix Wheatley host
