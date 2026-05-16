@@ -13,13 +13,14 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - name: Secret Scan
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
           base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-          extra_args: --only-verified
+          extra_args: --log-level=2 --results=verified,unknown
       - name: Checkout Repo
         uses: actions/checkout@v6
       - name: Setup SSH Agent
