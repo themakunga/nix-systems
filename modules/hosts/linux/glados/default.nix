@@ -35,9 +35,17 @@ in {
           {
             networking.hostName = "glaDOS";
 
-            services.openssh.enable = true;
+            boot = {
+              loader = {
+                grub.enable = false;
+                generic-extlinux-compatible.enable = true;
+              };
+            };
 
-            zramSwap.enable = true;
+            services.openssh = {
+              enable = true;
+              settings.PermitRootLogin = "no";
+            };
           }
         ];
       };

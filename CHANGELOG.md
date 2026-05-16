@@ -1,3 +1,40 @@
+## [1.1.4](https://github.com/themakunga/nix-systems/compare/v1.1.3...v1.1.4) (2026-05-15)
+
+
+### Bug Fixes
+
+* bootloader manual ([3e32546](https://github.com/themakunga/nix-systems/commit/3e32546bf609258bf24f7fb9a1a06c35385608ae))
+* firmware module manual ([1e37f74](https://github.com/themakunga/nix-systems/commit/1e37f74473d48f0b8cc3f92b428b02f5b9a8b607))
+* move build host ([8c5ad93](https://github.com/themakunga/nix-systems/commit/8c5ad937525590de4122b4761205ee3fc73f3b16))
+
+## [1.1.3](https://github.com/themakunga/nix-systems/compare/v1.1.2...v1.1.3) (2026-05-15)
+
+
+### Bug Fixes
+
+* add filesystem ([3d747eb](https://github.com/themakunga/nix-systems/commit/3d747eb516b60d48ea7e7cf408133b4f7ac5dc67))
+* old imager builder ([6a38873](https://github.com/themakunga/nix-systems/commit/6a388733078a146670fef6877295353dbc3d9a2b))
+* refactor dir ([c6f9b30](https://github.com/themakunga/nix-systems/commit/c6f9b3023c3ba43939d485a7ba3dbbc43f07130a))
+* rollback makefile ([08ff026](https://github.com/themakunga/nix-systems/commit/08ff026a00d926847bbfbd7c2af40318f8d266fc))
+
+## [1.1.2](https://github.com/themakunga/nix-systems/compare/v1.1.1...v1.1.2) (2026-05-15)
+
+
+### Bug Fixes
+
+* hardware nominate ([7bc2130](https://github.com/themakunga/nix-systems/commit/7bc21305576e2df2dbf2f0e6ebbc148b05cd9ce6))
+
+## [1.1.1](https://github.com/themakunga/nix-systems/compare/v1.1.0...v1.1.1) (2026-05-15)
+
+
+### Bug Fixes
+
+* add firmware override ([1ec8c21](https://github.com/themakunga/nix-systems/commit/1ec8c21da770ad011141316a9efe123023099e12))
+* add lib ([e9109eb](https://github.com/themakunga/nix-systems/commit/e9109ebb5be3d6dabece39d071bd18be020f122a))
+* correct hardware derivation ([9a6ed4a](https://github.com/themakunga/nix-systems/commit/9a6ed4adf142eb67c642a49c350cb8cc83826406))
+* disk manage ([cad8fad](https://github.com/themakunga/nix-systems/commit/cad8fad753cc18b2e462dc1f256a75be8d9df445))
+* remove overrride ([086f11d](https://github.com/themakunga/nix-systems/commit/086f11d62abb75469f28c5ce583cba18f606c510))
+
 # [1.1.0](https://github.com/themakunga/nix-systems/compare/v1.0.0...v1.1.0) (2026-05-14)
 
 

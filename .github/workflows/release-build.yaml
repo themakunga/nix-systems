@@ -2,7 +2,7 @@ name: Release - Build and Publish
 on:
   push:
     branches:
-      - 'release/v*'
+      - "release/v*"
 permissions:
   contents: write
   issues: write
@@ -21,7 +21,7 @@ jobs:
         with:
           platforms: arm64
       - name: Setup SSH Agent
-        uses: webfactory/ssh-agent@v0.9.0
+        uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{secrets.SECRETS_REPO_SSH_KEY }}
       - name: Install Nix
@@ -31,7 +31,7 @@ jobs:
           extra_nix_config: |
             extra-platforms = aarch64-linux
       - name: Setup Cachix
-        uses: cachix/cachix-action@v15
+        uses: cachix/cachix-action@v17
         with:
           name: themakunga
           authToken: ${{secrets.CACHIX_TOKEN }}
@@ -42,7 +42,7 @@ jobs:
           cp -L result/sd-image/*.img.zst output/sd-image-rpi.img.zst
       - name: Run Semantic Release
         id: semactic
-        uses: cycjimmy/semantic-release-action@v4
+        uses: cycjimmy/semantic-release-action@v6.0.0
         with:
           extra_plugins: |
             @semantic-release/changelog
