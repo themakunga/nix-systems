@@ -16,6 +16,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
       - name: Setup QEMU (ARM)
         uses: docker/setup-qemu-action@v4
         with:
@@ -41,7 +42,7 @@ jobs:
           mkdir -p output
           cp -L result/sd-image/*.img.zst output/sd-image-rpi.img.zst
       - name: Run Semantic Release
-        id: semactic
+        id: semantic
         uses: cycjimmy/semantic-release-action@v6.0.0
         with:
           extra_plugins: |
@@ -51,7 +52,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN  }}
       - name: Upload Image to GitHub Release
-        if: steps.semantic.output.new_release_publisbh == 'true'
+        if: steps.semantic.outputs.new_release_published == 'true'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.RELEASE_TOKEN }}
@@ -59,3 +60,16 @@ jobs:
           asset_name: nixos-rpi-${{ steps.semantic.output.new_release_version }}.img.zst
           tag: ${{ steps.semantic.output.new_release_git_tag }}
           overwrite: true
+      - name: Merge to develop and clean release branch
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin develop
+          git checkout develop
+          git merge origin/${{ github.ref_name }} \
+          --no-ff \
+          -m "chore(release): merge ${{github.ref_name}} to develop [skip ci]"
+          git push origin develop
+          git push origin --tags
+          git push origin --delete ${{ github.ref_name }}
