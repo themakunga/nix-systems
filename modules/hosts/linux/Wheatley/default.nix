@@ -42,6 +42,13 @@ in {
           }
         ];
       };
+      wheatley-build = nixpkgs.lib.nixosSystem {
+        specialArgs = {inherit inputs;};
+        modules = [
+          nixosModules.rapsberry-pi-config
+          nixos-hardware.nixosModules.raspberry-pi-3 # its the same board
+        ];
+      };
     };
   };
 }
