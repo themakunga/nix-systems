@@ -1,4 +1,4 @@
-{self}: {
+{self, ...}: {
   flake.commonModules.setttings = {
     pkgs,
     lib,
