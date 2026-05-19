@@ -38,9 +38,15 @@ jobs:
           authToken: ${{secrets.CACHIX_TOKEN }}
       - name: Build SD Image
         run: |
-          make sd-image
           mkdir -p output
-          cp -L result/sd-image/*.img.zst output/sd-image-rpi.img.zst
+
+          echo "=> Building GlaDOS (RPi5)..."
+          make build-glados
+          cp -L result/sd-image/*.zst output/
+
+          echo "=> Building Wheatley (RPi02)..."
+          make build-wheatley
+          cp -L result/sd-image/*.zst output/
       - name: Run Semantic Release
         id: semantic
         uses: cycjimmy/semantic-release-action@v6.0.0
@@ -56,9 +62,9 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.RELEASE_TOKEN }}
-          file: output/sd-image-rpi.img.zst
-          asset_name: nixos-rpi-${{ steps.semantic.output.new_release_version }}.img.zst
-          tag: ${{ steps.semantic.output.new_release_git_tag }}
+          file: output/*.zst
+          file_glob: true
+          tag: ${{ steps.semantic.outputs.new_release_git_tag }}
           overwrite: true
       - name: Merge to develop and clean release branch
         if: steps.semantic.outputs.new_release_published == 'true'
