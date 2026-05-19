@@ -72,7 +72,7 @@ setup-darwin:
 
 formatting:
 	@echo "Style format flake using Alejandra"
-	@${NIXRUN}alendra -- --check .
+	@${NIXRUN}alejandra -- --check .
 
 statix:
 	@echo "Perform Static analysis"
