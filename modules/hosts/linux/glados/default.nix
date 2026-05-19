@@ -19,15 +19,17 @@ in {
   flake = {
     nixosConfigurations = {
       glaDOS = nixpkgs.lib.nixosSystem {
-        system = "aarch64-linux";
-        specialArgs = {};
+        specialArgs = {
+          inherit inputs;
+          inherit (inputs) nixpkgs secrets;
+        };
         modules = [
+          {nixpkgs.hostPlatform = "aarch64-linux";}
           nixos-hardware.nixosModules.raspberry-pi-5
           commonModules.settings
           disko.nixosModules.disko
           nixosModules.glaDOS-disk
 
-          nixosModules.rpi-config
           sops-nix.nixosModules.sops
           {
             networking.hostName = "glaDOS";
@@ -77,8 +79,9 @@ in {
                 };
               };
 
+              image.fileName = "nixos-GlaDOS-boot.nix";
+
               sdImage = {
-                imageName = "nixos-glaDOS-boot.img";
                 firmwareSize = 512;
                 compressImage = true;
 

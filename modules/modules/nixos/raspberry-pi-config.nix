@@ -1,10 +1,12 @@
 {
   flake.nixosModules.rpi-config = {
     pkgs,
-    nixpkgs,
-    secrets,
+    lib,
+    inputs,
     ...
-  }: {
+  }: let
+    inherit (inputs) nixpkgs secrets;
+  in {
     system.stateVersion = "25.11";
 
     nix.settings.experimental-features = [
@@ -13,7 +15,7 @@
     ];
 
     imports = [
-      "${nixpkgs}/nixos/modules/intaller/sd-card/sd-image-aarch64.nix"
+      "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
     ];
 
     nixpkgs = {
@@ -23,14 +25,14 @@
 
     boot.loader = {
       grub.enable = false;
-      generic-extlinux-compatible.enable = false;
+      generic-extlinux-compatible.enable = true;
       efi.canTouchEfiVariables = false;
     };
 
     hardware.deviceTree.enable = true;
 
     fileSystems."/" = {
-      device = "/";
+      device = lib.mkDefault "/dev/disk/by-label/NIXOS_SD";
       fsType = "ext4";
     };
 

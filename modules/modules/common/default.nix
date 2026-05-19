@@ -1,9 +1,23 @@
 {lib, ...}:
 with lib; {
   options = {
-    flake.commonModules = mkOption {
-      type = types.attrsOf types.raw;
-      default = {};
+    flake = {
+      commonModules = mkOption {
+        type = types.attrsOf types.raw;
+        default = {};
+      };
+      darwinModules = mkOption {
+        type = types.attrsOf types.raw;
+        default = {};
+      };
+      darwinConfigurations = mkOption {
+        type = types.attrsOf types.raw;
+        default = {};
+      };
+      usersModules = mkOption {
+        type = types.attrsOf types.raw;
+        default = {};
+      };
     };
   };
   config = {};

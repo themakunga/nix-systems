@@ -24,9 +24,7 @@ in {
           inherit (inputs) nixpkgs secrets;
         };
         modules = [
-          {
-            nixpkgs.hostPlatform = "aarch64-linux";
-          }
+          {nixpkgs.hostPlatform = "aarch64-linux";}
           nixos-hardware.nixosModules.raspberry-pi-3
           commonModules.settings
           disko.nixosModules.disko
@@ -77,14 +75,15 @@ in {
                 };
               };
 
+              image.fileName = "nixos-Wheatley-boot.img";
+
               sdImage = {
-                imageName = "nixos-glaDOS-boot.img";
                 firmwareSize = 512;
                 compressImage = true;
 
                 populateFirmwareCommands = let
                   configTxt = pkgs.writeText "config.txt" ''
-                    [pi5]
+                    [pi02]
                     arm_64bit=1
                     enable_uart=1
 
