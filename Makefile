@@ -1,102 +1,98 @@
-# Variables - Asegúrate de que coincidan exactamente
-NIXCONF = nix rebuild switch .\#nixosConfigurations
-NIXBUILD = nix build .\#nixosConfigurations
-DARWINCONF = sudo darwin-rebuild switch .\#darwinConfigurations
-TAIL = -L --accept-flake-config
-NXRUN = nix run nixpkgs\#
+NIXOSRUN = nix run
+NIXRUN = nix run nixpkgs\#
+NIXBUILD = nix build ./#nixosConfigurations
+NIXINSTALL = sudo nixos-install --flake .\#nixosConfigurations
+NIXREBUILD = sudo nixos-rebuild switch --flake .\#nixosConfigurations
+DARWINREBUILD = sudo darwin-rebuild switch .\#darwinConfigurations
+ARGS = -L --accept-flake-config
+EXTRA = --extra-experimental-features "nix-command flakes"
 
-.PHONY: all clean test help darwin-kanagawa darwin-outer-heaven nix-wheatley nix-glados nix-mediaserver nix-motherbase nix-steamdeck install-darwin install-nixos help formatting statix deadnix check
+.PHONY: default rebuild-glados rebuild-wheatley build-glados build-wheatley rebuild-kanagawa rebuild-outer-heaven install-mediacenter install-motherbase install-steamdeck rebuild-mediacenter rebuild-motherbase rebuild-steamdeck setup-nixos setup-darwin formatting statix deadnix all clean test
 
-## darwin-kanagawa: Rebuild darwin in Kanagawa host
-darwin-kanagawa:
-	@echo "Rebuild Nix-Darwin host Kanagawa"
-	@${DARWINCONF}.kanagawa ${TAIL}
 
-## darwin-outer-heaven: Rebuild darwin in Outer-Heaven host
-darwin-outer-heaven:
-	@echo "Rebuilg Nix-Darwin host outer-heaven"
-	@${DARWINCONF}.outer-heaven ${TAIL}
+default: help
 
-## ---
-## sd-image: Build SD image with a generich host
-sd-image:
-	@echo "Build SD image RPI"
-	@${NIXBUILD}.sd-image.config.system.build.sdImage ${TAIL}
-
-## ---
-## nix-wheatley: Rebuild Nix Wheatley host
-nix-wheatley:
-	@echo "Rebuild Nix host Cornholio"
-	@${NIXCONF}.wheatley ${TAIL}
-
-## nix-glados: Rebuild Nix GlaDOS host
-nix-glados:
-	@echo "Rebuild Nix host GlaDOS"
-	@${NIXCONF}.glaDOS ${TAIL}
-
-## nix-mediaserver: Rebuild Nix MediaCenter host
-nix-mediaserver:
-	@echo "Rebuild Nix host MediaCenter"
-	@${NIXCONF}.mediaserver ${TAIL}
-
-## nix-motherbase: Rebuild Nix MotherBase host
-nix-motherbase:
-	@echo "Rebuild Nix host MotherBase"
-	@${NIXCONF}.motherbase ${TAIL}
-
-## nix-steamdeck: Rebuild Nix Steamdeck
-nix-steamdeck:
-	@echo "Rebuild Nix host Steamdeck"
-	@${NIXCONF}.steamdeck ${TAIL}
-
-## ---
-## install-darwin: Install nix-darwin
-install-darwin:
-	@echo "Install nix Darwin"
-	sudo nix run nix-darwin/nix-darwin-25.11#darwin-rebuild -- switch
-
-## install-nixos: Install NixOS package Manager
-install-nixos:
-	@echo "Install NixOS"
-	sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install)
-
-## ---
-## formatting: Format code using alejandra
-formatting:
-	@echo "Formmating Flakes using Alejandra"
-	@${NXRUN}alejandra -- --check .
-
-## statix: Perform static analysis
-statix:
-	@echo "Perform Static analysis"
-	@${NXRUN}statix -- check .
-
-## deadnix: Dectect unused code
-deadnix:
-	@echo "Detect unused code"
-	@${NXRUN}deadnix -- .
-
-## check: Run nix flake Checker
-check:
-	@echo "Run Nix Flake check"
-	@nix flake check ${TAIL}
-
-## ---
-## all: (Default) Muestra la ayuda
 all: help
 
-## clean: Limpiar basura de builds de Nix (opcional)
+build-glados:
+	@echo "Build GlaDOS SD Image"
+	@${NIXBUILD}.glados-build.sd-image.config.system.build.sdImage ${ARGS}
+
+build-wheatley:
+	@echo "Build Wheatley SD Image"
+	@${NIXBUILD}.wheatler-build.sd-image.config.system.build.sdImage ${ARGS}
+
+rebuild-glados:
+	@echo "Install packages and configuration in GlaDOS host (arm64)"
+	@${NIXREBUILD}.glaDOS ${ARGS}
+
+rebuild-wheatlety:
+	@echo "Install packages and configuration in Wheatley host (arm64)"
+	@${NIXREBUILD}.wheatley ${ARGS}
+
+rebuild-kanagawa:
+	@echo "Rebuild and configure Kanagawa Darwin host"
+	@${DARINREBUILD}.kanagawa ${ARGS}
+
+rebuild-outer-heaven:
+	@echo "Rebuild and configure Outer-Heaven Darwin host"
+	@${DARWINREBUILD}.outer-heaven ${ARGS}
+
+install-mediacenter:
+	@echo "Install nixos system for Mediacenter host (x86_64)"
+	@${NIXINTALL}.mediacenter ${EXTRAS}
+
+install-motherbase:
+	@echo "Install nixos system for Motherbase host (x86_64)"
+	@${NIXINSTALL}.motherbase ${EXTRA}
+
+install-steamdeck:
+	@echo "Install nixos system for SteamDeck host (x86_64)"
+	@${NIXINSTALL}.steamdeck ${EXTRA}
+
+rebuild-mediacenter:
+	@echo "Update packages and configurations for Mediacenter host"
+	@${NIXREBUILD}.mediacenter ${ARGS}
+
+rebuild-motherbase:
+	@echo "Update packages and configurations for Motherbase host"
+	@${NIXREBUILD}.motherbase ${ARGS}
+
+rebuild-steamdeck:
+	@echo "Update packages and configurations for SteamDeck host"
+	@${NIXREBUILD}.steamdeck ${ARGS}
+
+setup-nixos:
+	@echo "Install nixOS package manager"
+	@sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install)
+
+setup-darwin:
+	@echo "Install nix-darwin modules and package manager"
+	@${NIXOSRUN} nix-darwin/nix-darwin-25.11#darwin-rebuild -- switch
+
+formatting:
+	@echo "Style format flake using Alejandra"
+	@${NIXRUN}alendra -- --check .
+
+statix:
+	@echo "Perform Static analysis"
+	@${NIXRUN}statix -- check .
+
+deadnix:
+	@echo "Detect unused code"
+	@${NIXRUN}deadnix -- .
+
+check:
+	@echo "Check modules and configurations"
+	@nix flake check ${TAIL}
+
 clean:
-	sudo nix-collect-garbage -d
+	@echo "Clean installation"
+	@sudo nix-collect-garbage -d
 
-## test: Validar los archivos Nix sin aplicar cambios
-test:
-	nix run nixpkgs#statix -- check
-	nix run nixpkgs#deadnix -- --fail
+test: check
 
-## ---
-## help: This Information
 help:
-	@echo "Use: make [target]"
+	@echo "Use make [target]"
 	@echo ""
-	@sed -n 's/^##//p' $(MAKEFILE_LIST) | column -t -s ':' | sed -e 's/^/ /'
+	@sed -n '/^[a-zA-Z0-9_-]*:/ { N; s/^\([^:]*\):.*\n.*@echo "\(.*\)".*/\1:\2/p; }' $(MAKEFILE_LIST) | column -t -s ':' | sed -e 's/^/ /'
