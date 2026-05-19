@@ -440,11 +440,11 @@
     "secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1779227760,
-        "narHash": "sha256-RaCIM/ut1vs1omj/k0598tnx4vMHIFI5SUa18Pbp3m4=",
+        "lastModified": 1779228589,
+        "narHash": "sha256-Qwr5s5oqpOImAFIKYn0TqO62L/NAXxz5mY14zhia+Nc=",
         "owner": "TheMakunga",
         "repo": ".secrets",
-        "rev": "f3b7a32da548db58668cbf598b0954bc0d0d7b93",
+        "rev": "b40cef0f14d24d112aa21641fe8053da2d1bd5f5",
         "type": "github"
       },
       "original": {
