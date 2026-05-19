@@ -1,3 +1,21 @@
+# [1.2.0](https://github.com/themakunga/nix-systems/compare/v1.1.4...v1.2.0) (2026-05-18)
+
+
+### Bug Fixes
+
+* drivers sd ([bce3689](https://github.com/themakunga/nix-systems/commit/bce36898063e76b785594b938f9d245a3afc7110))
+* filesystem drivers ([a5e09d7](https://github.com/themakunga/nix-systems/commit/a5e09d7d1b37f727a6eda9d99aa222d1cba7b1c4))
+* typo ([6b32154](https://github.com/themakunga/nix-systems/commit/6b321540bf651580098c500193c74d850d839f5d))
+
+
+### Features
+
+* bootloader on glados ([559c62c](https://github.com/themakunga/nix-systems/commit/559c62c4ada29b570f6cfc01daf936d767d5b3ec))
+* pipeline, weekly revision ([fac12b6](https://github.com/themakunga/nix-systems/commit/fac12b603fd3011b9507312ddd245e1c6c732f3f))
+* security pipeline update params ([d3f2a00](https://github.com/themakunga/nix-systems/commit/d3f2a00f94643d4494518511849a892c4ef481a0))
+* tailscale install params ([1f97e46](https://github.com/themakunga/nix-systems/commit/1f97e4695e365db7af1ca22b488ff66730dfac0e))
+* update pipeline versions ([85bd652](https://github.com/themakunga/nix-systems/commit/85bd6524e137e8b955b442fac49cff79e63c7fca))
+
 ## [1.1.4](https://github.com/themakunga/nix-systems/compare/v1.1.3...v1.1.4) (2026-05-15)
 
 

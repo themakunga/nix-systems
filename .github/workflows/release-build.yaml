@@ -62,8 +62,13 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.RELEASE_TOKEN }}
+<<<<<<< develop
           file: output/*.zst
           file_glob: true
+=======
+          file: output/sd-image-rpi.img.zst
+          asset_name: nixos-rpi-${{ steps.semantic.outputs.new_release_version }}.img.zst
+>>>>>>> release/v20260517
           tag: ${{ steps.semantic.outputs.new_release_git_tag }}
           overwrite: true
       - name: Merge to develop and clean release branch
