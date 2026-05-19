@@ -18,11 +18,8 @@ in {
     system = "x86_64-linux";
     specialArgs = {};
     modules = [
-      commonModules.nix-settings
-      commonModules.state-version
-
+      commonModules.settings
       sops-nix.nixosModules.sops
-      commonModules.secrets-management
 
       nixosModules.boot-loader
       {

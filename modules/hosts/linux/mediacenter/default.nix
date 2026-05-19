@@ -21,7 +21,6 @@ in {
       commonModules.settings
 
       sops-nix.nixosModules.sops
-      commonModules.secrets-management
 
       nixosModules.boot-loader
       {

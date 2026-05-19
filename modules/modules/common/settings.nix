@@ -1,5 +1,5 @@
 {self, ...}: {
-  flake.commonModules.setttings = {
+  flake.commonModules.settings = {
     pkgs,
     lib,
     ...

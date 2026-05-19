@@ -20,13 +20,10 @@ in {
     specialArgs = {};
     system = "aarch64-darwin";
     modules = [
-      commonModules.nix-settings
-      commonModules.state-version
-
+      commonModules.settings
       darwinModules.common
 
       sops-nix.darwinModules.sops
-      commonModules.secrets-management
 
       nix-homebrew.darwinModules.nix-homebrew
       {
