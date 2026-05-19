@@ -46,7 +46,7 @@
       (builtins.readFile "${secrets}/public-keys/kanagawa.pub")
       (builtins.readFile "${secrets}/public-keys/motherbase.pub")
       (builtins.readFile "${secrets}/public-keys/wheatley.pub")
-      (builtins.readFile "${secrets}/public-keys/glaDOS.pub")
+      (builtins.readFile "${secrets}/public-keys/glados.pub")
       (builtins.readFile "${secrets}/public-keys/mediaserver.pub")
     ];
 
