@@ -16,11 +16,11 @@ all: help
 
 build-glados:
 	@echo "Build GlaDOS SD Image"
-	@${NIXBUILD}.glados-build.sd-image.config.system.build.sdImage ${ARGS}
+	@${NIXBUILD}.glaDOS-build.config.system.build.sdImage ${ARGS}
 
 build-wheatley:
 	@echo "Build Wheatley SD Image"
-	@${NIXBUILD}.wheatler-build.sd-image.config.system.build.sdImage ${ARGS}
+	@${NIXBUILD}.wheatley-build.config.system.build.sdImage ${ARGS}
 
 rebuild-glados:
 	@echo "Install packages and configuration in GlaDOS host (arm64)"
