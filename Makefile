@@ -1,6 +1,6 @@
 NIXOSRUN = nix run
 NIXRUN = nix run nixpkgs\#
-NIXBUILD = nix build .\r#nixosConfigurations
+NIXBUILD = nix build .\#nixosConfigurations
 NIXINSTALL = sudo nixos-install --flake .\#nixosConfigurations
 NIXREBUILD = sudo nixos-rebuild switch --flake .\#nixosConfigurations
 DARWINREBUILD = sudo darwin-rebuild switch .\#darwinConfigurations
