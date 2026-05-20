@@ -28,7 +28,7 @@ jobs:
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.10.0
         with:
-          ssh-private-key: ${{secrets.SECRETS_REPO_SSH_KEY }}
+          ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY }}
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
@@ -39,7 +39,7 @@ jobs:
         uses: cachix/cachix-action@v17
         with:
           name: themakunga
-          authToken: ${{secrets.CACHIX_TOKEN }}
+          authToken: ${{ secrets.CACHIX_TOKEN }}
       - name: Build SD Image
         run: |
           mkdir -p output
@@ -47,7 +47,7 @@ jobs:
           make build-${{ matrix.target }}
           cp -L result/sd-image/*.zst output/
       - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: image-${{ matrix.target }}
           path: output/*.zst
@@ -64,7 +64,7 @@ jobs:
           token: ${{ secrets.RELEASE_TOKEN }}
           ref: ${{ github.ref }}
       - name: Download Built Images
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: output
           pattern: image-*
@@ -74,11 +74,12 @@ jobs:
         uses: cycjimmy/semantic-release-action@v6.0.0
         with:
           extra_plugins: |
+            @semantic-release/commit-analyzer
             @semantic-release/changelog
             @semantic-release/git
             @semantic-release/github
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN  }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
       - name: Upload Image to GitHub Release
         if: steps.semantic.outputs.new_release_published == 'true'
         uses: svenstaro/upload-release-action@v2
@@ -88,15 +89,17 @@ jobs:
           file_glob: true
           tag: ${{ steps.semantic.outputs.new_release_git_tag }}
           overwrite: true
-      - name: Merge to develop and clean release branch
+      - name: Merge to main and clean release branch
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git fetch origin develop:develop
+          git fetch origin main:main
 
-          git checkout develop
+          git checkout main
           git merge origin/${{ github.ref_name }} \
           --no-ff \
-          -m "chore(release): merge ${{github.ref_name}} to develop [skip ci]"
+          -m "chore(release): merge ${{github.ref_name}} to main [skip ci]"
+
+          git push origin main
