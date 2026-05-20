@@ -31,6 +31,10 @@ in {
           nixosModules.wheatley-disk
 
           sops-nix.nixosModules.sops
+
+          nixosModules.tailscale
+          nixosModules.pihole
+          nixosModules.wifi
           {
             networking.hostName = "wheatley";
 
