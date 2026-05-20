@@ -2,11 +2,12 @@ name: CI - Quality and Lintering
 on:
   push:
     branches:
-      - develop
+      - main
+      - release/*
       - feature/*
   pull_request:
     branches:
-      - develop
+      - main
 jobs:
   linter-and-check:
     runs-on: ubuntu-latest
@@ -28,9 +29,9 @@ jobs:
           authToken: ${{ secrets.CACHIX_TOKEN }}
       - name: Check Formatting
         run: make formatting
-      - name: Perform Static Analysis and linter unsing Statix
+      - name: Perform Static Analysis and linter using Statix
         run: make statix
-      - name: Detects unused code variables using deadnix
+      - name: Detect unused code variables using deadnix
         run: make deadnix
       - name: Nix Flake Check
         run: make check
