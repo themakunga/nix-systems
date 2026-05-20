@@ -1,22 +1,20 @@
-# Target branches for the release process
 branches:
-  - release/v*
-# Plugin execution order and configuration
+  - "release/v*"
 plugins:
-  # Analyzes commits to determine the next version type (major, minor, patch)
-  - "@semantic-release/commit-analyzer"
-  # Generates release notes based on the parsed commits
+  - - "@semantic-release/commit-analyzer"
+    - preset: "angular"
+      releaseRules:
+        - subject: "*BREAKING CHANGE*"
+          release: "major"
+        - subject: "*NEW RELEASE*"
+          release: "major"
+        - body: "*BREAKING CHANGE*"
+          release: "major"
+        - type: "feat"
+          release: "minor"
+        - message: "*"
+          release: "minor"
   - "@semantic-release/release-notes-generator"
-  # Updates or creates the changelog file with the generated notes
-  - - "@semantic-release/changelog"
-    - changelogFile: "CHANGELOG.md"
-  # Creates a GitHub release and uploads specified binary assets
-  - - "@semantic-release/github"
-    - assets:
-        - path: "output/*.img.zst"
-          label: "SD Card Image"
-  # Commits the updated changelog back to the repository and creates the git tag
-  - - "@semantic-release/git"
-    - assets:
-        - "CHANGELOG.md"
-      message: "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+  - "@semantic-release/changelog"
+  - "@semantic-release/github"
+  - "@semantic-release/git"
