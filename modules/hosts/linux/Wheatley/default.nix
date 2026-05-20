@@ -32,7 +32,7 @@ in {
 
           sops-nix.nixosModules.sops
 
-          nixosModules.tailscale
+          commonModules.tailscale
           nixosModules.pihole
           nixosModules.wifi
           {
