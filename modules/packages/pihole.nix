@@ -1,4 +1,4 @@
-i {
+{
   flake.nixosModules.pihole = {config, ...}: {
     sops.secrets."pihole/auth_file" = {};
 
