@@ -67,7 +67,7 @@ in {
               boot = {
                 kernelParams = ["pcie_aspm=off"];
                 initrd = {
-                  availableKernelModules = [
+                  availableKernelModules = lib.mkForce [
                     "usbhid"
                     "usb_storage"
                     "vc4"
