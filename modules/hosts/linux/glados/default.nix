@@ -71,9 +71,10 @@ in {
                     "usbhid"
                     "usb_storage"
                     "vc4"
-                    "pcie_brcmstb" # Específico RPi 5
-                    "nvme" # Específico RPi 5
-                    "mmc_block"
+                    "pcie_brcmstb" # PCIe (RPi 5)
+                    "nvme" # Discos NVMe
+                    "mmc_block" # Lector de SD
+                    "reset_raspberrypi"
                   ];
                   includeDefaultModules = false;
                 };
