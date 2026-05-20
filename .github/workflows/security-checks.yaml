@@ -8,7 +8,7 @@ permissions:
   contents: read
 jobs:
   security-scan:
-    name: Secrity Scan
+    name: Security Scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -49,13 +49,13 @@ jobs:
         with:
           assignees: TheMakunga
           labels: secrets, bug
-          title: Weekly Security Alerd Detected
+          title: Weekly Security Alert Detected
           body: |
             Hi @themakunga,
 
-             The weekly security scan has failed. Exposed secrets might have been detected in the Git history, or vulnerability/outdated issues were found in your `flake.lock`.
+            The weekly security scan has failed. Exposed secrets might have been detected in the Git history, or vulnerability/outdated issues were found in your `flake.lock`.
 
-             Please review the detailed execution logs here:
-             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            Please review the detailed execution logs here:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         env:
-          GITHUB_TOKEN: ${{secrets.RELEASE_TOKEN}}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
