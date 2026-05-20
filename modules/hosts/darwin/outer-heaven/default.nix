@@ -31,7 +31,7 @@ in {
 
         services.openssh.enable = true;
 
-        nix-hoembrew.user = "nicolas";
+        nix-homebrew.user = "nicolas";
       }
       home-manager.darwinModules.home-manager
     ];
