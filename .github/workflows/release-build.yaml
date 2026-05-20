@@ -8,9 +8,13 @@ permissions:
   issues: write
   pull-requests: write
 jobs:
-  build-and-release:
-    name: Build, Tags and Publish
+  build:
+    name: Build ${{ matrix.target }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [glados, wheatley]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
@@ -39,14 +43,32 @@ jobs:
       - name: Build SD Image
         run: |
           mkdir -p output
-
-          echo "=> Building GlaDOS (RPi5)..."
-          make build-glados
+          echo "=> Building ${{ matrix.target }}..."
+          make build-${{ matrix.target }}
           cp -L result/sd-image/*.zst output/
-
-          echo "=> Building Wheatley (RPi02)..."
-          make build-wheatley
-          cp -L result/sd-image/*.zst output/
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-${{ matrix.target }}
+          path: output/*.zst
+          retention-days: 1
+  release:
+    name: Tags, Publish and Merge
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
+          ref: ${{ github.ref }}
+      - name: Download Built Images
+        uses: actions/download-artifact@v4
+        with:
+          path: output
+          pattern: image-*
+          merge-multiple: true
       - name: Run Semantic Release
         id: semantic
         uses: cycjimmy/semantic-release-action@v6.0.0
@@ -71,11 +93,13 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin develop
+
+          git fetch origin develop:develop
+
           git checkout develop
           git merge origin/${{ github.ref_name }} \
           --no-ff \
           -m "chore(release): merge ${{github.ref_name}} to develop [skip ci]"
-          git push origin develop
-          git push origin --tags
-          git push origin --delete ${{ github.ref_name }}
+
+          git push https://x-access-token:${{ secrets.RELEASE_TOKEN }}@github.com/${{ github.repository }}.git develop
+          git push https://x-access-token:${{ secrets.RELEASE_TOKEN }}@github.com/${{ github.repository }}.git --delete ${{ github.ref_name }}
