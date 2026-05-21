@@ -3,13 +3,9 @@
     darwinModules = {
       common = {
         lib.generators.toPlist.escape = true;
-        security = {
-          pam = {
-            service = {
-              sudo_local = {
-                touchIdAuth = true;
-              };
-            };
+        security.pam.services = {
+          sudo_local = {
+            touchIdAuth = true;
           };
         };
         system = {
