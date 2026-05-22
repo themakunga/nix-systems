@@ -1,3 +1,178 @@
+## [1.2.1](https://github.com/themakunga/nix-systems/compare/v1.2.0...v1.2.1) (2026-05-22)
+
+
+### Bug Fixes
+
+* update pipeline ([10e3425](https://github.com/themakunga/nix-systems/commit/10e342529383f504e600d3558fe661184ed91b16))
+
+# [1.2.0](https://github.com/themakunga/nix-systems/compare/v1.1.4...v1.2.0) (2026-05-22)
+
+
+### Bug Fixes
+
+* darwin typos ([d4987e1](https://github.com/themakunga/nix-systems/commit/d4987e12b1dda788f7f7bf38fb7dc1f2f2da8d94))
+* drivers rpi5 ([1a55857](https://github.com/themakunga/nix-systems/commit/1a5585788e0e0a972884be190cabee88489bed6c))
+* drivers sd ([bce3689](https://github.com/themakunga/nix-systems/commit/bce36898063e76b785594b938f9d245a3afc7110))
+* filesystem drivers ([a5e09d7](https://github.com/themakunga/nix-systems/commit/a5e09d7d1b37f727a6eda9d99aa222d1cba7b1c4))
+* force rpi video hardware ([29020f6](https://github.com/themakunga/nix-systems/commit/29020f67ee4a6b8d18eeb7e66b12bb0e15f89580))
+* image position name ([f0f32ab](https://github.com/themakunga/nix-systems/commit/f0f32abe4639e60121deaa8a63ed03d1a00fefd9))
+* inputs ([50565c4](https://github.com/themakunga/nix-systems/commit/50565c4677702b5c36b63fbd8f7a84efb64fba65))
+* makefile ([7e9af0a](https://github.com/themakunga/nix-systems/commit/7e9af0acfb1940fc6d78a7f22eea53be0d3a7e1a))
+* makefile typo ([ac0b8d7](https://github.com/themakunga/nix-systems/commit/ac0b8d7b78812e252aa767c4c8da99c2a82f3f91))
+* merge conglict ([4e10e58](https://github.com/themakunga/nix-systems/commit/4e10e5824cbbdd5c5fbda2ea6c9d4704bf011523))
+* path sd image ([c713912](https://github.com/themakunga/nix-systems/commit/c71391271561183607343f8ef33fc4cf2035f9ea))
+* refactor misson options ([a29239c](https://github.com/themakunga/nix-systems/commit/a29239c2aebfc5dba3f44642938131dafb3384ba))
+* remove git clean in release ([af47370](https://github.com/themakunga/nix-systems/commit/af4737004de122e2f4961625e15775741b8e3a17))
+* remove unused modules -n ([13248eb](https://github.com/themakunga/nix-systems/commit/13248ebc4b01e44de2f2d37c66b6e2ceef806a44))
+* rename key ([a65d1f3](https://github.com/themakunga/nix-systems/commit/a65d1f3183952115ab0d03fa442b69941c2add8c))
+* typo ([ec8e98f](https://github.com/themakunga/nix-systems/commit/ec8e98f9e1f39d643fe37fd513a50db240315eb8))
+* typo ([50c8893](https://github.com/themakunga/nix-systems/commit/50c889396ca3f2cea92bf493a96eefc39c0f37f1))
+* typo ([aa3e239](https://github.com/themakunga/nix-systems/commit/aa3e23943d8eaa54f2c9b84c2d9a9d8fdf4e56f7))
+* typo ([6b32154](https://github.com/themakunga/nix-systems/commit/6b321540bf651580098c500193c74d850d839f5d))
+
+
+### Features
+
+* bootloader on glados ([559c62c](https://github.com/themakunga/nix-systems/commit/559c62c4ada29b570f6cfc01daf936d767d5b3ec))
+* common nix build module ([1d1b3f4](https://github.com/themakunga/nix-systems/commit/1d1b3f4024dcdc98a2a24d0a03ed96c1d33170f8))
+* matrix pipeline ([b766538](https://github.com/themakunga/nix-systems/commit/b766538d481adbdcc25f22a7212f349b2d903e9b))
+* move generic refactor, no br ([0f35922](https://github.com/themakunga/nix-systems/commit/0f35922a8e798d5d05262643c9880665b63acf87))
+* pipeline, weekly revision ([fac12b6](https://github.com/themakunga/nix-systems/commit/fac12b603fd3011b9507312ddd245e1c6c732f3f))
+* refactor glados builder ([8a4fc43](https://github.com/themakunga/nix-systems/commit/8a4fc43ee5ac38570ce29f2961a58c231925f28e))
+* remove generic image sd ([4381465](https://github.com/themakunga/nix-systems/commit/438146560ac426a9f26d1a91409788e90588ede4))
+* security pipeline update params ([d3f2a00](https://github.com/themakunga/nix-systems/commit/d3f2a00f94643d4494518511849a892c4ef481a0))
+* tailscale and pihole ([e22de47](https://github.com/themakunga/nix-systems/commit/e22de47c24f1b162df4adda7d1443ee156006009))
+* tailscale install params ([1f97e46](https://github.com/themakunga/nix-systems/commit/1f97e4695e365db7af1ca22b488ff66730dfac0e))
+* update new makefile ([3605572](https://github.com/themakunga/nix-systems/commit/360557235315a7222458f9e0323ceffcf3ea6559))
+* update pipeline versions ([85bd652](https://github.com/themakunga/nix-systems/commit/85bd6524e137e8b955b442fac49cff79e63c7fca))
+* wifimodule ([5a189db](https://github.com/themakunga/nix-systems/commit/5a189db833ae816716b1da8fc1103cf528b37917))
+
+# [1.2.0](https://github.com/themakunga/nix-systems/compare/v1.1.4...v1.2.0) (2026-05-22)
+
+
+### Bug Fixes
+
+* darwin typos ([d4987e1](https://github.com/themakunga/nix-systems/commit/d4987e12b1dda788f7f7bf38fb7dc1f2f2da8d94))
+* drivers rpi5 ([1a55857](https://github.com/themakunga/nix-systems/commit/1a5585788e0e0a972884be190cabee88489bed6c))
+* drivers sd ([bce3689](https://github.com/themakunga/nix-systems/commit/bce36898063e76b785594b938f9d245a3afc7110))
+* filesystem drivers ([a5e09d7](https://github.com/themakunga/nix-systems/commit/a5e09d7d1b37f727a6eda9d99aa222d1cba7b1c4))
+* force rpi video hardware ([29020f6](https://github.com/themakunga/nix-systems/commit/29020f67ee4a6b8d18eeb7e66b12bb0e15f89580))
+* image position name ([f0f32ab](https://github.com/themakunga/nix-systems/commit/f0f32abe4639e60121deaa8a63ed03d1a00fefd9))
+* inputs ([50565c4](https://github.com/themakunga/nix-systems/commit/50565c4677702b5c36b63fbd8f7a84efb64fba65))
+* makefile ([7e9af0a](https://github.com/themakunga/nix-systems/commit/7e9af0acfb1940fc6d78a7f22eea53be0d3a7e1a))
+* makefile typo ([ac0b8d7](https://github.com/themakunga/nix-systems/commit/ac0b8d7b78812e252aa767c4c8da99c2a82f3f91))
+* merge conglict ([4e10e58](https://github.com/themakunga/nix-systems/commit/4e10e5824cbbdd5c5fbda2ea6c9d4704bf011523))
+* path sd image ([c713912](https://github.com/themakunga/nix-systems/commit/c71391271561183607343f8ef33fc4cf2035f9ea))
+* refactor misson options ([a29239c](https://github.com/themakunga/nix-systems/commit/a29239c2aebfc5dba3f44642938131dafb3384ba))
+* remove git clean in release ([af47370](https://github.com/themakunga/nix-systems/commit/af4737004de122e2f4961625e15775741b8e3a17))
+* remove unused modules -n ([13248eb](https://github.com/themakunga/nix-systems/commit/13248ebc4b01e44de2f2d37c66b6e2ceef806a44))
+* rename key ([a65d1f3](https://github.com/themakunga/nix-systems/commit/a65d1f3183952115ab0d03fa442b69941c2add8c))
+* typo ([ec8e98f](https://github.com/themakunga/nix-systems/commit/ec8e98f9e1f39d643fe37fd513a50db240315eb8))
+* typo ([50c8893](https://github.com/themakunga/nix-systems/commit/50c889396ca3f2cea92bf493a96eefc39c0f37f1))
+* typo ([aa3e239](https://github.com/themakunga/nix-systems/commit/aa3e23943d8eaa54f2c9b84c2d9a9d8fdf4e56f7))
+* typo ([6b32154](https://github.com/themakunga/nix-systems/commit/6b321540bf651580098c500193c74d850d839f5d))
+
+
+### Features
+
+* bootloader on glados ([559c62c](https://github.com/themakunga/nix-systems/commit/559c62c4ada29b570f6cfc01daf936d767d5b3ec))
+* common nix build module ([1d1b3f4](https://github.com/themakunga/nix-systems/commit/1d1b3f4024dcdc98a2a24d0a03ed96c1d33170f8))
+* matrix pipeline ([b766538](https://github.com/themakunga/nix-systems/commit/b766538d481adbdcc25f22a7212f349b2d903e9b))
+* move generic refactor, no br ([0f35922](https://github.com/themakunga/nix-systems/commit/0f35922a8e798d5d05262643c9880665b63acf87))
+* pipeline, weekly revision ([fac12b6](https://github.com/themakunga/nix-systems/commit/fac12b603fd3011b9507312ddd245e1c6c732f3f))
+* refactor glados builder ([8a4fc43](https://github.com/themakunga/nix-systems/commit/8a4fc43ee5ac38570ce29f2961a58c231925f28e))
+* remove generic image sd ([4381465](https://github.com/themakunga/nix-systems/commit/438146560ac426a9f26d1a91409788e90588ede4))
+* security pipeline update params ([d3f2a00](https://github.com/themakunga/nix-systems/commit/d3f2a00f94643d4494518511849a892c4ef481a0))
+* tailscale and pihole ([e22de47](https://github.com/themakunga/nix-systems/commit/e22de47c24f1b162df4adda7d1443ee156006009))
+* tailscale install params ([1f97e46](https://github.com/themakunga/nix-systems/commit/1f97e4695e365db7af1ca22b488ff66730dfac0e))
+* update new makefile ([3605572](https://github.com/themakunga/nix-systems/commit/360557235315a7222458f9e0323ceffcf3ea6559))
+* update pipeline versions ([85bd652](https://github.com/themakunga/nix-systems/commit/85bd6524e137e8b955b442fac49cff79e63c7fca))
+* wifimodule ([5a189db](https://github.com/themakunga/nix-systems/commit/5a189db833ae816716b1da8fc1103cf528b37917))
+
+# [1.2.0](https://github.com/themakunga/nix-systems/compare/v1.1.4...v1.2.0) (2026-05-22)
+
+
+### Bug Fixes
+
+* darwin typos ([d4987e1](https://github.com/themakunga/nix-systems/commit/d4987e12b1dda788f7f7bf38fb7dc1f2f2da8d94))
+* drivers rpi5 ([1a55857](https://github.com/themakunga/nix-systems/commit/1a5585788e0e0a972884be190cabee88489bed6c))
+* drivers sd ([bce3689](https://github.com/themakunga/nix-systems/commit/bce36898063e76b785594b938f9d245a3afc7110))
+* filesystem drivers ([a5e09d7](https://github.com/themakunga/nix-systems/commit/a5e09d7d1b37f727a6eda9d99aa222d1cba7b1c4))
+* force rpi video hardware ([29020f6](https://github.com/themakunga/nix-systems/commit/29020f67ee4a6b8d18eeb7e66b12bb0e15f89580))
+* image position name ([f0f32ab](https://github.com/themakunga/nix-systems/commit/f0f32abe4639e60121deaa8a63ed03d1a00fefd9))
+* inputs ([50565c4](https://github.com/themakunga/nix-systems/commit/50565c4677702b5c36b63fbd8f7a84efb64fba65))
+* makefile ([7e9af0a](https://github.com/themakunga/nix-systems/commit/7e9af0acfb1940fc6d78a7f22eea53be0d3a7e1a))
+* makefile typo ([ac0b8d7](https://github.com/themakunga/nix-systems/commit/ac0b8d7b78812e252aa767c4c8da99c2a82f3f91))
+* merge conglict ([4e10e58](https://github.com/themakunga/nix-systems/commit/4e10e5824cbbdd5c5fbda2ea6c9d4704bf011523))
+* path sd image ([c713912](https://github.com/themakunga/nix-systems/commit/c71391271561183607343f8ef33fc4cf2035f9ea))
+* refactor misson options ([a29239c](https://github.com/themakunga/nix-systems/commit/a29239c2aebfc5dba3f44642938131dafb3384ba))
+* remove git clean in release ([af47370](https://github.com/themakunga/nix-systems/commit/af4737004de122e2f4961625e15775741b8e3a17))
+* remove unused modules -n ([13248eb](https://github.com/themakunga/nix-systems/commit/13248ebc4b01e44de2f2d37c66b6e2ceef806a44))
+* rename key ([a65d1f3](https://github.com/themakunga/nix-systems/commit/a65d1f3183952115ab0d03fa442b69941c2add8c))
+* typo ([ec8e98f](https://github.com/themakunga/nix-systems/commit/ec8e98f9e1f39d643fe37fd513a50db240315eb8))
+* typo ([50c8893](https://github.com/themakunga/nix-systems/commit/50c889396ca3f2cea92bf493a96eefc39c0f37f1))
+* typo ([aa3e239](https://github.com/themakunga/nix-systems/commit/aa3e23943d8eaa54f2c9b84c2d9a9d8fdf4e56f7))
+* typo ([6b32154](https://github.com/themakunga/nix-systems/commit/6b321540bf651580098c500193c74d850d839f5d))
+
+
+### Features
+
+* bootloader on glados ([559c62c](https://github.com/themakunga/nix-systems/commit/559c62c4ada29b570f6cfc01daf936d767d5b3ec))
+* common nix build module ([1d1b3f4](https://github.com/themakunga/nix-systems/commit/1d1b3f4024dcdc98a2a24d0a03ed96c1d33170f8))
+* matrix pipeline ([b766538](https://github.com/themakunga/nix-systems/commit/b766538d481adbdcc25f22a7212f349b2d903e9b))
+* move generic refactor, no br ([0f35922](https://github.com/themakunga/nix-systems/commit/0f35922a8e798d5d05262643c9880665b63acf87))
+* pipeline, weekly revision ([fac12b6](https://github.com/themakunga/nix-systems/commit/fac12b603fd3011b9507312ddd245e1c6c732f3f))
+* refactor glados builder ([8a4fc43](https://github.com/themakunga/nix-systems/commit/8a4fc43ee5ac38570ce29f2961a58c231925f28e))
+* remove generic image sd ([4381465](https://github.com/themakunga/nix-systems/commit/438146560ac426a9f26d1a91409788e90588ede4))
+* security pipeline update params ([d3f2a00](https://github.com/themakunga/nix-systems/commit/d3f2a00f94643d4494518511849a892c4ef481a0))
+* tailscale and pihole ([e22de47](https://github.com/themakunga/nix-systems/commit/e22de47c24f1b162df4adda7d1443ee156006009))
+* tailscale install params ([1f97e46](https://github.com/themakunga/nix-systems/commit/1f97e4695e365db7af1ca22b488ff66730dfac0e))
+* update new makefile ([3605572](https://github.com/themakunga/nix-systems/commit/360557235315a7222458f9e0323ceffcf3ea6559))
+* update pipeline versions ([85bd652](https://github.com/themakunga/nix-systems/commit/85bd6524e137e8b955b442fac49cff79e63c7fca))
+* wifimodule ([5a189db](https://github.com/themakunga/nix-systems/commit/5a189db833ae816716b1da8fc1103cf528b37917))
+
+# [1.2.0](https://github.com/themakunga/nix-systems/compare/v1.1.4...v1.2.0) (2026-05-21)
+
+
+### Bug Fixes
+
+* darwin typos ([d4987e1](https://github.com/themakunga/nix-systems/commit/d4987e12b1dda788f7f7bf38fb7dc1f2f2da8d94))
+* drivers rpi5 ([1a55857](https://github.com/themakunga/nix-systems/commit/1a5585788e0e0a972884be190cabee88489bed6c))
+* drivers sd ([bce3689](https://github.com/themakunga/nix-systems/commit/bce36898063e76b785594b938f9d245a3afc7110))
+* filesystem drivers ([a5e09d7](https://github.com/themakunga/nix-systems/commit/a5e09d7d1b37f727a6eda9d99aa222d1cba7b1c4))
+* force rpi video hardware ([29020f6](https://github.com/themakunga/nix-systems/commit/29020f67ee4a6b8d18eeb7e66b12bb0e15f89580))
+* image position name ([f0f32ab](https://github.com/themakunga/nix-systems/commit/f0f32abe4639e60121deaa8a63ed03d1a00fefd9))
+* inputs ([50565c4](https://github.com/themakunga/nix-systems/commit/50565c4677702b5c36b63fbd8f7a84efb64fba65))
+* makefile ([7e9af0a](https://github.com/themakunga/nix-systems/commit/7e9af0acfb1940fc6d78a7f22eea53be0d3a7e1a))
+* makefile typo ([ac0b8d7](https://github.com/themakunga/nix-systems/commit/ac0b8d7b78812e252aa767c4c8da99c2a82f3f91))
+* merge conglict ([4e10e58](https://github.com/themakunga/nix-systems/commit/4e10e5824cbbdd5c5fbda2ea6c9d4704bf011523))
+* path sd image ([c713912](https://github.com/themakunga/nix-systems/commit/c71391271561183607343f8ef33fc4cf2035f9ea))
+* refactor misson options ([a29239c](https://github.com/themakunga/nix-systems/commit/a29239c2aebfc5dba3f44642938131dafb3384ba))
+* remove git clean in release ([af47370](https://github.com/themakunga/nix-systems/commit/af4737004de122e2f4961625e15775741b8e3a17))
+* remove unused modules -n ([13248eb](https://github.com/themakunga/nix-systems/commit/13248ebc4b01e44de2f2d37c66b6e2ceef806a44))
+* rename key ([a65d1f3](https://github.com/themakunga/nix-systems/commit/a65d1f3183952115ab0d03fa442b69941c2add8c))
+* typo ([ec8e98f](https://github.com/themakunga/nix-systems/commit/ec8e98f9e1f39d643fe37fd513a50db240315eb8))
+* typo ([50c8893](https://github.com/themakunga/nix-systems/commit/50c889396ca3f2cea92bf493a96eefc39c0f37f1))
+* typo ([aa3e239](https://github.com/themakunga/nix-systems/commit/aa3e23943d8eaa54f2c9b84c2d9a9d8fdf4e56f7))
+* typo ([6b32154](https://github.com/themakunga/nix-systems/commit/6b321540bf651580098c500193c74d850d839f5d))
+
+
+### Features
+
+* bootloader on glados ([559c62c](https://github.com/themakunga/nix-systems/commit/559c62c4ada29b570f6cfc01daf936d767d5b3ec))
+* common nix build module ([1d1b3f4](https://github.com/themakunga/nix-systems/commit/1d1b3f4024dcdc98a2a24d0a03ed96c1d33170f8))
+* matrix pipeline ([b766538](https://github.com/themakunga/nix-systems/commit/b766538d481adbdcc25f22a7212f349b2d903e9b))
+* move generic refactor, no br ([0f35922](https://github.com/themakunga/nix-systems/commit/0f35922a8e798d5d05262643c9880665b63acf87))
+* pipeline, weekly revision ([fac12b6](https://github.com/themakunga/nix-systems/commit/fac12b603fd3011b9507312ddd245e1c6c732f3f))
+* refactor glados builder ([8a4fc43](https://github.com/themakunga/nix-systems/commit/8a4fc43ee5ac38570ce29f2961a58c231925f28e))
+* remove generic image sd ([4381465](https://github.com/themakunga/nix-systems/commit/438146560ac426a9f26d1a91409788e90588ede4))
+* security pipeline update params ([d3f2a00](https://github.com/themakunga/nix-systems/commit/d3f2a00f94643d4494518511849a892c4ef481a0))
+* tailscale and pihole ([e22de47](https://github.com/themakunga/nix-systems/commit/e22de47c24f1b162df4adda7d1443ee156006009))
+* tailscale install params ([1f97e46](https://github.com/themakunga/nix-systems/commit/1f97e4695e365db7af1ca22b488ff66730dfac0e))
+* update new makefile ([3605572](https://github.com/themakunga/nix-systems/commit/360557235315a7222458f9e0323ceffcf3ea6559))
+* update pipeline versions ([85bd652](https://github.com/themakunga/nix-systems/commit/85bd6524e137e8b955b442fac49cff79e63c7fca))
+* wifimodule ([5a189db](https://github.com/themakunga/nix-systems/commit/5a189db833ae816716b1da8fc1103cf528b37917))
+
 # [1.2.0](https://github.com/themakunga/nix-systems/compare/v1.1.4...v1.2.0) (2026-05-20)
 
 
