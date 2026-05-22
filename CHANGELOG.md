@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/themakunga/nix-systems/compare/v1.2.0...v1.2.1) (2026-05-22)
+
+
+### Bug Fixes
+
+* update pipeline ([10e3425](https://github.com/themakunga/nix-systems/commit/10e342529383f504e600d3558fe661184ed91b16))
+
 # [1.2.0](https://github.com/themakunga/nix-systems/compare/v1.1.4...v1.2.0) (2026-05-22)
 
 
