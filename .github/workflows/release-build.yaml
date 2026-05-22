@@ -45,7 +45,10 @@ jobs:
           mkdir -p output
           echo "=> Building ${{ matrix.target }}..."
           make build-${{ matrix.target }}
-          cp -L result/sd-image/*.zst output/
+          for file in result/sd-image/*.zst; do
+            filename=$(basename "$file")
+            cp -L "$file" "output/${{ matrix.target }}-$filename"
+          done
       - name: Upload Artifact
         uses: actions/upload-artifact@v7
         with:
