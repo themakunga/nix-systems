@@ -89,17 +89,13 @@ jobs:
           file_glob: true
           tag: ${{ steps.semantic.outputs.new_release_git_tag }}
           overwrite: true
-      - name: Merge to main and clean release branch
+      - name: Create Pull Request to main
         if: steps.semantic.outputs.new_release_published == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git fetch origin main:main
-
-          git checkout main
-          git merge origin/${{ github.ref_name }} \
-          --no-ff \
-          -m "chore(release): merge ${{github.ref_name}} to main [skip ci]"
-
-          git push origin main
+          gh pr create \
+            --base main \
+            --head ${{ github.ref_name }} \
+            --title "chore(release): merge ${{ github.ref_name }} to main" \
+            --body "Automated Pull Request to sync release back to main. [skip ci]"
