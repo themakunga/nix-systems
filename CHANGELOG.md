@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/themakunga/nix-systems/compare/v1.2.1...v1.2.2) (2026-05-24)
+
+
+### Bug Fixes
+
+* remove comment ([0625558](https://github.com/themakunga/nix-systems/commit/0625558377659115713989b8d0dfba2d41ff873a))
+
 ## [1.2.1](https://github.com/themakunga/nix-systems/compare/v1.2.0...v1.2.1) (2026-05-22)
 
 
