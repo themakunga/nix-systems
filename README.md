@@ -1,6 +1,5 @@
 # Nix Systems Infraestructures
 
-nota. actualizar todo 
 <!-- mtoc-start -->
 
 * [english](#english)
