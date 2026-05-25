@@ -9,6 +9,7 @@
     disko
     sops-nix
     nixos-hardware
+    secrets
     ;
   inherit
     (self)
@@ -41,6 +42,11 @@ in {
             services.openssh.enable = true;
 
             zramSwap.enable = true;
+
+            sops = {
+              defaultSopsFile = "${secrets}/hosts/wheatley.yaml";
+              age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
+            };
           }
         ];
       };
