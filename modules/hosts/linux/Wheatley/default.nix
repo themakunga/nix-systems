@@ -9,6 +9,7 @@
     disko
     sops-nix
     nixos-hardware
+    secrets
     ;
   inherit
     (self)
@@ -31,12 +32,21 @@ in {
           nixosModules.wheatley-disk
 
           sops-nix.nixosModules.sops
+
+          commonModules.tailscale
+          nixosModules.pihole
+          nixosModules.wifi
           {
             networking.hostName = "wheatley";
 
             services.openssh.enable = true;
 
             zramSwap.enable = true;
+
+            sops = {
+              defaultSopsFile = "${secrets}/hosts/wheatley.yaml";
+              age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
+            };
           }
         ];
       };
