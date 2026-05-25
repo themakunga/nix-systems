@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/themakunga/nix-systems/compare/v1.3.0...v1.3.1) (2026-05-25)
+
+
+### Bug Fixes
+
+* token names ([7d9b9ac](https://github.com/themakunga/nix-systems/commit/7d9b9acc9782565b5b10d7a809714ef3a57d5d8e))
+
 # [1.3.0](https://github.com/themakunga/nix-systems/compare/v1.2.2...v1.3.0) (2026-05-24)
 
 
