@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/themakunga/nix-systems/compare/v1.2.2...v1.3.0) (2026-05-24)
+
+
+### Features
+
+* dispatch auto ([01e466d](https://github.com/themakunga/nix-systems/commit/01e466d6ccda083fbf5c84f659f31e1a892b30ea))
+
 ## [1.2.2](https://github.com/themakunga/nix-systems/compare/v1.2.1...v1.2.2) (2026-05-24)
 
 
