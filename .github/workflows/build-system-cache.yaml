@@ -2,7 +2,7 @@ name: Build - Cache Build Systems
 on:
   push:
     branches:
-      - release/v*
+      - main
 jobs:
   build-systems:
     name: Build ${{ matrix.host }}
