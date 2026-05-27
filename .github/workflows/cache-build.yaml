@@ -1,17 +1,19 @@
-name: Build - Cache Build Systems
+name: Nix Build & Cachix Push
 on:
   push:
     branches:
       - main
+      - release/*
+  workflow_dispatch:
 jobs:
-  build-systems:
-    name: Build ${{ matrix.host }}
+  build-system:
+    name: "Build ${{matrix.host}}"
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - host: glaDOS
+          - host: glados
             os: ubuntu-latest
             type: nixos
             arch: arm64
@@ -29,46 +31,49 @@ jobs:
             arch: x86_64
           - host: steamdeck
             os: ubuntu-latest
-            type: nixox
+            type: nixos
             arch: x86_64
           - host: kanagawa
             os: macos-latest
             type: darwin
             arch: aarch64
-          - host: mother-base
+          - host: outer-heaven
             os: macos-latest
             type: darwin
             arch: aarch64
     steps:
-      - name: Checkout Repo
+      - name: Checkout Repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          token: ${{ secrets.RELEASE_TOKEN }}
-      - name: Configure QEMU - ARM
+      - name: Configure QEMU for ARM64 Emulation
         if: runner.os == 'Linux' && matrix.arch == 'arm64'
         uses: docker/setup-qemu-action@v4
         with:
           platforms: arm64
-      - name: Setup SSH Agent
-        uses: webfactory/ssh-agent@v0.10
+      - name: Setup SSH Agent for Private Flake Inputs
+        uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY }}
-      - name: Install Cachix
+      - name: Install Nix Package Manager
         uses: cachix/install-nix-action@v31
         with:
           github_action_token: ${{ secrets.GH_TOKEN_SECRETS }}
           extra_nix_config: |
             experimental-features = nix-command flakes
             ${{ runner.os == 'Linux' && 'extra-platforms = aarch64-linux' || '' }}
-      - name: Setup Cache
+      - name: Setup Cachix Binary Cache
         uses: cachix/cachix-action@v17
         with:
           name: themakunga
           authToken: ${{ secrets.CACHIX_TOKEN }}
-      - name: Compile nixOS systems
+      - name: Compile NixOS Target
         if: matrix.type == 'nixos'
-        run: nix build .#nixosConfigurations.${{matrix.host}}.config.system.build.toplevel --accept-flake-config --print-build-logs
-      - name: Compile darwin systems
+        run: |
+          echo "=== Building NixOS configuration for ${{ matrix.host }} ==="
+          nix build .#nixosConfigurations.${{matrix.host}}.config.system.build.toplevel --accept-flake-config --print-build-logs
+      - name: Compile Darwin Target
         if: matrix.type == 'darwin'
-        run: nix build .#darwinConfigurations.${{matrix.host}}.system --accept-flake-config --print-build-logs
+        run: |
+          echo "=== Building Darwin configuration for ${{ matrix.host }} ==="
+          nix build .#darwinConfigurations.${{matrix.host}}.system --accept-flake-config --print-build-logs

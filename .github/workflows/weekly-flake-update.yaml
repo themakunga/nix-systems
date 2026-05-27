@@ -1,0 +1,57 @@
+name: "Weekly Flake Inputs Update"
+on:
+  schedule:
+    - cron: "0 0 * * 1"
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  flake-update:
+    name: "Check and Update Flake Inputs"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
+      - name: Get current date
+        id: date
+        run: echo "current_date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+      - name: Setup SSH Agent for Private Flake Inputs
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY }}
+      - name: Install Nix Package Manager
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - name: Update flake.lock
+        run: |
+          echo "=> Updating flake.lock inputs..."
+          nix flake update
+      - name: Create Pull Request to main
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.RELEASE_TOKEN }}
+          commit-message: "chore(deps): update flake.lock (${{ steps.date.outputs.current_date }})"
+          committer: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+          author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+          branch: "chore/nix-flake-update-${{ steps.date.outputs.current_date }}"
+          delete-branch: true
+          base: "main"
+          title: "chore(deps): update flake.lock - ${{ steps.date.outputs.current_date }}"
+          body: |
+            ##Automated Weekly Flake Update
+            This PR updates the `flake.lock` file with the latest available revisions of your flake inputs.
+
+            - **Date of Update:** ${{ steps.date.outputs.current_date }}
+            - **Target Branch:** `main`
+
+            _Generated automatically by the CI pipeline._
+          labels: |
+            dependencies
+            automated-pr

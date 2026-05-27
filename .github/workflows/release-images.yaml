@@ -1,26 +1,34 @@
-name: Release - Build and Publish
+name: Semmantic Release
 on:
-  push:
+  workflow_run:
+    workflows:
+      - "Nix Build & Cachix Push"
+    types:
+      - completed
     branches:
-      - "release/v*"
+      - release/v*
 permissions:
   contents: write
   issues: write
   pull-requests: write
 jobs:
   build:
-    name: Build ${{ matrix.target }}
+    name: Build SD Image ${{matrix.target}}
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       fail-fast: false
       matrix:
-        target: [glados, wheatley]
+        target:
+          - glados
+          - wheatley
     steps:
-      - name: Checkout repo
+      - name: Checkout Repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
+          ref: ${{ github.event.workflow_run.head_branch }}
       - name: Setup QEMU (ARM)
         uses: docker/setup-qemu-action@v4
         with:
@@ -29,12 +37,6 @@ jobs:
         uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY }}
-      - name: Install Nix
-        uses: cachix/install-nix-action@v31
-        with:
-          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
-          extra_nix_config: |
-            extra-platforms = aarch64-linux
       - name: Setup Cachix
         uses: cachix/cachix-action@v17
         with:
@@ -44,7 +46,9 @@ jobs:
         run: |
           mkdir -p output
           echo "=> Building ${{ matrix.target }}..."
+
           make build-${{ matrix.target }}
+
           for file in result/sd-image/*.zst; do
             filename=$(basename "$file")
             cp -L "$file" "output/${{ matrix.target }}-$filename"
@@ -65,7 +69,7 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
-          ref: ${{ github.ref }}
+          ref: ${{ github.event.workflow_run.head_branch }}
       - name: Download Built Images
         uses: actions/download-artifact@v8
         with:
@@ -74,7 +78,7 @@ jobs:
           merge-multiple: true
       - name: Run Semantic Release
         id: semantic
-        uses: cycjimmy/semantic-release-action@v6.0.0
+        uses: cycjimmy/semantic-release-action@v6
         with:
           extra_plugins: |
             @semantic-release/commit-analyzer
@@ -97,8 +101,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
+          BRANCH_NAME="${{ github.event.workflow_run.head_branch }}"
+
           gh pr create \
             --base main \
-            --head ${{ github.ref_name }} \
-            --title "chore(release): merge ${{ github.ref_name }} to main" \
-            --body "Automated Pull Request to sync release back to main. [skip ci]"
+            --head "$BRANCH_NAME" \
+            --title "chore(release): merge $BRANCH_NAME to main" \
+            --body "Automated Pull Request to sync release branch back to main, including CHANGELOG updates. [skip ci]"

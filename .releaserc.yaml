@@ -1,20 +1,12 @@
 branches:
   - "release/v*"
 plugins:
-  - - "@semantic-release/commit-analyzer"
-    - preset: "angular"
-      releaseRules:
-        - subject: "*BREAKING CHANGE*"
-          release: "major"
-        - subject: "*NEW RELEASE*"
-          release: "major"
-        - body: "*BREAKING CHANGE*"
-          release: "major"
-        - type: "feat"
-          release: "minor"
-        - type: "fix"
-          release: "patch"
+  - "@semantic-release/commit-analyzer"
   - "@semantic-release/release-notes-generator"
-  - "@semantic-release/changelog"
+  - - "@semantic-release/changelog"
+    - changelogFile: "CHANGELOG.md"
+  - - "@semantic-release/git"
+    - assets:
+        - "CHANGELOG.md"
+      message: "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
   - "@semantic-release/github"
-  - "@semantic-release/git"
