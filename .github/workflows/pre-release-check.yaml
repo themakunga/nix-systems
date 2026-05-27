@@ -1,0 +1,41 @@
+name: "Nix Flake Check (Pre-Release)"
+on:
+  pull_request:
+    branches:
+      - "release/v*"
+  push:
+    branches:
+      - "release/v*"
+jobs:
+  flake-check:
+    name: "Exhaustive Flake Check"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
+      - name: Verify PR source branch
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "=> Checking source branch for the Pull Request..."
+          if [ "${{ github.head_ref }}" != "main" ]; then
+            echo "::error::Strict Policy Violation: Pull Requests to release branches are ONLY permitted from the 'main' branch. Current source: '${{ github.head_ref }}'."
+            exit 1
+          fi
+          echo "Success: Pull Request originates from 'main'."
+      - name: Setup SSH Agent for Private Flake Inputs
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY }}
+      - name: Install Nix Package Manager
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - name: Run nix flake check
+        run: |
+          echo "=> Launching exhaustive nix flake check..."
+          nix flake check --show-trace

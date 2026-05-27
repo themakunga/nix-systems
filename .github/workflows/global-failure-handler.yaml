@@ -1,0 +1,42 @@
+name: "Global Failure Handler"
+on:
+  workflow_run:
+    workflows:
+      - Nix Style & Lints
+      - Nix Flake Check (Pre-Release)
+      - Nix Build & Cachix Push
+      - Semantic Release
+      - Security Audit (Secrets & Keys)
+      - Periodic Code Quality & Flake Health Audit
+      - Weekly Flake Inputs Update
+    types:
+      - completed
+permissions:
+  issues: write
+jobs:
+  report-failure:
+    name: Create Issue on failed pipeline
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - name: Create Issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
+          FAILED_RUN_ID: ${{ github.event.workflow_run.id }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+          COMMIT_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          gh issue create \
+            --repo $REPO \
+            --title "🚨 Pipeline Failure: $WORKFLOW_NAME" \
+            --body "The **$WORKFLOW_NAME** pipeline has failed.
+
+            **Details:**
+            - **Run:** [#$FAILED_RUN_ID](https://github.com/$REPO/actions/runs/$FAILED_RUN_ID)
+            - **Branch/Ref:** $BRANCH
+            - **Commit:** $COMMIT_SHA
+
+            Please review the logs in the run link to identify the error." \
+            --assignee TheMakunga

@@ -1,0 +1,45 @@
+name: Periodic Code Quality & Flake Health Audit
+on:
+  schedule:
+    - cron: "0 21 * * 0"
+  workflow_dispatch:
+jobs:
+  quality-audit:
+    name: Deep Quality and Health Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Install Nix with Cachix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v17
+        with:
+          name: TheMakunga
+          authToken: ${{ secrets.CACHIX_TOKEN}}
+      - name: 1. Strict Style (Alejandra)
+        run: nix run nixpkgs#alejandra -- --check .
+      - name: 2. Extended Dead Code (Deadnix)
+        run: nix run nixpkgs#deadnix -- --fail .
+      - name: 3. Anti-patterns & Best Practices (Statix)
+        run: nix run nixpkgs#statix -- check .
+      - name: 4. Flake Inputs Audit (Update Report)
+        run: |
+          echo "=== INPUTS STATUS REPORT ==="
+          nix flake metadata
+          echo ""
+          echo "=== CHECKING FOR AVAILABLE INPUT UPDATES ==="
+          nix flake update --dry-run
+      - name: 5. Evaluation Verification (Catching Warnings)
+        run: |
+          echo "=== Searching for hidden Nix evaluation warnings ==="
+          nix flake show --show-trace 2>&1 | tee nix-warnings.log
+          if grep -iq "warning:" nix-warnings.log; then
+            echo "Nix warnings were found and require your review."
+          fi
