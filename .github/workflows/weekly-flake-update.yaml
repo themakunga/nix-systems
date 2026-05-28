@@ -45,7 +45,7 @@ jobs:
           base: "main"
           title: "chore(deps): update flake.lock - ${{ steps.date.outputs.current_date }}"
           body: |
-            ##Automated Weekly Flake Update
+            ## Automated Weekly Flake Update
             This PR updates the `flake.lock` file with the latest available revisions of your flake inputs.
 
             - **Date of Update:** ${{ steps.date.outputs.current_date }}
