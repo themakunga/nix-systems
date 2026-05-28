@@ -21,7 +21,7 @@ jobs:
       - name: Setup Cachix
         uses: cachix/cachix-action@v17
         with:
-          name: TheMakunga
+          name: themakunga
           authToken: ${{ secrets.CACHIX_TOKEN}}
       - name: 1. Strict Style (Alejandra)
         run: nix run nixpkgs#alejandra -- --check .
