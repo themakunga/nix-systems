@@ -8,12 +8,12 @@
     nix-darwin
     nix-homebrew
     home-manager
-    sops-nix
     ;
   inherit
     (self)
     darwinModules
     commonModules
+    homeManagerModules
     ;
 in {
   flake.darwinConfigurations.outer-heaven = nix-darwin.lib.darwinSystem {
@@ -22,8 +22,6 @@ in {
     modules = [
       commonModules.settings
       darwinModules.common
-
-      sops-nix.darwinModules.sops
 
       nix-homebrew.darwinModules.nix-homebrew
       {
@@ -34,6 +32,9 @@ in {
         nix-homebrew.user = "nicolas";
       }
       home-manager.darwinModules.home-manager
+
+      homeManagerModules.thougthworks
+      homeManagerModules.grainger
     ];
   };
 }

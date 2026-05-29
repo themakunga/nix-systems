@@ -14,10 +14,6 @@ with lib; {
         type = types.attrsOf types.raw;
         default = {};
       };
-      usersModules = mkOption {
-        type = types.attrsOf types.raw;
-        default = {};
-      };
     };
   };
   config = {};

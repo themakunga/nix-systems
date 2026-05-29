@@ -1,12 +1,13 @@
 {self, ...}: {
-  flake.homeMangerModules.bbook = {
-    config,
-    lib,
-    pkgs,
-    ...
-  }: let
-    isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
-  in {
+  flake.homeManagerModules.bbook = {
+    # lib,
+    # pkgs,
+    # ...
+    # }:
+    # let
+    # inherit (pkgs.stdenv.hostPlatform) isDarwin;
+    # in
+    # {
     imports = [
       self.homeManagerModules.common
       self.darwinModules.homebrew-config
@@ -21,12 +22,6 @@
 
     home = {
       username = "nicolas";
-
-      packages = with pkgs;
-        [
-        ]
-        ++ lib.optionals (!isDarwin) [
-        ];
     };
 
     programs = {

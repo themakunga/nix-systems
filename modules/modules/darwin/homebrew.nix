@@ -30,20 +30,8 @@
         };
         brews = [
           "mas" # enble apps store
-          # browsers
-          "google-chome"
-          "firefox"
-          "firefox-dev"
-          # markdown editor
-          "typora"
-          # social networks
-          "slack"
-          "discord"
-          "mattermost"
         ];
         cask = [
-          # markdown parsers
-          "pandoc"
         ];
         masApp = {
           "xcode" = 497799835;
