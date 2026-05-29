@@ -1,19 +1,38 @@
-{lib, ...}: {
-  flake.usersModules.personal = {
-    home-manager.user.personal = {pkgs, ...}: {
-      home = {
-        username = "admin";
-        stateVersion = "25.11";
+{self, ...}: {
+  flake.homeMangerModules.personal = {
+    config,
+    lib,
+    pkgs,
+    ...
+  }: let
+    isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
+  in {
+    imports = [
+      self.homeManagerModules.common
+      self.darwinModules.homebrew-config
+    ];
 
-        homeDirectory = lib.mkMerge [
-          (lib.mkIf pkgs.stdenv.isDarwin "/Users/admin")
-          (lib.mkIf pkgs.stdenv.isLinux "/Home/admin")
-        ];
+    homebrew = {
+      casks = [
+      ];
+      masApps = {
+      };
+    };
 
-        packages = with pkgs; [
-          htop
-          bat
+    home = {
+      username = "nicolas";
+
+      packages = with pkgs;
+        [
+        ]
+        ++ lib.optionals (!isDarwin) [
         ];
+    };
+
+    programs = {
+      git = {
+        userName = "Nicolas Villarroel M.";
+        userEmail = "nmartinezv@icloud.com";
       };
     };
   };

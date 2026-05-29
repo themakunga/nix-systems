@@ -1,5 +1,5 @@
 {self, ...}: {
-  flake.homeMangerModules.bbook = {
+  flake.homeMangerModules.openclaw = {
     config,
     lib,
     pkgs,
@@ -31,8 +31,8 @@
 
     programs = {
       git = {
-        userName = "Nicolas Villarroel M.";
-        userEmail = "nmartinez@bbook.cl";
+        userName = "OpenClaw Agent";
+        userEmail = "opeclaw@yorkitos.com";
       };
     };
   };
