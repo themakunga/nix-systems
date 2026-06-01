@@ -38,11 +38,16 @@ jobs:
 
           # Pass the content of the log to the GITHUB_ENV so the next step can use it.
           # We use a multi-line EOF delimiter to handle the raw text safely.
-          DELIMITER=$(openssl rand -hex 8)
-          echo "UPDATE_LOG<<${DELIMITER}" >> "$GITHUB_ENV"
-          cat update_log.txt >> "$GITHUB_ENV"
-          echo "${DELIMITER}" >> "$GITHUB_ENV"      - name: Create Pull Request to main
-      - uses: peter-evans/create-pull-request@v8
+          EOF_DELIMITER=$(openssl rand -hex 8)
+
+          {
+            echo "UPDATE_LOG<<$EOF_DELIMITER"
+            cat update_log.txt
+            echo "" # <--- ESTA LÍNEA ES LA CLAVE: Fuerza un salto de línea
+            echo "$EOF_DELIMITER"
+          } >> "$GITHUB_ENV"
+      - name: Create Pull Request to main
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.RELEASE_TOKEN }}
           commit-message: "chore(deps): update flake.lock (${{ steps.date.outputs.current_date }})"
