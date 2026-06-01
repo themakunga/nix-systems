@@ -2,39 +2,53 @@
   self,
   inputs,
   ...
-}: let
-  inherit
-    (inputs)
+}:
+let
+  inherit (inputs)
     nix-darwin
     nix-homebrew
     home-manager
     ;
-  inherit
-    (self)
+  inherit (self)
     darwinModules
     commonModules
     homeManagerModules
+    profileModules
     ;
-in {
-  flake.darwinConfigurations.outer-heaven = nix-darwin.lib.darwinSystem {
-    specialArgs = {};
-    system = "aarch64-darwin";
-    modules = [
-      commonModules.settings
-      darwinModules.common
+in
+{
 
-      nix-homebrew.darwinModules.nix-homebrew
-      {
-        networking.hostName = "outer-heaven";
+  flake = {
+    profileModules.bigboss = {
 
-        services.openssh.enable = true;
+    };
+    darwinConfigurations.outer-heaven = nix-darwin.lib.darwinSystem {
+      specialArgs = { };
+      system = "aarch64-darwin";
+      modules = [
+        commonModules.settings
+        darwinModules.common
+        commonModules.home-manager-config
 
-        nix-homebrew.user = "nicolas";
-      }
-      home-manager.darwinModules.home-manager
+        nix-homebrew.darwinModules.nix-homebrew
+        {
+          networking.hostName = "outer-heaven";
+          services.openssh.enable = true;
+          nix-homebrew.user = "nicolas";
+        }
 
-      homeManagerModules.thougthworks
-      homeManagerModules.grainger
-    ];
+        profileModules.bigboss.system
+        profileModules.bigboss.darwin
+
+        home-manager.darwinModules.home-manager
+        {
+          home-manager.users.nicolas = {
+            imports = [
+              profileModules.bigboss.user
+            ];
+          };
+        }
+      ];
+    };
   };
 }

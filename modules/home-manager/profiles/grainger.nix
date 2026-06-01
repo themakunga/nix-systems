@@ -1,46 +1,36 @@
+{ self, lib, ... }:
+let
+  inherit (lib) mkIf;
+  inherit (self) darwinModules homeManagerModules commonModules;
+in
 {
-  self,
-  lib,
-  ...
-}: {
-  flake = {
-    commonModules.grainger = {pkgs, ...}: let
-      inherit (pkgs.stdenv.hostPlatform) isDarwin;
-    in {
-      users.users.nicolas = {
-        description = "Nicolas Villarroel.";
-        extraGrourps = lib.mkIf (!isDarwin) [
-          "wheel"
-          "networkmanager"
-          "docker"
-        ];
-        isNormalUser = lib.mkIf (!isDarwin) true;
-      };
-    };
-    darwinModules.grainger = {
+  flake.profileModules.grainger =
+    { pkgs, ... }:
+    {
       imports = [
-        self.darwinModules.homebrew-config
+        darwinModules.containers-rancher
+        darwinModules.homebrew-config
       ];
 
-      homebrew.casks = [
-        "microsoft-teams"
-      ];
-    };
-    homeManagerModules.grainger = {config, ...}: {
-      imports = [
-        self.homeManagerModules.default
-      ];
-
-      home = {
-        username = "nicolas";
+      homebrew = {
+        enable = true;
+        casks = ["microft-teams"];
+        brews = ["vault"];
       };
-      programs.git.include = {
-        condition = "gitdir:~/Projects/Grainger/";
-        contents = {
-          user.email = "nicolas.villarroel@grainger.com";
-          core.sshCommand = "ssh -i ${config.sops.secrets."grainger_ssh_key".path} -o IdentitiesOnly=yes";
+
+      home-manager.users.nicolas = { config = hmConfig; ... }: {
+      imports = [
+        self.homeManagerModules.common
+      ];
+        home.username = "nicolas";
+
+        programs = {
+          git = {};
+          sops-gpg = {};
         };
-      };
-    };
+
   };
+
+
+    };
 }

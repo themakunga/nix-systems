@@ -45,7 +45,7 @@ jobs:
             cat update_log.txt
             echo "" # <--- ESTA LÍNEA ES LA CLAVE: Fuerza un salto de línea
             echo "$EOF_DELIMITER"
-          } >> "$GITHUB_ENV"
+          } >> "$GITHUB_ENV
       - name: Create Pull Request to main
         uses: peter-evans/create-pull-request@v8
         with:
