@@ -29,10 +29,18 @@ jobs:
           github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
           extra_nix_config: |
             experimental-features = nix-command flakes
-      - name: Update flake.lock
+      - name: Update flake.lock and Capture Changes
         run: |
           echo "=> Updating flake.lock inputs..."
-          nix flake update
+
+          # Run the update and capture stderr and stdout into a text file
+          nix flake update 2>&1 | tee update_log.txt
+
+          # Pass the content of the log to the GITHUB_ENV so the next step can use it.
+          # We use a multi-line EOF delimiter to handle the raw text safely.
+          echo "UPDATE_LOG<<EOF" >> $GITHUB_ENV
+          cat update_log.txt
+          echo "EOF" >> $GITHUB_ENV
       - name: Create Pull Request to main
         uses: peter-evans/create-pull-request@v8
         with:
@@ -47,6 +55,11 @@ jobs:
           body: |
             ## Automated Weekly Flake Update
             This PR updates the `flake.lock` file with the latest available revisions of your flake inputs.
+
+            ### 📦 Dependency Changes Details
+            ```text
+            ${{ env.UPDATE_LOG }}
+            ```
 
             - **Date of Update:** ${{ steps.date.outputs.current_date }}
             - **Target Branch:** `main`
