@@ -4,7 +4,7 @@
   ...
 }:
 let
-  inherit (lib) mkIf;
+  inherit (lib) mkIf optionals;
   inherit (self)
     darwinModules
     homeManagerModules
@@ -19,10 +19,6 @@ in
     in
     {
       imports = [
-        darwinModules.common
-        darwinModules.homebrew-config
-        homeManagerModules.common
-        ## Packages
         commonModules.home-manager-config
         commonModules.editor
         commonModules.cloud-aws
@@ -36,7 +32,25 @@ in
         commonModules.dev-nodejs
         commonModules.dev-python
         commonModules.dev-rust
+      ]
+      ++ optionals isDarwin [
+        darwinModules.homebrew-config
+        ({
+          homebrew = {
+            brews = [
 
+            ];
+            casks = [
+              "google-chrome"
+              "chromium"
+              "dbeaver-community"
+              "iterm2"
+            ];
+            masApps = {
+
+            };
+          };
+        })
       ];
 
       users.users.nicolas = {
@@ -49,22 +63,18 @@ in
         isNormalUser = mkIf (!isDarwin) true;
       };
 
-      homebrew = {
-        enable = true;
-        casks = [
-          "google-chrome"
-          "chromium"
-          "dbeaver"
-          "iterm2"
+      home-manager.users.nicolas = {
+        imports = [
+          homeManagerModules.common
         ];
-        masApps = { };
 
-      };
+        home.username = "nicolas";
 
-      programs.git = {
-        enable = true;
-        userName = "Nicolas Villarroel";
-        userEmail = "nicolas.villarroel@thoughtworks.com";
+        programs.git = {
+          enable = true;
+          userName = "Nicolas Villarroel";
+          userEmail = "nicolas.villarroel@thoughtworks.com";
+        };
       };
     };
 
