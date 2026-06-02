@@ -1,20 +1,19 @@
-{ self, lib, ... }:
-let
+{
+  self,
+  lib,
+  ...
+}: let
   inherit (lib) mkIf;
   inherit (self) darwinModules HomeManagerModules commonModules;
-in
-{
+in {
   flake.profileModules.thoughtworks = {
-    system =
-      { pkgs, ... }:
-      let
-        inherit (pkgs.stdenv.hostPlatform) isDarwin;
-      in
-      {
-        imports = [
-          darwinModules.containers-rancher
-        ];
-      };
+    system = {pkgs, ...}: let
+      inherit (pkgs.stdenv.hostPlatform) isDarwin;
+    in {
+      imports = [
+        darwinModules.containers-rancher
+      ];
+    };
     darwin = {
       homebrew.casks = [
         "1password"
@@ -22,5 +21,4 @@ in
       ];
     };
   };
-
 }
