@@ -2,34 +2,34 @@
   self,
   inputs,
   ...
-}: let
-  inherit
-    (inputs)
+}:
+let
+  inherit (inputs)
     nixpkgs
     disko
     sops-nix
     nixos-hardware
     secrets
     ;
-  inherit
-    (self)
+  inherit (self)
     nixosModules
     commonModules
     ;
-in {
+in
+{
   flake = {
     nixosConfigurations = {
-      wheatley = nixpkgs.lib.nixosSystem {
+      black-mesa = nixpkgs.lib.nixosSystem {
         specialArgs = {
           inherit inputs;
           inherit (inputs) nixpkgs secrets;
         };
         modules = [
-          {nixpkgs.hostPlatform = "aarch64-linux";}
+          { nixpkgs.hostPlatform = "aarch64-linux"; }
           nixos-hardware.nixosModules.raspberry-pi-3
           commonModules.settings
           disko.nixosModules.disko
-          nixosModules.wheatley-disk
+          nixosModules.black-mesa-disk
 
           sops-nix.nixosModules.sops
 
@@ -37,20 +37,20 @@ in {
           nixosModules.pihole
           nixosModules.wifi
           {
-            networking.hostName = "wheatley";
+            networking.hostName = "black-mesa";
 
             services.openssh.enable = true;
 
             zramSwap.enable = true;
 
             sops = {
-              defaultSopsFile = "${secrets}/hosts/wheatley.yaml";
-              age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
+              defaultSopsFile = "${secrets}/hosts/black-mesa.yaml";
+              age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
             };
           }
         ];
       };
-      wheatley-build = nixpkgs.lib.nixosSystem {
+      black-mesa-build = nixpkgs.lib.nixosSystem {
         specialArgs = {
           inherit inputs;
           inherit (inputs) nixpkgs secrets;
@@ -66,12 +66,13 @@ in {
               pkgs,
               lib,
               ...
-            }: {
-              networking.hostName = "wheatley-installer";
-              environment.systemPackages = [pkgs.pciutils];
+            }:
+            {
+              networking.hostName = "black-mesa-installer";
+              environment.systemPackages = [ pkgs.pciutils ];
 
               boot = {
-                kernelParams = ["pcie_aspm=off"];
+                kernelParams = [ "pcie_aspm=off" ];
                 initrd = {
                   availableKernelModules = [
                     "usbhid"
@@ -85,31 +86,32 @@ in {
                 };
               };
 
-              image.fileName = "nixos-Wheatley-boot.img";
+              image.fileName = "nixos-black-mesa-boot.img";
 
               sdImage = {
                 firmwareSize = 512;
                 compressImage = true;
 
-                populateFirmwareCommands = let
-                  configTxt = pkgs.writeText "config.txt" ''
-                    [pi02]
-                    arm_64bit=1
-                    enable_uart=1
+                populateFirmwareCommands =
+                  let
+                    configTxt = pkgs.writeText "config.txt" ''
+                      [pi02]
+                      arm_64bit=1
+                      enable_uart=1
 
-                    # Encendemos el bus PCIe para que nix-anywhere detecte el SSD NVMe
-                    dtparam=pciex1
-                    dtparam=nvme
+                      # Encendemos el bus PCIe para que nix-anywhere detecte el SSD NVMe
+                      dtparam=pciex1
+                      dtparam=nvme
 
-                    # Instruimos a la Pi a arrancar NixOS directo
-                    kernel=kernel.img
-                    initramfs initrd.img followkernel
-                  '';
+                      # Instruimos a la Pi a arrancar NixOS directo
+                      kernel=kernel.img
+                      initramfs initrd.img followkernel
+                    '';
 
-                  cmdlineTxt = pkgs.writeText "cmdline.txt" ''
-                    console=ttyAMA0,115200 console=tty1 root=/dev/disk/by-label/NIXOS_SD rootwait rootfstype=ext4 init=${config.system.build.toplevel}/init loglevel=7
-                  '';
-                in
+                    cmdlineTxt = pkgs.writeText "cmdline.txt" ''
+                      console=ttyAMA0,115200 console=tty1 root=/dev/disk/by-label/NIXOS_SD rootwait rootfstype=ext4 init=${config.system.build.toplevel}/init loglevel=7
+                    '';
+                  in
                   lib.mkForce ''
                     rm -rf firmware/*
                     cp -r ${pkgs.raspberrypifw}/share/raspberrypi/boot/* firmware/
