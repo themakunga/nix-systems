@@ -2,6 +2,7 @@
 let
   inherit (lib) mkIf;
   inherit (self) darwinModules homeManagerModules commonModules;
+in
 {
   flake.profileModules.grainger =
     { pkgs, ... }:
@@ -13,23 +14,24 @@ let
 
       homebrew = {
         enable = true;
-        casks = ["microft-teams"];
-        brews = ["vault"];
+        casks = [ "microft-teams" ];
+        brews = [ "vault" ];
       };
 
-      home-manager.users.nicolas = { config = hmConfig; ... }: {
-      imports = [
-        self.homeManagerModules.common
-      ];
-        home.username = "nicolas";
+      home-manager.users.nicolas =
+        { config, ... }:
+        {
+          imports = [
+            self.homeManagerModules.common
+          ];
+          home.username = "nicolas";
 
-        programs = {
-          git = {};
-          sops-gpg = {};
+          programs = {
+            git = { };
+            sops-gpg = { };
+          };
+
         };
-
-  };
-
 
     };
 }
