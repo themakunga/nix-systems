@@ -2,7 +2,6 @@
 let
   inherit (lib) mkIf;
   inherit (self) darwinModules homeManagerModules commonModules;
-in
 {
   flake.profileModules.grainger =
     { pkgs, ... }:
