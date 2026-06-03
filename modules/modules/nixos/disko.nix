@@ -1,6 +1,6 @@
 {
   flake.nixosModules = {
-    wheatley-disk = {
+    black-mesa-disk = {
       disko.devices = {
         disk = {
           main = {
@@ -16,7 +16,7 @@
                     type = "filesystem";
                     format = "vfat";
                     mountpoint = "/boot";
-                    mountOptions = ["umask=0077"];
+                    mountOptions = [ "umask=0077" ];
                   };
                 };
                 root = {
@@ -33,7 +33,7 @@
         };
       };
     };
-    glaDOS-disk = {
+    aperture-science-disk = {
       disko.devices = {
         disk = {
           main = {
@@ -49,7 +49,7 @@
                     type = "filesystem";
                     format = "vfat";
                     mountpoint = "/boot";
-                    mountOptions = ["umask=0077"];
+                    mountOptions = [ "umask=0077" ];
                   };
                 };
                 root = {
