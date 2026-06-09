@@ -12,10 +12,15 @@ let
     ;
 in
 {
-  flake.profileModules.snake =
+  flake.profileModules.big-boss =
     { pkgs, ... }:
     let
       inherit (pkgs.stdenv.hostPlatform) isDarwin;
+      inherit (commonModules)
+        home-manager-config
+        editor
+        cloud-aws
+        ;
     in
     {
       imports = [

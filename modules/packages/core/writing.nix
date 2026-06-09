@@ -1,9 +1,9 @@
 {
-  flake.darwinModules.container.rancher =
+  flake.commonModules.core.writing =
     { pkgs, ... }:
     {
       environment.systemPackages = with pkgs; [
-        rancher
+        pandoc
       ];
     };
 }

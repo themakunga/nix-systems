@@ -1,6 +1,7 @@
 {
   self,
   lib,
+  inputs,
   ...
 }:
 let
@@ -18,23 +19,25 @@ in
       inherit (pkgs.stdenv.hostPlatform) isDarwin;
     in
     {
-      imports =
-        [ ]
-        ++ optionals isDarwin [
-          darwinModules.homebrew-config
-          {
-            homebrew = {
-              brews = [ ];
-              casks = [ ];
-              masApps = { };
-            };
-          }
-        ];
+      imports = [
+        homeManagerModules.openconnect
+      ]
+      ++ optionals isDarwin [
+        darwinModules.homebrew-config
+        {
+          homebrew = {
+            brews = [ ];
+            casks = [ ];
+            masApps = { };
+          };
+        }
+      ];
 
       home-manager.users.nicolas =
         { config, ... }:
         {
           programs = {
+            openconnect.enable = true;
             git = {
               include = {
                 condition = "gitdir:~/Projects/Grainger/";

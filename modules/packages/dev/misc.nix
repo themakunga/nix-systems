@@ -1,7 +1,9 @@
 {
-  flake.commonModules.dev-misc = {pkgs, ...}: {
-    environment.systemPackages = with pkgs; [
-      opam
-    ];
-  };
+  flake.commonModules.dev.misc =
+    { pkgs, ... }:
+    {
+      environment.systemPackages = with pkgs; [
+        opam
+      ];
+    };
 }

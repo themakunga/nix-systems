@@ -18,7 +18,7 @@ in
 {
   flake = {
     nixosConfigurations = {
-      aperture-science = nixpkgs.lib.nixosSystem {
+      hobitton = nixpkgs.lib.nixosSystem {
         specialArgs = {
           inherit inputs;
           inherit (inputs) nixpkgs secrets;
@@ -48,7 +48,7 @@ in
           }
         ];
       };
-      aperture-science-build = nixpkgs.lib.nixosSystem {
+      hobbiton-build = nixpkgs.lib.nixosSystem {
         specialArgs = { inherit inputs; };
         modules = [
           nixosModules.rpi-config

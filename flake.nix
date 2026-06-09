@@ -66,6 +66,8 @@
       url = "github:TheMakunga/public-dotfiles/main";
       flake = false;
     };
+
+    globalprotect-openconnect.url = "github:yuezk/GlobalProtect-openconnect";
   };
 
   outputs =
