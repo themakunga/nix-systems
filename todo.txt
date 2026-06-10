@@ -20,4 +20,4 @@
 (D) +profile Faramir @Gondor
 (D) +profile Boromir @Rohan
 (D) +profile Aragon @Gondor
-(B) +modules Secrets this must be edited on repo secrets
+x 2026-06-10 2026-06-10 +modules Secrets this must be edited on repo secrets

@@ -1,0 +1,3 @@
+{
+  flake.profileModules.sauron = { };
+}
