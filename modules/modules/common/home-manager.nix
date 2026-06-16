@@ -1,5 +1,5 @@
 {
-  flake.commonModules.home-manager-config = {
+  flake.commonModules.homeManager = {
     home-manager = {
       useGlobalPkgs = true;
       useUserPackages = true;
