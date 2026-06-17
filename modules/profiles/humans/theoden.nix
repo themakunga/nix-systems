@@ -13,10 +13,11 @@
         self.commonModules.git-identity
       ];
 
-      # Establece rohan.yaml como el archivo predeterminado para este host
-      sops.defaultSopsFile = "${inputs.secrets}/hosts/rohan.yaml";
+      sops = {
+        defaultSopsFile = "${inputs.secrets}/hosts/rohan.yaml";
 
-      sops.secrets."ssh/private_key" = {};
+        secrets."ssh/private_key" = {};
+      };
 
       programs.git-identity = {
         enable = true;
