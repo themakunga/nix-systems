@@ -1,4 +1,0 @@
-{
-  flake.profileModules.aragon = { };
-
-}
