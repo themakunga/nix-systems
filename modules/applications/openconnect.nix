@@ -1,22 +1,10 @@
 {inputs, ...}: {
-  flake.homeManagerModules.openconnect = {
-    pkgs,
-    lib,
-    config,
-    ...
-  }: let
-    cfg = config.programs.openconnect;
+  flake.applicationModules.openconnect = {pkgs, ...}: let
     inherit (pkgs.stdenv.hostPlatform) system;
   in {
-    options.programs.openconnect = {
-      enable = lib.mkEnableOption "GlobalProtect OpenConnect VPN Client";
-    };
-
-    config = lib.mkdIf cfg.enable {
-      home.packages = [
-        inputs.globalprotect-openconnect.packages.${system}.default
-        pkgs.openconnect
-      ];
-    };
+    environment.systemPackages = [
+      inputs.globalprotect-openconnect.packages.${system}.default
+      pkgs.openconnect
+    ];
   };
 }
