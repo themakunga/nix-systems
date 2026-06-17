@@ -1,25 +1,40 @@
-{ lib, ... }:
-with lib;
-{
+{lib, ...}: let
+  inherit (lib) mkOption types;
+in {
   options = {
     flake = {
       commonModules = mkOption {
+        description = "Shared Modules accross differents systems";
         type = types.attrsOf types.raw;
-        default = { };
+        default = {};
       };
       darwinModules = mkOption {
+        description = "Darwin Modules to use with Apple Sillicon products";
         type = types.attrsOf types.raw;
-        default = { };
+        default = {};
       };
       darwinConfigurations = mkOption {
+        description = "Darwin main configurations";
         type = types.attrsOf types.raw;
-        default = { };
+        default = {};
       };
       rpiModules = mkOption {
+        description = "Nixos aarch64-linux focused modules, to use exclusivelly
+          with raspberry pi";
         type = types.attrsOf types.raw;
-        default = { };
+        default = {};
+      };
+      homeManagerModules = mkOption {
+        description = "Home Manager Modules, shared and single profiles for each hosto";
+        type = types.attrsOf types.raw;
+        defailt = {};
+      };
+      profileModules = mkOption {
+        description = "Profile Management";
+        type = types.attrsOf types.raw;
+        default = {};
       };
     };
   };
-  config = { };
+  config = {};
 }
