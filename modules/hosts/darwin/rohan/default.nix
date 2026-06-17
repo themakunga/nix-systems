@@ -2,25 +2,24 @@
   self,
   inputs,
   ...
-}:
-let
-  inherit (inputs)
+}: let
+  inherit
+    (inputs)
     nix-darwin
     nix-homebrew
     home-manager
     ;
-  inherit (self)
+  inherit
+    (self)
     darwinModules
     commonModules
-    homeManagerModules
     profileModules
     ;
-in
-{
-
-  flake.darwinConfigurations.outer-heaven = nix-darwin.lib.darwinSystem {
-    specialArgs = { };
+in {
+  flake.darwinConfigurations.rohan = nix-darwin.lib.darwinSystem {
+    specialArgs = {inherit self inputs;};
     system = "aarch64-darwin";
+
     modules = [
       commonModules.settings
       darwinModules.common
@@ -28,19 +27,23 @@ in
 
       nix-homebrew.darwinModules.nix-homebrew
       {
-        networking.hostName = "outer-heaven";
+        networking.hostName = "rohan";
         services.openssh.enable = true;
         nix-homebrew.user = "nicolas";
       }
 
-      profileModules.bigboss.system
-      profileModules.bigboss.darwin
+      profileModules.theoden.system
+      profileModules.theoden.darwin
 
       home-manager.darwinModules.home-manager
       {
+        home-manager.extraSpecialArgs = {inherit self inputs;};
+
         home-manager.users.nicolas = {
           imports = [
-            profileModules.bigboss.user
+            profileModules.theoden.user
+            profileModules.eomer.user
+            profileModules.eowyn.user
           ];
         };
       }
