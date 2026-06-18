@@ -4,7 +4,11 @@
   ...
 }: {
   flake.profileModules.elron = {
-    # system = { ... }: { };
+    system = {pkgs, ...}: {
+      environment.systemPackages = with pkgs; [
+        tmux
+      ];
+    };
     # darwin = { ... }: { };
 
     user = {config, ...}: {
