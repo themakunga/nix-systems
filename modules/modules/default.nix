@@ -27,7 +27,7 @@ in {
       homeManagerModules = mkOption {
         description = "Home Manager Modules, shared and single profiles for each hosto";
         type = types.attrsOf types.raw;
-        defailt = {};
+        default = {};
       };
       profileModules = mkOption {
         description = "Profile Management";
