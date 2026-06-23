@@ -1,12 +1,10 @@
-{globalConfigurations, ...}: let
-  inherit (globalConfigurations) stateVersion;
-in {
+{ globals, ... }:
+let
+  inherit (globals) stateVersion;
+in
+{
   flake.homeManagerModules.common = {
     home.stateVersion = stateVersion.home-manager;
-    home-manager = {
-      useGlobalPkgs = true;
-      useUserPackages = true;
-    };
 
     programs = {
       home-manager.enable = true;

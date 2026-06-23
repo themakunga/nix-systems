@@ -1,29 +1,51 @@
 {
+  inputs,
+  ...
+}:
+{
   flake.nixosModules.wifi =
     { config, ... }:
     {
+
+      sops = {
+        secrets = {
+          "wifi/AMANDA" = {
+            sopsFile = "${inputs.secrets}/common.yaml";
+          };
+          "wifi/42DEVS" = {
+            sopsFile = "${inputs.secrets}/common.yaml";
+
+          };
+          "wifi/42DEVS_5G" = {
+            sopsFile = "${inputs.secrets}/common.yaml";
+          };
+        };
+        templates."wireless.env".content = ''
+          AMANDA_PSK=${config.sops.placeholder."wifi/AMANDA"}
+          42DEVS_PSK=${config.sops.placeholder."wifi/42DEVS"}
+          42DEVS_5G_PSK=${config.sops.placeholder."wifi/42DEVS_5G"}
+        '';
+      };
+
       networking.wireless = {
         enable = true;
 
-        secretFile = config.sops.secrets."wifi/credentials".path;
+        secretsFile = config.sops.templates."wireless.env".path;
 
         networks = {
           "AMANDA" = {
-            psk = "ext:password_home";
+            pskRaw = "ext:AMANDA_PSK";
             priority = 10;
           };
           "42Devs" = {
-            psk = "ext:password_42devs";
+            pskRaw = "ext:42DEVS";
             priority = 5;
           };
           "Nicolas`s iPhone" = {
-            psk = "ext:password_iphone";
+            pskRaw = "ext:42DEVS_5G";
             priority = 1;
           };
         };
-      };
-      sops.secrets."wifi/credentials" = {
-        restartUnits = [ "wpa_supplicant.service" ];
       };
     };
 }

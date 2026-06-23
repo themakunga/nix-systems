@@ -1,46 +1,56 @@
-# {
-#   self,
-#   inputs,
-#   ...
-# }:
+{
+  self,
+  ...
+}:
+let
+  inherit (self) commonModules;
+in
 {
   flake.profileModules.eowyn = {
-    # system = {...}: {};
     # darwin = {...}: {};
 
-    user = {config, ...}: {
-      sops.secrets = {
-        "ssh/thoughtworks/private_key" = {};
-        "gpg/thoughtworks/private_key" = {};
-        "gpg/thoughtworks/public_key" = {};
-      };
-
-      programs.sops.gpg = {
-        enable = true;
-        keys = [
-          {
-            name = "Thoughtworks Identity";
-            publicKey = config.sops.secrets."gpg/thoughtworks/public_key".path;
-            privateKey = config.sops.secrets."gpg/thoughtworks/private_key".path;
-          }
+    user =
+      { config, ... }:
+      {
+        imports = [
+          commonModules.sops.shared-secrets
+          commonModules.git-identity
         ];
-      };
 
-      programs.git-identity = {
-        workspaces.thoughtworks = {
-          directory = "~/Projects/Thoughtworks"; # Ajusta la ruta a tu entorno real
-          realName = "Nicolas Villarroel Martinez";
-          email = "nicolas.villarroel@thoughtworks.com";
-          gpg = {
+        sops.secrets = {
+          "ssh/thoughtworks/private_key" = { };
+          "gpg/thoughtworks/private_key" = { };
+          "gpg/thoughtworks/public_key" = { };
+        };
+
+        programs = {
+          sops.gpg = {
             enable = true;
-            keyId = "nicolas.villarroel@thoughtworks.com"; # O el keyId alfanumérico
+            keys = [
+              {
+                name = "Eowyn";
+                privateKey = config.sops.secrets."gpg/thoughtworks/private_key".path;
+                publicKey = config.sops.secrets."gpg/thoughtworks/public_key".path;
+              }
+            ];
           };
-          ssh = {
-            enableAuth = true;
-            privateKeyPath = config.sops.secrets."ssh/thoughtworks/private_key".path;
+          git-identity = {
+            workspaces.eowyn = {
+              directory = "~/Projects/Thoughtworks/";
+              realName = "Nicolas Villarroel M";
+              email = "nicolas.villarroel@thoughtworks.com";
+              gpg = {
+                enable = true;
+                key = "nicolas.villarroel@thoughtworks.com";
+              };
+              ssh = {
+                enableAuth = true;
+                privateKeyPath = config.sops.secrets."ssh/thoughtworks/private_key".path;
+              };
+            };
           };
         };
+
       };
-    };
   };
 }

@@ -2,28 +2,31 @@
   self,
   inputs,
   ...
-}: let
-  inherit
-    (inputs)
+}:
+let
+  inherit (inputs)
     nix-darwin
     nix-homebrew
     home-manager
     ;
-  inherit
-    (self)
+  inherit (self)
     darwinModules
     commonModules
     profileModules
     ;
-in {
+in
+{
   flake.darwinConfigurations.gondor = nix-darwin.lib.darwinSystem {
-    specialArgs = {inherit self inputs;};
+    specialArgs = { inherit self inputs; };
     system = "aarch64-darwin";
 
     modules = [
       commonModules.settings
       darwinModules.common
       commonModules.home-manager-config
+
+      commonModules.userProfiles
+      commonModules.authorizedKeys
 
       nix-homebrew.darwinModules.nix-homebrew
       {
@@ -38,7 +41,7 @@ in {
       home-manager.darwinModules.home-manager
       {
         home-manager = {
-          extraSpecialArgs = {inherit self inputs;};
+          extraSpecialArgs = { inherit self inputs; };
           uses.nicolas = {
             imports = [
               profileModules.aragon.user

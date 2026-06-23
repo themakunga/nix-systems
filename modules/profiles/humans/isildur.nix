@@ -2,31 +2,34 @@
   self,
   inputs,
   ...
-}: {
+}:
+{
   flake.profileModules.isildur = {
-    system = {pkgs, ...}: {
-      environment.systemPackages = with pkgs; [
-        bash
-      ];
-
-      user = {
-        inports = [
-          self.commonModules.sops.shared-secrets
-          self.commonModules.git-identity
+    system =
+      { pkgs, ... }:
+      {
+        environment.systemPackages = with pkgs; [
+          bash
         ];
 
-        sops = {
-          defaultSopsPath = "${inputs.secrets}/hosts/numenor.yaml";
-          secrets."ssh/private_key" = {};
-        };
+        user = {
+          imports = [
+            self.commonModules.sops.shared-secrets
+            self.commonModules.git-identity
+          ];
 
-        programs.git-identity = {
-          enable = true;
-          global = {
-            enable = false;
+          sops = {
+            defaultSopsPath = "${inputs.secrets}/hosts/numenor.yaml";
+            secrets."ssh/private_key" = { };
+          };
+
+          programs.git-identity = {
+            enable = true;
+            global = {
+              enable = false;
+            };
           };
         };
       };
-    };
   };
 }

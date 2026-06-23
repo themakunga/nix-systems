@@ -5,7 +5,7 @@
         disk = {
           main = {
             type = "disk";
-            device = "/dev/mmcdlk0";
+            device = "/dev/mmcblk0";
             content = {
               type = "gpt";
               partitions = {

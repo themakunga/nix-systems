@@ -2,7 +2,7 @@
   description = "Flake build rpi installers and multi host systems";
 
   nixConfig = {
-    extra-substitutions = ["https://themakunga.cachix.org"];
+    extra-substitutions = [ "https://themakunga.cachix.org" ];
     extra-trusted-public-keys = [
       "themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0="
     ];
@@ -70,23 +70,25 @@
     globalprotect-openconnect.url = "github:yuezk/GlobalProtect-openconnect";
   };
 
-  outputs = inputs: let
-    globalConfigurations = {
-      stateVersion = {
-        nixos = "26.05";
-        darwin = 6;
-        home-manager = "26.05";
+  outputs =
+    inputs:
+    let
+      globals = {
+        stateVersion = {
+          nixos = "26.05";
+          darwin = 6;
+          home-manager = "26.05";
+        };
       };
-    };
-  in
-    inputs.flake-parts.lib.mkFlake {inherit inputs;} {
+    in
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [
         "x86_64-linux"
         "aarch64-linux"
         "aarch64-darwin"
       ];
 
-      _module.args = {inherit globalConfigurations;};
+      _module.args = { inherit globals; };
 
       imports = [
         (inputs.import-tree ./modules)

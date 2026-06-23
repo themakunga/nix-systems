@@ -1,33 +1,33 @@
 {
   self,
   inputs,
-  globalConfigurations,
+  globals,
   ...
-}: let
-  inherit
-    (inputs)
+}:
+let
+  inherit (inputs)
     nixpkgs
     nixos-hardware
     disko
     sops-nix
     home-manager
     ;
-  inherit
-    (self)
+  inherit (self)
     commonModules
     rpiModules
-    # nixosModules
     profileModules
-    homeManagerModules
     ;
 
-  inherit
-    (profileModules)
+  inherit (profileModules)
     galadriel
     elron
     gandalf
     ;
-in {
+  inherit (globals)
+    stateVersion
+    ;
+in
+{
   flake.nixosConfigurations.rivendell = nixpkgs.lib.nixosSystem {
     specialArgs = {
       inherit inputs;
@@ -35,6 +35,10 @@ in {
 
     modules = [
       commonModules.settings
+
+      commonModules.userProfiles
+      commonModules.authorizedKeys
+
       nixos-hardware.nixosModules.raspberry-pi-5
       disko.nixosModules.disko
       rpiModules.disko.rivendell
@@ -46,23 +50,28 @@ in {
 
       elron.system
       galadriel.system
+      gandalf.system
 
       home-manager.nixosModules.home-manager
-      homeManagerModules.common
       {
+        imports = [
+          commonModules.home-manager
+        ];
         home-manager.users = {
           elron = elron.user;
           galadriel = galadriel.user;
-          gandalf = gandalf.user;
+
         };
       }
 
       {
         nixpkgs.hostPlatform = "aarch64-linux";
-        system.stateVersion = globalConfigurations.stateVersion.nixos;
+        system.stateVersion = stateVersion.nixos;
         networking = {
           hostName = "rivendell";
         };
+
+        fileSystems."/".device = nixpkgs.lib.mkForce "/dev/disk/by-partlabel/disk-main-root";
 
         boot = {
           loader = {

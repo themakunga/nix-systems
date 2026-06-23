@@ -1,56 +1,67 @@
 {
   self,
   inputs,
+  globals,
   ...
 }:
 let
   inherit (inputs)
     nixpkgs
-    nixos-hardware
+    home-manager
+    sops-nix
     ;
+
   inherit (self)
+    commonModules
     nixosModules
+    rpiModules
     profileModules
+    ;
+  inherit (profileModules)
+    celebrimbor
+    ;
+  inherit (globals)
+    stateVersion
     ;
 in
 {
-  flake.nixosConfigurationsd.eregoin = nixpkgs.lib.nixosSystem {
-    system = "aarch64-linux";
-    specialArgs = { inherit inputs; };
+  flake.nixosConfigurations.eregoin = nixpkgs.lib.nixosSystem {
+    specialArgs = {
+      inherit inputs;
+    };
+
     modules = [
-      nixosModules.stateVersion
-      nixosModules.rpi.config
-      nixosModules.rpi.builder
-      nixos-hardware.nixosModules.raspberry-pi-5
-      nixosModules.rpi.sdImage
-      nixosModules.rpi.systemPackages
-      nixosModules.rpi.boot
+      commonModules.settings
+      sops-nix.nixosModules.sops
+
+      rpiModules.boot-loader
+      rpiModules.systemPackages
+      rpiModules.config
+
+      commonModules.userProfiles
+      commonModules.authorizedKeys
+
+      celebrimbor.system
+
+      home-manager.nixosModules.home-manager
+      commonModules.home-manager
+      {
+        home-manager.users = {
+          celebrimbor = celebrimbor.user;
+        };
+      }
       nixosModules.wifi
       {
-        image.filename = "nixos-eregoin.img";
-        networking.hostName = "eregoin";
+        nixpkgs.hostPlatform = "aarch64-linux";
+        system.stateVersion = stateVersion.nixos;
+
+        networking = {
+          hostName = "eregoin";
+          networkmanager.enable = false;
+        };
+
+        services.openssh.enable = true;
       }
-      (
-        {
-          lib,
-          ...
-        }:
-        {
-
-          boot = {
-            initrd = {
-              availableKernelModules = lib.mkForce [
-                "usb_storage"
-                "pcie_brcmstb"
-                "nvme"
-                "reset_raspberrypi"
-              ];
-            };
-          };
-
-        }
-      )
-      profileModules.celebimbor
     ];
   };
 }
