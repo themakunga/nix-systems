@@ -44,7 +44,7 @@ in {
       {
         my.base-machine = {
           enable = true;
-          bootMode = "eufi";
+          bootMode = "uefi";
           rootDevice = "/dev/nvme0u1p2";
         };
       }

@@ -24,7 +24,7 @@
 
       bootMode = mkOption {
         type = enum [
-          "eufi"
+          "uefi"
           "legacy"
           "rpi"
         ];

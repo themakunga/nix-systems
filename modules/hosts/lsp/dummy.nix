@@ -4,11 +4,11 @@
   ...
 }: let
   inherit
-    (self)
+    (inputs)
     nixpkgs
     home-manager
     sops-nix
-    darwin
+    nix-darwin
     ;
   inherit
     (self)
@@ -19,20 +19,20 @@
     ;
 in {
   flake = {
-    nixosConfigurations.lsp-dummy = nixpkgs.lib.nixosModules {
+    nixosConfigurations.lsp-dummy = nixpkgs.lib.nixosSystem {
       specialArgs = {
         inherit self inputs;
-        homeName = "lsp-dummy-nixos";
+        hostName = "lsp-dummy-nixos";
       };
 
       modules = [
         commonModules.settings
         commonModules.arch.nixos.x64
         sops-nix.nixosModules.sops
-        home-manager.nixosModule.home-manager
+        home-manager.nixosModules.home-manager
 
         commonModules.userProfiles
-        commonModules.authoruizedKeys
+        commonModules.authorizedKeys
         commonModules.network
         commonModules.home-manager
         nixosModules.base-machine
@@ -48,13 +48,14 @@ in {
         }
       ];
     };
-    darwinConfigurations.lsp-dummy = darwin.lib.darwinSystem {
+    darwinConfigurations.lsp-dummy = nix-darwin.lib.darwinSystem {
       specialArgs = {
         inherit self inputs;
         hostName = "lsp-dummy-darwin";
       };
 
       modules = [
+        darwinModules.common
         commonModules.settings
         commonModules.arch.darwin.silicon
         home-manager.darwinModules.home-manager
