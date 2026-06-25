@@ -12,16 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7 # v4 es la versión estable actual
         with:
-          featch-depth: 0
-      - name: Install Nix using cachix
+          fetch-depth: 0
+      - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
           nix_path: nixpkgs=channel:nixos-unstable
-      - name: Check formatting using alejandra
-        run: nix run nixpkgs#alejandra -- --check .
-      - name: Find dead code using Deadnix
-        run: nix run nixpkgs#deadnix -- --fail .
-      - name: Linter nix with Statix
-        run: nix run nixpkgs#statix -- check .
+      - name: Run pre-commit on all files
+        run: nix run nixpkgs#pre-commit -- run --all-files --color=always
