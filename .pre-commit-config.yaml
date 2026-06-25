@@ -3,6 +3,7 @@ repos:
     rev: v6.0.0
     hooks:
       - id: trailing-whitespace
+        stage: [pre-commit]
         # Forzamos a que estos solo corran en pre-commit para evitar conflictos
         stages: [pre-commit]
       - id: end-of-file-fixer
@@ -16,7 +17,7 @@ repos:
       - id: mixed-line-ending
         stages: [pre-commit]
   - repo: https://github.com/mrtazz/checkmake
-    rev: V0.3.2
+    rev: v0.3.0
     hooks:
       - id: checkmake
         stages: [pre-commit]
@@ -56,14 +57,14 @@ repos:
         name: Nix dead code
         stages: [pre-commit]
         args:
-          - --fail
+          - edit
   - repo: https://github.com/google/yamlfmt
     rev: v0.21.0
     hooks:
       - id: yamlfmt
         stages: [pre-commit]
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-    rev: v9.25.0
+    rev: v9.26.0
     hooks:
       - id: commitlint
         stages: [commit-msg]

@@ -1,5 +1,5 @@
 {
-  flake.commonModules.dev-rust = {pkgs, ...}: {
+  flake.commonModules.dev.rust = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
       cargo
       rustc

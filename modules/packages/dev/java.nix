@@ -1,5 +1,5 @@
 {
-  flake.commonModules.dev-java = {pkgs, ...}: {
+  flake.commonModules.dev.java = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
       google-java-format
       gradle

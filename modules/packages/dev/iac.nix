@@ -1,5 +1,5 @@
 {
-  flake.comonModules.dev-iac = {pkgs, ...}: {
+  flake.commonModules.dev.iac = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
       ansible
       infracost

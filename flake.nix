@@ -10,11 +10,11 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     nix-darwin = {
-      url = "github:nix-darwin/nix-darwin/nix-darwin-25.11";
+      url = "github:nix-darwin/nix-darwin/nix-darwin-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -66,15 +66,27 @@
       url = "github:TheMakunga/public-dotfiles/main";
       flake = false;
     };
+
+    globalprotect-openconnect.url = "github:yuezk/GlobalProtect-openconnect";
   };
 
-  outputs = inputs:
+  outputs = inputs: let
+    globals = {
+      stateVersion = {
+        nixos = "26.05";
+        darwin = 6;
+        home-manager = "26.05";
+      };
+    };
+  in
     inputs.flake-parts.lib.mkFlake {inherit inputs;} {
       systems = [
         "x86_64-linux"
         "aarch64-linux"
         "aarch64-darwin"
       ];
+
+      _module.args = {inherit globals;};
 
       imports = [
         (inputs.import-tree ./modules)

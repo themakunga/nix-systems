@@ -1,5 +1,5 @@
 {
-  flake.commonModules.dev-python = {pkgs, ...}: {
+  flake.commonModules.dev.python = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
       python312
       pipx

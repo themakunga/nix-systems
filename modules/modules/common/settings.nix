@@ -1,12 +1,22 @@
-{self, ...}: {
+{
+  globals,
+  self,
+  ...
+}: let
+  inherit (self) overlays;
+in {
   flake.commonModules.settings = {
     pkgs,
     lib,
     ...
-  }: {
-    system.stateVersion = lib.mkMerge [
-      (lib.mkIf pkgs.stdenv.hostPlatform.isLinux "25.11")
-      (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin 6)
+  }: let
+    inherit (pkgs.stdenv.hostPlatform) isDarwin isLinux;
+    inherit (lib) mkIf optionals mkMerge;
+    inherit (globals.stateVersion) darwin nixos;
+  in {
+    system.stateVersion = mkMerge [
+      (mkIf isLinux nixos)
+      (mkIf isDarwin darwin)
     ];
     nix = {
       settings = {
@@ -19,8 +29,8 @@
             "root"
             "nicolas"
           ]
-          ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux ["@wheel"]
-          ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin ["@admin"];
+          ++ optionals isLinux ["@wheel"]
+          ++ optionals isDarwin ["@admin"];
       };
     };
     nixpkgs = {
@@ -28,7 +38,7 @@
         allowUnfree = true;
       };
       overlays = [
-        self.overlays.unstable
+        overlays.unstable
       ];
     };
   };

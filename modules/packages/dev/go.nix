@@ -1,5 +1,5 @@
 {
-  flake.commonModules.dev-go = {pkgs, ...}: {
+  flake.commonModules.dev.go = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
       go
       gopls

@@ -16,7 +16,7 @@
         statix
         deadnix
         nixpkgs-fmt
-        nodePackages.prettier
+        prettier
         nodejs
         python3
         commitlint

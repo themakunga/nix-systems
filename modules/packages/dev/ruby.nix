@@ -1,5 +1,5 @@
 {
-  flake.commonModules.dev-ruby = {pkgs, ...}: {
+  flake.commonModules.dev.ruby = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
       ruby
       bundler

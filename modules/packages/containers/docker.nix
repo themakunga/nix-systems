@@ -1,5 +1,5 @@
 {
-  flake.commonModules.container-core = {pkgs, ...}: {
+  flake.commonModules.container.core = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
       docker
       docker-compose

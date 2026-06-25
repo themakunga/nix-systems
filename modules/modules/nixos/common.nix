@@ -1,7 +1,12 @@
 {
   flake = {
     nixosModules = {
-      common = {};
+      common = {
+        networking.networkmanager.enable = true;
+
+        time.timeZone = "America/Santiago";
+        i18n.defaultLocale = "en_US.UTF-8";
+      };
     };
   };
 }

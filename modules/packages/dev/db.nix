@@ -1,5 +1,5 @@
 {
-  flake.commonModules.dev-core = {pkgs, ...}: {
+  flake.commonModules.dev.core = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
       libpq
       postgresql

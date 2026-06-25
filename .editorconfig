@@ -11,18 +11,6 @@ indent_style = space
 indent_size = 2
 max_line_length = 80
 
-[flake.nix]
-indent_style = space
-indent_size = 2
-
-[home.nix]
-indent_style = space
-indent_size = 2
-
-[configuration.nix]
-indent_style = space
-indent_size = 2
-
 [*.sh]
 indent_style = space
 indent_size = 2
