@@ -1,6 +1,6 @@
 {
   flake.rpiModules.disko = {
-    mirkwood = {
+    black-mesa = {
       disko.devices = {
         disk = {
           main = {
@@ -16,7 +16,7 @@
                     type = "filesystem";
                     format = "vfat";
                     mountpoint = "/boot";
-                    mountOptions = [ "umask=0077" ];
+                    mountOptions = ["umask=0077"];
                   };
                 };
                 root = {
@@ -33,7 +33,7 @@
         };
       };
     };
-    rivendell = {
+    aperture-science = {
       disko.devices = {
         disk = {
           main = {
@@ -49,7 +49,7 @@
                     type = "filesystem";
                     format = "vfat";
                     mountpoint = "/boot";
-                    mountOptions = [ "umask=0077" ];
+                    mountOptions = ["umask=0077"];
                   };
                 };
                 root = {

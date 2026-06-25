@@ -1,32 +1,48 @@
-{ self, inputs, ... }:
-let
-  inherit (inputs)
+{
+  self,
+  inputs,
+  ...
+}: let
+  inherit
+    (inputs)
     nix-darwin
     nix-homebrew
     home-manager
+    sops-nix
     ;
-  inherit (self)
-    darwinModules
+  inherit
+    (self)
     commonModules
     userModules
+    darwinModules
     profileModules
     ;
-in
-{
+in {
   flake.darwinConfigurations.kanagawa = nix-darwin.lib.darwinSystem {
-    scpecialArgs = {
+    specialArgs = {
       inherit self inputs;
+      hostName = "kanagawa";
     };
 
-    system = "aarch64-darwin";
-
     modules = [
+      commonModules.arch.darwin.silicon
       commonModules.settings
-      darwinModules.common
-      commonModules.home-manager-config
-
+      sops-nix.darwinModules.sops
       commonModules.userProfiles
-      commonModules.authorizedKeys
+      commonModules.network
+
+      darwinModules.common
+
+      nix-homebrew.darwinModules.nix-homebrew
+      darwinModules.homebrew-config
+
+      home-manager.darwinModules.home-manager
+      commonModules.home-manager
+
+      userModules.me
+      profileModules.personal
+      profileModules.company
+      profileModules.bbook
     ];
   };
 }

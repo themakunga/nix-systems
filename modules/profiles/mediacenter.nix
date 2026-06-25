@@ -1,18 +1,14 @@
 {self, ...}: let
   inherit (self) commonModules;
 in {
-  flake.profileModules.thoughtworks = {
+  flake.profileModules.mediacenter = {
     sops.secrets = {
-      "ssh/thoughtworks/private_key" = {};
-      "gpg/thoughtworks/private_key" = {};
-      "gpg/thoughtworks/public_key" = {};
+      "ssh/mediacenter/private_key" = {};
+      "gpg/mediacenter/private_key" = {};
+      "gpg/mediacenter/public_key" = {};
     };
 
-    homebrew.casks = [
-      "google-chrome"
-    ];
-
-    my.userProfiles.work.homeManager = {
+    my.userProfiles.glados.homeManager = {
       # pkgs,
       osConfig,
       ...
@@ -26,25 +22,25 @@ in {
           enable = true;
           keys = [
             {
-              name = "thoughtworks-key";
-              publicKey = osConfig.sops.secrets."gpg/thoughtworks/public_key".path;
-              privateKey = osConfig.sops.secrets."gpg/thoughtworks/private_key".path;
+              name = "mediacenter-key";
+              publicKey = osConfig.sops.secrets."gpg/mediacenter/public_key".path;
+              privateKey = osConfig.sops.secrets."gpg/mediacenter/private_key".path;
             }
           ];
         };
         git-identity = {
           enable = true;
           workspaces.thouhtworks = {
-            directory = "~/Projects/Thoughtworks";
+            directory = "~/Projects";
             realName = "Nicolas Villarroel";
-            email = "nicolas.villarroel@thoughtworks.com";
+            email = "nmartinezv@icloud.com";
             gpg = {
               enable = true;
-              keyId = "nicolas.villarroel@thoughtworks.com";
+              keyId = "nicolas.villarroel@mediacenter.com";
             };
             ssh = {
               enableAuth = true;
-              privateKey = osConfig.sops.secrets."ssh/thoughtworks/private_key".path;
+              privateKey = osConfig.sops.secrets."ssh/mediacenter/private_key".path;
             };
           };
         };

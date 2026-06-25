@@ -56,7 +56,7 @@ repos:
         name: Nix dead code
         stages: [pre-commit]
         args:
-          - --fail
+          - edit
   - repo: https://github.com/google/yamlfmt
     rev: v0.21.0
     hooks:

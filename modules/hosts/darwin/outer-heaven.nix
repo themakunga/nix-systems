@@ -1,25 +1,47 @@
-{ self, inputs, ... }:
-let
-  inherit (inputs)
+{
+  self,
+  inputs,
+  ...
+}: let
+  inherit
+    (inputs)
     nix-darwin
     nix-homebrew
     home-manager
+    sops-nix
     ;
-  inherit (self)
-    darwinModules
+  inherit
+    (self)
     commonModules
     userModules
+    darwinModules
     profileModules
     ;
-in
-{
+in {
   flake.darwinConfigurations.outer-heaven = nix-darwin.lib.darwinSystem {
-    scpecialArgs = {
+    specialArgs = {
       inherit self inputs;
+      hostName = "outher-heaven";
     };
 
-    system = "aarch64-darwin";
+    modules = [
+      commonModules.arch.darwin.silicon
+      commonModules.settings
+      sops-nix.darwinModules.sops
+      commonModules.userProfiles
+      commonModules.network
 
-    modules = [ ];
+      darwinModules.common
+
+      nix-homebrew.darwinModules.nix-homebrew
+      darwinModules.homebrew-config
+
+      home-manager.darwinModules.home-manager
+      commonModules.home-manager
+
+      userModules.work
+      profileModules.thoughtworks
+      profileModules.grainger
+    ];
   };
 }

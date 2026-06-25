@@ -1,25 +1,53 @@
-{ self, inputs, ... }:
-let
-  inherit (inputs)
+{
+  self,
+  inputs,
+  ...
+}: let
+  inherit
+    (inputs)
     nixpkgs
-    nix-homebrew
     home-manager
+    # disko
+    sops-nix
+    # nix-hardware
     ;
-  inherit (self)
+  inherit
+    (self)
     nixosModules
     commonModules
     userModules
     profileModules
     ;
-in
-{
+in {
   flake.nixosConfigurations.motherbase = nixpkgs.lib.nixosSystem {
-    scpecialArgs = {
+    specialArgs = {
       inherit self inputs;
+      hostName = "motherbase";
     };
 
-    system = "x86_64-linux";
+    modules = [
+      commonModules.arch.nixos.x64
+      commonModules.settings
+      sops-nix.nixosModules.sops
 
-    modules = [ ];
+      commonModules.userProfiles
+      commonModules.authorizedKeys
+      commonModules.network
+
+      home-manager.nixosModules.home-manager
+      commonModules.home-manager
+
+      userModules.server
+      profileModules.manager
+
+      nixosModules.base-machine
+      {
+        my.base-machine = {
+          enable = true;
+          bootMode = "eufi";
+          rootDevice = "/dev/nvme0u1p2";
+        };
+      }
+    ];
   };
 }

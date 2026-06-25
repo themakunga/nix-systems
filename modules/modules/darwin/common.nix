@@ -1,49 +1,48 @@
 {
-  flake = {
-    darwinModules = {
-      common = {
-        lib.generators.toPlist.escape = true;
-        security.pam.services = {
-          sudo_local = {
-            touchIdAuth = true;
-          };
+  flake.darwinModules.common = {
+    nix.enable = true;
+
+    lib.generators.toPlist.escape = true;
+
+    security.pam.services = {
+      sudo_local = {
+        touchIdAuth = true;
+      };
+    };
+
+    system = {
+      defaults = {
+        dock = {
+          autohide = true;
+          minimize-to-application = true;
+          show-recents = false;
+          persistent-apps = [
+            "/System/Applications/Apps.app"
+            "/System/Applications/Mail.app"
+            "/System/Applications/Calendar.app"
+            "/Applications/Safari.app"
+            "/System/Applications/Notes.app"
+            "/System/Applications/Phone.app"
+            {
+              spacer.small = true;
+            }
+          ];
         };
-        system = {
-          stateVersion = 6;
-          defaults = {
-            dock = {
-              autohide = true;
-              minimize-to-application = true;
-              show-recents = false;
-              persistent-apps = [
-                "/System/Applications/Apps.app"
-                "/System/Applications/Mail.app"
-                "/System/Applications/Calendar.app"
-                "/Applications/Safari.app"
-                "/System/Applications/Notes.app"
-                "/System/Applications/Phone.app"
-                {
-                  spacer.small = true;
-                }
-              ];
-            };
-            finder = {
-              FXPreferredViewStyle = "clmv";
-              AppleShowAllExtensions = true;
-              _FXShowPosixPathInTitle = true;
-            };
-            NSGlobalDomain = {
-              AppleShowAllExtensions = true;
-              InitialKeyRepeat = 14;
-              KeyRepeat = 1;
-              _HIHideMenuBar = true;
-            };
-          };
-          keyboard = {
-            enableKeyMapping = true;
-            remapCapsLockToControl = true;
-          };
+        finder = {
+          FXPreferredViewStyle = "clmv";
+          AppleShowAllExtensions = true;
+          _FXShowPosixPathInTitle = true;
         };
+        NSGlobalDomain = {
+          AppleShowAllExtensions = true;
+          InitialKeyRepeat = 14;
+          KeyRepeat = 1;
+          _HIHideMenuBar = true;
+        };
+      };
+      keyboard = {
+        enableKeyMapping = true;
+        remapCapsLockToControl = true;
       };
     };
   };

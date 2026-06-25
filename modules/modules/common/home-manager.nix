@@ -1,6 +1,15 @@
-{ self, inputs, ... }:
 {
+  self,
+  inputs,
+  ...
+}: let
+  inherit (self) commonModules homeManagerModules;
+in {
   flake.commonModules.home-manager = {
+    imports = [
+      commonModules.sops.gpg
+    ];
+
     home-manager = {
       useGlobalPkgs = true;
       useUserPackages = true;
@@ -10,7 +19,8 @@
       };
 
       sharedModules = [
-        self.homeManagerModules.common
+        homeManagerModules.common
+        commonModules.sops.shared-secrets
       ];
     };
   };
