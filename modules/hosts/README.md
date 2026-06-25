@@ -43,11 +43,11 @@
 thougthworks macbook pro max m4
 
 #### Profiles
-##### Aragorn 
+##### Aragorn
 main profile
 
 ##### Faramir
-thougrhworks specificst 
+thougrhworks specificst
 
 ##### Boromit
 client grainger
@@ -65,7 +65,7 @@ satelite profile, development
 ## NixOS
 
 ### Rivendell
-rpi 5 
+rpi 5
 #### Profiles
 ##### Elron
 ##### Galadiel
@@ -83,7 +83,7 @@ lab
 ### Isengard
 media center
 #### Profiles
-##### Saruman 
+##### Saruman
 
 
 ### Hobbitton

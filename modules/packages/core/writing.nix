@@ -1,9 +1,7 @@
 {
-  flake.commonModules.core.writing =
-    { pkgs, ... }:
-    {
-      environment.systemPackages = with pkgs; [
-        pandoc
-      ];
-    };
+  flake.commonModules.core.writing = {pkgs, ...}: {
+    environment.systemPackages = with pkgs; [
+      pandoc
+    ];
+  };
 }
