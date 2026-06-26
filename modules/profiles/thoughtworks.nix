@@ -2,6 +2,13 @@
   inherit (self) commonModules;
 in {
   flake.profileModules.thoughtworks = {
+    lib,
+    pkgs,
+    ...
+  }: let
+    inherit (lib) mkIf;
+    inherit (pkgs.stdenv.hostPlatform) isDarwin;
+  in {
     sops.secrets = {
       "profiles/thouhtworks/ssh/private_key" = {};
       "profiles/thouhtworks/gpg/private_key" = {};
@@ -9,9 +16,11 @@ in {
       "profiles/thouhtworks/gpg/key_id" = {};
     };
 
-    homebrew.casks = [
-      "google-chrome"
-    ];
+    homebrew = mkIf isDarwin {
+      casks = [
+        "google-chrome"
+      ];
+    };
 
     my.userProfiles.nicolas-work.homeManager = {
       # pkgs,

@@ -9,11 +9,6 @@ in {
       "profiles/nicolas-admin/gpg/key_id" = {};
     };
 
-    homebrew.casks = [
-      "firefox"
-      "firefox-dev"
-    ];
-
     my.userProfiles.nicolas-admin.homeManager = {
       # pkgs,
       osConfig,

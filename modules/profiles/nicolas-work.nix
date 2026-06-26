@@ -2,6 +2,13 @@
   inherit (self) commonModules;
 in {
   flake.profileModules.nicolas-work = {
+    lib,
+    pkgs,
+    ...
+  }: let
+    inherit (lib) mkIf;
+    inherit (pkgs.stdenv.hostPlatform) isDarwin;
+  in {
     sops.secrets = {
       "profiles/nicolas-work/ssh/private_key" = {};
       "profiles/nicolas-work/gpg/private_key" = {};
@@ -9,10 +16,12 @@ in {
       "profiles/nicolas-work/gpg/key_id" = {};
     };
 
-    homebrew.casks = [
-      "firefox"
-      "firefox-dev"
-    ];
+    homebrew = mkIf isDarwin {
+      casks = [
+        "firefox"
+        "firefox-dev"
+      ];
+    };
 
     my.userProfiles.nicolas-work.homeManager = {
       # pkgs,

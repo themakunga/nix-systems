@@ -2,26 +2,30 @@
   inherit (self) commonModules;
 in {
   flake.profileModules.grainger = {
+    lib,
+    pkgs,
+    ...
+  }: let
+    inherit (lib) mkIf;
+    inherit (pkgs.stdenv.hostPlatform) isDarwin;
+  in {
     sops.secrets = {
       "profiles/grainger/ssh/private_key" = {};
       "profiles/grainger/gpg/private_key" = {};
       "profiles/grainger/gpg/public_key" = {};
       "profiles/grainger/gpg/key_id" = {};
     };
-
-    my.userProfile.nicolas-work.homeManager = {
-      pkgs,
-      osConfig,
-      ...
-    }: {
-      imports = [
-        commonModules.git-identity
-      ];
-
-      homebrew.casks = [
+    homebrew = mkIf isDarwin {
+      casks = [
         "microsoft-teams"
         "slack"
         "dbeaver-community"
+      ];
+    };
+
+    my.userProfile.nicolas-work.homeManager = {osConfig, ...}: {
+      imports = [
+        commonModules.git-identity
       ];
 
       programs = {

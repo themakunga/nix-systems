@@ -22,7 +22,7 @@ repos:
   - repo: local
     hooks:
       - id: statix
-        name: Linter Nix (static)
+        name: Linter Nix (statix)
         entry: nix run nixpkgs#statix -- check
         language: system
         files: \.nix$
