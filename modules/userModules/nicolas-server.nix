@@ -4,7 +4,7 @@
       neededForUsers = true;
     };
 
-    my.userProfiles.me = {
+    my.userProfiles.nicolas-server = {
       username = "nicolas";
       description = "Nicolas server - server manager account";
       isSystem = true;
