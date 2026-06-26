@@ -45,8 +45,8 @@ in {
       home-manager.nixosModules.home-manager
       commonModules.home-manager
 
-      userModules.server
-      profileModules.manager
+      userModules.nicolas-pihole
+      profileModules.pihole
 
       nixosModules.base-machine
       {

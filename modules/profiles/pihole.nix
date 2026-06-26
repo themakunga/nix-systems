@@ -1,14 +1,15 @@
 {self, ...}: let
   inherit (self) commonModules;
 in {
-  flake.profileModules.mediacenter = {
+  flake.profileModules.pihole = {
     sops.secrets = {
-      "ssh/mediacenter/private_key" = {};
-      "gpg/mediacenter/private_key" = {};
-      "gpg/mediacenter/public_key" = {};
+      "profiles/nicolas-pihole/ssh/private_key" = {};
+      "profiles/nicolas-pihole/gpg/private_key" = {};
+      "profiles/nicolas-pihole/gpg/public_key" = {};
+      "profiles/nicolas-pihole/gpg/key_id" = {};
     };
 
-    my.userProfiles.glados.homeManager = {
+    my.userProfiles.pihole.homeManager = {
       # pkgs,
       osConfig,
       ...
@@ -22,25 +23,26 @@ in {
           enable = true;
           keys = [
             {
-              name = "mediacenter-key";
-              publicKey = osConfig.sops.secrets."gpg/mediacenter/public_key".path;
-              privateKey = osConfig.sops.secrets."gpg/mediacenter/private_key".path;
+              name = "pihole-key";
+              publicKey = osConfig.sops.secrets."profiles/nicolas-pihole/gpg/public_key".path;
+              privateKey = osConfig.sops.secrets."profiles/nicolas-pihole/gpg/private_key".path;
             }
           ];
         };
         git-identity = {
           enable = true;
-          workspaces.thouhtworks = {
+          workspaces.pihole = {
             directory = "~/Projects";
             realName = "Nicolas Villarroel";
             email = "nmartinezv@icloud.com";
             gpg = {
               enable = true;
-              keyId = "nicolas.villarroel@mediacenter.com";
+              keyId =
+                osConfig.sops.secrets."profiles/nicolas-pihole/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;
-              privateKey = osConfig.sops.secrets."ssh/mediacenter/private_key".path;
+              privateKey = osConfig.sops.secrets."profiles/nicolas-pihole/ssh/private_key".path;
             };
           };
         };
@@ -48,7 +50,7 @@ in {
 
       # home.packages = with pkgs; [ ];
 
-      services.gpg-agent = {
+      services.gpg-pihole = {
         enable = true;
         enableSshSupport = true;
       };

@@ -2,25 +2,30 @@
   inherit (self) commonModules;
 in {
   flake.profileModules.grainger = {
+    lib,
+    pkgs,
+    ...
+  }: let
+    inherit (lib) mkIf;
+    inherit (pkgs.stdenv.hostPlatform) isDarwin;
+  in {
     sops.secrets = {
-      "ssh/grainger/private_key" = {};
-      "gpg/grainger/private_key" = {};
-      "gpg/grainger/public_key" = {};
+      "profiles/grainger/ssh/private_key" = {};
+      "profiles/grainger/gpg/private_key" = {};
+      "profiles/grainger/gpg/public_key" = {};
+      "profiles/grainger/gpg/key_id" = {};
     };
-
-    my.userProfile.work.homeManager = {
-      pkgs,
-      osConfig,
-      ...
-    }: {
-      imports = [
-        commonModules.git-identity
-      ];
-
-      homebrew.casks = [
+    homebrew = mkIf isDarwin {
+      casks = [
         "microsoft-teams"
         "slack"
         "dbeaver-community"
+      ];
+    };
+
+    my.userProfile.nicolas-work.homeManager = {osConfig, ...}: {
+      imports = [
+        commonModules.git-identity
       ];
 
       programs = {
@@ -29,8 +34,8 @@ in {
           keys = [
             {
               name = "grainger-key";
-              publicKey = osConfig.sops.secrets."gpg/grainger/public_key".path;
-              privateKey = osConfig.sops.secrets."gpg/grainger/private_key".path;
+              publicKey = osConfig.sops.secrets."profiles/grainger/gpg/public_key".path;
+              privateKey = osConfig.sops.secrets."profiles/grainger/gpg/private_key".path;
             }
           ];
         };
@@ -42,11 +47,11 @@ in {
             email = "nicolas.villarroel1@grainger.com";
             gpg = {
               enable = true;
-              keyId = "nicolas.villarroel1@grainger.com";
+              keyId = osConfig.sops.secrets."profiles/grainger/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;
-              privateKey = osConfig.sops.secrets."ssh/grainger/private_key".path;
+              privateKey = osConfig.sops.secrets."profiles/grainger/ssh/private_key".path;
             };
           };
         };

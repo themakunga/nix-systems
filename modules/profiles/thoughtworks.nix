@@ -2,17 +2,27 @@
   inherit (self) commonModules;
 in {
   flake.profileModules.thoughtworks = {
+    lib,
+    pkgs,
+    ...
+  }: let
+    inherit (lib) mkIf;
+    inherit (pkgs.stdenv.hostPlatform) isDarwin;
+  in {
     sops.secrets = {
-      "ssh/thoughtworks/private_key" = {};
-      "gpg/thoughtworks/private_key" = {};
-      "gpg/thoughtworks/public_key" = {};
+      "profiles/thouhtworks/ssh/private_key" = {};
+      "profiles/thouhtworks/gpg/private_key" = {};
+      "profiles/thouhtworks/gpg/public_key" = {};
+      "profiles/thouhtworks/gpg/key_id" = {};
     };
 
-    homebrew.casks = [
-      "google-chrome"
-    ];
+    homebrew = mkIf isDarwin {
+      casks = [
+        "google-chrome"
+      ];
+    };
 
-    my.userProfiles.work.homeManager = {
+    my.userProfiles.nicolas-work.homeManager = {
       # pkgs,
       osConfig,
       ...
@@ -27,8 +37,8 @@ in {
           keys = [
             {
               name = "thoughtworks-key";
-              publicKey = osConfig.sops.secrets."gpg/thoughtworks/public_key".path;
-              privateKey = osConfig.sops.secrets."gpg/thoughtworks/private_key".path;
+              publicKey = osConfig.sops.secrets."profiles/thouhtworks/gpg/public_key".path;
+              privateKey = osConfig.sops.secrets."profiles/thouhtworks/gpg/private_key".path;
             }
           ];
         };
@@ -40,11 +50,11 @@ in {
             email = "nicolas.villarroel@thoughtworks.com";
             gpg = {
               enable = true;
-              keyId = "nicolas.villarroel@thoughtworks.com";
+              keyId = osConfig.sops.secrets."profiles/thouhtworks/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;
-              privateKey = osConfig.sops.secrets."ssh/thoughtworks/private_key".path;
+              privateKey = osConfig.sops.secrets."profiles/thouhtworks/ssh/private_key".path;
             };
           };
         };

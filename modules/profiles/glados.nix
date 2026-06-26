@@ -1,11 +1,12 @@
 {self, ...}: let
   inherit (self) commonModules;
 in {
-  flake.profileModules.agent = {
+  flake.profileModules.glados = {
     sops.secrets = {
-      "ssh/agent/private_key" = {};
-      "gpg/agent/private_key" = {};
-      "gpg/agent/public_key" = {};
+      "profiles/glados/ssh/private_key" = {};
+      "profiles/glados/gpg/private_key" = {};
+      "profiles/glados/gpg/public_key" = {};
+      "profiles/glados/gpg/key_id" = {};
     };
 
     my.userProfiles.glados.homeManager = {
@@ -22,25 +23,25 @@ in {
           enable = true;
           keys = [
             {
-              name = "agent-key";
-              publicKey = osConfig.sops.secrets."gpg/agent/public_key".path;
-              privateKey = osConfig.sops.secrets."gpg/agent/private_key".path;
+              name = "glados-key";
+              publicKey = osConfig.sops.secrets."profiles/glados/gpg/public_key".path;
+              privateKey = osConfig.sops.secrets."profiles/glados/gpg/private_key".path;
             }
           ];
         };
         git-identity = {
           enable = true;
-          workspaces.agent = {
+          workspaces.glados = {
             directory = "~/Projects";
             realName = "Nicolas Villarroel";
             email = "nmartinezv@icloud.com";
             gpg = {
               enable = true;
-              keyId = "nicolas.villarroel@agent.com";
+              keyId = osConfig.sops.secrets."profiles/glados/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;
-              privateKey = osConfig.sops.secrets."ssh/agent/private_key".path;
+              privateKey = osConfig.sops.secrets."profiles/glados/ssh/private_key".path;
             };
           };
         };

@@ -1,0 +1,71 @@
+{self, ...}: let
+  inherit (self) commonModules;
+in {
+  flake.profileModules.nicolas-42devs = {
+    lib,
+    pkgs,
+    ...
+  }: let
+    inherit (lib) mkIf;
+    inherit (pkgs.stdenv.hostPlatform) isDarwin;
+  in {
+    sops.secrets = {
+      "profiles/nicolas-42devs/ssh/private_key" = {};
+      "profiles/nicolas-42devs/gpg/private_key" = {};
+      "profiles/nicolas-42devs/gpg/public_key" = {};
+      "profiles/nicolas-42devs/gpg/key_id" = {};
+    };
+
+    homebrew = mkIf isDarwin {
+      casks = [
+        "firefox"
+        "firefox-dev"
+      ];
+    };
+
+    my.userProfiles.nicolas-personal.homeManager = {
+      # pkgs,
+      osConfig,
+      ...
+    }: {
+      imports = [
+        commonModules.git-identity
+      ];
+
+      services.gpg-agent = {
+        enable = true;
+        enableSshSupport = true;
+      };
+
+      programs = {
+        sops.gpg = {
+          enable = true;
+          keys = [
+            {
+              name = "company-key";
+              publicKey = osConfig.sops.secrets."profiles/nicolas-42devs/gpg/public_key".path;
+              privateKey = osConfig.sops.secrets."profiles/nicolas-42devs/gpg/private_key".path;
+            }
+          ];
+        };
+        git-identity = {
+          enable = true;
+          workspaces.nicolas-42devs = {
+            directory = "~/Projects/42Devs";
+            realName = "Nicolas Villarroel Martinez.";
+            email = "nicolas@42devs.cl";
+            gpg = {
+              enable = true;
+              keyId =
+                osConfig.sops.secrets."profiles/nicolas-42devs/gpg/key_id".path;
+            };
+            ssh = {
+              enableAuth = true;
+              privateKey = osConfig.sops.secrets."profiles/nicolas-42devs/ssh/private_key".path;
+            };
+          };
+        };
+      };
+    };
+  };
+}

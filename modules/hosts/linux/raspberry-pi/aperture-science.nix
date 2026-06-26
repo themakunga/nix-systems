@@ -45,10 +45,10 @@ in {
       home-manager.nixosModules.home-manager
       commonModules.home-manager
 
-      userModules.admin
+      userModules.nicolas-admin
       userModules.glados
-      profileModules.manager
-      profileModules.agent
+      profileModules.nicolas-admin
+      profileModules.glados
 
       nixosModules.base-machine
       {

@@ -1,14 +1,15 @@
 {self, ...}: let
   inherit (self) commonModules;
 in {
-  flake.profileModules.manager = {
+  flake.profileModules.steamdeck = {
     sops.secrets = {
-      "ssh/manager/private_key" = {};
-      "gpg/manager/private_key" = {};
-      "gpg/manager/public_key" = {};
+      "profiles/steamdeck/ssh/private_key" = {};
+      "profiles/steamdeck/gpg/private_key" = {};
+      "profiles/steamdeck/gpg/public_key" = {};
+      "profiles/steamdeck/gpg/key_id" = {};
     };
 
-    my.userProfiles.server.homeManager = {
+    my.userProfiles.deck.homeManager = {
       # pkgs,
       osConfig,
       ...
@@ -22,25 +23,25 @@ in {
           enable = true;
           keys = [
             {
-              name = "manager-key";
-              publicKey = osConfig.sops.secrets."gpg/manager/public_key".path;
-              privateKey = osConfig.sops.secrets."gpg/manager/private_key".path;
+              name = "steamdeck-key";
+              publicKey = osConfig.sops.secrets."profiles/steamdeck/gpg/public_key".path;
+              privateKey = osConfig.sops.secrets."profiles/steamdeck/gpg/private_key".path;
             }
           ];
         };
         git-identity = {
           enable = true;
-          workspaces.thouhtworks = {
+          workspaces.steamdeck = {
             directory = "~/Projects";
             realName = "Nicolas Villarroel";
             email = "nmartinezv@icloud.com";
             gpg = {
               enable = true;
-              keyId = "nicolas.villarroel@manager.com";
+              keyId = osConfig.sops.secrets."profiles/steamdeck/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;
-              privateKey = osConfig.sops.secrets."ssh/manager/private_key".path;
+              privateKey = osConfig.sops.secrets."profiles/steamdeck/ssh/private_key".path;
             };
           };
         };

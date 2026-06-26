@@ -34,12 +34,13 @@ in {
       darwinModules.common
 
       nix-homebrew.darwinModules.nix-homebrew
-      darwinModules.homebrew-config
+      darwinModules.homebrew
 
       home-manager.darwinModules.home-manager
       commonModules.home-manager
 
-      userModules.work
+      userModules.nicolas-work
+      profileModules.nicolas-work
       profileModules.thoughtworks
       profileModules.grainger
     ];

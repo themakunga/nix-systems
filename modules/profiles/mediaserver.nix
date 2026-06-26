@@ -1,20 +1,21 @@
 {self, ...}: let
   inherit (self) commonModules;
 in {
-  flake.profileModules.homelab = {
+  flake.profileModules.mediaserver = {
     sops.secrets = {
-      "ssh/homelab/private_key" = {};
-      "gpg/homelab/private_key" = {};
-      "gpg/homelab/public_key" = {};
+      "profiles/mediaserver/ssh/private_key" = {};
+      "profiles/mediaserver/gpg/private_key" = {};
+      "profiles/mediaserver/gpg/public_key" = {};
+      "profiles/mediaserver/gpg/key_id" = {};
     };
 
-    my.userProfiles.glados.homehomelab = {
+    my.userProfiles.mediaserver.homeManager = {
       # pkgs,
       osConfig,
       ...
     }: {
       imports = [
-        commonModules.sops.gpg
+        commonModules.git-identity
       ];
 
       programs = {
@@ -22,25 +23,26 @@ in {
           enable = true;
           keys = [
             {
-              name = "homelab-key";
-              publicKey = osConfig.sops.secrets."gpg/homelab/public_key".path;
-              privateKey = osConfig.sops.secrets."gpg/homelab/private_key".path;
+              name = "mediaserver-key";
+              publicKey = osConfig.sops.secrets."profiles/mediaserver/gpg/public_key".path;
+              privateKey = osConfig.sops.secrets."profiles/mediaserver/gpg/private_key".path;
             }
           ];
         };
         git-identity = {
           enable = true;
-          workspaces.thouhtworks = {
+          workspaces.mediaserver = {
             directory = "~/Projects";
             realName = "Nicolas Villarroel";
             email = "nmartinezv@icloud.com";
             gpg = {
               enable = true;
-              keyId = "nicolas.villarroel@homelab.com";
+              keyId =
+                osConfig.sops.secrets."profiles/mediaserver/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;
-              privateKey = osConfig.sops.secrets."ssh/homelab/private_key".path;
+              privateKey = osConfig.sops.secrets."profiles/mediaserver/ssh/private_key".path;
             };
           };
         };
