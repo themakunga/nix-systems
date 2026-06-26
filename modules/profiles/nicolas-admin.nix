@@ -34,7 +34,7 @@ in {
             }
           ];
         };
-        git-identiry = {
+        git-identity = {
           enable = true;
           workspaces.nicolas-admin = {
             directory = "~/Repositories";

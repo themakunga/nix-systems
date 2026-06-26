@@ -48,7 +48,7 @@ in {
             }
           ];
         };
-        git-identiry = {
+        git-identity = {
           enable = true;
           workspaces.nicolas-42devs = {
             directory = "~/Projects/42Devs";

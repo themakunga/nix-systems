@@ -48,7 +48,7 @@ in {
             }
           ];
         };
-        git-identiry = {
+        git-identity = {
           enable = true;
           workspaces.nicolas-bbook = {
             directory = "~/Projects/Bbook";
