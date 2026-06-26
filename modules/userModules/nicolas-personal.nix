@@ -4,7 +4,7 @@
       neededForUsers = true;
     };
 
-    my.userProfiles.me = {
+    my.userProfiles.nicolas-personal = {
       username = "nicolas";
       description = "Personal Account - Main to use";
       isSystem = false;
