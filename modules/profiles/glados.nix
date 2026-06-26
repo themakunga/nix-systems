@@ -1,7 +1,7 @@
 {self, ...}: let
   inherit (self) commonModules;
 in {
-  flake.profileModules.agent = {
+  flake.profileModules.glados = {
     sops.secrets = {
       "profiles/glados/ssh/private_key" = {};
       "profiles/glados/gpg/private_key" = {};
@@ -23,7 +23,7 @@ in {
           enable = true;
           keys = [
             {
-              name = "agent-key";
+              name = "glados-key";
               publicKey = osConfig.sops.secrets."profiles/glados/gpg/public_key".path;
               privateKey = osConfig.sops.secrets."profiles/glados/gpg/private_key".path;
             }
@@ -31,7 +31,7 @@ in {
         };
         git-identity = {
           enable = true;
-          workspaces.agent = {
+          workspaces.glados = {
             directory = "~/Projects";
             realName = "Nicolas Villarroel";
             email = "nmartinezv@icloud.com";
