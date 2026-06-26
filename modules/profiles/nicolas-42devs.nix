@@ -41,7 +41,7 @@ in {
         };
         git-identiry = {
           enable = true;
-          workspaces.company = {
+          workspaces.nicolas-42devs = {
             directory = "~/Projects/42Devs";
             realName = "Nicolas Villarroel Martinez.";
             email = "nicolas@42devs.cl";

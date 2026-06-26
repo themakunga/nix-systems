@@ -41,7 +41,7 @@ in {
         };
         git-identiry = {
           enable = true;
-          workspaces.bbook = {
+          workspaces.nicolas-bbook = {
             directory = "~/Projects/Bbook";
             realName = "Nicolas Villarroel Martinez.";
             email = "nmartinez@bbook.cl";
