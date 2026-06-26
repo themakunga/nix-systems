@@ -37,7 +37,8 @@ in {
             email = "nmartinezv@icloud.com";
             gpg = {
               enable = true;
-              keyId = osConfig.sops.secrets."profiles/mediaserver/gpg/key_id";
+              keyId =
+                osConfig.sops.secrets."profiles/mediaserver/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;

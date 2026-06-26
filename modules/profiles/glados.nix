@@ -2,13 +2,6 @@
   inherit (self) commonModules;
 in {
   flake.profileModules.glados = {
-    lib,
-    pkgs,
-    ...
-  }: let
-    inherit (lib) mkIf;
-    inherit (pkgs.stdenv.hostPlatform) isDarwin;
-  in {
     sops.secrets = {
       "profiles/glados/ssh/private_key" = {};
       "profiles/glados/gpg/private_key" = {};
@@ -44,7 +37,7 @@ in {
             email = "nmartinezv@icloud.com";
             gpg = {
               enable = true;
-              keyId = osConfig.sops.secrets."profiles/glados/gpg/key_id";
+              keyId = osConfig.sops.secrets."profiles/glados/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;
