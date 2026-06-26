@@ -35,7 +35,7 @@ in {
             {
               name = "personal-key";
               publicKey = osConfig.sops.secrets."profiles/nicolas-personal/gpg/public_key".path;
-              privateKey = osConfig.sops.secrets."profiles/nicola-_personal/gpg/private_key".path;
+              privateKey = osConfig.sops.secrets."profiles/nicola-personal/gpg/private_key".path;
             }
           ];
         };
