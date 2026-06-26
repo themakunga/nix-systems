@@ -35,8 +35,8 @@ in {
       home-manager.nixosModules.home-manager
       commonModules.home-manager
 
-      userModules.server
-      profileModules.manager
+      userModules.deck
+      profileModules.steamdeck
       nixosModules.base-machine
       {
         my.base-machine = {
