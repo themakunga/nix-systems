@@ -96,7 +96,7 @@
           profileName: userCfg:
             nameValuePair userCfg.username (
               {
-                inherit (userCfg) description shell hashedPasswordFile;
+                inherit (userCfg) description shell;
 
                 home =
                   if userCfg.isSystem
@@ -106,10 +106,14 @@
                   else "/home/${userCfg.username}";
               }
               // optionalAttrs isLinux {
+                inherit (userCfg) hashedPasswordFile;
+
                 isNormalUser = !userCfg.isSystem;
                 isSystemUser = userCfg.isSystem;
-                group = userCfg.username;
+
                 inherit (userCfg) createHome;
+
+                group = userCfg.username;
                 extraGroups =
                   userCfg.extraGroups
                   ++ optionals userCfg.isAdmin [

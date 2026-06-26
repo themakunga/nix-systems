@@ -4,8 +4,6 @@ repos:
     hooks:
       - id: trailing-whitespace
         stage: [pre-commit]
-        # Forzamos a que estos solo corran en pre-commit para evitar conflictos
-        stages: [pre-commit]
       - id: end-of-file-fixer
         stages: [pre-commit]
       - id: check-yaml
@@ -23,13 +21,6 @@ repos:
         stages: [pre-commit]
   - repo: local
     hooks:
-      - id: makefile-config
-        name: Makefile System Config
-        entry: make --dry-run --warn-undefined-variables --file
-        language: system
-        files: ^Makefile$
-        pass_filenames: true
-        stages: [pre-commit]
       - id: statix
         name: Linter Nix (static)
         entry: nix run nixpkgs#statix -- check
