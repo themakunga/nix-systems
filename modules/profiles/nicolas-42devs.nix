@@ -60,7 +60,7 @@ in {
                 osConfig.sops.secrets."profiles/nicolas-42devs/gpg/key_id".path;
             };
             ssh = {
-              enableAuht = true;
+              enableAuth = true;
               privateKey = osConfig.sops.secrets."profiles/nicolas-42devs/ssh/private_key".path;
             };
           };

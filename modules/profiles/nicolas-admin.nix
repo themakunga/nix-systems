@@ -30,7 +30,7 @@ in {
             {
               name = "admin-key";
               publicKey = osConfig.sops.secrets."profiles/nicolas-admin/gpg/public_key".path;
-              privateKey = osConfig.sops.secrets."profiles/nicola-admin/gpg/private_key".path;
+              privateKey = osConfig.sops.secrets."profiles/nicolas-admin/gpg/private_key".path;
             }
           ];
         };
@@ -46,7 +46,7 @@ in {
                 osConfig.sops.secrets."profiles/nicolas-admin/gpg/key_id".path;
             };
             ssh = {
-              enableAuht = true;
+              enableAuth = true;
               privateKey = osConfig.sops.secrets."profiles/nicolas-admin/ssh/private_key".path;
             };
           };

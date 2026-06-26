@@ -59,7 +59,7 @@ in {
               keyId = osConfig.sops.secrets."profiles/nicolas-bbook/gpg/key_id".path;
             };
             ssh = {
-              enableAuht = true;
+              enableAuth = true;
               privateKey = osConfig.sops.secrets."profiles/nicolas-bbook/ssh/private_key".path;
             };
           };
