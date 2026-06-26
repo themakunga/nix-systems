@@ -4,7 +4,7 @@
       neededForUsers = true;
     };
 
-    my.userProfiles.me = {
+    my.userProfiles.nicolas-admin = {
       username = "nicolas";
       description = "Nicolas - admin manager account";
       isSystem = true;
