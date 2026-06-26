@@ -38,7 +38,7 @@ in {
       commonModules.home-manager
 
       userModules.nicolas-server
-      profileModules.nicolas-manager
+      profileModules.nicolas-server
 
       nixosModules.base-machine
       {
