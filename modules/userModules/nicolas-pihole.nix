@@ -4,7 +4,7 @@
       neededForUsers = true;
     };
 
-    my.userProfiles.me = {
+    my.userProfiles.nicolas-pihole = {
       username = "pihole";
       description = "PiHole - server manager account";
       isSystem = true;
