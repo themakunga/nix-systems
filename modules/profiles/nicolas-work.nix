@@ -14,7 +14,7 @@ in {
       "firefox-dev"
     ];
 
-    my.userProfiles.me.homeManager = {
+    my.userProfiles.nicolas-work.homeManager = {
       # pkgs,
       osConfig,
       ...

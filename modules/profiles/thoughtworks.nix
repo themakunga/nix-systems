@@ -13,7 +13,7 @@ in {
       "google-chrome"
     ];
 
-    my.userProfiles.work.homeManager = {
+    my.userProfiles.nicolas-work.homeManager = {
       # pkgs,
       osConfig,
       ...

@@ -9,7 +9,7 @@ in {
       "profiles/grainger/gpg/key_id" = {};
     };
 
-    my.userProfile.work.homeManager = {
+    my.userProfile.nicolas-work.homeManager = {
       pkgs,
       osConfig,
       ...

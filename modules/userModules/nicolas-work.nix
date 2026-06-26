@@ -4,7 +4,7 @@
       neededForUsers = true;
     };
 
-    my.userProfiles.work = {
+    my.userProfiles.nicolas-work = {
       username = "nicolas";
       description = "Work Account - To user in work pc/mac";
       isSystem = false;
