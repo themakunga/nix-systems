@@ -37,7 +37,7 @@ in {
         commonModules.home-manager
         nixosModules.base-machine
 
-        userModules.admin
+        userModules.nicolas-admin
         {
           my.base-machine = {
             enable = true;
@@ -61,7 +61,7 @@ in {
         home-manager.darwinModules.home-manager
         commonModules.userProfiles
         commonModules.home-manager
-        userModules.admin
+        userModules.nicolas-personal
       ];
     };
   };
