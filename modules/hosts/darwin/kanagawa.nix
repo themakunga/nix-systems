@@ -39,10 +39,10 @@ in {
       home-manager.darwinModules.home-manager
       commonModules.home-manager
 
-      userModules.me
-      profileModules.personal
-      profileModules.company
-      profileModules.bbook
+      userModules.nicolas-personal
+      profileModules.nicolas-personal
+      profileModules.nicolas-42devs
+      profileModules.nicolas-bbook
     ];
   };
 }
