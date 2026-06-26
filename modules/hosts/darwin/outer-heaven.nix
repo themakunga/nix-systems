@@ -39,7 +39,8 @@ in {
       home-manager.darwinModules.home-manager
       commonModules.home-manager
 
-      userModules.work
+      userModules.nicolas-work
+      profileModules.nicolas-work
       profileModules.thoughtworks
       profileModules.grainger
     ];
