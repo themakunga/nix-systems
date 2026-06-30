@@ -71,18 +71,6 @@ in {
         enable = true;
       };
 
-      users.users.root.openssh.authorizedKeys.keys = [
-        (builtins.readFile "${secrets}/public_keys/gondor.pub")
-        (builtins.readFile "${secrets}/public_keys/rohan.pub")
-        (builtins.readFile "${secrets}/public_keys/eregoin.pub")
-        (builtins.readFile "${secrets}/public_keys/mirkwood.pub")
-        (builtins.readFile "${secrets}/public_keys/numenor.pub")
-        (builtins.readFile "${secrets}/public_keys/rivendell.pub")
-        (builtins.readFile "${secrets}/public_keys/hobbitton.pub")
-        (builtins.readFile "${secrets}/public_keys/isengard.pub")
-        (builtins.readFile "${secrets}/public_keys/mordor.pub")
-      ];
-
       environment.systemPackages = with pkgs; [
         git
         curl
