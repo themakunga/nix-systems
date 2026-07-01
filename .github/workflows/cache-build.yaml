@@ -51,7 +51,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        host: [mfs, motherbase, steamdeck]
+        host:
+          - mfs
+          - motherbase
+          - steamdeck
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
@@ -89,7 +92,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        host: [aperture-science, black-mesa]
+        host:
+          - aperture-science
+          - black-mesa
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
