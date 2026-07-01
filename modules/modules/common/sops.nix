@@ -2,20 +2,14 @@
   inherit (inputs) sops-nix secrets;
 in {
   flake.commonModules = {
+    # 1. GPG para Home Manager (Se mantiene intacto)
     sops = {
       gpg = {
         pkgs,
         lib,
         ...
       }: let
-        inherit
-          (lib)
-          mkEnableOption
-          mkOption
-          types
-          mkIf
-          concatMapStringsSep
-          ;
+        inherit (lib) mkEnableOption mkOption types mkIf concatMapStringsSep;
       in {
         home-manager.sharedModules = [
           (
@@ -62,70 +56,77 @@ in {
           )
         ];
       };
+    };
 
-      shared-secrets = {
-        lib,
-        config,
-        ...
-      }: let
-        inherit (config.home) homeDirectory;
-        inherit (lib) mkDefault;
-        host = config.networking.hostName or "default";
-        commonSopsFile = "${secrets}/common.yaml";
-        hostSopsFile = "${secrets}/hosts/${host}.yaml";
-      in {
-        imports = [sops-nix.homeManagerModules.sops];
+    # 2. NUEVO: Secretos a nivel de SISTEMA (NixOS)
+    nixos-secrets = {
+      lib,
+      config,
+      ...
+    }: let
+      host = config.networking.hostName or "default";
+      commonSopsFile = "${secrets}/common.yaml";
+      hostSopsFile = "${secrets}/hosts/${host}.yaml";
+    in {
+      imports = [sops-nix.nixosModules.sops];
 
-        sops = {
-          age = {
-            sshKeyPaths = ["${homeDirectory}/.ssh/id_ed25519"];
-            generateKey = false;
-          };
+      sops = {
+        defaultSopsFile = lib.mkDefault (
+          if builtins.pathExists hostSopsFile
+          then hostSopsFile
+          else commonSopsFile
+        );
+        # NixOS usa la llave del host por defecto para desencriptar
+        age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
+      };
+    };
 
-          defaultSopsFile = mkDefault (
-            if builtins.pathExists hostSopsFile
-            then hostSopsFile
-            else commonSopsFile
-          );
+    # 3. NUEVO: Secretos a nivel de USUARIO (Home Manager)
+    home-secrets = {
+      lib,
+      config,
+      osConfig ? {},
+      ...
+    }: let
+      inherit (config.home) homeDirectory;
+      # Intentamos obtener el hostName de osConfig si estamos corriendo dentro de NixOS
+      host = osConfig.networking.hostName or "default";
+      commonSopsFile = "${secrets}/common.yaml";
+      hostSopsFile = "${secrets}/hosts/${host}.yaml";
+    in {
+      imports = [sops-nix.homeManagerModules.sops];
 
-          secrets = {
-            "wifi/AMANDA" = {
-              sopsFile = commonSopsFile;
-            };
-            "wifi/42DEVS_5G" = {
-              sopsFile = commonSopsFile;
-            };
-            "wifi/42DEVS" = {
-              sopsFile = commonSopsFile;
-            };
-            "tailscale/auth_token" = {
-              sopsFile = commonSopsFile;
-            };
-          };
+      sops = {
+        defaultSopsFile = lib.mkDefault (
+          if builtins.pathExists hostSopsFile
+          then hostSopsFile
+          else commonSopsFile
+        );
+        age = {
+          sshKeyPaths = ["${homeDirectory}/.ssh/id_ed25519"];
+          generateKey = false;
+        };
+
+        secrets = {
+          "wifi/AMANDA".sopsFile = commonSopsFile;
+          "wifi/42DEVS_5G".sopsFile = commonSopsFile;
+          "wifi/42DEVS".sopsFile = commonSopsFile;
+          "tailscale/auth_token".sopsFile = commonSopsFile;
         };
       };
     };
 
+    # 4. Git Identity (Se mantiene intacto)
     git-identity = {
       config,
       lib,
       ...
     }: let
-      inherit
-        (lib)
-        mkEnableOption
-        mkOption
-        types
-        mkIf
-        mkMerge
-        optionalAttrs
-        mapAttrsToList
-        ;
+      inherit (lib) mkEnableOption mkOption types mkIf mkMerge optionalAttrs mapAttrsToList;
       cfg = config.programs.git-identity;
     in {
       options.programs.git-identity = {
         enable = mkEnableOption "Gestor de identidad de Git parametrizado";
-
         global = {
           enable = mkEnableOption "Identidad global por defecto";
           realName = mkOption {type = types.str;};
@@ -145,7 +146,6 @@ in {
             };
           };
         };
-
         workspaces = mkOption {
           default = {};
           description = "Configuraciones de Git aplicadas solo en carpetas específicas";
@@ -178,21 +178,17 @@ in {
       config = mkIf cfg.enable {
         programs.git = {
           enable = true;
-
           userName = mkIf cfg.global.enable cfg.global.realName;
           userEmail = mkIf cfg.global.enable cfg.global.email;
-
           signing = mkIf (cfg.global.enable && cfg.global.gpg.enable) {
             key = cfg.global.gpg.keyId;
             signByDefault = true;
           };
-
           settings = mkMerge [
             (mkIf (cfg.global.enable && cfg.global.ssh.enableAuth) {
               core.sshCommand = "ssh -i ${cfg.global.ssh.privateKey} -o IdentitiesOnly=yes";
             })
           ];
-
           includes =
             mapAttrsToList (_name: ws: {
               condition = "gitdir:${ws.directory}/";
@@ -205,9 +201,7 @@ in {
                   // optionalAttrs ws.gpg.enable {
                     signingkey = ws.gpg.keyId;
                   };
-                commit = optionalAttrs ws.gpg.enable {
-                  gpgsign = true;
-                };
+                commit = optionalAttrs ws.gpg.enable {gpgsign = true;};
                 core = optionalAttrs ws.ssh.enableAuth {
                   sshCommand = "ssh -i ${ws.ssh.privateKey} -o IdentitiesOnly=yes";
                 };
