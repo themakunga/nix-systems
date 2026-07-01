@@ -23,7 +23,7 @@ in {
       ];
     };
 
-    my.userProfile.nicolas-work.homeManager = {osConfig, ...}: {
+    my.userProfiles.nicolas-work.homeManager = {osConfig, ...}: {
       imports = [
         commonModules.git-identity
       ];
