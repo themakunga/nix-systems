@@ -6,14 +6,12 @@ on:
   workflow_dispatch:
 jobs:
   build-darwin:
-    name: Darwin ${{ matrix.host }}
+    name: "Darwin: ${{ matrix.host }}"
     runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
-        host:
-          - kanagawa
-          - outer-heaven
+        host: [kanagawa, outer-heaven]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v7
@@ -26,22 +24,24 @@ jobs:
           cat /tmp/raw_ssh_key >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
           rm /tmp/raw_ssh_key
-      - name: Setup SSH Agenty
+      - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ env.DECODED_KEY }}
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
-          github_action_token: ${{secrets.GH_TOKEN_SECRETS}}
+          github_action_token: ${{ secrets.GH_TOKEN_SECRETS }}
           extra_nix_config: |
-            experimental-features: nix-command flakes
+            experimental-features = nix-command flakes
       - name: Setup Cachix
         uses: cachix/cachix-action@v17
         with:
           name: themakunga
-          authToken: ${{secrets.CACHIX_TOKEN}}
+          authToken: ${{ secrets.CACHIX_TOKEN }}
       - name: Compile Darwin
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: |
           echo "=== Building Darwin configuration for ${{ matrix.host }} ==="
           nix build .#darwinConfigurations.${{matrix.host}}.system --accept-flake-config --print-build-logs
@@ -51,10 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        host:
-          - msf
-          - motherbase
-          - steamdeck
+        host: [msf, motherbase, steamdeck]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
@@ -83,6 +80,8 @@ jobs:
           name: themakunga
           authToken: ${{ secrets.CACHIX_TOKEN }}
       - name: Compile NixOS (x86_64)
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: |
           echo "=== Building NixOS configuration for ${{ matrix.host }} ==="
           nix build .#nixosConfigurations.${{matrix.host}}.config.system.build.toplevel --accept-flake-config --print-build-logs
@@ -92,9 +91,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        host:
-          - aperture-science
-          - black-mesa
+        host: [aperture-science, black-mesa]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
@@ -128,6 +125,8 @@ jobs:
           name: themakunga
           authToken: ${{ secrets.CACHIX_TOKEN }}
       - name: Compile NixOS (arm64)
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: |
           echo "=== Building NixOS configuration for ${{ matrix.host }} ==="
           nix build .#nixosConfigurations.${{matrix.host}}.config.system.build.toplevel --accept-flake-config --print-build-logs
