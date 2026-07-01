@@ -27,7 +27,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
           rm /tmp/raw_ssh_key
       - name: Setup SSH Agenty
-        uses: webfactory/ssh-agent@v0
+        uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ env.DECODED_KEY }}
       - name: Install Nix
