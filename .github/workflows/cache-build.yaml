@@ -21,7 +21,7 @@ jobs:
           fetch-depth: 0
       - name: Decode SSH Key
         run: |
-          echo "${{ secrets.SECRET_REPO_SSH_KEY_BASE64 }}" | base64 -d /tmp/raw_ssh_key
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/raw_ssh_key
           echo "DECODED_KEY<<EOF" >> $GITHUB_ENV
           cat /tmp/raw_ssh_key >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
