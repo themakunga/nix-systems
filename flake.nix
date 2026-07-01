@@ -58,7 +58,7 @@
     };
 
     secrets = {
-      url = "github:TheMakunga/.secrets/main";
+      url = "github:TheMakunga/.secrets";
       flake = false;
     };
 

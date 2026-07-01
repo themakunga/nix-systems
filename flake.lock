@@ -630,7 +630,6 @@
       },
       "original": {
         "owner": "TheMakunga",
-        "ref": "main",
         "repo": ".secrets",
         "type": "github"
       }
