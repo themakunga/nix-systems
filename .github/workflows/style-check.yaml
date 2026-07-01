@@ -7,7 +7,7 @@ on:
     branches:
       - "**"
 env:
-  PRE_COMMIT_HOME: ${{ github.workspace }}/.pre-commit-cache
+  PRE_COMMIT_HOME: ${{ runner.temp }}/.pre-commit-cache
 jobs:
   linter:
     name: Check Style, Deadcode and Linter
