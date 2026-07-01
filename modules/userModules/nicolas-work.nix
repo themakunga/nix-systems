@@ -1,5 +1,5 @@
 {
-  flake.userModules.work = {config, ...}: {
+  flake.userModules.nicolas-work = {config, ...}: {
     sops.secrets."passwords/nicolas/hashed" = {
       neededForUsers = true;
     };
