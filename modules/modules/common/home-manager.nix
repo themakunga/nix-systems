@@ -20,7 +20,6 @@ in {
 
       sharedModules = [
         homeManagerModules.common
-        commonModules.sops.shared-secrets
       ];
     };
   };
