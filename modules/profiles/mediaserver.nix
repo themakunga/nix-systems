@@ -9,7 +9,7 @@ in {
       "profiles/mediaserver/gpg/key_id" = {};
     };
 
-    my.userProfiles.mediaserver.homeManager = {
+    my.userProfiles.media.homeManager = {
       # pkgs,
       osConfig,
       ...
