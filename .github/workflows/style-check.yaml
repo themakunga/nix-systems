@@ -6,6 +6,8 @@ on:
   pull_request:
     branches:
       - "**"
+env:
+  PRE_COMMIT_HOME: ${{ github.workspace }}/.pre-commit-cache
 jobs:
   linter:
     name: Check Style, Deadcode and Linter
@@ -22,7 +24,7 @@ jobs:
       - name: Cache pre-commit
         uses: actions/cache@v6
         with:
-          path: ~/.cache.precommit
+          path: ${{env.PRE_COMMIT_HOME}}
           key: ${{ runner.os }}-pre-commit.${{ hashFiles('.pre-commit-config.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pre-commit-
