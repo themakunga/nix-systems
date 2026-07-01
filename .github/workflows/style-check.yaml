@@ -6,6 +6,8 @@ on:
   pull_request:
     branches:
       - "**"
+env:
+  PRE_COMMIT_HOME: ${{ runner.temp }}/.pre-commit-cache
 jobs:
   linter:
     name: Check Style, Deadcode and Linter
@@ -22,9 +24,9 @@ jobs:
       - name: Cache pre-commit
         uses: actions/cache@v6
         with:
-          path: ~/.cache.precommit
+          path: ${{env.PRE_COMMIT_HOME}}
           key: ${{ runner.os }}-pre-commit.${{ hashFiles('.pre-commit-config.yaml') }}
-          reference-key: |
+          restore-keys: |
             ${{ runner.os }}-pre-commit-
       - name: Run pre-commit on all files
         run: nix run nixpkgs#pre-commit -- run --all-files --color=always

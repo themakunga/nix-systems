@@ -1,4 +1,6 @@
+.pre-commit-cache/
 !flake.lock
+
 result
 
 result-*
