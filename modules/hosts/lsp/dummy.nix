@@ -28,7 +28,8 @@ in {
       modules = [
         commonModules.settings
         commonModules.arch.nixos.x64
-        commonModules.nixos-secrets
+        sops-nix.nixosModules.sops
+        commonModules.host-secrets
         home-manager.nixosModules.home-manager
 
         commonModules.userProfiles
@@ -57,6 +58,8 @@ in {
       modules = [
         darwinModules.common
         commonModules.settings
+        sops-nix.darwinModules.sops
+        commonModules.host-secrets
         commonModules.arch.darwin.silicon
         home-manager.darwinModules.home-manager
         commonModules.userProfiles

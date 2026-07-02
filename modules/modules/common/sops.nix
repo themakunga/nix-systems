@@ -1,5 +1,7 @@
 {inputs, ...}: let
   inherit (inputs) sops-nix secrets;
+  # Centralizamos la ruta por defecto para reusarla fácilmente
+  commonSopsFile = "${secrets}/common.yaml";
 in {
   flake.commonModules = {
     # 1. GPG para Home Manager
@@ -58,16 +60,33 @@ in {
       };
     };
 
-    # 2. Secretos a nivel de SISTEMA (NixOS)
-    nixos-secrets = {lib, ...}: let
-      commonSopsFile = "${secrets}/common.yaml";
+    # 2. Secretos a nivel de SISTEMA (UNIVERSAL: NixOS + Darwin)
+    host-secrets = {
+      lib,
+      config,
+      ...
+    }: let
+      inherit (lib) mkOption types mkDefault;
+      cfg = config.my.hostSecrets;
     in {
-      imports = [sops-nix.nixosModules.sops];
+      options.my.hostSecrets = {
+        file = mkOption {
+          type = types.str;
+          default = commonSopsFile;
+          description = "Ruta al archivo sops específico de este host";
+        };
+      };
 
-      sops = {
-        defaultSopsFile = lib.mkDefault commonSopsFile;
-        # NixOS usa la llave del host por defecto para desencriptar
-        age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
+      config = {
+        # OMITIMOS el 'imports = [sops-nix...]' aquí para no romper Darwin.
+        # Esa importación la debes hacer directamente en la lista de módulos de cada host.
+        sops = {
+          defaultSopsFile = mkDefault cfg.file;
+          validateSopsFiles = false;
+
+          # Esta ruta de llave de sistema es válida tanto en macOS como en Linux
+          age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
+        };
       };
     };
 
@@ -78,7 +97,6 @@ in {
       ...
     }: let
       inherit (config.home) homeDirectory;
-      commonSopsFile = "${secrets}/common.yaml";
     in {
       imports = [sops-nix.homeManagerModules.sops];
 
@@ -86,6 +104,7 @@ in {
         defaultSopsFile = lib.mkDefault commonSopsFile;
 
         age = {
+          # Aquí usamos el homeDirectory dinámico, lo cual es seguro y evita el error de la tilde (~)
           sshKeyPaths = ["${homeDirectory}/.ssh/id_ed25519"];
           generateKey = false;
         };
