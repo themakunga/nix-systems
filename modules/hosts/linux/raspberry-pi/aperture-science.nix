@@ -33,7 +33,7 @@ in {
       sops-nix.nixosModules.sops
       commonModules.host-secrets
       {
-        my.hostSecrets.file = "${secrets}/hosts/aperture-science.yaml";
+        my.hostSecrets.file = "${secrets.outPath}/hosts/aperture-science.yaml";
       }
 
       commonModules.userProfiles

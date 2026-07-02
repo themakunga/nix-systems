@@ -31,7 +31,7 @@ in {
       sops-nix.darwinModules.sops
       commonModules.host-secrets
       {
-        my.hostSecrets.file = "${secrets}/hosts/outer-heaven.yaml";
+        my.hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
       }
       commonModules.userProfiles
       commonModules.network
