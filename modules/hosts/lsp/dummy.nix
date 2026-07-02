@@ -56,6 +56,9 @@ in {
       };
 
       modules = [
+        {
+          system.primaryUser = "nicolas";
+        }
         darwinModules.common
         commonModules.settings
         sops-nix.darwinModules.sops

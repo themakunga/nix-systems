@@ -15,6 +15,7 @@ in {
       ...
     }: {
       imports = [
+        commonModules.home-secrets
         commonModules.git-identity
       ];
 
