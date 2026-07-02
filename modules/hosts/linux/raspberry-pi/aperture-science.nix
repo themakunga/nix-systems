@@ -53,7 +53,7 @@ in {
       profileModules.nicolas-admin
       profileModules.glados
 
-      applicationModules.tailcale
+      applicationModules.tailscale
       nixosModules.base-machine
       {
         my = {
