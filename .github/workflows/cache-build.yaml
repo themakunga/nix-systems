@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        host: [kanagawa, outer-heaven]
+        host: [kanagawa, outer-heaven, lsp-dummy]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v7
@@ -51,7 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        host: [msf, motherbase, steamdeck]
+        host: [msf, motherbase, steamdeck, lsp-dummy]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
@@ -91,7 +91,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        host: [aperture-science, black-mesa]
+        host: [aperture-science, black-mesa, lsp-dummy]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7

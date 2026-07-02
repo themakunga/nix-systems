@@ -28,7 +28,7 @@ in {
       modules = [
         commonModules.settings
         commonModules.arch.nixos.x64
-        sops-nix.nixosModules.sops
+        commonModules.nixos-secrets
         home-manager.nixosModules.home-manager
 
         commonModules.userProfiles

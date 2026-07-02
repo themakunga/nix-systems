@@ -21,7 +21,7 @@ in {
   flake.darwinConfigurations.outer-heaven = nix-darwin.lib.darwinSystem {
     specialArgs = {
       inherit self inputs;
-      hostName = "outher-heaven";
+      hostName = "outer-heaven";
     };
 
     modules = [
