@@ -40,6 +40,10 @@ jobs:
         with:
           name: themakunga
           authToken: ${{ secrets.CACHIX_TOKEN }}
+      - name: Eval flake for ${{matrix.host}}
+        run: |
+          echo "=== Runing evaluation of flake ${{matrix.host}} ==="
+          nix eval .#darwinConfigurations.${{matrix.host}}.system --accept-flake-config --show-trace
       - name: Compile Darwin
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
@@ -80,6 +84,10 @@ jobs:
         with:
           name: themakunga
           authToken: ${{ secrets.CACHIX_TOKEN }}
+      - name: Evaluate Flake
+        run: |
+          echo "=== Running evaluation for ${{matrix.host}} ==="
+          nix eval .#nixosConfigurations.${{matrix.host}}.system --accept-flake-config --show-trace
       - name: Compile NixOS (x86_64)
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
@@ -125,6 +133,10 @@ jobs:
         with:
           name: themakunga
           authToken: ${{ secrets.CACHIX_TOKEN }}
+      - name: Evaluate Flake
+        run: |
+          echo "=== Running evaluation for ${{matrix.host}} ==="
+          nix eval .#nixosConfigurations.${{matrix.host}}.system --accept-flake-config --show-trace
       - name: Compile NixOS (arm64)
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
