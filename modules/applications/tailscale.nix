@@ -1,34 +1,56 @@
-{inputs, ...}: {
-  flake.applicationModules.tailscale = {
+{
+  flake.commonModules.tailscale = {
     config,
-    pkgs,
     lib,
+    pkgs,
     ...
   }: let
-    inherit (lib) mkIf mkMerge;
+    inherit (lib) mkEnableOption mkIf mkMerge mkForce;
     inherit (pkgs.stdenv.hostPlatform) isDarwin isLinux;
-  in
-    mkMerge [
+    cfg = config.my.tailscale;
+  in {
+    options.my.tailscale = {
+      enable = mkEnableOption "Cliente Tailscale universal";
+      gui = {
+        enable = mkEnableOption "Interfaz gráfica (Trayscale en Linux, Homebrew Cask en macOS)";
+      };
+    };
+
+    config = mkIf cfg.enable (mkMerge [
       {
-        sops.secrets."tailscale/auth_key" = {
-          sopsFile = "${inputs.secrets}/common.yaml";
+        sops.secrets."tailscale/auth_token" = {};
+      }
+
+      {
+        services.tailscale = {
+          enable = true;
+          authKeyFile = config.sops.secrets."tailscale/auth_token".path;
         };
 
-        services.tailscale.enable = true;
+        environment.systemPackages = [pkgs.tailscale];
       }
-      (mkIf isLinux {
-        service.tailscale.authKeyFile = config.sops.secrets."tailscale/auth_key".path;
 
+      (mkIf isLinux {
         networking.firewall = {
           trustedInterfaces = ["tailscale0"];
           allowedUDPPorts = [config.services.tailscale.port];
+
+          checkReversePath = "loose";
         };
+
+        environment.systemPackages = mkIf cfg.gui.enable [
+          pkgs.trayscale
+        ];
       })
-      (mkIf isDarwin {
-        system.activationScripts.postActivation.text = ''
-          echo "[Tailscale] Daemon activated.Si es tu primera vez en este Mac, ejecuta el siguiente comando para autenticarte:"
-          echo "sudo tailscale up --authkey \$(cat ${config.sops.secrets."tailscale/auth_key".path})"
-        '';
-      })
-    ];
+
+      (mkIf isDarwin (mkIf cfg.gui.enable {
+        services.tailscale.enable = mkForce false;
+
+        homebrew = {
+          enable = true;
+          casks = ["tailscale"];
+        };
+      }))
+    ]);
+  };
 }
