@@ -33,7 +33,7 @@ in {
       sops-nix.nixosModules.sops
       commonModules.host-secrets
       {
-        my.hostSecrets = "${secrets}/hosts/black-mesa.yaml";
+        my.hostSecrets.file = "${secrets}/hosts/black-mesa.yaml";
       }
 
       commonModules.userProfiles

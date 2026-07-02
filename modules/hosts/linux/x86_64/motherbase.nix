@@ -32,7 +32,7 @@ in {
       sops-nix.nixosModules.sops
       commonModules.host-secrets
       {
-        my.hostSecrets = "${secrets}/hosts/motherbase.yaml";
+        my.hostSecrets.file = "${secrets}/hosts/motherbase.yaml";
       }
 
       commonModules.userProfiles

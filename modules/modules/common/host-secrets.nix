@@ -19,7 +19,7 @@
       sops = {
         defaultSopsFile = mkDefault cfg.file;
 
-        validateSopsFile = false;
+        validateSopsFiles = false;
 
         age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
       };

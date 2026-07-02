@@ -30,7 +30,7 @@ in {
       sops-nix.nixosModules.sops
       commonModules.host-secrets
       {
-        my.hostSecrets = "${secrets}/hosts/msf.yaml";
+        my.hostSecrets.file = "${secrets}/hosts/msf.yaml";
       }
 
       commonModules.userProfiles
