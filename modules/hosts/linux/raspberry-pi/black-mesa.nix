@@ -19,6 +19,7 @@
     commonModules
     userModules
     profileModules
+    applicationModules
     ;
 in {
   flake.nixosConfigurations.black-mesa = nixpkgs.lib.nixosSystem {
@@ -48,7 +49,7 @@ in {
 
       userModules.nicolas-pihole
       profileModules.pihole
-
+      applicationModules.tailscale
       nixosModules.base-machine
       {
         my = {

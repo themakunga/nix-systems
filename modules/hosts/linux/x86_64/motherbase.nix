@@ -18,6 +18,7 @@
     commonModules
     userModules
     profileModules
+    applicationModules
     ;
 in {
   flake.nixosConfigurations.motherbase = nixpkgs.lib.nixosSystem {
@@ -41,6 +42,7 @@ in {
 
       userModules.nicolas-server
       profileModules.nicolas-server
+      applicationModules.tailscale
 
       nixosModules.base-machine
       {

@@ -16,6 +16,7 @@
     commonModules
     userModules
     profileModules
+    applicationModules
     ;
 in {
   flake.nixosConfigurations.steamdeck = nixpkgs.lib.nixosSystem {
@@ -39,6 +40,7 @@ in {
 
       userModules.deck
       profileModules.steamdeck
+      applicationModules.tailscale
       nixosModules.base-machine
       {
         my = {

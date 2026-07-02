@@ -19,6 +19,7 @@
     commonModules
     userModules
     profileModules
+    applicationModules
     ;
 in {
   flake.nixosConfigurations.aperture-science = nixpkgs.lib.nixosSystem {
@@ -52,6 +53,7 @@ in {
       profileModules.nicolas-admin
       profileModules.glados
 
+      applicationModules.tailcale
       nixosModules.base-machine
       {
         my = {

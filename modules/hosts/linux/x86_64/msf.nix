@@ -16,6 +16,7 @@
     commonModules
     userModules
     profileModules
+    applicationModules
     ;
 in {
   flake.nixosConfigurations.msf = nixpkgs.lib.nixosSystem {
@@ -40,6 +41,7 @@ in {
       userModules.media
       profileModules.mediaserver
 
+      applicationModules.tailscale
       nixosModules.base-machine
       {
         my = {
