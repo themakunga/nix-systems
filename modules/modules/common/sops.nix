@@ -2,7 +2,7 @@
   inherit (inputs) sops-nix secrets;
 in {
   flake.commonModules = {
-    # 1. GPG para Home Manager (Se mantiene intacto)
+    # 1. GPG para Home Manager
     sops = {
       gpg = {
         pkgs,
@@ -58,50 +58,33 @@ in {
       };
     };
 
-    # 2. NUEVO: Secretos a nivel de SISTEMA (NixOS)
-    nixos-secrets = {
-      lib,
-      config,
-      ...
-    }: let
-      host = config.networking.hostName or "default";
+    # 2. Secretos a nivel de SISTEMA (NixOS)
+    nixos-secrets = {lib, ...}: let
       commonSopsFile = "${secrets}/common.yaml";
-      hostSopsFile = "${secrets}/hosts/${host}.yaml";
     in {
       imports = [sops-nix.nixosModules.sops];
 
       sops = {
-        defaultSopsFile = lib.mkDefault (
-          if builtins.pathExists hostSopsFile
-          then hostSopsFile
-          else commonSopsFile
-        );
+        defaultSopsFile = lib.mkDefault commonSopsFile;
         # NixOS usa la llave del host por defecto para desencriptar
         age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
       };
     };
 
-    # 3. NUEVO: Secretos a nivel de USUARIO (Home Manager)
+    # 3. Secretos a nivel de USUARIO (Home Manager)
     home-secrets = {
       lib,
       config,
-      osConfig ? {},
       ...
     }: let
       inherit (config.home) homeDirectory;
-      # Intentamos obtener el hostName de osConfig si estamos corriendo dentro de NixOS
-      host = osConfig.networking.hostName or "default";
       commonSopsFile = "${secrets}/common.yaml";
-      hostSopsFile = "${secrets}/hosts/${host}.yaml";
     in {
       imports = [sops-nix.homeManagerModules.sops];
 
       sops = {
-        defaultSopsFile = lib.mkDefault (
-          if builtins.pathExists hostSopsFile
-          then hostSopsFile
-          else commonSopsFile
-        );
+        defaultSopsFile = lib.mkDefault commonSopsFile;
+
         age = {
           sshKeyPaths = ["${homeDirectory}/.ssh/id_ed25519"];
           generateKey = false;
@@ -116,7 +99,7 @@ in {
       };
     };
 
-    # 4. Git Identity (Se mantiene intacto)
+    # 4. Git Identity
     git-identity = {
       config,
       lib,
