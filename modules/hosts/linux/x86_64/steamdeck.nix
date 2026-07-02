@@ -29,9 +29,6 @@ in {
       commonModules.settings
       sops-nix.nixosModules.sops
       commonModules.host-secrets
-      {
-        my.hostSecrets.file = "${secrets.outPath}/hosts/steamdeck.yaml";
-      }
 
       commonModules.userProfiles
       commonModules.authorizedKeys
@@ -44,10 +41,17 @@ in {
       profileModules.steamdeck
       nixosModules.base-machine
       {
-        my.base-machine = {
-          enable = true;
-          bootMode = "uefi";
-          rootDevice = "/dev/nvme0u1p2";
+        my = {
+          hostSecrets.file = "${secrets.outPath}/hosts/steamdeck.yaml";
+          tailscale = {
+            enable = true;
+            gui.enable = true;
+          };
+          base-machine = {
+            enable = true;
+            bootMode = "uefi";
+            rootDevice = "/dev/nvme0u1p2";
+          };
         };
       }
     ];

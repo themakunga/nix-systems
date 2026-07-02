@@ -32,10 +32,6 @@ in {
       commonModules.settings
       sops-nix.nixosModules.sops
       commonModules.host-secrets
-      {
-        my.hostSecrets.file = "${secrets.outPath}/hosts/black-mesa.yaml";
-      }
-
       commonModules.userProfiles
       commonModules.authorizedKeys
       commonModules.network
@@ -55,12 +51,18 @@ in {
 
       nixosModules.base-machine
       {
-        my.base-machine = {
-          enable = true;
-          bootMode = "rpi";
+        my = {
+          hostSecrets.file = "${secrets.outPath}/hosts/black-mesa.yaml";
+          tailscale = {
+            enable = true;
+            gui.enable = true;
+          };
+          base-machine = {
+            enable = true;
+            bootMode = "rpi";
+          };
+          fileSystems."/".device = nixpkgs.lib.mkForce "/dev/disk/by-partlabel/disk-main-root";
         };
-
-        fileSystems."/".device = nixpkgs.lib.mkForce "/dev/disk/by-partlabel/disk-main-root";
       }
     ];
   };
