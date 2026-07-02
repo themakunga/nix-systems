@@ -1,5 +1,5 @@
 {
-  flake.commonModules.tailscale = {
+  flake.applicationModules.tailscale = {
     config,
     lib,
     pkgs,
