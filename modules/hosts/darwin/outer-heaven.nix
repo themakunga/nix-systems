@@ -9,6 +9,7 @@
     nix-homebrew
     home-manager
     sops-nix
+    secrets
     ;
   inherit
     (self)
@@ -28,6 +29,10 @@ in {
       commonModules.arch.darwin.silicon
       commonModules.settings
       sops-nix.darwinModules.sops
+      commonModules.host-secrets
+      {
+        my.hostSecrets.file = "${secrets}/hosts/outer-heaven.yaml";
+      }
       commonModules.userProfiles
       commonModules.network
 
