@@ -1,7 +1,7 @@
 {inputs, ...}: let
   inherit (inputs) sops-nix secrets;
   # Centralizamos la ruta por defecto para reusarla fácilmente
-  commonSopsFile = "${secrets}/common.yaml";
+  commonSopsFile = "${secrets.outPath}/common.yaml";
 in {
   flake.commonModules = {
     # 1. GPG para Home Manager

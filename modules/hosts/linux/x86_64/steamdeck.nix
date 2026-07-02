@@ -30,7 +30,7 @@ in {
       sops-nix.nixosModules.sops
       commonModules.host-secrets
       {
-        my.hostSecrets.file = "${secrets}/hosts/steamdeck.yaml";
+        my.hostSecrets.file = "${secrets.outPath}/hosts/steamdeck.yaml";
       }
 
       commonModules.userProfiles
