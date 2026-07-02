@@ -10,7 +10,7 @@
       isSystem = false;
       isAdmin = true;
       isNetworkManager = false;
-      hashedPaswordFile = config.sops.secrets."passwords/nicolas/hashed".path;
+      hashedPasswordFile = config.sops.secrets."passwords/nicolas/hashed".path;
     };
   };
 }

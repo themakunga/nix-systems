@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - features/*
   workflow_dispatch:
 jobs:
   build-darwin:
