@@ -43,7 +43,7 @@ jobs:
       - name: Eval flake for ${{matrix.host}}
         run: |
           echo "=== Runing evaluation of flake ${{matrix.host}} ==="
-          nix eval .#darwinConfigurations.${{matrix.host}}.system --accept-flake-config --show-trace
+          nix eval .#darwinConfigurations.${{matrix.host}}.system.drvPath --accept-flake-config --show-trace
       - name: Compile Darwin
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
@@ -87,7 +87,7 @@ jobs:
       - name: Evaluate Flake
         run: |
           echo "=== Running evaluation for ${{matrix.host}} ==="
-          nix eval .#nixosConfigurations.${{matrix.host}}.system --accept-flake-config --show-trace
+          nix eval .#nixosConfigurations.${{matrix.host}}.config.system.build.toplevel.drvPath --accept-flake-config --show-trace
       - name: Compile NixOS (x86_64)
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
@@ -136,7 +136,7 @@ jobs:
       - name: Evaluate Flake
         run: |
           echo "=== Running evaluation for ${{matrix.host}} ==="
-          nix eval .#nixosConfigurations.${{matrix.host}}.system --accept-flake-config --show-trace
+          nix eval .#nixosConfigurations.${{matrix.host}}.config.system.build.toplevel.drvPath --accept-flake-config --show-trace
       - name: Compile NixOS (arm64)
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
