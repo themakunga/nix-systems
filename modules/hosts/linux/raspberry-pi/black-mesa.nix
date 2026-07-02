@@ -61,8 +61,8 @@ in {
             enable = true;
             bootMode = "rpi";
           };
-          fileSystems."/".device = nixpkgs.lib.mkForce "/dev/disk/by-partlabel/disk-main-root";
         };
+        fileSystems."/".device = nixpkgs.lib.mkForce "/dev/disk/by-partlabel/disk-main-root";
       }
     ];
   };
