@@ -10,6 +10,7 @@
     sops-nix
     nixos-hardware
     disko
+    secrets
     ;
   inherit
     (self)
@@ -30,6 +31,10 @@ in {
       commonModules.arch.nixos.rpi
       commonModules.settings
       sops-nix.nixosModules.sops
+      commonModules.host-secrets
+      {
+        my.hostSecrets = "${secrets}/hosts/black-mesa.yaml";
+      }
 
       commonModules.userProfiles
       commonModules.authorizedKeys

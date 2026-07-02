@@ -10,6 +10,7 @@
     disko
     sops-nix
     nixos-hardware
+    secrets
     ;
   inherit
     (self)
@@ -30,6 +31,10 @@ in {
       commonModules.arch.nixos.rpi
       commonModules.settings
       sops-nix.nixosModules.sops
+      commonModules.host-secrets
+      {
+        my.hostSecrets = "${secrets}/hosts/aperture-science.yaml";
+      }
 
       commonModules.userProfiles
       commonModules.authorizedKeys

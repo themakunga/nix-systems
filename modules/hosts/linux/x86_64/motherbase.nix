@@ -10,6 +10,7 @@
     # disko
     sops-nix
     # nix-hardware
+    secrets
     ;
   inherit
     (self)
@@ -29,6 +30,10 @@ in {
       commonModules.arch.nixos.x64
       commonModules.settings
       sops-nix.nixosModules.sops
+      commonModules.host-secrets
+      {
+        my.hostSecrets = "${secrets}/hosts/motherbase.yaml";
+      }
 
       commonModules.userProfiles
       commonModules.authorizedKeys

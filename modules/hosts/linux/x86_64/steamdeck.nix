@@ -8,6 +8,7 @@
     nixpkgs
     home-manager
     sops-nix
+    secrets
     ;
   inherit
     (self)
@@ -27,6 +28,10 @@ in {
       commonModules.arch.nixos.x64
       commonModules.settings
       sops-nix.nixosModules.sops
+      commonModules.host-secrets
+      {
+        my.hostSecrets = "${secrets}/hosts/steamdeck.yaml";
+      }
 
       commonModules.userProfiles
       commonModules.authorizedKeys
