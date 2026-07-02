@@ -25,6 +25,7 @@ in {
 
     my.userProfiles.nicolas-work.homeManager = {osConfig, ...}: {
       imports = [
+        commonModules.home-secrets
         commonModules.git-identity
       ];
 
