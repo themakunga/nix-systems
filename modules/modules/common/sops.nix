@@ -83,13 +83,6 @@ in {
       imports = [sops-nix.homeManagerModules.sops];
 
       sops = {
-        defaultSopsFile = lib.mkDefault commonSopsFile;
-
-        age = {
-          sshKeyPaths = ["${homeDirectory}/.ssh/id_ed25519"];
-          generateKey = false;
-        };
-
         secrets = {
           "wifi/AMANDA".sopsFile = commonSopsFile;
           "wifi/42DEVS_5G".sopsFile = commonSopsFile;
