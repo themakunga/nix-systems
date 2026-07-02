@@ -1,34 +1,58 @@
-{inputs, ...}: {
+{
   flake.applicationModules.tailscale = {
     config,
-    pkgs,
     lib,
+    pkgs,
+    options,
     ...
   }: let
-    inherit (lib) mkIf mkMerge;
-    inherit (pkgs.stdenv.hostPlatform) isDarwin isLinux;
-  in
-    mkMerge [
+    inherit (lib) mkEnableOption mkIf mkMerge mkForce optionalAttrs;
+    cfg = config.my.tailscale;
+
+    isLinux = options ? system.nixos;
+    isDarwin = options ? system.darwin;
+  in {
+    options.my.tailscale = {
+      enable = mkEnableOption "Universal Tailscale client";
+      gui = {
+        enable = mkEnableOption "Graphical interface (Trayscale on Linux, Homebrew Cask on macOS)";
+      };
+    };
+
+    config = mkIf cfg.enable (mkMerge [
       {
-        sops.secrets."tailscale/auth_key" = {
-          sopsFile = "${inputs.secrets}/common.yaml";
+        sops.secrets."tailscale/auth_token" = {};
+      }
+
+      {
+        services.tailscale = {
+          enable = true;
+          authKeyFile = config.sops.secrets."tailscale/auth_token".path;
         };
 
-        services.tailscale.enable = true;
+        environment.systemPackages = [pkgs.tailscale];
       }
-      (mkIf isLinux {
-        service.tailscale.authKeyFile = config.sops.secrets."tailscale/auth_key".path;
 
+      (optionalAttrs isLinux {
         networking.firewall = {
           trustedInterfaces = ["tailscale0"];
           allowedUDPPorts = [config.services.tailscale.port];
+          checkReversePath = "loose";
+        };
+
+        environment.systemPackages = mkIf cfg.gui.enable [
+          pkgs.trayscale
+        ];
+      })
+
+      (optionalAttrs isDarwin {
+        services.tailscale.enable = mkIf cfg.gui.enable (mkForce false);
+
+        homebrew = mkIf cfg.gui.enable {
+          enable = true;
+          casks = ["tailscale"];
         };
       })
-      (mkIf isDarwin {
-        system.activationScripts.postActivation.text = ''
-          echo "[Tailscale] Daemon activated.Si es tu primera vez en este Mac, ejecuta el siguiente comando para autenticarte:"
-          echo "sudo tailscale up --authkey \$(cat ${config.sops.secrets."tailscale/auth_key".path})"
-        '';
-      })
-    ];
+    ]);
+  };
 }

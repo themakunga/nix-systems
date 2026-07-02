@@ -17,6 +17,7 @@
     userModules
     darwinModules
     profileModules
+    applicationModules
     ;
 in {
   flake.darwinConfigurations.kanagawa = nix-darwin.lib.darwinSystem {
@@ -30,8 +31,15 @@ in {
       commonModules.settings
       sops-nix.darwinModules.sops
       commonModules.host-secrets
+      applicationModules.tailscale
       {
-        my.hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
+        my = {
+          hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
+          tailscale = {
+            enable = true;
+            gui.enable = true;
+          };
+        };
       }
       commonModules.userProfiles
       commonModules.network

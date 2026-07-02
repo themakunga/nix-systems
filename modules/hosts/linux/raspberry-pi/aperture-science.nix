@@ -19,6 +19,7 @@
     commonModules
     userModules
     profileModules
+    applicationModules
     ;
 in {
   flake.nixosConfigurations.aperture-science = nixpkgs.lib.nixosSystem {
@@ -32,9 +33,6 @@ in {
       commonModules.settings
       sops-nix.nixosModules.sops
       commonModules.host-secrets
-      {
-        my.hostSecrets.file = "${secrets.outPath}/hosts/aperture-science.yaml";
-      }
 
       commonModules.userProfiles
       commonModules.authorizedKeys
@@ -55,13 +53,20 @@ in {
       profileModules.nicolas-admin
       profileModules.glados
 
+      applicationModules.tailscale
       nixosModules.base-machine
       {
-        my.base-machine = {
-          enable = true;
-          bootMode = "rpi";
+        my = {
+          hostSecrets.file = "${secrets.outPath}/hosts/aperture-science.yaml";
+          tailscale = {
+            enable = true;
+            gui.enable = true;
+          };
+          base-machine = {
+            enable = true;
+            bootMode = "rpi";
+          };
         };
-
         fileSystems."/".device = nixpkgs.lib.mkForce "/dev/disk/by-partlabel/disk-main-root";
       }
     ];

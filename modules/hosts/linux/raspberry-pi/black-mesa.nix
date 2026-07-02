@@ -19,6 +19,7 @@
     commonModules
     userModules
     profileModules
+    applicationModules
     ;
 in {
   flake.nixosConfigurations.black-mesa = nixpkgs.lib.nixosSystem {
@@ -32,10 +33,6 @@ in {
       commonModules.settings
       sops-nix.nixosModules.sops
       commonModules.host-secrets
-      {
-        my.hostSecrets.file = "${secrets.outPath}/hosts/black-mesa.yaml";
-      }
-
       commonModules.userProfiles
       commonModules.authorizedKeys
       commonModules.network
@@ -52,14 +49,20 @@ in {
 
       userModules.nicolas-pihole
       profileModules.pihole
-
+      applicationModules.tailscale
       nixosModules.base-machine
       {
-        my.base-machine = {
-          enable = true;
-          bootMode = "rpi";
+        my = {
+          hostSecrets.file = "${secrets.outPath}/hosts/black-mesa.yaml";
+          tailscale = {
+            enable = true;
+            gui.enable = true;
+          };
+          base-machine = {
+            enable = true;
+            bootMode = "rpi";
+          };
         };
-
         fileSystems."/".device = nixpkgs.lib.mkForce "/dev/disk/by-partlabel/disk-main-root";
       }
     ];
