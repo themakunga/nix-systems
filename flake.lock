@@ -621,14 +621,18 @@
     "secrets": {
       "flake": false,
       "locked": {
-        "path": "git+sshgit@github.com/TheMakunga/.secrets.git",
-        "type": "path"
+        "lastModified": 1782916720,
+        "narHash": "sha256-WYGljZUpG9UVlBcwKPM5wU3+kakg2W5TI0KdU3Um3co=",
+        "ref": "refs/heads/main",
+        "rev": "4031585f764810012c4714c50be732af5bbcf57a",
+        "revCount": 66,
+        "type": "git",
+        "url": "ssh://git@github.com/TheMakunga/.secrets.git"
       },
       "original": {
-        "path": "git+sshgit@github.com/TheMakunga/.secrets.git",
-        "type": "path"
-      },
-      "parent": []
+        "type": "git",
+        "url": "ssh://git@github.com/TheMakunga/.secrets.git"
+      }
     },
     "sops-nix": {
       "inputs": {
