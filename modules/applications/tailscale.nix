@@ -27,13 +27,14 @@
       {
         services.tailscale = {
           enable = true;
-          authKeyFile = config.sops.secrets."tailscale/auth_token".path;
         };
 
         environment.systemPackages = [pkgs.tailscale];
       }
 
       (optionalAttrs isLinux {
+        services.tailscale.authKeyFile =
+          config.sops.secrets."tailscale/auth_token".path;
         networking.firewall = {
           trustedInterfaces = ["tailscale0"];
           allowedUDPPorts = [config.services.tailscale.port];
