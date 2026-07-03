@@ -45,7 +45,7 @@ in {
             {
               name = "work-key";
               publicKey = osConfig.sops.secrets."profiles/nicolas-work/gpg/public_key".path;
-              privateKey = osConfig.sops.secrets."profiles/nicola-work/gpg/private_key".path;
+              privateKey = osConfig.sops.secrets."profiles/nicolas-work/gpg/private_key".path;
             }
           ];
         };

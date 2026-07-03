@@ -41,11 +41,11 @@ in {
             {
               name = "personal-key";
               publicKey = osConfig.sops.secrets."profiles/nicolas-personal/gpg/public_key".path;
-              privateKey = osConfig.sops.secrets."profiles/nicola-personal/gpg/private_key".path;
+              privateKey = osConfig.sops.secrets."profiles/nicolas-personal/gpg/private_key".path;
             }
           ];
         };
-        git-identiry = {
+        git-identity = {
           enable = true;
           workspaces.nicolas-personal = {
             directory = "~/Projects/Personal";
@@ -57,7 +57,7 @@ in {
                 osConfig.sops.secrets."profiles/nicolas-personal/gpg/key_id".path;
             };
             ssh = {
-              enableAuht = true;
+              enableAuth = true;
               privateKey = osConfig.sops.secrets."profiles/nicolas-personal/ssh/private_key".path;
             };
           };
