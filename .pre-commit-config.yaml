@@ -14,11 +14,13 @@ repos:
         stages: [pre-commit]
       - id: mixed-line-ending
         stages: [pre-commit]
+
   - repo: https://github.com/mrtazz/checkmake
     rev: v0.3.0
     hooks:
       - id: checkmake
         stages: [pre-commit]
+
   - repo: local
     hooks:
       - id: statix
@@ -28,12 +30,14 @@ repos:
         files: \.nix$
         pass_filenames: false
         stages: [pre-commit]
+
       - id: alejandra
         name: Formatter nix
         entry: nix run nixpkgs#alejandra --
         language: system
         files: \.nix$
         stages: [pre-commit]
+
       - id: nix-flake-check
         name: Nix Flake Check (Pre-Push)
         entry: nix flake check
@@ -41,6 +45,16 @@ repos:
         stages: [pre-push]
         always_run: true
         pass_filenames: false
+
+      # ACTUALIZADO: Hook para evaluar hosts de NixOS y nix-darwin
+      - id: eval-all-hosts
+        name: Evaluar NixOS y Darwin Hosts (Pre-Push)
+        entry: bash -c "nix eval .#nixosConfigurations --apply 'x: builtins.mapAttrs (n: v: v.config.system.build.toplevel) x' > /dev/null && nix eval .#darwinConfigurations --apply 'x: builtins.mapAttrs (n: v: v.config.system.build.toplevel) x' > /dev/null"
+        language: system
+        stages: [pre-push]
+        always_run: true
+        pass_filenames: false
+
   - repo: https://github.com/astro/deadnix
     rev: v1.3.1
     hooks:
@@ -49,11 +63,13 @@ repos:
         stages: [pre-commit]
         args:
           - edit
+
   - repo: https://github.com/google/yamlfmt
     rev: v0.21.0
     hooks:
       - id: yamlfmt
         stages: [pre-commit]
+
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v9.26.0
     hooks:
