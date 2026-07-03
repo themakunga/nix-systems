@@ -33,7 +33,7 @@
       }
 
       (optionalAttrs isLinux {
-        service.tailscale.authKeyFile =
+        services.tailscale.authKeyFile =
           config.sops.secrets."tailscale/auth_token".path;
         networking.firewall = {
           trustedInterfaces = ["tailscale0"];
