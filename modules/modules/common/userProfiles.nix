@@ -93,7 +93,7 @@
     config = mkIf (cfg != {}) {
       users.users =
         mapAttrs' (
-          profileName: userCfg:
+          _: userCfg:
             nameValuePair userCfg.username (
               {
                 inherit (userCfg) description shell;
@@ -132,12 +132,12 @@
         cfg;
 
       users.groups = optionalAttrs isLinux (
-        mapAttrs' (profileName: userCfg: nameValuePair userCfg.username {}) cfg
+        mapAttrs' (_: userCfg: nameValuePair userCfg.username {}) cfg
       );
 
       home-manager.users =
         mapAttrs' (
-          profileName: userCfg: nameValuePair userCfg.username userCfg.homeManager
+          _: userCfg: nameValuePair userCfg.username userCfg.homeManager
         )
         cfg;
     };
