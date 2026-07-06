@@ -7,7 +7,7 @@
   cfg = config.my.primaryUser;
 in {
   flake.darwinModules.primaryUser = {
-    options.my.mainUser = {
+    options.my.primaryUser = {
       enable = mkEnableOption "Define primeary USER for dariwn host";
       username = {
         type = types.str;
