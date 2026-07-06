@@ -37,12 +37,12 @@ in {
       inputs,
       ...
     }: let
-      inherit (inputs) nixpkgs secrets;
+      inherit (inputs) nixpkgs;
       inherit (lib) mkDefault;
     in {
       nix.settings.experimental-features = [
         "nix-command"
-        "nix-flakes"
+        "flakes"
       ];
 
       imports = [
