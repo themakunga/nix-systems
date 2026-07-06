@@ -36,6 +36,11 @@
       flake = false;
     };
 
+    homebrew-bundle = {
+      url = "github:homebrew/homebrew-bundle";
+      flake = false;
+    };
+
     mac-app-util = {
       url = "github:hraban/mac-app-util";
     };
