@@ -24,6 +24,9 @@ in {
           environmentFiles = [
             config.sops.secrets."env_files/tofu_dns".path
           ];
+          environment = {
+            TF_VAR_host_name = config.networking.hostName;
+          };
           volumes = [
             "/opt/tofu-dns:/workspace"
           ];
