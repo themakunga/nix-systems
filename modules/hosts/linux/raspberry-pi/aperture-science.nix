@@ -42,6 +42,7 @@ in {
       disko.nixosModules.disko
       rpiModules.disko.aperture-science
       rpiModules.boot-loader
+			rpiModules.boot
       rpiModules.systemPackages
       rpiModules.config
 
