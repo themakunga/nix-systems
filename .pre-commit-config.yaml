@@ -25,14 +25,13 @@ repos:
         name: Linter Nix (statix)
         entry: nix run nixpkgs#statix -- check
         language: system
-        files: \.nix$
-        pass_filenames: false
+        files: '\.nix$'
         stages: [pre-commit]
       - id: alejandra
         name: Formatter nix
         entry: nix run nixpkgs#alejandra --
         language: system
-        files: \.nix$
+        files: '\.nix$'
         stages: [pre-commit]
       - id: nix-flake-check
         name: Nix Flake Check (Pre-Push)
@@ -48,7 +47,7 @@ repos:
         name: Nix dead code
         stages: [pre-commit]
         args:
-          - edit
+          - --edit
   - repo: https://github.com/google/yamlfmt
     rev: v0.21.0
     hooks:
