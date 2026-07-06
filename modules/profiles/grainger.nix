@@ -1,6 +1,4 @@
-{self, ...}: let
-  inherit (self) commonModules;
-in {
+{
   flake.profileModules.grainger = {
     lib,
     pkgs,
@@ -23,20 +21,15 @@ in {
       ];
     };
 
-    my.userProfiles.nicolas-work.homeManager = {osConfig, ...}: {
-      imports = [
-        commonModules.home-secrets
-        commonModules.git-identity
-      ];
-
+    my.userProfiles.nicolas-work.homeManager = {config, ...}: {
       programs = {
         sops.gpg = {
           enable = true;
           keys = [
             {
               name = "grainger-key";
-              publicKey = osConfig.sops.secrets."profiles/grainger/gpg/public_key".path;
-              privateKey = osConfig.sops.secrets."profiles/grainger/gpg/private_key".path;
+              publicKey = config.sops.secrets."profiles/grainger/gpg/public_key".path;
+              privateKey = config.sops.secrets."profiles/grainger/gpg/private_key".path;
             }
           ];
         };
@@ -48,11 +41,11 @@ in {
             email = "nicolas.villarroel1@grainger.com";
             gpg = {
               enable = true;
-              keyId = osConfig.sops.secrets."profiles/grainger/gpg/key_id".path;
+              keyId = config.sops.secrets."profiles/grainger/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;
-              privateKey = osConfig.sops.secrets."profiles/grainger/ssh/private_key".path;
+              privateKey = config.sops.secrets."profiles/grainger/ssh/private_key".path;
             };
           };
         };

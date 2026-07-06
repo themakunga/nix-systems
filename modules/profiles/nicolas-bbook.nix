@@ -1,6 +1,4 @@
-{self, ...}: let
-  inherit (self) commonModules;
-in {
+{
   flake.profileModules.nicolas-bbook = {
     lib,
     pkgs,
@@ -25,14 +23,9 @@ in {
 
     my.userProfiles.nicolas-personal.homeManager = {
       # pkgs,
-      osConfig,
+      config,
       ...
     }: {
-      imports = [
-        commonModules.home-secrets
-        commonModules.git-identity
-      ];
-
       services.gpg-agent = {
         enable = true;
         enableSshSupport = true;
@@ -44,8 +37,8 @@ in {
           keys = [
             {
               name = "bbook-key";
-              publicKey = osConfig.sops.secrets."profiles/nicolas-bbook/gpg/public_key".path;
-              privateKey = osConfig.sops.secrets."profiles/nicolas-bbook/gpg/private_key".path;
+              publicKey = config.sops.secrets."profiles/nicolas-bbook/gpg/public_key".path;
+              privateKey = config.sops.secrets."profiles/nicolas-bbook/gpg/private_key".path;
             }
           ];
         };
@@ -57,11 +50,11 @@ in {
             email = "nmartinez@bbook.cl";
             gpg = {
               enable = true;
-              keyId = osConfig.sops.secrets."profiles/nicolas-bbook/gpg/key_id".path;
+              keyId = config.sops.secrets."profiles/nicolas-bbook/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;
-              privateKey = osConfig.sops.secrets."profiles/nicolas-bbook/ssh/private_key".path;
+              privateKey = config.sops.secrets."profiles/nicolas-bbook/ssh/private_key".path;
             };
           };
         };

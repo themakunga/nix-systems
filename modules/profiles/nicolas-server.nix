@@ -11,7 +11,7 @@ in {
 
     my.userProfiles.nicolas-server.homeManager = {
       # pkgs,
-      osConfig,
+      config,
       ...
     }: {
       imports = [
@@ -25,8 +25,8 @@ in {
           keys = [
             {
               name = "nicolas-server-key";
-              publicKey = osConfig.sops.secrets."profiles/nicolas-server/gpg/public_key".path;
-              privateKey = osConfig.sops.secrets."profiles/nicolas-server/gpg/private_key".path;
+              publicKey = config.sops.secrets."profiles/nicolas-server/gpg/public_key".path;
+              privateKey = config.sops.secrets."profiles/nicolas-server/gpg/private_key".path;
             }
           ];
         };
@@ -39,11 +39,11 @@ in {
             gpg = {
               enable = true;
               keyId =
-                osConfig.sops.secrets."profiles/nicolas-server/gpg/key_id".path;
+                config.sops.secrets."profiles/nicolas-server/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;
-              privateKey = osConfig.sops.secrets."profiles/nicolas-server/ssh/private_key".path;
+              privateKey = config.sops.secrets."profiles/nicolas-server/ssh/private_key".path;
             };
           };
         };

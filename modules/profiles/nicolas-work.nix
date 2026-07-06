@@ -25,7 +25,7 @@ in {
 
     my.userProfiles.nicolas-work.homeManager = {
       # pkgs,
-      osConfig,
+      config,
       ...
     }: {
       imports = [
@@ -44,8 +44,8 @@ in {
           keys = [
             {
               name = "work-key";
-              publicKey = osConfig.sops.secrets."profiles/nicolas-work/gpg/public_key".path;
-              privateKey = osConfig.sops.secrets."profiles/nicolas-work/gpg/private_key".path;
+              publicKey = config.sops.secrets."profiles/nicolas-work/gpg/public_key".path;
+              privateKey = config.sops.secrets."profiles/nicolas-work/gpg/private_key".path;
             }
           ];
         };
@@ -58,11 +58,11 @@ in {
             gpg = {
               enable = true;
               keyId =
-                osConfig.sops.secrets."profiles/nicolas-work/gpg/key_id".path;
+                config.sops.secrets."profiles/nicolas-work/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;
-              privateKey = osConfig.sops.secrets."profiles/nicolas-work/ssh/private_key".path;
+              privateKey = config.sops.secrets."profiles/nicolas-work/ssh/private_key".path;
             };
           };
         };

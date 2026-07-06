@@ -1,4 +1,6 @@
-{
+{self, ...}: let
+  inherit (self) commonModules;
+in {
   flake.userModules.nicolas-server = {config, ...}: {
     sops.secrets."passwords/nicolas/hashed" = {
       neededForUsers = true;
@@ -12,6 +14,17 @@
       isNetworkManager = true;
       hashedPasswordFile = config.sops.secrets."passwords/nicolas/hashed".path;
       extraGroups = ["docker"];
+    };
+    homeManager = {
+      imports = [
+        commonModules.home-secrets
+        commonModules.git-identity
+      ];
+
+      services.gpg-agent = {
+        enable = true;
+        enableSshSupport = true;
+      };
     };
   };
 }

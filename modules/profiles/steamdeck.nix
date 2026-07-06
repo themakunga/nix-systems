@@ -1,6 +1,4 @@
-{self, ...}: let
-  inherit (self) commonModules;
-in {
+{
   flake.profileModules.steamdeck = {
     sops.secrets = {
       "profiles/steamdeck/ssh/private_key" = {};
@@ -11,22 +9,17 @@ in {
 
     my.userProfiles.deck.homeManager = {
       # pkgs,
-      osConfig,
+      config,
       ...
     }: {
-      imports = [
-        commonModules.home-secrets
-        commonModules.git-identity
-      ];
-
       programs = {
         sops.gpg = {
           enable = true;
           keys = [
             {
               name = "steamdeck-key";
-              publicKey = osConfig.sops.secrets."profiles/steamdeck/gpg/public_key".path;
-              privateKey = osConfig.sops.secrets."profiles/steamdeck/gpg/private_key".path;
+              publicKey = config.sops.secrets."profiles/steamdeck/gpg/public_key".path;
+              privateKey = config.sops.secrets."profiles/steamdeck/gpg/private_key".path;
             }
           ];
         };
@@ -38,11 +31,11 @@ in {
             email = "nmartinezv@icloud.com";
             gpg = {
               enable = true;
-              keyId = osConfig.sops.secrets."profiles/steamdeck/gpg/key_id".path;
+              keyId = config.sops.secrets."profiles/steamdeck/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;
-              privateKey = osConfig.sops.secrets."profiles/steamdeck/ssh/private_key".path;
+              privateKey = config.sops.secrets."profiles/steamdeck/ssh/private_key".path;
             };
           };
         };

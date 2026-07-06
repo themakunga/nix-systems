@@ -24,22 +24,17 @@ in {
 
     my.userProfiles.nicolas-work.homeManager = {
       # pkgs,
-      osConfig,
+      config,
       ...
     }: {
-      imports = [
-        commonModules.home-secrets
-        commonModules.git-identity
-      ];
-
       programs = {
         sops.gpg = {
           enable = true;
           keys = [
             {
               name = "thoughtworks-key";
-              publicKey = osConfig.sops.secrets."profiles/thouhtworks/gpg/public_key".path;
-              privateKey = osConfig.sops.secrets."profiles/thouhtworks/gpg/private_key".path;
+              publicKey = config.sops.secrets."profiles/thouhtworks/gpg/public_key".path;
+              privateKey = config.sops.secrets."profiles/thouhtworks/gpg/private_key".path;
             }
           ];
         };
@@ -51,11 +46,11 @@ in {
             email = "nicolas.villarroel@thoughtworks.com";
             gpg = {
               enable = true;
-              keyId = osConfig.sops.secrets."profiles/thouhtworks/gpg/key_id".path;
+              keyId = config.sops.secrets."profiles/thouhtworks/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;
-              privateKey = osConfig.sops.secrets."profiles/thouhtworks/ssh/private_key".path;
+              privateKey = config.sops.secrets."profiles/thouhtworks/ssh/private_key".path;
             };
           };
         };

@@ -1,6 +1,4 @@
-{self, ...}: let
-  inherit (self) commonModules;
-in {
+{
   flake.profileModules.nicolas-42devs = {
     lib,
     pkgs,
@@ -25,14 +23,9 @@ in {
 
     my.userProfiles.nicolas-personal.homeManager = {
       # pkgs,
-      osConfig,
+      config,
       ...
     }: {
-      imports = [
-        commonModules.home-secrets
-        commonModules.git-identity
-      ];
-
       services.gpg-agent = {
         enable = true;
         enableSshSupport = true;
@@ -44,8 +37,8 @@ in {
           keys = [
             {
               name = "company-key";
-              publicKey = osConfig.sops.secrets."profiles/nicolas-42devs/gpg/public_key".path;
-              privateKey = osConfig.sops.secrets."profiles/nicolas-42devs/gpg/private_key".path;
+              publicKey = config.sops.secrets."profiles/nicolas-42devs/gpg/public_key".path;
+              privateKey = config.sops.secrets."profiles/nicolas-42devs/gpg/private_key".path;
             }
           ];
         };
@@ -58,11 +51,11 @@ in {
             gpg = {
               enable = true;
               keyId =
-                osConfig.sops.secrets."profiles/nicolas-42devs/gpg/key_id".path;
+                config.sops.secrets."profiles/nicolas-42devs/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;
-              privateKey = osConfig.sops.secrets."profiles/nicolas-42devs/ssh/private_key".path;
+              privateKey = config.sops.secrets."profiles/nicolas-42devs/ssh/private_key".path;
             };
           };
         };
