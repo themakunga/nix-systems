@@ -1,12 +1,9 @@
 {lib, ...}: {
-  flake.commonModules.keyboard = {
-    config,
-    pkgs,
-    ...
-  }: let
+  flake.commonModules.keyboard = {config, ...}: let
     inherit (lib) mkEnableOption mkIf mkMerge optionalAttrs;
     cfg = config.my.keyboard;
-    inherit (pkgs.stdenv.hostPlatform) isDarwin isLinux;
+    isLinux = config ? system.nixos;
+    isDarwin = config ? system.darwinLabel;
   in {
     options.my.keyboard = {
       enable = mkEnableOption "Common keyboard config";
