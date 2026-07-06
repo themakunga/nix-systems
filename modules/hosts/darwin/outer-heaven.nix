@@ -32,6 +32,7 @@ in {
       sops-nix.darwinModules.sops
       commonModules.host-secrets
       applicationModules.tailscale
+      darwinModules.keyboard
       darwinModules.primaryUser
       {
         my = {
@@ -44,6 +45,7 @@ in {
             enable = true;
             username = "nicolas";
           };
+          keyboard.enable = true;
         };
       }
       commonModules.userProfiles

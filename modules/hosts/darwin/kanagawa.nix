@@ -29,6 +29,7 @@ in {
     modules = [
       commonModules.arch.darwin.silicon
       commonModules.settings
+      commonModules.keyboard
       sops-nix.darwinModules.sops
       commonModules.host-secrets
       applicationModules.tailscale
@@ -44,6 +45,7 @@ in {
             enable = true;
             username = "nicolas";
           };
+          keyboard.enable = true;
         };
       }
       commonModules.userProfiles
