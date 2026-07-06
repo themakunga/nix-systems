@@ -32,12 +32,17 @@ in {
       sops-nix.darwinModules.sops
       commonModules.host-secrets
       applicationModules.tailscale
+      darwinModules.primaryUser
       {
         my = {
           hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
           tailscale = {
             enable = true;
             gui.enable = true;
+          };
+          primaryUser = {
+            enable = true;
+            username = "nicolas";
           };
         };
       }
