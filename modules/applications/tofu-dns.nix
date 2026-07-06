@@ -17,7 +17,7 @@ in {
     config = mkIf cfg.enable {
       sops.secrets."env_files/tofu_dns" = {};
 
-      virtualization.oci-containers = {
+      virtualisation.oci-containers = {
         backend = "podman";
         containers.tofu-dns = {
           image = "ghcr.io/opentofu/opentofu:latest";
@@ -39,10 +39,14 @@ in {
         wants = [
           "network-online.target"
           "sops-nix.service"
+          "tailscale.service"
+          "podman-pihole.service"
         ];
         after = [
           "network-online.target"
-          "sops-nix-service"
+          "sops-nix.service"
+          "tailscale.service"
+          "podman-pihole.service"
         ];
         preStart = ''
           mkdir -p /opt/tofu-dns

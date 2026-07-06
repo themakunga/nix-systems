@@ -14,7 +14,7 @@
     config = mkIf cfg.enable {
       sops.secrets."passwords/pihole/hashed" = {};
 
-      virtualization.oci-container = {
+      virtualisation.oci-containers = {
         backend = "podman";
         containers.pihole = {
           image = "pihole/pihole:latest";
@@ -23,15 +23,15 @@
             "53:53/udp"
             "80:80/tcp"
           ];
-          environments = {
+          environment = {
             TZ = "America/Santiago";
-            WEBPASSWORD_FILE = config.secrets."passwords/pihole/hashed".path;
+            WEBPASSWORD_FILE = config.sops.secrets."passwords/pihole/hashed".path;
             PIHOLE_DNS_ = "1.1.1.1;1.0.0.1";
           };
           volumes = [
             "/var/lib/pihole/etc-pihole:/etc/pihole"
             "/var/lib/pihole/etc-dnsmasq.d:/etc/dnsmasq.d"
-            "${config.sops.secrets."passwords/pihole/hashed".path}:${config.sops.secrets."password/pihole/hashed".path}:ro"
+            "${config.sops.secrets."passwords/pihole/hashed".path}:${config.sops.secrets."passwords/pihole/hashed".path}:ro"
           ];
           extraOptions = [
             "--cap-add=NET_ADMIN"
