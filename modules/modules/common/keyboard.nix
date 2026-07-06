@@ -1,33 +1,40 @@
 {lib, ...}: {
-  flake.commonModules.keyboard = {config, ...}: let
-    inherit (lib) mkEnableOption mkIf mkMerge optionalAttrs;
+  flake.commonModules.keyboard = {
+    config,
+    pkgs,
+    ...
+  }: let
+    inherit (lib) mkEnableOption mkIf mkMerge;
     cfg = config.my.keyboard;
-    isLinux = config ? system.nixos;
-    isDarwin = config ? system.darwinLabel;
   in {
     options.my.keyboard = {
-      enable = mkEnableOption "Common keyboard config";
+      enable = mkEnableOption "Common keyboard configuration (US/LATAM layouts and CapsLock to Ctrl)";
     };
 
     config = mkIf cfg.enable (mkMerge [
-      (optionalAttrs isDarwin {
-        system = {
-          keyboard = {
-            enableKeyMapping = true;
-            remapCapsLockToControl = true;
-          };
-          default.NSGlobalDomain = {
+      (mkIf pkgs.stdenv.hostPlatform.isDarwin {
+        system.keyboard = {
+          enableKeyMapping = true;
+          remapCapsLockToControl = true;
+        };
+
+        system.defaults = {
+          NSGlobalDomain = {
             AppleLanguages = ["en-US" "es-CL"];
             AppleLocale = "en_US";
           };
+          CustomUserPreferences."com.apple.HIToolbox" = {
+            AppleCurrentKeyboardLayoutInputSourceID = "com.apple.keylayout.US";
+          };
         };
       })
-      (optionalAttrs isLinux {
+
+      (mkIf pkgs.stdenv.hostPlatform.isLinux {
         console.keyMap = "us";
 
         services.xserver.xkb = {
           layout = "us,latam";
-          options = "ctrl:nocaps,grp:win_spaccce_toggle";
+          options = "ctrl:nocaps,grp:win_space_toggle";
         };
       })
     ]);
