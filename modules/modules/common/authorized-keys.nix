@@ -56,7 +56,7 @@
     };
 
     config = mkIf cfg.enable {
-      users.users = genAttrs cfg.assignTo (userName: {
+      users.users = genAttrs cfg.assignTo (_: {
         openssh.authorizedKeys.keys = let
           dirKeys =
             if cfg.keysDir != null
