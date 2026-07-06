@@ -1,12 +1,8 @@
-{
-  lib,
-  config,
-  ...
-}: let
-  inherit (lib) types mkEnableOption mkOption mkIf;
-  cfg = config.my.primaryUser;
-in {
-  flake.darwinModules.primaryUser = {
+{lib, ...}: {
+  flake.darwinModules.primaryUser = {config, ...}: let
+    inherit (lib) types mkEnableOption mkOption mkIf;
+    cfg = config.my.primaryUser;
+  in {
     options.my.primaryUser = {
       enable = mkEnableOption "Define primeary USER for dariwn host";
       username = mkOption {
