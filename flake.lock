@@ -580,7 +580,8 @@
         "nixpkgs": "nixpkgs_9",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "secrets": "secrets",
-        "sops-nix": "sops-nix"
+        "sops-nix": "sops-nix",
+        "tofu-dns": "tofu-dns"
       }
     },
     "rust-analyzer-src": {
@@ -697,6 +698,22 @@
         "owner": "nix-systems",
         "repo": "default-darwin",
         "type": "github"
+      }
+    },
+    "tofu-dns": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1783309808,
+        "narHash": "sha256-BoXSV9eGOqwfjwQyc+YWhCLlUv1H7RhQc/xfLd9KxjI=",
+        "ref": "refs/heads/main",
+        "rev": "1d64bdb688acf41c5d63bd2d54063d89f64b12a1",
+        "revCount": 1,
+        "type": "git",
+        "url": "ssh://git@github.com/TheMakunga/tofu-dns.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@github.com/TheMakunga/tofu-dns.git"
       }
     },
     "treefmt-nix": {
