@@ -53,7 +53,7 @@ in {
         ];
         preStart = ''
           mkdir -p /opt/tofu-dns
-          ${pkgs.rsync}/bin/rsync -a --chmod=D755,F644 ${inputs.tofu-dns}/ /opt/tofu-dns/
+          ${pkgs.rsync}/bin/rsync -a --chmod=D755,F644 ${tofu-dns}/ /opt/tofu-dns/
         '';
 
         serviceConfig = {
