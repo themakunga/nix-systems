@@ -1,7 +1,5 @@
-{self, ...}: let
-  inherit (self) commonModules;
-in {
-  flake.profileModules.pihole = {
+{
+  flake.profileModules.pihole = {config, ...}: {
     sops.secrets = {
       "profiles/nicolas-pihole/ssh/private_key" = {};
       "profiles/nicolas-pihole/gpg/private_key" = {};
@@ -10,23 +8,14 @@ in {
     };
 
     my.userProfiles.pihole.homeManager = {
-      # pkgs,
-      osConfig,
-      ...
-    }: {
-      imports = [
-        commonModules.home-secrets
-        commonModules.git-identity
-      ];
-
       programs = {
         sops.gpg = {
           enable = true;
           keys = [
             {
               name = "pihole-key";
-              publicKey = osConfig.sops.secrets."profiles/nicolas-pihole/gpg/public_key".path;
-              privateKey = osConfig.sops.secrets."profiles/nicolas-pihole/gpg/private_key".path;
+              publicKey = config.sops.secrets."profiles/nicolas-pihole/gpg/public_key".path;
+              privateKey = config.sops.secrets."profiles/nicolas-pihole/gpg/private_key".path;
             }
           ];
         };
@@ -39,11 +28,11 @@ in {
             gpg = {
               enable = true;
               keyId =
-                osConfig.sops.secrets."profiles/nicolas-pihole/gpg/key_id".path;
+                config.sops.secrets."profiles/nicolas-pihole/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;
-              privateKey = osConfig.sops.secrets."profiles/nicolas-pihole/ssh/private_key".path;
+              privateKey = config.sops.secrets."profiles/nicolas-pihole/ssh/private_key".path;
             };
           };
         };

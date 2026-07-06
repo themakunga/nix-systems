@@ -1,7 +1,5 @@
-{self, ...}: let
-  inherit (self) commonModules;
-in {
-  flake.profileModules.glados = {
+{
+  flake.profileModules.glados = {config, ...}: {
     sops.secrets = {
       "profiles/glados/ssh/private_key" = {};
       "profiles/glados/gpg/private_key" = {};
@@ -10,23 +8,14 @@ in {
     };
 
     my.userProfiles.glados.homeManager = {
-      # pkgs,
-      osConfig,
-      ...
-    }: {
-      imports = [
-        commonModules.home-secrets
-        commonModules.git-identity
-      ];
-
       programs = {
         sops.gpg = {
           enable = true;
           keys = [
             {
               name = "glados-key";
-              publicKey = osConfig.sops.secrets."profiles/glados/gpg/public_key".path;
-              privateKey = osConfig.sops.secrets."profiles/glados/gpg/private_key".path;
+              publicKey = config.sops.secrets."profiles/glados/gpg/public_key".path;
+              privateKey = config.sops.secrets."profiles/glados/gpg/private_key".path;
             }
           ];
         };
@@ -38,11 +27,11 @@ in {
             email = "nmartinezv@icloud.com";
             gpg = {
               enable = true;
-              keyId = osConfig.sops.secrets."profiles/glados/gpg/key_id".path;
+              keyId = config.sops.secrets."profiles/glados/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;
-              privateKey = osConfig.sops.secrets."profiles/glados/ssh/private_key".path;
+              privateKey = config.sops.secrets."profiles/glados/ssh/private_key".path;
             };
           };
         };

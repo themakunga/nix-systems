@@ -1,7 +1,5 @@
-{self, ...}: let
-  inherit (self) commonModules;
-in {
-  flake.profileModules.mediaserver = {
+{
+  flake.profileModules.mediaserver = {config, ...}: {
     sops.secrets = {
       "profiles/mediaserver/ssh/private_key" = {};
       "profiles/mediaserver/gpg/private_key" = {};
@@ -10,23 +8,14 @@ in {
     };
 
     my.userProfiles.media.homeManager = {
-      # pkgs,
-      osConfig,
-      ...
-    }: {
-      imports = [
-        commonModules.home-secrets
-        commonModules.git-identity
-      ];
-
       programs = {
         sops.gpg = {
           enable = true;
           keys = [
             {
               name = "mediaserver-key";
-              publicKey = osConfig.sops.secrets."profiles/mediaserver/gpg/public_key".path;
-              privateKey = osConfig.sops.secrets."profiles/mediaserver/gpg/private_key".path;
+              publicKey = config.sops.secrets."profiles/mediaserver/gpg/public_key".path;
+              privateKey = config.sops.secrets."profiles/mediaserver/gpg/private_key".path;
             }
           ];
         };
@@ -39,11 +28,11 @@ in {
             gpg = {
               enable = true;
               keyId =
-                osConfig.sops.secrets."profiles/mediaserver/gpg/key_id".path;
+                config.sops.secrets."profiles/mediaserver/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;
-              privateKey = osConfig.sops.secrets."profiles/mediaserver/ssh/private_key".path;
+              privateKey = config.sops.secrets."profiles/mediaserver/ssh/private_key".path;
             };
           };
         };

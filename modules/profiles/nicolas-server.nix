@@ -1,7 +1,5 @@
-{self, ...}: let
-  inherit (self) commonModules;
-in {
-  flake.profileModules.nicolas-server = {
+{
+  flake.profileModules.nicolas-server = {config, ...}: {
     sops.secrets = {
       "profiles/nicolas-server/ssh/private_key" = {};
       "profiles/nicolas-server/gpg/private_key" = {};
@@ -10,23 +8,14 @@ in {
     };
 
     my.userProfiles.nicolas-server.homeManager = {
-      # pkgs,
-      osConfig,
-      ...
-    }: {
-      imports = [
-        commonModules.home-secrets
-        commonModules.git-identity
-      ];
-
       programs = {
         sops.gpg = {
           enable = true;
           keys = [
             {
               name = "nicolas-server-key";
-              publicKey = osConfig.sops.secrets."profiles/nicolas-server/gpg/public_key".path;
-              privateKey = osConfig.sops.secrets."profiles/nicolas-server/gpg/private_key".path;
+              publicKey = config.sops.secrets."profiles/nicolas-server/gpg/public_key".path;
+              privateKey = config.sops.secrets."profiles/nicolas-server/gpg/private_key".path;
             }
           ];
         };
@@ -39,11 +28,11 @@ in {
             gpg = {
               enable = true;
               keyId =
-                osConfig.sops.secrets."profiles/nicolas-server/gpg/key_id".path;
+                config.sops.secrets."profiles/nicolas-server/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;
-              privateKey = osConfig.sops.secrets."profiles/nicolas-server/ssh/private_key".path;
+              privateKey = config.sops.secrets."profiles/nicolas-server/ssh/private_key".path;
             };
           };
         };

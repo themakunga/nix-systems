@@ -1,4 +1,6 @@
-{
+{self, ...}: let
+  inherit (self) commonModules;
+in {
   flake.userModules.nicolas-pihole = {config, ...}: {
     sops.secrets."passwords/pihole/hashed" = {
       neededForUsers = true;
@@ -12,6 +14,17 @@
       isNetworkManager = true;
       hashedPasswordFile = config.sops.secrets."passwords/pihole/hashed".path;
       extraGroups = ["docker"];
+      homeManager = {
+        imports = [
+          commonModules.home-secrets
+          commonModules.git-identity
+        ];
+
+        services.gpg-agent = {
+          enable = true;
+          enableSshSupport = true;
+        };
+      };
     };
   };
 }
