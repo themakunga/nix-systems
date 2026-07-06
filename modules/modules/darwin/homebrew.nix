@@ -10,6 +10,7 @@
       enable = true;
       autoMigrate = true;
       mutableTaps = false;
+      user = config.system.primaryUser;
       taps = {
         "homebrew/homebrew-core" = homebrew-core;
         "homebrew/homebrew-cask" = homebrew-cask;
