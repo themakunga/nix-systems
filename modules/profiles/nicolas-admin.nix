@@ -1,5 +1,5 @@
 {
-  flake.profileModules.nicolas-admin = {
+  flake.profileModules.nicolas-admin = {config, ...}: {
     sops.secrets = {
       "profiles/nicolas-admin/ssh/private_key" = {};
       "profiles/nicolas-admin/gpg/private_key" = {};
@@ -7,7 +7,7 @@
       "profiles/nicolas-admin/gpg/key_id" = {};
     };
 
-    my.userProfiles.nicolas-admin.homeManager = {config, ...}: {
+    my.userProfiles.nicolas-admin.homeManager = {
       services.gpg-agent = {
         enable = true;
         enableSshSupport = true;

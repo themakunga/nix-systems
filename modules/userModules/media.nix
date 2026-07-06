@@ -10,16 +10,16 @@ in {
       isNetworkManager = true;
       extraGroups = ["docker"];
       createHome = true;
-    };
-    homeManager = {
-      imports = [
-        commonModules.home-secrets
-        commonModules.git-identity
-      ];
+      homeManager = {
+        imports = [
+          commonModules.home-secrets
+          commonModules.git-identity
+        ];
 
-      services.gpg-agent = {
-        enable = true;
-        enableSshSupport = true;
+        services.gpg-agent = {
+          enable = true;
+          enableSshSupport = true;
+        };
       };
     };
   };

@@ -1,9 +1,8 @@
-{self, ...}: let
-  inherit (self) commonModules;
-in {
+{
   flake.profileModules.nicolas-work = {
     lib,
     pkgs,
+    config,
     ...
   }: let
     inherit (lib) mkIf;
@@ -24,15 +23,6 @@ in {
     };
 
     my.userProfiles.nicolas-work.homeManager = {
-      # pkgs,
-      config,
-      ...
-    }: {
-      imports = [
-        commonModules.home-secrets
-        commonModules.git-identity
-      ];
-
       services.gpg-agent = {
         enable = true;
         enableSshSupport = true;

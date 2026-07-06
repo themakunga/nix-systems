@@ -1,7 +1,5 @@
-{self, ...}: let
-  inherit (self) commonModules;
-in {
-  flake.profileModules.pihole = {
+{
+  flake.profileModules.pihole = {config, ...}: {
     sops.secrets = {
       "profiles/nicolas-pihole/ssh/private_key" = {};
       "profiles/nicolas-pihole/gpg/private_key" = {};
@@ -10,15 +8,6 @@ in {
     };
 
     my.userProfiles.pihole.homeManager = {
-      # pkgs,
-      config,
-      ...
-    }: {
-      imports = [
-        commonModules.home-secrets
-        commonModules.git-identity
-      ];
-
       programs = {
         sops.gpg = {
           enable = true;

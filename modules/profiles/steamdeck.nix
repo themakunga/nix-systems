@@ -1,5 +1,5 @@
 {
-  flake.profileModules.steamdeck = {
+  flake.profileModules.steamdeck = {config, ...}: {
     sops.secrets = {
       "profiles/steamdeck/ssh/private_key" = {};
       "profiles/steamdeck/gpg/private_key" = {};
@@ -8,10 +8,6 @@
     };
 
     my.userProfiles.deck.homeManager = {
-      # pkgs,
-      config,
-      ...
-    }: {
       programs = {
         sops.gpg = {
           enable = true;

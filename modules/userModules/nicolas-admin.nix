@@ -14,7 +14,6 @@ in {
       isNetworkManager = true;
       hashedPasswordFile = config.sops.secrets."passwords/nicolas-admin/hashed".path;
       extraGroups = ["docker"];
-
       homeManager = {
         imports = [
           commonModules.home-secrets

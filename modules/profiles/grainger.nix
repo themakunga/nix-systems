@@ -2,6 +2,7 @@
   flake.profileModules.grainger = {
     lib,
     pkgs,
+    config,
     ...
   }: let
     inherit (lib) mkIf;
@@ -21,7 +22,7 @@
       ];
     };
 
-    my.userProfiles.nicolas-work.homeManager = {config, ...}: {
+    my.userProfiles.nicolas-work.homeManager = {
       programs = {
         sops.gpg = {
           enable = true;

@@ -2,6 +2,7 @@
   flake.profileModules.nicolas-42devs = {
     lib,
     pkgs,
+    config,
     ...
   }: let
     inherit (lib) mkIf;
@@ -22,10 +23,6 @@
     };
 
     my.userProfiles.nicolas-personal.homeManager = {
-      # pkgs,
-      config,
-      ...
-    }: {
       services.gpg-agent = {
         enable = true;
         enableSshSupport = true;

@@ -1,5 +1,5 @@
 {
-  flake.profileModules.mediaserver = {
+  flake.profileModules.mediaserver = {config, ...}: {
     sops.secrets = {
       "profiles/mediaserver/ssh/private_key" = {};
       "profiles/mediaserver/gpg/private_key" = {};
@@ -8,10 +8,6 @@
     };
 
     my.userProfiles.media.homeManager = {
-      # pkgs,
-      config,
-      ...
-    }: {
       programs = {
         sops.gpg = {
           enable = true;

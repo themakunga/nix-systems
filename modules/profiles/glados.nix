@@ -1,5 +1,5 @@
 {
-  flake.profileModules.glados = {
+  flake.profileModules.glados = {config, ...}: {
     sops.secrets = {
       "profiles/glados/ssh/private_key" = {};
       "profiles/glados/gpg/private_key" = {};
@@ -8,10 +8,6 @@
     };
 
     my.userProfiles.glados.homeManager = {
-      # pkgs,
-      config,
-      ...
-    }: {
       programs = {
         sops.gpg = {
           enable = true;

@@ -1,9 +1,8 @@
-{self, ...}: let
-  inherit (self) commonModules;
-in {
+{
   flake.profileModules.thoughtworks = {
     lib,
     pkgs,
+    config,
     ...
   }: let
     inherit (lib) mkIf;
@@ -23,10 +22,6 @@ in {
     };
 
     my.userProfiles.nicolas-work.homeManager = {
-      # pkgs,
-      config,
-      ...
-    }: {
       programs = {
         sops.gpg = {
           enable = true;

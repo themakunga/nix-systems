@@ -1,7 +1,5 @@
-{self, ...}: let
-  inherit (self) commonModules;
-in {
-  flake.profileModules.nicolas-server = {
+{
+  flake.profileModules.nicolas-server = {config, ...}: {
     sops.secrets = {
       "profiles/nicolas-server/ssh/private_key" = {};
       "profiles/nicolas-server/gpg/private_key" = {};
@@ -10,15 +8,6 @@ in {
     };
 
     my.userProfiles.nicolas-server.homeManager = {
-      # pkgs,
-      config,
-      ...
-    }: {
-      imports = [
-        commonModules.home-secrets
-        commonModules.git-identity
-      ];
-
       programs = {
         sops.gpg = {
           enable = true;
