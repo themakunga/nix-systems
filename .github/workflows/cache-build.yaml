@@ -170,3 +170,30 @@ jobs:
 
           # Empujamos la rama nueva al repositorio
           git push origin "$BRANCH_NAME"
+  create-prerelease-branch:
+    name: "Create Pre-Release Branch (ARM64 OK)"
+    # Aquí está el truco: SOLO espera a que el job de ARM64 termine con éxito
+    needs: [build-linux-arm64]
+    runs-on: ubuntu-latest
+    # Se ejecuta solo si estamos en la rama main
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # Necesario para poder crear ramas y hacer push
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Create and push pre-release branch
+        run: |
+          # Generamos el timestamp formato YYYYMMDDHHMMSS
+          TIMESTAMP=$(date +'%Y%m%d%H%M%S')
+          BRANCH_NAME="pre-release/v$TIMESTAMP"
+
+          echo "=== Creando la rama de pre-release: $BRANCH_NAME ==="
+          git checkout -b "$BRANCH_NAME"
+
+          # Empujamos la rama nueva al repositorio
+          git push origin "$BRANCH_NAME"
