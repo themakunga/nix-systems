@@ -34,7 +34,7 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
-          github_action_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
           extra_nix_config: |
             experimental-features = nix-command flakes
       - name: Setup Cachix
@@ -78,7 +78,7 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
-          github_action_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
           extra_nix_config: |
             experimental-features = nix-command flakes
       - name: Setup Cachix
@@ -126,7 +126,7 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
-          github_action_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
           extra_nix_config: |
             experimental-features = nix-command flakes
             extra-platforms = aarch64-linux

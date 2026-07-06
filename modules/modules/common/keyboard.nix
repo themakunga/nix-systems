@@ -1,5 +1,5 @@
 {lib, ...}: {
-  flake.commonModules.ketboard = {
+  flake.commonModules.keyboard = {
     config,
     pkgs,
     ...

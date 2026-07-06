@@ -32,7 +32,7 @@ in {
       sops-nix.darwinModules.sops
       commonModules.host-secrets
       applicationModules.tailscale
-      darwinModules.keyboard
+      commonModules.keyboard
       darwinModules.primaryUser
       {
         my = {
