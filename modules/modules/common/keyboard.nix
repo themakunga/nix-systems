@@ -4,7 +4,7 @@
     pkgs,
     ...
   }: let
-    inherit (lib) mkEnableOption mkIf mkMerge;
+    inherit (lib) mkEnableOption mkIf mkMerge optionalAttrs;
     cfg = config.my.keyboard;
     inherit (pkgs.stdenv.hostPlatform) isDarwin isLinux;
   in {
@@ -13,7 +13,7 @@
     };
 
     config = mkIf cfg.enable (mkMerge [
-      (mkIf isDarwin {
+      (optionalAttrs isDarwin {
         system = {
           keyboard = {
             enableKeyMapping = true;
@@ -25,7 +25,7 @@
           };
         };
       })
-      (mkIf isLinux {
+      (optionalAttrs isLinux {
         console.keyMap = "us";
 
         services.xserver.xkb = {
