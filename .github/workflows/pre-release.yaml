@@ -1,0 +1,104 @@
+name: Pre-Release (Raspberry Pi Images)
+on:
+  workflow_run:
+    workflows:
+      - "Nix Build & Cachix Push"
+    types:
+      - completed
+    # Reaccionamos SOLO a la rama de pre-release que creamos en el paso anterior
+    branches:
+      - pre-release/v*
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+jobs:
+  build:
+    name: Build SD Image ${{matrix.target}}
+    runs-on: ubuntu-latest
+    # Solo ejecutar si el pipeline padre terminó con éxito
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - aperture-science
+          - black-mesa
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7 # Corregido a v4 (estable)
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
+          ref: ${{ github.event.workflow_run.head_branch }}
+      - name: Setup QEMU (ARM)
+        uses: docker/setup-qemu-action@v4 # Corregido a v3 (estable)
+        with:
+          platforms: arm64
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.10.0 # Usa v0.9.0 o equivalente estable
+        with:
+          ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY }}
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v17 # Ajustado a versión existente
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_TOKEN }}
+      - name: Build SD Image
+        run: |
+          mkdir -p output
+          echo "=> Building ${{ matrix.target }}..."
+
+          make build-${{ matrix.target }}
+
+          for file in result/sd-image/*.zst; do
+            filename=$(basename "$file")
+            cp -L "$file" "output/${{ matrix.target }}-$filename"
+          done
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v7 # Corregido a v4
+        with:
+          name: image-${{ matrix.target }}
+          path: output/*.zst
+          retention-days: 1
+  release:
+    name: Tag and Publish Pre-Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
+          ref: ${{ github.event.workflow_run.head_branch }}
+      - name: Download Built Images
+        uses: actions/download-artifact@v8 # Corregido a v4
+        with:
+          path: output
+          pattern: image-*
+          merge-multiple: true
+      - name: Extract Tag Name
+        id: vars
+        run: |
+          # Extrae la parte "v2026..." de "pre-release/v2026..." y le añade el sufijo -rc
+          BRANCH="${{ github.event.workflow_run.head_branch }}"
+          TAG_NAME="${BRANCH#pre-release/}-rc"
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+      - name: Upload Image to GitHub Pre-Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.RELEASE_TOKEN }}
+          file: output/*.zst
+          file_glob: true
+          # Usamos el tag extraído en el paso anterior (Ej. v20260703123000-rc)
+          tag: ${{ steps.vars.outputs.tag_name }}
+          release_name: "Pre-Release ${{ steps.vars.outputs.tag_name }}"
+          # ¡Esto es lo que marca la etiqueta amarilla de "Pre-release" en GitHub!
+          prerelease: true
+          overwrite: true
+          body: |
+            🚀 **Automated Pre-Release build**
+            Imágenes de instalación generadas exitosamente desde la rama `${{ github.event.workflow_run.head_branch }}`.
+
+            _Nota: Estas imágenes son para propósitos de prueba y reflejan el estado exacto de `main` en el momento del timestamp._
