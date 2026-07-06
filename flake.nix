@@ -62,6 +62,11 @@
       flake = false;
     };
 
+    tofu-dns = {
+      url = "git+ssh://git@github.com/TheMakunga/tofu-dns.git";
+      flake = false;
+    };
+
     dotfiles = {
       url = "github:TheMakunga/public-dotfiles/main";
       flake = false;

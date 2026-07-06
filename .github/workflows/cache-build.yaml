@@ -5,6 +5,8 @@ on:
       - main
       - features/*
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   build-darwin:
     name: "Darwin: ${{ matrix.host }}"
@@ -143,3 +145,28 @@ jobs:
         run: |
           echo "=== Building NixOS configuration for ${{ matrix.host }} ==="
           nix build .#nixosConfigurations.${{matrix.host}}.config.system.build.toplevel --accept-flake-config --print-build-logs
+  create-release-branch:
+    name: "Create Release Branch"
+    needs: [build-darwin, build-linux-x86_64, build-linux-arm64]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Create and push release branch
+        run: |
+          # Generamos el timestamp formato YYYYMMDDHHMMSS
+          TIMESTAMP=$(date +'%Y%m%d%H%M%S')
+          BRANCH_NAME="release/v$TIMESTAMP"
+
+          echo "=== Creando la rama de release: $BRANCH_NAME ==="
+          git checkout -b "$BRANCH_NAME"
+
+          # Empujamos la rama nueva al repositorio
+          git push origin "$BRANCH_NAME"

@@ -20,8 +20,8 @@ jobs:
       fail-fast: false
       matrix:
         target:
-          - glados
-          - wheatley
+          - aperture-science
+          - black-mesa
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6

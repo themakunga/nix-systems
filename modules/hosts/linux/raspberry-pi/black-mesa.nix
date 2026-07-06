@@ -49,20 +49,37 @@ in {
 
       userModules.nicolas-pihole
       profileModules.pihole
-      applicationModules.tailscale
       nixosModules.base-machine
+
+      applicationModules.tailscale
+      applicationModules.pihole
+      applicationModules.tofu-dns
+
+      {
+        zramSwap = {
+          enable = true;
+          memoryPercent = 100;
+        };
+      }
+
       {
         my = {
           hostSecrets.file = "${secrets.outPath}/hosts/black-mesa.yaml";
+
           tailscale = {
             enable = true;
-            gui.enable = true;
+            gui.enable = false;
           };
+
+          pihole.enable = true;
+          tofu-dns.enable = true;
+
           base-machine = {
             enable = true;
             bootMode = "rpi";
           };
         };
+
         fileSystems."/".device = nixpkgs.lib.mkForce "/dev/disk/by-partlabel/disk-main-root";
       }
     ];
