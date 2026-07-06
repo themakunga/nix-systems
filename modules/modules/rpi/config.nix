@@ -49,11 +49,6 @@ in {
         "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
       ];
 
-      nixpkgs = {
-        buildPlatform = "x86_64-linux";
-        hostPlatform = "aarch64-linux";
-      };
-
       boot.loader = {
         grub.enable = false;
         generic-extlinux-compatible.enable = true;
