@@ -38,7 +38,7 @@ in {
       ...
     }: let
       inherit (inputs) nixpkgs;
-      inherit (lib) mkDefault;
+      inherit (lib) mkDefault mkForce;
     in {
       nix.settings.experimental-features = [
         "nix-command"
@@ -49,10 +49,13 @@ in {
         "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
       ];
 
-      boot.loader = {
-        grub.enable = false;
-        generic-extlinux-compatible.enable = true;
-        efi.canTouchEfiVariables = false;
+      boot = {
+        supportedFilesystems = mkForce ["ext4" "vfat"];
+        loader = {
+          grub.enable = false;
+          generic-extlinux-compatible.enable = true;
+          efi.canTouchEfiVariables = false;
+        };
       };
 
       hardware.deviceTree.enable = true;
