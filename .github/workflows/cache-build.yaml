@@ -113,7 +113,7 @@ jobs:
           - aperture-science
           - black-mesa
           - valve
-          - lsp-dummy]
+          - lsp-dummy
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
