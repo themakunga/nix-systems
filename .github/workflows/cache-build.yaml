@@ -141,6 +141,8 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
             extra-platforms = aarch64-linux
+            extra-substituters = https://nixos-hardware.cachix.org
+            extra-trusted-public-keys = nixos-hardware.cachix.org-1:OqV48MwUzN0rmApeP5Dp/4hQv+8Uz7x1qPtd+6BaLgc=
       - name: Setup Cachix
         uses: cachix/cachix-action@v17
         with:
