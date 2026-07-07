@@ -21,6 +21,9 @@ in {
     };
 
     modules = [
+      # 🚀 Aquí declaramos que es un sistema ARM de 64 bits (aarch64-linux)
+      commonModules.arch.nixos.rpi
+
       nixos-hardware.nixosModules.raspberry-pi-5
 
       rpiModules.config
