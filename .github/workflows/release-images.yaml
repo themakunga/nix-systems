@@ -22,6 +22,7 @@ jobs:
         target:
           - aperture-science
           - black-mesa
+          - valve
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
