@@ -4,7 +4,7 @@
     cfg = config.my.keyboard;
   in {
     options.my.keyboard = {
-      enable = mkEnableOption "macOS Keyboard configuration";
+      enable = mkEnableOption "macOS keyboard configuration (US/LATAM and CapsLock to Ctrl)";
     };
 
     config = mkIf cfg.enable {
@@ -13,9 +13,15 @@
           enableKeyMapping = true;
           remapCapsLockToControl = true;
         };
-        defaults.NSGlobalDomain = {
-          AppleLanguages = ["en-US" "es-CL"];
-          AppleLocale = "en_US";
+
+        defaults.CustomUserPreferences = {
+          ".GlobalPreferences" = {
+            AppleLanguages = ["en-US" "es-CL"];
+            AppleLocale = "en_US";
+          };
+          "com.apple.HIToolbox" = {
+            AppleCurrentKeyboardLayoutInputSourceID = "com.apple.keylayout.US";
+          };
         };
       };
     };
