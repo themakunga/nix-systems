@@ -51,7 +51,10 @@ in {
       commonModules.userProfiles
       commonModules.network
 
-      darwinModules.common
+      darwinModules.security
+      darwinModules.dock
+      darwinModules.finder
+      darwinModules.extras
 
       nix-homebrew.darwinModules.nix-homebrew
       darwinModules.homebrew
