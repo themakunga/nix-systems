@@ -21,8 +21,8 @@ in {
     };
 
     modules = [
-      # 🚀 Aquí declaramos que es un sistema ARM de 64 bits (aarch64-linux)
       commonModules.arch.nixos.rpi
+      commonModules.settings # <--- Corrige el warning de stateVersion
 
       nixos-hardware.nixosModules.raspberry-pi-5
 
@@ -39,7 +39,7 @@ in {
 
         my.authorizedKeys = {
           enable = true;
-          assignTo = ["root" "nixos"];
+          assignTo = ["root"]; # <--- Eliminamos "nixos" para evitar el error de aserción
         };
 
         sdImage.compressImage = false;
