@@ -32,7 +32,7 @@
         _FXShowPosixPathInTitle = true;
       };
     };
-    extra = {
+    extras = {
       nix.enable = true;
 
       system.defaults.NSGlobalDomain = {
