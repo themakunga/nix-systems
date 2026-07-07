@@ -37,6 +37,7 @@ in {
       commonModules.userProfiles
       commonModules.authorizedKeys
       commonModules.network
+      nixosModules.keyboard
 
       nixos-hardware.nixosModules.raspberry-pi-5
       disko.nixosModules.disko
@@ -59,6 +60,7 @@ in {
       {
         my = {
           hostSecrets.file = "${secrets.outPath}/hosts/aperture-science.yaml";
+          keyboard.enable = true;
           tailscale = {
             enable = true;
             gui.enable = true;

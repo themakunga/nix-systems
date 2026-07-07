@@ -29,7 +29,7 @@ in {
     modules = [
       commonModules.arch.darwin.silicon
       commonModules.settings
-      commonModules.keyboard
+      darwinModules.keyboard
       sops-nix.darwinModules.sops
       commonModules.host-secrets
       applicationModules.tailscale

@@ -32,6 +32,7 @@ in {
       commonModules.settings
       sops-nix.nixosModules.sops
       commonModules.host-secrets
+      nixosModules.keyboard
 
       commonModules.userProfiles
       commonModules.authorizedKeys
@@ -48,6 +49,7 @@ in {
       {
         my = {
           hostSecrets.file = "${secrets.outPath}/hosts/motherbase.yaml";
+          keyboard.enable = true;
           tailscale = {
             enable = true;
             gui.enable = true;
