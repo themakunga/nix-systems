@@ -59,7 +59,10 @@ in {
         {
           system.primaryUser = "nicolas";
         }
-        darwinModules.common
+        darwinModules.security
+        darwinModules.dock
+        darwinModules.finder
+        darwinModules.extras
         commonModules.settings
         sops-nix.darwinModules.sops
         commonModules.host-secrets
