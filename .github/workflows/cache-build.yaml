@@ -102,7 +102,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        host: [aperture-science, black-mesa, lsp-dummy]
+        host: [aperture-science, black-mesa, valve, lsp-dummy]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
