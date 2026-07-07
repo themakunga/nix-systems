@@ -13,7 +13,7 @@
           enableKeyMapping = true;
           remapCapsLockToControl = true;
         };
-        default.NSGlobalDomain = {
+        defaults.NSGlobalDomain = {
           AppleLanguages = ["en-US" "es-CL"];
           AppleLocale = "en_US";
         };
