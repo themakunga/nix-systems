@@ -66,7 +66,6 @@
             };
             generic-extlinux-compatible.enable = true;
           };
-        zfs.forceImportRoot = false;
       };
 
       fileSystems."/" = {
