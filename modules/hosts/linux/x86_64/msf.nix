@@ -30,7 +30,7 @@ in {
       commonModules.settings
       sops-nix.nixosModules.sops
       commonModules.host-secrets
-
+      nixosModules.keyboard
       commonModules.userProfiles
       commonModules.authorizedKeys
       commonModules.network
@@ -46,6 +46,7 @@ in {
       {
         my = {
           hostSecrets.file = "${secrets.outPath}/hosts/msf.yaml";
+          keyboard.enable = true;
           tailscale = {
             enable = true;
             gui.enable = true;

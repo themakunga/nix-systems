@@ -36,6 +36,7 @@ in {
       commonModules.userProfiles
       commonModules.authorizedKeys
       commonModules.network
+      nixosModules.keyboard
 
       nixos-hardware.nixosModules.raspberry-pi-3
       disko.nixosModules.disko
