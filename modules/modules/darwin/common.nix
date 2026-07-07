@@ -1,7 +1,7 @@
 {
   flake.darwinModules = {
     security = {
-      security.pam.servuces = {
+      security.pam.services = {
         sudo_local = {
           touchIdAuth = true;
         };
