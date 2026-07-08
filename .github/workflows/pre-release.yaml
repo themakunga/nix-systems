@@ -9,20 +9,15 @@ on:
       - pre-release/v*
 permissions:
   contents: write
-  issues: write
-  pull-requests: write
 jobs:
   build:
     name: Build SD Image ${{matrix.target}}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm # 🚀 Nativo
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       fail-fast: false
       matrix:
-        target:
-          - aperture-science
-          - black-mesa
-          - valve
+        target: [aperture-science, black-mesa, valve]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
@@ -30,10 +25,6 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
           ref: ${{ github.event.workflow_run.head_branch }}
-      - name: Setup QEMU (ARM)
-        uses: docker/setup-qemu-action@v4
-        with:
-          platforms: arm64
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.10.0
         with:
@@ -43,13 +34,20 @@ jobs:
         with:
           name: themakunga
           authToken: ${{ secrets.CACHIX_TOKEN }}
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            extra-platforms = aarch64-linux
+            extra-substituters = https://nixos-hardware.cachix.org
+            extra-trusted-public-keys = nixos-hardware.cachix.org-1:OqV48MwUzN0rmApeP5Dp/4hQv+8Uz7x1qPtd+6BaLgc=
       - name: Build SD Image
         run: |
           mkdir -p output
           echo "=> Building ${{ matrix.target }}..."
-
           make build-${{ matrix.target }}
-
           for file in result/sd-image/*.zst; do
             filename=$(basename "$file")
             cp -L "$file" "output/${{ matrix.target }}-$filename"
@@ -81,7 +79,7 @@ jobs:
         id: vars
         run: |
           BRANCH="${{ github.event.workflow_run.head_branch }}"
-          TAG_NAME="${BRANCH
+          TAG_NAME="${BRANCH#pre-release/}"
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
       - name: Upload Image to GitHub Pre-Release
         uses: svenstaro/upload-release-action@v2
@@ -96,5 +94,4 @@ jobs:
           body: |
             🚀 **Automated Pre-Release build**
             Imágenes de instalación generadas exitosamente desde la rama `${{ github.event.workflow_run.head_branch }}`.
-
-            _Nota: Estas imágenes son para propósitos de prueba y reflejan el estado exacto de `main` en el momento del timestamp._
+            _Nota: Estas imágenes son para propósitos de prueba y reflejan el estado de `main` en el momento del timestamp._

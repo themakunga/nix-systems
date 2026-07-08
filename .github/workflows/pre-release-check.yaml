@@ -3,9 +3,6 @@ on:
   pull_request:
     branches:
       - "release/v*"
-  push:
-    branches:
-      - "release/v*"
 jobs:
   flake-check:
     name: "Exhaustive Flake Check"
@@ -17,14 +14,13 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
       - name: Verify PR source branch
-        if: github.event_name == 'pull_request'
         run: |
           echo "=> Checking source branch for the Pull Request..."
-          if [ "${{ github.head_ref }}" != "main" ]; then
-            echo "::error::Strict Policy Violation: Pull Requests to release branches are ONLY permitted from the 'main' branch. Current source: '${{ github.head_ref }}'."
+          if [[ ! "${{ github.head_ref }}" =~ ^pre-release/v.* ]]; then
+            echo "::error::Strict Policy Violation: Pull Requests to release branches are ONLY permitted from 'pre-release/v*' branches. Current source: '${{ github.head_ref }}'."
             exit 1
           fi
-          echo "Success: Pull Request originates from 'main'."
+          echo "Success: Pull Request originates from a valid pre-release branch."
       - name: Setup SSH Agent for Private Flake Inputs
         uses: webfactory/ssh-agent@v0.10.0
         with:
