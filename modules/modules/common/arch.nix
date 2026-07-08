@@ -3,6 +3,7 @@
     nixos = {
       rpi = {
         nixpkgs.hostPlatform = "aarch64-linux";
+        nixpkgs.buildPlatform = "x86_64-linux";
       };
       x64 = {
         nixpkgs.hostPlatform = "x86_64-linux";
