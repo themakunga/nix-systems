@@ -26,6 +26,8 @@ in {
             "usb_storage"
             "vc4"
             "mmc_block"
+            "pcie_brcmstb"
+            "reset-raspberrypi"
           ];
           includeDefaultModules = false;
         };
