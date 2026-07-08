@@ -1,0 +1,58 @@
+name: "1. Start Release Train"
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Nombre de la versión (ej. 1.4.0)"
+        required: true
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  create-train:
+    name: "Create Pre-Release PR"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
+      - name: Setup Git Identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Find Base and Create Branches
+        id: branches
+        run: |
+          VERSION="v${{ github.event.inputs.version }}"
+
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)
+          echo "Base tag for release: $LATEST_TAG"
+
+          git checkout $LATEST_TAG
+          git checkout -b "release/$VERSION"
+          git push origin "release/$VERSION"
+
+          git checkout main
+          git checkout -b "pre-release/$VERSION"
+          git push origin "pre-release/$VERSION"
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          VERSION="v${{ github.event.inputs.version }}"
+
+          gh pr create \
+            --base "release/$VERSION" \
+            --head "pre-release/$VERSION" \
+            --title "🚀 Pre-Release Validation: $VERSION" \
+            --body "### Release Train: $VERSION
+
+            Este PR contiene todos los cambios desde el último pase a producción.
+            Tus pipelines de validación (Nix Flake Check) se están ejecutando.
+
+            **Instrucciones:**
+            1. Espera a que los checks terminen con éxito.
+            2. Haz 'Merge pull request'.
+            3. Esto disparará el Build Final, Semantic Release, la mezcla a Main y la limpieza de estas ramas."

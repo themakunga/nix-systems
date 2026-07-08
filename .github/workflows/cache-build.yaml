@@ -4,20 +4,19 @@ on:
     branches:
       - main
       - features/*
+      - release/v*
+      - pre-release/v*
   workflow_dispatch:
 permissions:
   contents: write
 jobs:
   build-darwin:
     name: "Darwin: ${{ matrix.host }}"
-    runs-on: macos-latest
+    runs-on: macos-14
     strategy:
       fail-fast: false
       matrix:
-        host:
-          - kanagawa
-          - outer-heaven
-          - lsp-dummy
+        host: [kanagawa, outer-heaven, lsp-dummy]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v7
@@ -61,11 +60,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        host:
-          - msf
-          - motherbase
-          - steamdeck
-          - lsp-dummy
+        host: [msf, motherbase, steamdeck, lsp-dummy]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
@@ -105,26 +100,16 @@ jobs:
           nix build .#nixosConfigurations.${{matrix.host}}.config.system.build.toplevel --accept-flake-config --print-build-logs
   build-linux-arm64:
     name: "Linux ARM: ${{ matrix.host }}"
-    runs-on: ubuntu-24.04-arm
-    # runs-on: ubuntu-latest
-    # runs-on: macos-14
+    runs-on: ubuntu-24.04-arm # 🚀 Servidor ARM Nativo
     strategy:
       fail-fast: false
       matrix:
-        host:
-          - aperture-science
-          - black-mesa
-          - valve
-          - lsp-dummy
+        host: [aperture-science, black-mesa, valve, lsp-dummy]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      # - name: Configure QEMU for ARM64 Emulation
-      #   uses: docker/setup-qemu-action@v3
-      #   with:
-      #     platforms: arm64
       - name: Decode SSH Key
         run: |
           echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/raw_ssh_key
@@ -152,57 +137,17 @@ jobs:
           authToken: ${{ secrets.CACHIX_TOKEN }}
       - name: Evaluate Flake
         run: |
+          export NIX_SSHOPTS="-o StrictHostKeyChecking=no"
           echo "=== Running evaluation for ${{matrix.host}} ==="
           nix eval .#nixosConfigurations.${{matrix.host}}.config.system.build.toplevel.drvPath --accept-flake-config --show-trace
       - name: Compile NixOS (arm64)
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: |
+          export NIX_SSHOPTS="-o StrictHostKeyChecking=no"
           echo "=== Building NixOS configuration for ${{ matrix.host }} ==="
-          nix build .#nixosConfigurations.${{matrix.host}}.config.system.build.toplevel --accept-flake-config --print-build-logs
-  create-release-branch:
-    name: "Create Release Branch"
-    needs:
-      - build-darwin
-      - build-linux-x86_64
-      - build-linux-arm64
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Create and push release branch
-        run: |
-          TIMESTAMP=$(date +'%Y%m%d%H%M%S')
-          BRANCH_NAME="release/v$TIMESTAMP"
-          echo "=== Creando la rama de release: $BRANCH_NAME ==="
-          git checkout -b "$BRANCH_NAME"
-          git push origin "$BRANCH_NAME"
-  create-prerelease-branch:
-    name: "Create Pre-Release Branch (ARM64 OK)"
-    needs:
-      - build-linux-arm64
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0 # Necesario para poder crear ramas y hacer push
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Create and push pre-release branch
-        run: |
-          TIMESTAMP=$(date +'%Y%m%d%H%M%S')
-          BRANCH_NAME="pre-release/v$TIMESTAMP"
-          echo "=== Creando la rama de pre-release: $BRANCH_NAME ==="
-          git checkout -b "$BRANCH_NAME"
-          git push origin "$BRANCH_NAME"
+          if [ "${{ matrix.host }}" == "valve" ]; then
+            nix build .#nixosConfigurations.${{matrix.host}}.config.system.build.sdImage --accept-flake-config --print-build-logs
+          else
+            nix build .#nixosConfigurations.${{matrix.host}}.config.system.build.toplevel --accept-flake-config --print-build-logs
+          fi
