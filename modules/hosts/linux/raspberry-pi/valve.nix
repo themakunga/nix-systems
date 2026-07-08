@@ -22,12 +22,15 @@ in {
 
     modules = [
       commonModules.arch.nixos.rpi
-      commonModules.settings # <--- Corrige el warning de stateVersion
+      commonModules.settings
 
       nixos-hardware.nixosModules.raspberry-pi-5
 
       rpiModules.config
       rpiModules.documentationDisable
+      rpiModules.boot
+      rpiModules.boot-loader
+      rpiModules.systemPackages
 
       commonModules.network
       commonModules.authorizedKeys
@@ -39,7 +42,7 @@ in {
 
         my.authorizedKeys = {
           enable = true;
-          assignTo = ["root"]; # <--- Eliminamos "nixos" para evitar el error de aserción
+          assignTo = ["root"];
         };
 
         sdImage.compressImage = false;
