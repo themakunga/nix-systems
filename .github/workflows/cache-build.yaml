@@ -105,8 +105,9 @@ jobs:
           nix build .#nixosConfigurations.${{matrix.host}}.config.system.build.toplevel --accept-flake-config --print-build-logs
   build-linux-arm64:
     name: "Linux ARM: ${{ matrix.host }}"
+    runs-on: ubuntu-24.04-arm
     # runs-on: ubuntu-latest
-    runs-on: macos-14
+    # runs-on: macos-14
     strategy:
       fail-fast: false
       matrix:
