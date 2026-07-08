@@ -12,7 +12,7 @@ permissions:
 jobs:
   build:
     name: Build SD Image ${{matrix.target}}
-    runs-on: ubuntu-24.04-arm # 🚀 Nativo
+    runs-on: ubuntu-24.04-arm
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       fail-fast: false
@@ -25,10 +25,17 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
           ref: ${{ github.event.workflow_run.head_branch }}
+      - name: Decode SSH Key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/raw_ssh_key
+          echo "DECODED_KEY<<EOF" >> $GITHUB_ENV
+          cat /tmp/raw_ssh_key >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          rm /tmp/raw_ssh_key
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.10.0
         with:
-          ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY }}
+          ssh-private-key: ${{ env.DECODED_KEY }}
       - name: Setup Cachix
         uses: cachix/cachix-action@v17
         with:
