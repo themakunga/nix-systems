@@ -38,11 +38,6 @@ jobs:
         uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ env.DECODED_KEY }}
-      - name: Setup Cachix
-        uses: cachix/cachix-action@v17
-        with:
-          name: themakunga
-          authToken: ${{ secrets.CACHIX_TOKEN }}
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
@@ -52,6 +47,11 @@ jobs:
             extra-platforms = aarch64-linux
             extra-substituters = https://nixos-hardware.cachix.org
             extra-trusted-public-keys = nixos-hardware.cachix.org-1:OqV48MwUzN0rmApeP5Dp/4hQv+8Uz7x1qPtd+6BaLgc=
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v17
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_TOKEN }}
       - name: Build SD Image
         run: |
           mkdir -p output
@@ -116,14 +116,4 @@ jobs:
           BRANCH_NAME="${{ github.event.workflow_run.head_branch }}"
           PRE_REL_BRANCH="${BRANCH_NAME/release\//pre-release\/}"
 
-          echo "=> Sincronizando el nuevo Changelog y Tags hacia main..."
-          git fetch origin main
-          git checkout main
-
-          # 🚨 EL SECRETO: [skip ci] evita que main vuelva a compilar en bucle 🚨
-          git merge --no-ff origin/$BRANCH_NAME -m "chore(release): sync main with $BRANCH_NAME [skip ci]"
-          git push origin main
-
-          echo "=> Eliminando ramas transitorias..."
-          git push origin --delete "$BRANCH_NAME" || echo "La rama $BRANCH_NAME ya fue eliminada"
-          git push origin --delete "$PRE_REL_BRANCH" || echo "La rama $PRE_REL_BRANCH ya fue eliminada"
+          echo "=> S
