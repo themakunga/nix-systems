@@ -1,0 +1,56 @@
+name: "2. Start Release (Develop -> Main)"
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: "Version bump type"
+        required: true
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  create-release-pr:
+    name: "Create Release PR"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: develop
+          token: ${{ secrets.RELEASE_TOKEN }}
+      - name: Setup Git Identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Calculate Next Version
+        run: |
+          LATEST_TAG=$(git tag -l "v*.*.*" --sort=-v:refname | head -n 1 || echo "v0.0.0")
+          VERSION_CORE="${LATEST_TAG#v}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION_CORE"
+          BUMP="${{ inputs.bump_type }}"
+          if [ "$BUMP" == "major" ]; then
+            MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0
+          elif [ "$BUMP" == "minor" ]; then
+            MINOR=$((MINOR + 1)); PATCH=0
+          else
+            PATCH=$((PATCH + 1))
+          fi
+          NEXT_VERSION="v$MAJOR.$MINOR.$PATCH"
+          echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
+      - name: Create Release Branch & PR
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          git checkout -b "release/${{ env.NEXT_VERSION }}"
+          git push origin "release/${{ env.NEXT_VERSION }}"
+          gh pr create \
+            --base main \
+            --head "release/${{ env.NEXT_VERSION }}" \
+            --title "🚀 Release: ${{ env.NEXT_VERSION }}" \
+            --body "### Production Release Deployment: ${{ env.NEXT_VERSION }}
+            This Pull Request integrates the stabilized code from develop branch into main.
+            The compilation and caching security checks are currently running."

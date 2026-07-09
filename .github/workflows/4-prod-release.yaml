@@ -1,36 +1,36 @@
-name: Pre-Release (Raspberry Pi Images)
+name: "4. Production Release"
 on:
-  workflow_run:
-    workflows:
-      - "Nix Build & Cachix Push"
-    types:
-      - completed
+  push:
     branches:
-      - pre-release/v*
+      - main
 permissions:
   contents: write
+  issues: write
+  pull-requests: write
 jobs:
   build:
-    name: Build SD Image ${{matrix.target}}
+    name: Build SD Image ${{ matrix.target }}
     runs-on: ubuntu-24.04-arm
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       fail-fast: false
       matrix:
-        target: [valve]
+        target: [aperture-science, black-mesa, valve]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
-          ref: ${{ github.event.workflow_run.head_branch }}
       - name: Decode SSH Key
         run: |
           echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/raw_ssh_key
-          echo "DECODED_KEY<<EOF" >> $GITHUB_ENV
-          cat /tmp/raw_ssh_key >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          EOF_DELIMITER=$(openssl rand -hex 8)
+          {
+            echo "DECODED_KEY<<$EOF_DELIMITER"
+            cat /tmp/raw_ssh_key
+            echo ""
+            echo "$EOF_DELIMITER"
+          } >> "$GITHUB_ENV"
           rm /tmp/raw_ssh_key
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.10.0
@@ -55,50 +55,55 @@ jobs:
           mkdir -p output
           echo "=> Building ${{ matrix.target }}..."
           nix build .#nixosConfigurations.${{ matrix.target }}.config.system.build.sdImage --accept-flake-config
-          for file in result/sd-image/*.zst; do
-            filename=$(basename "$file")
-            cp -L "$file" "output/${{ matrix.target }}-$filename"
+          for file in result/sd-image/*; do
+            if [ -f "$file" ]; then
+              filename=$(basename "$file")
+              cp -L "$file" "output/${{ matrix.target }}-$filename"
+            fi
           done
       - name: Upload Artifact
         uses: actions/upload-artifact@v7
         with:
           name: image-${{ matrix.target }}
-          path: output/*.zst
+          path: output/*
           retention-days: 1
   release:
-    name: Tag and Publish Pre-Release
+    name: Tags, Publish and Cleanup
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout Repository
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
-          ref: ${{ github.event.workflow_run.head_branch }}
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Download Built Images
         uses: actions/download-artifact@v8
         with:
           path: output
           pattern: image-*
           merge-multiple: true
-      - name: Extract Tag Name
-        id: vars
-        run: |
-          BRANCH="${{ github.event.workflow_run.head_branch }}"
-          TAG_NAME="${BRANCH#pre-release/}"
-          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
-      - name: Upload Image to GitHub Pre-Release
+      - name: Run Semantic Release
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v6
+        with:
+          extra_plugins: |
+            @semantic-release/commit-analyzer
+            @semantic-release/changelog
+            @semantic-release/git
+            @semantic-release/github
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      - name: Upload Image to GitHub Release
+        if: steps.semantic.outputs.new_release_published == 'true'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.RELEASE_TOKEN }}
-          file: output/*.zst
+          file: output/*
           file_glob: true
-          tag: ${{ steps.vars.outputs.tag_name }}
-          release_name: "Pre-Release ${{ steps.vars.outputs.tag_name }}"
-          prerelease: true
+          tag: ${{ steps.semantic.outputs.new_release_git_tag }}
           overwrite: true
-          body: |
-            🚀 **Automated Pre-Release build**
-            Imágenes de instalación generadas exitosamente desde la rama `${{ github.event.workflow_run.head_branch }}`.
-            _Nota: Estas imágenes son para propósitos de prueba y reflejan el estado de `main` en el momento del timestamp._

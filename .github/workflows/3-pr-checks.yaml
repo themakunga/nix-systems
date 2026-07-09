@@ -1,0 +1,122 @@
+name: "3. PR Checks (Build & Cache)"
+on:
+  pull_request:
+    branches:
+      - main
+permissions:
+  contents: write
+jobs:
+  build-darwin:
+    name: "Darwin: ${{ matrix.host }}"
+    runs-on: macos-14
+    strategy:
+      fail-fast: false
+      matrix:
+        host: [kanagawa, outer-heaven, lsp-dummy]
+    steps:
+      - uses: actions/checkout@v7
+      - name: Decode SSH Key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/raw_ssh_key
+          EOF_DELIMITER=$(openssl rand -hex 8)
+          {
+            echo "DECODED_KEY<<$EOF_DELIMITER"
+            cat /tmp/raw_ssh_key
+            echo ""
+            echo "$EOF_DELIMITER"
+          } >> "$GITHUB_ENV"
+          rm /tmp/raw_ssh_key
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ env.DECODED_KEY }}
+      - uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - uses: cachix/cachix-action@v17
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_TOKEN }}
+      - env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
+        run: nix build .#darwinConfigurations.${{matrix.host}}.system --accept-flake-config
+  build-linux-x86_64:
+    name: "Linux x86: ${{ matrix.host }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        host: [msf, motherbase, steamdeck, lsp-dummy]
+    steps:
+      - uses: actions/checkout@v7
+      - name: Decode SSH Key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/raw_ssh_key
+          EOF_DELIMITER=$(openssl rand -hex 8)
+          {
+            echo "DECODED_KEY<<$EOF_DELIMITER"
+            cat /tmp/raw_ssh_key
+            echo ""
+            echo "$EOF_DELIMITER"
+          } >> "$GITHUB_ENV"
+          rm /tmp/raw_ssh_key
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ env.DECODED_KEY }}
+      - uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - uses: cachix/cachix-action@v17
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_TOKEN }}
+      - env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
+        run: nix build .#nixosConfigurations.${{matrix.host}}.config.system.build.toplevel --accept-flake-config
+  build-linux-arm64:
+    name: "Linux ARM: ${{ matrix.host }}"
+    runs-on: ubuntu-24.04-arm
+    strategy:
+      fail-fast: false
+      matrix:
+        host: [aperture-science, black-mesa, valve, lsp-dummy]
+    steps:
+      - uses: actions/checkout@v7
+      - name: Decode SSH Key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/raw_ssh_key
+          EOF_DELIMITER=$(openssl rand -hex 8)
+          {
+            echo "DECODED_KEY<<$EOF_DELIMITER"
+            cat /tmp/raw_ssh_key
+            echo ""
+            echo "$EOF_DELIMITER"
+          } >> "$GITHUB_ENV"
+          rm /tmp/raw_ssh_key
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ env.DECODED_KEY }}
+      - uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            extra-platforms = aarch64-linux
+            extra-substituters = https://nixos-hardware.cachix.org
+            extra-trusted-public-keys = nixos-hardware.cachix.org-1:OqV48MwUzN0rmApeP5Dp/4hQv+8Uz7x1qPtd+6BaLgc=
+      - uses: cachix/cachix-action@v17
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_TOKEN }}
+      - env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
+        run: |
+          export NIX_SSHOPTS="-o StrictHostKeyChecking=no"
+          if [ "${{ matrix.host }}" == "lsp-dummy" ]; then
+            nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --accept-flake-config
+          else
+            nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.sdImage --accept-flake-config
+          fi
