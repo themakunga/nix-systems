@@ -120,3 +120,21 @@ jobs:
           else
             nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.sdImage --accept-flake-config
           fi
+  pr-checks-summary:
+    name: "3. PR Checks (Build & Cache)"
+    needs:
+      - build-darwin
+      - build-linux-x86_64
+      - build-linux-arm64
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Evaluate Job Statuses
+        run: |
+          if [[ "${{ needs.build-darwin.result }}" != "success" || \
+                "${{ needs.build-linux-x86_64.result }}" != "success" || \
+                "${{ needs.build-linux-arm64.result }}" != "success" ]]; then
+            echo "❌ ERROR: One or more matrix builds failed."
+            exit 1
+          fi
+          echo "✅ All compilation checks passed successfully."
