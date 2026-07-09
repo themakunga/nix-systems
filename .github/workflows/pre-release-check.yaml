@@ -21,10 +21,17 @@ jobs:
             exit 1
           fi
           echo "Success: Pull Request originates from a valid pre-release branch."
+      - name: Decode SSH Key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/raw_ssh_key
+          echo "DECODED_KEY<<EOF" >> $GITHUB_ENV
+          cat /tmp/raw_ssh_key >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          rm /tmp/raw_ssh_key
       - name: Setup SSH Agent for Private Flake Inputs
         uses: webfactory/ssh-agent@v0.10.0
         with:
-          ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY }}
+          ssh-private-key: ${{ env.DECODED_KEY }}
       - name: Install Nix Package Manager
         uses: cachix/install-nix-action@v31
         with:
