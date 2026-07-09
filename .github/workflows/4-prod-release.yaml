@@ -1,0 +1,67 @@
+name: "4. Production Release"
+on:
+  push:
+    branches:
+      - main
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+jobs:
+  prod-release:
+    name: Final Build & Semantic Release
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            extra-platforms = aarch64-linux
+            extra-substituters = https://nixos-hardware.cachix.org
+            extra-trusted-public-keys = nixos-hardware.cachix.org-1:OqV48MwUzN0rmApeP5Dp/4hQv+8Uz7x1qPtd+6BaLgc=
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v17
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_TOKEN }}
+      - name: Build SD Image (Cache Hit)
+        run: |
+          mkdir -p output
+          nix build .#nixosConfigurations.valve.config.system.build.sdImage --accept-flake-config
+          for file in result/sd-image/*; do
+            if [ -f "$file" ]; then
+              filename=$(basename "$file")
+              cp -L "$file" "output/valve-$filename"
+            fi
+          done
+      - name: Run Semantic Release
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v6
+        with:
+          extra_plugins: |
+            @semantic-release/commit-analyzer
+            @semantic-release/changelog
+            @semantic-release/git
+            @semantic-release/github
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      - name: Upload Image to GitHub Release
+        if: steps.semantic.outputs.new_release_published == 'true'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.RELEASE_TOKEN }}
+          file: output/*
+          file_glob: true
+          tag: ${{ steps.semantic.outputs.new_release_git_tag }}
+          overwrite: true
