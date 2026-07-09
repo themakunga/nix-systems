@@ -45,8 +45,16 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
+          git fetch origin main
+          if git diff --quiet origin/main..HEAD; then
+            echo "❌ ERROR: No changes detected between 'develop' and 'main'."
+            echo "You cannot create an empty release. Please merge new features into develop first."
+            exit 1
+          fi
+
           git checkout -b "release/${{ env.NEXT_VERSION }}"
           git push origin "release/${{ env.NEXT_VERSION }}"
+
           gh pr create \
             --base main \
             --head "release/${{ env.NEXT_VERSION }}" \
