@@ -45,8 +45,6 @@ in {
           assignTo = ["root"];
         };
 
-        sdImage.compressImage = false;
-
         systemd.services.NetworkManager-wait-online.enable = lib.mkForce false;
       })
     ];

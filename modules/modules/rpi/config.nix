@@ -51,6 +51,8 @@ in {
         "${nixpkgs}/nixos/modules/installer/sd-card/sd-image-aarch64.nix"
       ];
 
+      sdImage.compressImage = true;
+
       boot = {
         supportedFilesystems = mkForce ["ext4" "vfat"];
         loader = {
