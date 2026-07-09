@@ -15,9 +15,20 @@ jobs:
         host: [kanagawa, outer-heaven, lsp-dummy]
     steps:
       - uses: actions/checkout@v7
+      - name: Decode SSH Key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/raw_ssh_key
+          EOF_DELIMITER=$(openssl rand -hex 8)
+          {
+            echo "DECODED_KEY<<$EOF_DELIMITER"
+            cat /tmp/raw_ssh_key
+            echo ""
+            echo "$EOF_DELIMITER"
+          } >> "$GITHUB_ENV"
+          rm /tmp/raw_ssh_key
       - uses: webfactory/ssh-agent@v0.10.0
         with:
-          ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}
+          ssh-private-key: ${{ env.DECODED_KEY }}
       - uses: cachix/install-nix-action@v31
         with:
           github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
@@ -39,9 +50,20 @@ jobs:
         host: [msf, motherbase, steamdeck, lsp-dummy]
     steps:
       - uses: actions/checkout@v7
+      - name: Decode SSH Key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/raw_ssh_key
+          EOF_DELIMITER=$(openssl rand -hex 8)
+          {
+            echo "DECODED_KEY<<$EOF_DELIMITER"
+            cat /tmp/raw_ssh_key
+            echo ""
+            echo "$EOF_DELIMITER"
+          } >> "$GITHUB_ENV"
+          rm /tmp/raw_ssh_key
       - uses: webfactory/ssh-agent@v0.10.0
         with:
-          ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}
+          ssh-private-key: ${{ env.DECODED_KEY }}
       - uses: cachix/install-nix-action@v31
         with:
           github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
@@ -63,9 +85,20 @@ jobs:
         host: [aperture-science, black-mesa, valve, lsp-dummy]
     steps:
       - uses: actions/checkout@v7
+      - name: Decode SSH Key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/raw_ssh_key
+          EOF_DELIMITER=$(openssl rand -hex 8)
+          {
+            echo "DECODED_KEY<<$EOF_DELIMITER"
+            cat /tmp/raw_ssh_key
+            echo ""
+            echo "$EOF_DELIMITER"
+          } >> "$GITHUB_ENV"
+          rm /tmp/raw_ssh_key
       - uses: webfactory/ssh-agent@v0.10.0
         with:
-          ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}
+          ssh-private-key: ${{ env.DECODED_KEY }}
       - uses: cachix/install-nix-action@v31
         with:
           github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
@@ -82,8 +115,8 @@ jobs:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: |
           export NIX_SSHOPTS="-o StrictHostKeyChecking=no"
-          if [ "${{ matrix.host }}" == "valve" ]; then
-            nix build .#nixosConfigurations.${{matrix.host}}.config.system.build.sdImage --accept-flake-config
+          if [ "${{ matrix.host }}" == "lsp-dummy" ]; then
+            nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --accept-flake-config
           else
-            nix build .#nixosConfigurations.${{matrix.host}}.config.system.build.toplevel --accept-flake-config
+            nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.sdImage --accept-flake-config
           fi

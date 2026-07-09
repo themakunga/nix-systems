@@ -7,18 +7,33 @@ permissions:
   contents: write
 jobs:
   build-prerelease:
-    name: Build & Publish Pre-Release
+    name: Build & Publish Pre-Release ${{ matrix.target }}
     runs-on: ubuntu-24.04-arm
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [aperture-science, black-mesa, valve]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
+      - name: Decode SSH Key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/raw_ssh_key
+          EOF_DELIMITER=$(openssl rand -hex 8)
+          {
+            echo "DECODED_KEY<<$EOF_DELIMITER"
+            cat /tmp/raw_ssh_key
+            echo ""
+            echo "$EOF_DELIMITER"
+          } >> "$GITHUB_ENV"
+          rm /tmp/raw_ssh_key
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.10.0
         with:
-          ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}
+          ssh-private-key: ${{ env.DECODED_KEY }}
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
@@ -38,12 +53,12 @@ jobs:
       - name: Build SD Image
         run: |
           mkdir -p output
-          echo "=> Building valve for Pre-Release ${TIMESTAMP_TAG}..."
-          nix build .#nixosConfigurations.valve.config.system.build.sdImage --accept-flake-config
+          echo "=> Building ${{ matrix.target }} for Pre-Release ${TIMESTAMP_TAG}..."
+          nix build .#nixosConfigurations.${{ matrix.target }}.config.system.build.sdImage --accept-flake-config
           for file in result/sd-image/*; do
             if [ -f "$file" ]; then
               filename=$(basename "$file")
-              cp -L "$file" "output/valve-$filename"
+              cp -L "$file" "output/${{ matrix.target }}-$filename"
             fi
           done
       - name: Upload Image to GitHub Pre-Release
