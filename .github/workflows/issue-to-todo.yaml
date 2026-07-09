@@ -1,0 +1,65 @@
+name: "Issue to Todo.txt"
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: write
+jobs:
+  add-task:
+    name: Append Issue to todo.txt
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Switch to or Create Issues Branch
+        run: |
+          git fetch origin
+          if git show-ref --verify --quiet refs/remotes/origin/issues; then
+            git checkout issues
+            git pull origin issues
+          else
+            git checkout develop
+            git checkout -b issues
+            git push -u origin issues
+          fi
+      - name: Process Issue and Append Task
+        env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          LABELS_JSON: ${{ toJSON(github.event.issue.labels) }}
+        run: |
+          CREATION_DATE=$(date +'%Y-%m-%d')
+          DUE_DATE=$(date -d "+3 days" +'%Y-%m-%d')
+          TAGS=$(echo "$LABELS_JSON" | jq -r '.[].name' | sed 's/ /-/g' | awk '{print "+" $0}' | paste -sd " " -)
+          TASK="(C) $CREATION_DATE $ISSUE_TITLE @theMakunga due:$DUE_DATE $TAGS $ISSUE_URL"
+          touch todo.txt
+          echo "$TASK" >> todo.txt
+      - name: Verify todo.txt Consistency
+        run: |
+          while IFS= read -r line || [ -n "$line" ]; do
+            if [[ ! "$line" =~ ^\([A-Z]\)\ [0-9]{4}-[0-9]{2}-[0-9]{2}\ .*@theMakunga\ due:[0-9]{4}-[0-9]{2}-[0-9]{2} ]]; then
+              echo "❌ Error: Invalid todo.txt line format detected: $line"
+              exit 1
+            fi
+          done < todo.txt
+          echo "✅ Success: All lines in todo.txt are consistent and valid."
+      - name: Commit and Push to Issues Branch
+        run: |
+          git add todo.txt
+          git commit -m "chore(todo): append task for issue #${{ github.event.issue.number }} [skip ci]"
+          git push origin issues
+      - name: Sync todo.txt into Develop Branch
+        run: |
+          git checkout develop
+          git pull origin develop
+          git checkout issues -- todo.txt
+          git add todo.txt
+          git commit -m "chore(todo): sync todo.txt from issues branch [skip ci]" || echo "No changes to sync"
+          git push origin develop
