@@ -1,0 +1,61 @@
+name: "1. Auto Pre-Release (Develop)"
+on:
+  push:
+    branches:
+      - develop
+permissions:
+  contents: write
+jobs:
+  build-prerelease:
+    name: Build & Publish Pre-Release
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            extra-platforms = aarch64-linux
+            extra-substituters = https://nixos-hardware.cachix.org
+            extra-trusted-public-keys = nixos-hardware.cachix.org-1:OqV48MwUzN0rmApeP5Dp/4hQv+8Uz7x1qPtd+6BaLgc=
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v17
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_TOKEN }}
+      - name: Generate Timestamp Tag
+        run: echo "TIMESTAMP_TAG=v$(date +'%Y%m%d%H%M')" >> $GITHUB_ENV
+      - name: Build SD Image
+        run: |
+          mkdir -p output
+          echo "=> Building valve for Pre-Release ${TIMESTAMP_TAG}..."
+          nix build .#nixosConfigurations.valve.config.system.build.sdImage --accept-flake-config
+          for file in result/sd-image/*; do
+            if [ -f "$file" ]; then
+              filename=$(basename "$file")
+              cp -L "$file" "output/valve-$filename"
+            fi
+          done
+      - name: Upload Image to GitHub Pre-Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.RELEASE_TOKEN }}
+          file: output/*
+          file_glob: true
+          tag: ${{ env.TIMESTAMP_TAG }}
+          release_name: "Pre-Release ${{ env.TIMESTAMP_TAG }}"
+          prerelease: true
+          overwrite: true
+          body: |
+            🚀 **Automated Nightly / Pre-Release**
+            Generated automatically from develop branch.
