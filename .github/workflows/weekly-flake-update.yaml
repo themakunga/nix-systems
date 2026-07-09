@@ -39,15 +39,12 @@ jobs:
       - name: Update flake.lock and Capture Changes
         run: |
           echo "=> Updating flake.lock inputs..."
-
           nix flake update 2>&1 | tee update_log.txt
-
           EOF_DELIMITER=$(openssl rand -hex 8)
-
           {
             echo "UPDATE_LOG<<$EOF_DELIMITER"
             cat update_log.txt
-            echo "" # <--- ESTA LÍNEA ES LA CLAVE: Fuerza un salto de línea
+            echo ""
             echo "$EOF_DELIMITER"
           } >> "$GITHUB_ENV"
       - name: Create Pull Request to main
@@ -64,15 +61,12 @@ jobs:
           body: |
             ## Automated Weekly Flake Update
             This PR updates the `flake.lock` file with the latest available revisions of your flake inputs.
-
             ### 📦 Dependency Changes Details
             ```text
             ${{ env.UPDATE_LOG }}
             ```
-
             - **Date of Update:** ${{ steps.date.outputs.current_date }}
             - **Target Branch:** `main`
-
             _Generated automatically by the CI pipeline._
           labels: |
             dependencies

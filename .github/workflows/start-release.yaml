@@ -26,14 +26,11 @@ jobs:
         id: branches
         run: |
           VERSION="v${{ github.event.inputs.version }}"
-
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)
           echo "Base tag for release: $LATEST_TAG"
-
           git checkout $LATEST_TAG
           git checkout -b "release/$VERSION"
           git push origin "release/$VERSION"
-
           git checkout main
           git checkout -b "pre-release/$VERSION"
           git push origin "pre-release/$VERSION"
@@ -42,7 +39,6 @@ jobs:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
           VERSION="v${{ github.event.inputs.version }}"
-
           gh pr create \
             --base "release/$VERSION" \
             --head "pre-release/$VERSION" \
