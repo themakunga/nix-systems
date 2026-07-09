@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [aperture-science, black-mesa, valve]
+        target: [valve]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
@@ -54,7 +54,7 @@ jobs:
         run: |
           mkdir -p output
           echo "=> Building ${{ matrix.target }}..."
-          make build-${{ matrix.target }}
+          nix build .#nixosConfigurations.${{ matrix.target }}.config.system.build.sdImage --accept-flake-config
           for file in result/sd-image/*.zst; do
             filename=$(basename "$file")
             cp -L "$file" "output/${{ matrix.target }}-$filename"
