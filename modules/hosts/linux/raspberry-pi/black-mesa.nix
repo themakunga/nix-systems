@@ -55,6 +55,7 @@ in {
       applicationModules.tailscale
       applicationModules.pihole
       applicationModules.tofu-dns
+      applicationModules.kvm
 
       {
         zramSwap = {
@@ -78,6 +79,12 @@ in {
           base-machine = {
             enable = true;
             bootMode = "rpi";
+          };
+          kvm = {
+            enable = true;
+            device = "/dev/video0";
+            port = 8081;
+            resolution = "1920x1080";
           };
         };
 
