@@ -10,7 +10,7 @@ env:
   PRE_COMMIT_HOME: ${{ github.workspace }}/.pre-commit-cache
 jobs:
   linter:
-    name: Check Style, Deadcode and Linter
+    name: "linter-and-check"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
