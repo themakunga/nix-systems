@@ -2,13 +2,16 @@ name: "Global Failure Handler"
 on:
   workflow_run:
     workflows:
-      - Nix Style & Lints
-      - Nix Flake Check (Pre-Release)
-      - Nix Build & Cachix Push
-      - Semantic Release
-      - Security Audit (Secrets & Keys)
-      - Periodic Code Quality & Flake Health Audit
-      - Weekly Flake Inputs Update
+      - "1. Auto Pre-Release (Develop)"
+      - "2. Start Release (Develop -> Main)"
+      - "3. PR Checks (Build & Cache)"
+      - "4. Production Release"
+      - "Issue to Todo.txt"
+      - "Sync Develop to Issues"
+      - "Nix Style & Lints"
+      - "Weekly Flake Inputs Update"
+      - "Security Audit (Secrets & Keys)"
+      - "Periodic Code Quality & Flake Health Audit"
     types:
       - completed
 permissions:
