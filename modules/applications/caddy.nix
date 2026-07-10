@@ -17,7 +17,7 @@ in {
           type = types.attrsOf types.str;
           default = {};
           description = "Domain IPs/Brigeds";
-          exaple = {"pihole.domain.com" = "125.0.0.1:80";};
+          example = {"pihole.domain.com" = "125.0.0.1:80";};
         };
       };
 
