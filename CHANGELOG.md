@@ -1,3 +1,15 @@
+# [0.3.0](https://github.com/themakunga/nix-systems/compare/v0.2.0...v0.3.0) (2026-07-11)
+
+
+### Bug Fixes
+
+* add nixsops module ([cdd01f2](https://github.com/themakunga/nix-systems/commit/cdd01f2640b4c77298f28ba8b4ab4afc2ccb4dc3))
+
+
+### Features
+
+* wifi module load ([2a672f1](https://github.com/themakunga/nix-systems/commit/2a672f12b55c902fdb3e29691b12c40785c4e621))
+
 # [0.2.0](https://github.com/themakunga/nix-systems/compare/v0.1.0...v0.2.0) (2026-07-10)
 
 
