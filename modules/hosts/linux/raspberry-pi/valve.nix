@@ -7,6 +7,7 @@
     (inputs)
     nixpkgs
     nixos-hardware
+    sops-nix
     ;
   inherit
     (self)
@@ -26,7 +27,7 @@ in {
       commonModules.settings
 
       nixos-hardware.nixosModules.raspberry-pi-5
-
+      sops-nix.nixosModules.sops
       rpiModules.config
       rpiModules.documentationDisable
       rpiModules.boot
