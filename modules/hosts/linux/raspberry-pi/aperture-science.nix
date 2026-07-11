@@ -38,6 +38,7 @@ in {
       commonModules.authorizedKeys
       commonModules.network
       nixosModules.keyboard
+      nixosModules.wifi
 
       nixos-hardware.nixosModules.raspberry-pi-5
       disko.nixosModules.disko

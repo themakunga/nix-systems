@@ -12,6 +12,7 @@
     (self)
     rpiModules
     commonModules
+    nixosModules
     ;
 in {
   flake.nixosConfigurations.valve = nixpkgs.lib.nixosSystem {
@@ -31,6 +32,7 @@ in {
       rpiModules.boot
       rpiModules.boot-loader
       rpiModules.systemPackages
+      nixosModules.wifi
 
       commonModules.network
       commonModules.authorizedKeys
