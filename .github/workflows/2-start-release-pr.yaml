@@ -1,9 +1,9 @@
-name: "2. Start Release (Develop -> Main)"
+name: '2. Start Release (Develop -> Main)'
 on:
   workflow_dispatch:
     inputs:
       bump_type:
-        description: "Version bump type"
+        description: 'Version bump type'
         required: true
         type: choice
         options: [patch, minor, major]
@@ -13,7 +13,7 @@ permissions:
   pull-requests: write
 jobs:
   create-release-pr:
-    name: "Create Release PR"
+    name: 'Create Release PR'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
