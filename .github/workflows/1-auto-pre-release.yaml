@@ -1,4 +1,4 @@
-name: "1. Auto Pre-Release (Develop)"
+name: '1. Auto Pre-Release (Develop)'
 on:
   push:
     branches:
@@ -68,7 +68,7 @@ jobs:
           file: output/*
           file_glob: true
           tag: ${{ env.TIMESTAMP_TAG }}
-          release_name: "Pre-Release ${{ env.TIMESTAMP_TAG }}"
+          release_name: 'Pre-Release ${{ env.TIMESTAMP_TAG }}'
           prerelease: true
           overwrite: true
           body: |

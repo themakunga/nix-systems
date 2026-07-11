@@ -1,14 +1,14 @@
-name: "Auto-Generate Nix Documentation"
+name: 'Auto-Generate Nix Documentation'
 on:
   push:
     branches:
-      - "develop"
+      - 'develop'
     paths:
-      - "modules/**"
-      - "flake.nix"
+      - 'modules/**'
+      - 'flake.nix'
 jobs:
   generate-and-commit-docs:
-    name: "Build & Commit MODULES.md"
+    name: 'Build & Commit MODULES.md'
     runs-on: ubuntu-latest
     permissions:
       contents: write

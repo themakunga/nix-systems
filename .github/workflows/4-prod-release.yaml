@@ -1,4 +1,4 @@
-name: "4. Production Release"
+name: '4. Production Release'
 on:
   push:
     branches:
