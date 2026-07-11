@@ -5,9 +5,11 @@ repos:
       - id: trailing-whitespace
         name: "Formatter - trailing-whitespace - All files - pre-commit"
         stages: [pre-commit]
+        exclude: '^MODULES\.md$'
       - id: end-of-file-fixer
         name: "Formatter - end-of-file-fixer - All files - pre-commit"
         stages: [pre-commit]
+        exclude: '^MODULES\.md$'
       - id: check-yaml
         name: "Checker - check-yaml - .yaml, .yml - pre-commit"
         stages: [pre-commit]
@@ -70,3 +72,12 @@ repos:
         stages: [commit-msg]
         additional_dependencies:
           - "@commitlint/config-conventional"
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.41.0
+    hooks:
+      - id: markdownlint
+        name: "Linter - markdownlint - .md - pre-commit"
+        stages: [pre-commit]
+        args:
+          - --fix
+        exclude: '^MODULES\.md$'
