@@ -1,16 +1,16 @@
-name: "Nix Style & Lints"
+name: 'Nix Style & Lints'
 on:
   push:
     branches:
-      - "**"
+      - '**'
   pull_request:
     branches:
-      - "**"
+      - '**'
 env:
   PRE_COMMIT_HOME: ${{ github.workspace }}/.pre-commit-cache
 jobs:
   linter:
-    name: "linter-and-check"
+    name: 'linter-and-check'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository

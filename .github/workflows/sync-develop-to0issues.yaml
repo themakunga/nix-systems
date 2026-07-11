@@ -1,4 +1,4 @@
-name: "Sync Develop to Issues"
+name: 'Sync Develop to Issues'
 on:
   push:
     branches:
