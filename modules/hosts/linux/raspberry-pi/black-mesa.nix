@@ -51,6 +51,7 @@ in {
       userModules.nicolas-pihole
       profileModules.pihole
       nixosModules.base-machine
+      nixosModules.wifi
 
       applicationModules.tailscale
       applicationModules.pihole

@@ -7,11 +7,13 @@
     (inputs)
     nixpkgs
     nixos-hardware
+    sops-nix
     ;
   inherit
     (self)
     rpiModules
     commonModules
+    nixosModules
     ;
 in {
   flake.nixosConfigurations.valve = nixpkgs.lib.nixosSystem {
@@ -25,12 +27,13 @@ in {
       commonModules.settings
 
       nixos-hardware.nixosModules.raspberry-pi-5
-
+      sops-nix.nixosModules.sops
       rpiModules.config
       rpiModules.documentationDisable
       rpiModules.boot
       rpiModules.boot-loader
       rpiModules.systemPackages
+      nixosModules.wifi
 
       commonModules.network
       commonModules.authorizedKeys
