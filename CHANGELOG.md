@@ -1,3 +1,10 @@
+## [0.3.1](https://github.com/themakunga/nix-systems/compare/v0.3.0...v0.3.1) (2026-07-11)
+
+
+### Bug Fixes
+
+* commit lint md ([1ba3d65](https://github.com/themakunga/nix-systems/commit/1ba3d65899af49655945a01dd8ac3a9c96edbc79))
+
 # [0.3.0](https://github.com/themakunga/nix-systems/compare/v0.2.0...v0.3.0) (2026-07-11)
 
 
