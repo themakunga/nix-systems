@@ -1,7 +1,7 @@
 name: Periodic Code Quality & Flake Health Audit
 on:
   schedule:
-    - cron: "0 21 * * 0"
+    - cron: '0 21 * * 0'
   workflow_dispatch:
 jobs:
   quality-audit:

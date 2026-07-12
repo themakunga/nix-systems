@@ -1,4 +1,4 @@
-name: "Issue to Todo.txt"
+name: 'Issue to Todo.txt'
 on:
   issues:
     types: [opened]
