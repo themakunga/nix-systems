@@ -31,6 +31,7 @@ in {
       commonModules.settings
       sops-nix.darwinModules.sops
       commonModules.host-secrets
+      applicationModules.apps
       applicationModules.tailscale
       darwinModules.keyboard
       darwinModules.primaryUser
@@ -46,6 +47,22 @@ in {
             username = "nicolas";
           };
           keyboard.enable = true;
+          apps = {
+            outer-heaven = {
+              enable = true;
+              level = "system";
+              apps = [
+                "Xcode"
+                "logitech-g-hub"
+                "Magnet"
+                "Amphetamine"
+                "iTerm2"
+                "wezterm"
+                "tmux"
+                "stow"
+              ];
+            };
+          };
         };
       }
       commonModules.userProfiles
