@@ -62,7 +62,10 @@ in {
         };
       };
 
-      hardware.deviceTree.enable = true;
+      hardware = {
+        deviceTree.enable = true;
+        enableRedistributableFirmware = true;
+      };
 
       fileSystems."/" = {
         device = mkDefault "/dev/disk/by-label/NIXOS_SD";
