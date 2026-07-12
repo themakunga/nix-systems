@@ -58,6 +58,15 @@ repos:
         stages: [pre-push]
         always_run: true
         pass_filenames: false
+      - id: eval-hosts
+        name: 'Checker - Evaluate all Nix hosts - pre-push'
+        entry: >
+          bash -c " echo '🍎 Evaluando Darwin Hosts...' && nix eval .#darwinConfigurations --apply 'x: builtins.mapAttrs (n: v: v.system.drvPath) x' && echo '🐧 Evaluando NixOS Hosts...' && nix eval .#nixosConfigurations --apply 'x: builtins.mapAttrs (n: v: v.config.system.build.toplevel.drvPath) x' "
+
+        language: system
+        stages: [pre-push]
+        always_run: true
+        pass_filenames: false
   - repo: https://github.com/astro/deadnix
     rev: v1.3.1
     hooks:
