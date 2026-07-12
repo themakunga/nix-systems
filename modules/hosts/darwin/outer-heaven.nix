@@ -56,7 +56,7 @@ in {
                 "logitech-g-hub"
                 "Magnet"
                 "Amphetamine"
-                "iTerm2"
+                "iterm2"
                 "wezterm"
                 "tmux"
                 "stow"
