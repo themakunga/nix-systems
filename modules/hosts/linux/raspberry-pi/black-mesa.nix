@@ -41,6 +41,7 @@ in {
       nixos-hardware.nixosModules.raspberry-pi-3
       disko.nixosModules.disko
       rpiModules.disko.black-mesa
+      rpiModules.boot
       rpiModules.boot-loader
       rpiModules.systemPackages
       rpiModules.config
