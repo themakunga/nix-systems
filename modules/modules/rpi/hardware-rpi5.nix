@@ -23,7 +23,7 @@
       enableRedistributableFirmware = true;
       deviceTree.filter = "bcm2712-rpi-5-b.dtb";
 
-      raspberry-pi.configtxt = {
+      raspberry-pi.configtxt.settings = {
         "pi5" = {
           arm_freq = 2400;
           gpu_freq = 800;
