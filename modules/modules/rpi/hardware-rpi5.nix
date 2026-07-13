@@ -7,6 +7,8 @@
     boot = {
       kernelParams = ["pcie_aspm=off"];
       initrd = {
+        includeDefaultModules = false;
+
         availableKernelModules = [
           "usbhid"
           "usb_storage"
