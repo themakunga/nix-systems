@@ -1,5 +1,5 @@
-{
-  flake.rpiModules.hardware-rpi5 = {modulesPath, ...}: {
+{ lib, modulesPath, ... }: {
+  flake.rpiModules.hardware-rpi5 = {
     imports = [
       (modulesPath + "/installer/scan/not-detected.nix")
     ];
@@ -8,8 +8,7 @@
       kernelParams = ["pcie_aspm=off"];
       initrd = {
         includeDefaultModules = false;
-
-        availableKernelModules = [
+        availableKernelModules = lib.mkForce [
           "usbhid"
           "usb_storage"
           "xhci_pci"
@@ -17,7 +16,7 @@
           "pcie_brcmstb"
           "reset-raspberrypi"
         ];
-        kernelModules = ["nvme"];
+        kernelModules = lib.mkForce ["nvme"];
       };
     };
 
