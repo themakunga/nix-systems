@@ -14,16 +14,11 @@
       default = {};
       description = "Smart multiprofile gh environment";
       type = types.attrsOf (
-        types.submodule ({name, ...}: {
+        types.submodule {
           options = {
             enable = mkEnableOption "Configure multiprofile github cli";
-            name = mkOption {
-              type = types.str;
-              default = name;
-              description = "Single word env name";
-            };
           };
-        })
+        }
       );
     };
 
@@ -32,8 +27,8 @@
 
       environment.shellAliases =
         mapAttrs' (
-          _n: v:
-            lib.nameValuePair "gh_${v.name}" "GH_CONFIG_DIR=~/.config/gh/profile_${v.name} gh"
+          name: _value:
+            lib.nameValuePair "gh_${name}" "GH_CONFIG_DIR=~/.config/gh/profile_${name} gh"
         )
         enabledProfiles;
     };
