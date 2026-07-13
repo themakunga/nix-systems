@@ -11,9 +11,9 @@
             type = "EF00";
             content = {
               type = "filesystem";
-              format = "vfar";
+              format = "vfat";
               mountpoint = "/boot";
-              mounOptions = ["default" "umask=0077"];
+              mountOptions = ["defaults" "umask=0077"];
             };
           };
           root = {
@@ -22,7 +22,7 @@
               type = "filesystem";
               format = "ext4";
               mountpoint = "/";
-              mountOptions = ["default"];
+              mountOptions = ["defaults"];
             };
           };
         };
