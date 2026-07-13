@@ -30,6 +30,7 @@
       "arc"
       "arduino-ide"
       "bartender"
+      "dbeaver-community"
       "discord"
       "figma"
       "firefox"

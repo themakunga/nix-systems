@@ -16,7 +16,7 @@
           apps = [
             "microsoft-teams"
             "slack"
-            "dbeaber-community"
+            "dbeaver-community"
             "aws-cli2"
             "rancher"
           ];
