@@ -23,14 +23,15 @@
           level = "user";
           targetUser = "nicolas";
           apps = [
-            "qmk-toolbox"
-            "via"
-            "nchat"
-            "steam"
             "Whatsapp Messenger"
-            "goodnotes"
-            "obsidian"
+            "awscli2"
             "discord"
+            "goodnotes"
+            "nchat"
+            "obsidian"
+            "qmk-toolbox"
+            "steam"
+            "via"
           ];
         };
       };

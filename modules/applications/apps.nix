@@ -46,6 +46,7 @@
       "signal"
       "slack"
       "spotify"
+      "steam"
       "topnotch"
       "typora@dev"
       "via"

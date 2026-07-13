@@ -17,7 +17,6 @@
             "microsoft-teams"
             "slack"
             "dbeaver-community"
-            "aws-cli2"
             "rancher"
           ];
         };
