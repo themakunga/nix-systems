@@ -3,30 +3,28 @@ useTabs: false
 tabWidth: 2
 semi: true
 singleQuote: true
-trailingComma: 'es5'
+trailingComma: "es5"
 bracketSpacing: true
-htmlWhitespaceSensitivity: 'css'
-endOfLine: 'lf'
+htmlWhitespaceSensitivity: "css"
+endOfLine: "lf"
 overrides:
-  - files: '*.yaml'
+  - files: "*.yaml"
     options:
-      parser: 'yaml'
+      parser: "yaml"
       tabWidth: 2
-  - files: '*.yml'
+      singleQuote: true
+  - files: "*.yml"
     options:
-      parser: 'yaml'
+      parser: "yaml"
       tabWidth: 2
-  - files: '*.json'
+  - files: "*.json"
     options:
-      parser: 'json'
-  - files: '*.md'
+      parser: "json"
+  - files: "*.md"
     options:
-      parser: 'markdown'
-      proseWrap: 'always'
-  - files: '*.toml'
-    options:
-      parser: 'toml'
-  - files: '*.md'
-    options:
+      parser: "markdown"
       printWidth: 80
-      proseWrap: always
+      proseWrap: "always"
+  - files: "*.toml"
+    options:
+      parser: "toml"

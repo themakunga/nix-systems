@@ -1,64 +1,61 @@
 {
-  flake.profileModules.grainger = {
-    lib,
-    pkgs,
-    config,
-    ...
-  }: let
-    inherit (lib) mkIf;
-    inherit (pkgs.stdenv.hostPlatform) isDarwin;
-  in {
+  flake.profileModules.grainger = {config, ...}: {
     sops.secrets = {
       "profiles/grainger/ssh/private_key" = {};
       "profiles/grainger/gpg/private_key" = {};
       "profiles/grainger/gpg/public_key" = {};
       "profiles/grainger/gpg/key_id" = {};
     };
-    homebrew = mkIf isDarwin {
-      casks = [
-        "microsoft-teams"
-        "slack"
-        "dbeaver-community"
-      ];
-    };
 
-    my.userProfiles.nicolas-work.homeManager = {
-      programs = {
-        sops.gpg = {
+    my = {
+      apps = {
+        grainger-tools = {
           enable = true;
-          keys = [
-            {
-              name = "grainger-key";
-              publicKey = config.sops.secrets."profiles/grainger/gpg/public_key".path;
-              privateKey = config.sops.secrets."profiles/grainger/gpg/private_key".path;
-            }
+          level = "user";
+          targetUser = "nicolas";
+          apps = [
+            "microsoft-teams"
+            "slack"
+            "dbeaver-community"
+            "rancher"
           ];
-        };
-        git-identity = {
-          enable = true;
-          workspaces.grainger = {
-            directory = "~/Projects/Grainger";
-            realName = "Villarroel, Nicolas";
-            email = "nicolas.villarroel1@grainger.com";
-            gpg = {
-              enable = true;
-              keyId = config.sops.secrets."profiles/grainger/gpg/key_id".path;
-            };
-            ssh = {
-              enableAuth = true;
-              privateKey = config.sops.secrets."profiles/grainger/ssh/private_key".path;
-            };
-          };
         };
       };
 
-      home.packages = with pkgs; [
-        awscli2
-      ];
+      userProfiles.nicolas-work.homeManager = {
+        programs = {
+          sops.gpg = {
+            enable = true;
+            keys = [
+              {
+                name = "grainger-key";
+                publicKey = config.sops.secrets."profiles/grainger/gpg/public_key".path;
+                privateKey = config.sops.secrets."profiles/grainger/gpg/private_key".path;
+              }
+            ];
+          };
+          git-identity = {
+            enable = true;
+            workspaces.grainger = {
+              directory = "~/Projects/Grainger";
+              realName = "Villarroel, Nicolas";
+              email = "nicolas.villarroel1@grainger.com";
+              gpg = {
+                enable = true;
+                keyId = config.sops.secrets."profiles/grainger/gpg/key_id".path;
+              };
+              ssh = {
+                enableAuth = true;
+                privateKey = config.sops.secrets."profiles/grainger/ssh/private_key".path;
+              };
+            };
+          };
+        };
 
-      services.gpg-agent = {
-        enable = true;
-        enableSshSupport = true;
+        services.gpg-agent = {
+          enable = true;
+          enableSshSupport = true;
+        };
       };
     };
   };
