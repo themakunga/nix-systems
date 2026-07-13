@@ -33,6 +33,7 @@ in {
       commonModules.host-secrets
       applicationModules.apps
       applicationModules.tailscale
+      applicationModules.gh
       darwinModules.keyboard
       darwinModules.primaryUser
       {
@@ -63,6 +64,7 @@ in {
               ];
             };
           };
+          gh.outer-heaven.enable = true;
         };
       }
       commonModules.userProfiles

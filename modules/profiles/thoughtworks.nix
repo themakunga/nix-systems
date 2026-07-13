@@ -54,6 +54,7 @@
           enable = true;
           enableSshSupport = true;
         };
+        gh.thoughtworks.enable = true;
       };
     };
   };
