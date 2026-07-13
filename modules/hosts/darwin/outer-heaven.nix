@@ -64,7 +64,6 @@ in {
               ];
             };
           };
-          gh.outer-heaven.enable = true;
         };
       }
       commonModules.userProfiles
