@@ -5,11 +5,11 @@ repos:
       - id: trailing-whitespace
         name: "Formatter - trailing-whitespace - All files - pre-commit"
         stages: [pre-commit]
-        exclude: '^(MODULES\.md|CHANGELOG\.md)$'
+        exclude: '^(MODULES\.md|CHANGELOG\.md|update_log\.txt)$'
       - id: end-of-file-fixer
         name: "Formatter - end-of-file-fixer - All files - pre-commit"
         stages: [pre-commit]
-        exclude: '^(MODULES\.md|CHANGELOG\.md)$'
+        exclude: '^(MODULES\.md|CHANGELOG\.md|update_log\.txt)$'
       - id: check-yaml
         name: "Checker - check-yaml - .yaml, .yml - pre-commit"
         stages: [pre-commit]
@@ -22,6 +22,7 @@ repos:
       - id: mixed-line-ending
         name: "Formatter - mixed-line-ending - All files - pre-commit"
         stages: [pre-commit]
+        exclude: '^(MODULES\.md|CHANGELOG\.md|update_log\.txt)$'
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.1.0
     hooks:
