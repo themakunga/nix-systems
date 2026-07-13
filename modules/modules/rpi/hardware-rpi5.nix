@@ -12,12 +12,10 @@
           "usb_storage"
           "xhci_pci"
           "nvme"
-          "pcie_brcmstd"
+          "pcie_brcmstb"
           "reset-raspberrypi"
         ];
-        kernelModules = [
-          "nvme"
-        ];
+        kernelModules = ["nvme"];
       };
     };
 
@@ -25,11 +23,12 @@
       enableRedistributableFirmware = true;
       deviceTree.filter = "bcm2712-rpi-5-b.dtb";
 
+      # Nota: Require nixos-hardware para funcionar completamente
       raspberry-pi."5" = {
         fkms-3d.enable = true;
         overclock = {
-          arm-freq = 2400;
-          gpu-freq = 800;
+          arm-freq = 2400; # MHz
+          gpu-freq = 800; # MHz
         };
       };
     };
