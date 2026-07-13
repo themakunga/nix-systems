@@ -284,6 +284,56 @@ true
 
 
 
+## my\.gh
+
+
+
+Smart multiprofile gh environment
+
+
+
+*Type:*
+attribute set of (submodule)
+
+
+
+*Default:*
+
+```nix
+{ }
+```
+
+
+
+## my\.gh\.\<name>\.enable
+
+
+
+Whether to enable Configure multiprofile github cli\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+
+```nix
+false
+```
+
+
+
+*Example:*
+
+```nix
+true
+```
+
+
+
 ## my\.kvm\.enable
 
 

@@ -1,3 +1,18 @@
+# [0.5.0](https://github.com/themakunga/nix-systems/compare/v0.4.0...v0.5.0) (2026-07-13)
+
+
+### Bug Fixes
+
+* malformed modules ([b9640a0](https://github.com/themakunga/nix-systems/commit/b9640a0515d7fbb7e5f5cab10dc651eced705b12))
+* move module ([0a933e0](https://github.com/themakunga/nix-systems/commit/0a933e0ecb3288804e8af17ec733d5227197733d))
+
+
+### Features
+
+* enable outher heaven ([2fe0bb7](https://github.com/themakunga/nix-systems/commit/2fe0bb7c50812779be722e7e5ad8ba91ce84cfb5))
+* module to personal use ([e62c558](https://github.com/themakunga/nix-systems/commit/e62c5583bd55c575fa51059b02ce0b779293d9e2))
+* remove redundancy ([3a0c04e](https://github.com/themakunga/nix-systems/commit/3a0c04e2913246c05fa62a6612e39cf1571ab453))
+
 # [0.4.0](https://github.com/themakunga/nix-systems/compare/v0.3.1...v0.4.0) (2026-07-13)
 
 
