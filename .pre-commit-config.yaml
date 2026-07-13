@@ -70,9 +70,8 @@ repos:
         pass_filenames: false
       - id: dry-run-build-cache
         name: "Checker - Dry Run Build Cache - pre-push"
-        entry: >
-          nix build --dry-run --impure --expr 'with builtins; let flake = getFlake (toString ./.); darwin = mapAttrs (n: v: v.system) (flake.darwinConfigurations or {}); nixos = mapAttrs (n: v: v.config.system.build.toplevel) (flake.nixosConfigurations or {}); in (attrValues darwin) ++ (attrValues nixos)'
-
+        entry: |
+          nix build --dry-run --impure --expr 'with builtins; let flake = getFlake (toString ./.); darwin = mapAttrs (n: v: v.system) (flake.darwinConfigurations or {}); nixos = mapAttrs (n: v: v.config.system.build.toplevel) (flake.nixosConfigurations or {}); all = (attrValues darwin) ++ (attrValues nixos); in filter (drv: drv.system == currentSystem) all'
         language: system
         stages: [pre-push]
         always_run: true
