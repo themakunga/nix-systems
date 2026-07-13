@@ -20,6 +20,7 @@
           ];
         };
       };
+      gh.thoughtworks.enable = true;
       userProfiles.nicolas-work.homeManager = {
         programs = {
           sops.gpg = {
@@ -54,7 +55,6 @@
           enable = true;
           enableSshSupport = true;
         };
-        gh.thoughtworks.enable = true;
       };
     };
   };

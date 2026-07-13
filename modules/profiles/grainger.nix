@@ -22,6 +22,7 @@
           ];
         };
       };
+      gh.grainger.enable = true;
 
       userProfiles.nicolas-work.homeManager = {
         programs = {

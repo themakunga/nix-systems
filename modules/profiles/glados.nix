@@ -43,8 +43,6 @@
         enable = true;
         enableSshSupport = true;
       };
-
-      gh.grainger.enable = true;
     };
   };
 }
