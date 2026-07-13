@@ -20,6 +20,7 @@
           ];
         };
       };
+      gh.thoughtworks.enable = true;
       userProfiles.nicolas-work.homeManager = {
         programs = {
           sops.gpg = {
