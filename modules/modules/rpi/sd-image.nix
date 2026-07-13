@@ -19,7 +19,7 @@ in {
           "usb_storage"
           "vc4"
           "mmc_block"
-          "resert-raspberrypi"
+          "reset-raspberrypi"
         ];
       };
     };
