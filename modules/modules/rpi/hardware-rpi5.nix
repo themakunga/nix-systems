@@ -23,16 +23,13 @@
       enableRedistributableFirmware = true;
       deviceTree.filter = "bcm2712-rpi-5-b.dtb";
 
-      # Inyección directa de parámetros de hardware
-      raspberry-pi.configtxt = ''
-        # Overclocking CPU y GPU
-        arm_freq=2400
-        gpu_freq=800
-
-        # Aceleración por hardware 3D
-        # (En la RPi 5 se recomienda KMS completo en lugar del antiguo FKMS)
-        dtoverlay=vc4-kms-v3d-pi5
-      '';
+      raspberry-pi.configtxt = {
+        "pi5" = {
+          arm_freq = 2400;
+          gpu_freq = 800;
+          dtoverlay = "vc4-kms-v3d-pi5";
+        };
+      };
     };
   };
 }
