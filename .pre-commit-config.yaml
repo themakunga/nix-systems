@@ -3,57 +3,75 @@ repos:
     rev: v6.0.0
     hooks:
       - id: trailing-whitespace
-        name: 'Formatter - trailing-whitespace - All files - pre-commit'
+        name: "Formatter - trailing-whitespace - All files - pre-commit"
         stages: [pre-commit]
         exclude: '^(MODULES\.md|CHANGELOG\.md)$'
       - id: end-of-file-fixer
-        name: 'Formatter - end-of-file-fixer - All files - pre-commit'
+        name: "Formatter - end-of-file-fixer - All files - pre-commit"
         stages: [pre-commit]
         exclude: '^(MODULES\.md|CHANGELOG\.md)$'
       - id: check-yaml
-        name: 'Checker - check-yaml - .yaml, .yml - pre-commit'
+        name: "Checker - check-yaml - .yaml, .yml - pre-commit"
         stages: [pre-commit]
       - id: check-added-large-files
-        name: 'Checker - check-added-large-files - All files - pre-commit'
+        name: "Checker - check-added-large-files - All files - pre-commit"
         stages: [pre-commit]
       - id: check-merge-conflict
-        name: 'Checker - check-merge-conflict - All files - pre-commit'
+        name: "Checker - check-merge-conflict - All files - pre-commit"
         stages: [pre-commit]
       - id: mixed-line-ending
-        name: 'Formatter - mixed-line-ending - All files - pre-commit'
+        name: "Formatter - mixed-line-ending - All files - pre-commit"
         stages: [pre-commit]
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.1.0
     hooks:
       - id: prettier
-        name: 'Formatter - prettier - pre-commit'
+        name: "Formatter - prettier - pre-commit"
         stages: [pre-commit]
+        exclude_types: [yaml, markdown]
         exclude: '^(MODULES\.md|CHANGELOG\.md|flake\.lock)$'
   - repo: https://github.com/mrtazz/checkmake
     rev: v0.3.0
     hooks:
       - id: checkmake
-        name: 'Linter - checkmake - Makefiles - pre-commit'
+        name: "Linter - checkmake - Makefiles - pre-commit"
         stages: [pre-commit]
         exclude: '^flake\.lock$'
   - repo: local
     hooks:
       - id: statix
-        name: 'Linter - statix - .nix - pre-commit'
+        name: "Linter - statix - .nix - pre-commit"
         entry: nix run nixpkgs#statix -- check
         language: system
         files: '\.nix$'
         pass_filenames: false
         stages: [pre-commit]
       - id: alejandra
-        name: 'Formatter - alejandra - .nix - pre-commit'
+        name: "Formatter - alejandra - .nix - pre-commit"
         entry: nix run nixpkgs#alejandra --
         language: system
         files: '\.nix$'
         stages: [pre-commit]
       - id: nix-flake-check
-        name: 'Checker - nix flake check - flake.nix - pre-push'
+        name: "Checker - nix flake check - flake.nix - pre-push"
         entry: nix flake check
+        language: system
+        stages: [pre-push]
+        always_run: true
+        pass_filenames: false
+      - id: eval-hosts
+        name: "Checker - Evaluate all Nix hosts - pre-push"
+        entry: >
+          bash -c "echo '🍎 Evaluando Darwin Hosts...' && nix eval .#darwinConfigurations --apply 'x: builtins.mapAttrs (n: v: v.system.drvPath) x' && echo '🐧 Evaluando NixOS Hosts...' && nix eval .#nixosConfigurations --apply 'x: builtins.mapAttrs (n: v: v.config.system.build.toplevel.drvPath) x'"
+
+        language: system
+        stages: [pre-push]
+        always_run: true
+        pass_filenames: false
+      - id: dry-run-build-cache
+        name: "Checker - Dry Run Build Cache - pre-push"
+        entry: |
+          nix build --dry-run --impure --expr 'with builtins; let flake = getFlake (toString ./.); darwin = mapAttrs (n: v: v.system) (flake.darwinConfigurations or {}); nixos = mapAttrs (n: v: v.config.system.build.toplevel) (flake.nixosConfigurations or {}); all = (attrValues darwin) ++ (attrValues nixos); in filter (drv: drv.system == currentSystem) all'
         language: system
         stages: [pre-push]
         always_run: true
@@ -62,7 +80,7 @@ repos:
     rev: v1.3.1
     hooks:
       - id: deadnix
-        name: 'Linter - deadnix - .nix - pre-commit'
+        name: "Linter - deadnix - .nix - pre-commit"
         stages: [pre-commit]
         args:
           - --edit
@@ -70,21 +88,21 @@ repos:
     rev: v0.21.0
     hooks:
       - id: yamlfmt
-        name: 'Formatter - yamlfmt - .yaml, .yml - pre-commit'
+        name: "Formatter - yamlfmt - .yaml, .yml - pre-commit"
         stages: [pre-commit]
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v9.26.0
     hooks:
       - id: commitlint
-        name: 'Linter - commitlint - Commit Message - commit-msg'
+        name: "Linter - commitlint - Commit Message - commit-msg"
         stages: [commit-msg]
         additional_dependencies:
-          - '@commitlint/config-conventional'
+          - "@commitlint/config-conventional"
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.41.0
     hooks:
       - id: markdownlint
-        name: 'Linter - markdownlint - .md - pre-commit'
+        name: "Linter - markdownlint - .md - pre-commit"
         stages: [pre-commit]
         args:
           - --fix
