@@ -43,7 +43,6 @@ in {
 
       rpiModules.common
       rpiModules.performance
-      rpiModules.disko-sd
       rpiModules.sd-image
 
       home-manager.nixosModules.home-manager
