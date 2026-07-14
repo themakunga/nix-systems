@@ -1,5 +1,5 @@
-{ lib, modulesPath, ... }: {
-  flake.rpiModules.hardware-rpi5 = {
+{ lib, ... }: {
+  flake.rpiModules.hardware-rpi5 = { modulesPath, ... }: {
     imports = [
       (modulesPath + "/installer/scan/not-detected.nix")
     ];
