@@ -1,0 +1,58 @@
+name: Weekly Branch Maintenance
+on:
+  schedule:
+    - cron: "0 3 * * 0"
+  workflow_dispatch:
+jobs:
+  maintenance:
+    name: Cleanup and Notify Stale Branches
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Process Stale Branches
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NOW=$(date +%s)
+          SEVEN_DAYS=$((7 * 24 * 60 * 60))
+          THIRTY_DAYS=$((30 * 24 * 60 * 60))
+
+          echo "### 🧹 Revisión de Ramas \`feat/*\`" > issue_body.md
+          echo "Las siguientes ramas llevan más de un mes sin actividad. Por favor, revísenlas y elimínenlas manualmente si ya no son necesarias (No hacer merge a \`develop\`)." >> issue_body.md
+          echo "" >> issue_body.md
+
+          STALE_FEAT_COUNT=0
+
+          while IFS='|' read -r raw_branch commit_date author; do
+             branch_name=${raw_branch#origin/}
+
+             if [ "$branch_name" = "HEAD" ]; then continue; fi
+
+             age=$((NOW - commit_date))
+
+             if [[ "$branch_name" == release/* && "$age" -gt "$SEVEN_DAYS" ]]; then
+                echo "🗑️ Eliminando rama obsoleta: $branch_name"
+                git push origin --delete "$branch_name" || echo "⚠️ Fallo al borrar $branch_name"
+
+             elif [[ "$branch_name" == feat/* && "$age" -gt "$THIRTY_DAYS" ]]; then
+                days_inactive=$((age / 86400))
+                echo "⚠️ Rama $branch_name inactiva por $days_inactive días."
+                echo "- \`$branch_name\` (Último commit por **$author** hace $days_inactive días)" >> issue_body.md
+                STALE_FEAT_COUNT=$((STALE_FEAT_COUNT + 1))
+             fi
+          done < <(git for-each-ref --format="%(refname:short)|%(committerdate:unix)|%(authorname)" refs/remotes/origin/)
+
+          if [ "$STALE_FEAT_COUNT" -gt 0 ]; then
+             echo "Creando issue con $STALE_FEAT_COUNT ramas..."
+             gh issue create \
+               --title "🧹 Mantenimiento: $STALE_FEAT_COUNT ramas \`feat/*\` abandonadas" \
+               --body-file issue_body.md
+          else
+             echo "✅ No hay ramas feat/* abandonadas."
+          fi

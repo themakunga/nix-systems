@@ -1,4 +1,4 @@
-name: '3. PR Checks (Build & Cache)'
+name: "3. PR Checks (Build & Cache)"
 on:
   pull_request:
     branches:
@@ -7,7 +7,7 @@ permissions:
   contents: write
 jobs:
   build-darwin:
-    name: 'Darwin: ${{ matrix.host }}'
+    name: "Darwin: ${{ matrix.host }}"
     runs-on: macos-14
     strategy:
       fail-fast: false
@@ -42,7 +42,7 @@ jobs:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: nix build .#darwinConfigurations.${{matrix.host}}.system --accept-flake-config
   build-linux-x86_64:
-    name: 'Linux x86: ${{ matrix.host }}'
+    name: "Linux x86: ${{ matrix.host }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -77,7 +77,7 @@ jobs:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: nix build .#nixosConfigurations.${{matrix.host}}.config.system.build.toplevel --accept-flake-config
   build-linux-arm64:
-    name: 'Linux ARM: ${{ matrix.host }}'
+    name: "Linux ARM: ${{ matrix.host }}"
     runs-on: ubuntu-24.04-arm
     strategy:
       fail-fast: false
@@ -115,13 +115,16 @@ jobs:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: |
           export NIX_SSHOPTS="-o StrictHostKeyChecking=no"
-          if [ "${{ matrix.host }}" == "lsp-dummy" ]; then
-            nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --accept-flake-config
-          else
+
+          if [[ "${{ matrix.host }}" == "black-mesa" || "${{ matrix.host }}" == "valve" ]]; then
+            echo "Construyendo sdImage para ${{ matrix.host }}..."
             nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.sdImage --accept-flake-config
+          else
+            echo "Construyendo toplevel para ${{ matrix.host }}..."
+            nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --accept-flake-config
           fi
   pr-checks-summary:
-    name: '3. PR Checks (Build & Cache)'
+    name: "3. PR Checks (Build & Cache)"
     needs:
       - build-darwin
       - build-linux-x86_64

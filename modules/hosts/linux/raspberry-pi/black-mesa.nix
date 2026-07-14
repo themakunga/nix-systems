@@ -40,11 +40,10 @@ in {
 
       nixos-hardware.nixosModules.raspberry-pi-3
       disko.nixosModules.disko
-      rpiModules.disko.black-mesa
-      rpiModules.boot
-      rpiModules.boot-loader
-      rpiModules.systemPackages
-      rpiModules.config
+
+      rpiModules.common
+      rpiModules.performance
+      rpiModules.sd-image
 
       home-manager.nixosModules.home-manager
       commonModules.home-manager
@@ -89,8 +88,6 @@ in {
             resolution = "1920x1080";
           };
         };
-
-        fileSystems."/".device = nixpkgs.lib.mkForce "/dev/disk/by-partlabel/disk-main-root";
       }
     ];
   };

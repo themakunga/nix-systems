@@ -8,6 +8,7 @@
     nixpkgs
     nixos-hardware
     sops-nix
+    disko
     ;
   inherit
     (self)
@@ -26,13 +27,13 @@ in {
       commonModules.arch.nixos.rpi
       commonModules.settings
 
+      disko.nixosModules.disko
       nixos-hardware.nixosModules.raspberry-pi-5
       sops-nix.nixosModules.sops
-      rpiModules.config
-      rpiModules.documentationDisable
-      rpiModules.boot
-      rpiModules.boot-loader
-      rpiModules.systemPackages
+      rpiModules.common
+      rpiModules.performance
+      rpiModules.hardware-rpi5
+      rpiModules.sd-image
       nixosModules.wifi
 
       commonModules.network
