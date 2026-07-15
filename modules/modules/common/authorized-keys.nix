@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: authorized-keys.nix
+# Path: ./modules/modules/common/authorized-keys.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   flake.commonModules.authorizedKeys = {
     config,

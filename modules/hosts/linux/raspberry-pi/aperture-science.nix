@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: aperture-science.nix
+# Path: ./modules/hosts/linux/raspberry-pi/aperture-science.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   self,
   inputs,

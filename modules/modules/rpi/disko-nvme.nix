@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: disko-nvme.nix
+# Path: ./modules/modules/rpi/disko-nvme.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   flake.rpiModules.disko-nvme = {
     disko.devices.disk.main = {

@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: glados.nix
+# Path: ./modules/profiles/glados.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   flake.profileModules.glados = {config, ...}: {
     sops.secrets = {

@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: motherbase.nix
+# Path: ./modules/hosts/linux/x86_64/motherbase.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   self,
   inputs,
@@ -28,24 +38,25 @@ in {
     };
 
     modules = [
+      sops-nix.nixosModules.sops
+      home-manager.nixosModules.home-manager
+
       commonModules.arch.nixos.x64
       commonModules.settings
-      sops-nix.nixosModules.sops
       commonModules.host-secrets
-      nixosModules.keyboard
-
       commonModules.userProfiles
       commonModules.authorizedKeys
       commonModules.network
-
-      home-manager.nixosModules.home-manager
       commonModules.home-manager
 
+      nixosModules.keyboard
+      nixosModules.base-machine
+
       userModules.nicolas-server
+
       profileModules.nicolas-server
       applicationModules.tailscale
 
-      nixosModules.base-machine
       {
         my = {
           hostSecrets.file = "${secrets.outPath}/hosts/motherbase.yaml";

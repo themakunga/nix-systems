@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: default.nix
+# Path: ./modules/overlays/default.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {inputs, ...}: {
   flake.overlays = {
     unstable = _final: prev: {

@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: dummy.nix
+# Path: ./modules/hosts/lsp/dummy.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   self,
   inputs,
@@ -26,19 +36,21 @@ in {
       };
 
       modules = [
-        commonModules.settings
-        commonModules.arch.nixos.x64
         sops-nix.nixosModules.sops
-        commonModules.host-secrets
         home-manager.nixosModules.home-manager
 
+        commonModules.host-secrets
+        commonModules.settings
+        commonModules.arch.nixos.x64
         commonModules.userProfiles
         commonModules.authorizedKeys
         commonModules.network
         commonModules.home-manager
+
         nixosModules.base-machine
 
         userModules.nicolas-admin
+
         {
           my.base-machine = {
             enable = true;
@@ -56,21 +68,25 @@ in {
       };
 
       modules = [
-        {
-          system.primaryUser = "nicolas";
-        }
+        sops-nix.darwinModules.sops
+        home-manager.darwinModules.home-manager
+
+        commonModules.host-secrets
+        commonModules.arch.darwin.silicon
+        commonModules.settings
+        commonModules.userProfiles
+        commonModules.home-manager
+
+        darwinModules.extras
         darwinModules.security
         darwinModules.dock
         darwinModules.finder
-        darwinModules.extras
-        commonModules.settings
-        sops-nix.darwinModules.sops
-        commonModules.host-secrets
-        commonModules.arch.darwin.silicon
-        home-manager.darwinModules.home-manager
-        commonModules.userProfiles
-        commonModules.home-manager
+
         userModules.nicolas-personal
+
+        {
+          system.primaryUser = "nicolas";
+        }
       ];
     };
   };

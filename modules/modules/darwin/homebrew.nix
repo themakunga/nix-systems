@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: homebrew.nix
+# Path: ./modules/modules/darwin/homebrew.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   flake.darwinModules.homebrew = {
     config,

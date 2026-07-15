@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: nicolas-42devs.nix
+# Path: ./modules/profiles/nicolas-42devs.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   flake.profileModules.nicolas-42devs = {
     lib,

@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: devShell.nix
+# Path: ./modules/shells/devShell.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   perSystem = {pkgs, ...}: {
     devShells.default = pkgs.mkShell {

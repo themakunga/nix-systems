@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: tailscale.nix
+# Path: ./modules/applications/tailscale.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   flake.applicationModules.tailscale = {
     config,

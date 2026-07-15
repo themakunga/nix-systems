@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: network.nix
+# Path: ./modules/modules/common/network.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   flake.commonModules.network = {
     lib,

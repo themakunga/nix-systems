@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: userProfiles.nix
+# Path: ./modules/modules/common/userProfiles.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   flake.commonModules.userProfiles = {
     config,
