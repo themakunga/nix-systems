@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: mediaserver.nix
+# Path: ./modules/profiles/mediaserver.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   flake.profileModules.mediaserver = {config, ...}: {
     sops.secrets = {

@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: settings.nix
+# Path: ./modules/modules/common/settings.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   globals,
   self,

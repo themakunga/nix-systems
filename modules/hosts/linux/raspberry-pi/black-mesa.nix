@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: black-mesa.nix
+# Path: ./modules/hosts/linux/raspberry-pi/black-mesa.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   self,
   inputs,
