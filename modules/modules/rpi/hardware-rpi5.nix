@@ -9,6 +9,7 @@
 # Description: Módulo de configuración para la infraestructura.
 # =====================
 {
+{lib, ...}: {
   flake.rpiModules.hardware-rpi5 = {modulesPath, ...}: {
     imports = [
       (modulesPath + "/installer/scan/not-detected.nix")
@@ -17,7 +18,8 @@
     boot = {
       kernelParams = ["pcie_aspm=off"];
       initrd = {
-        availableKernelModules = [
+        includeDefaultModules = false;
+        availableKernelModules = lib.mkForce [
           "usbhid"
           "usb_storage"
           "xhci_pci"
@@ -25,7 +27,7 @@
           "pcie_brcmstb"
           "reset-raspberrypi"
         ];
-        kernelModules = ["nvme"];
+        kernelModules = lib.mkForce ["nvme"];
       };
     };
 
