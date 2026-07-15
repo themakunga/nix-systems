@@ -26,7 +26,7 @@
       git
       curl
       disko
-      pciurils
+      pciutils
     ];
 
     boot.loader = {
