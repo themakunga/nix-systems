@@ -43,7 +43,7 @@ in {
       rpiModules.common
       rpiModules.performance
       rpiModules.hardware-rpi5
-      rpiModules.disko-sd
+      rpiModules.sd-image
       nixosModules.wifi
 
       commonModules.network
