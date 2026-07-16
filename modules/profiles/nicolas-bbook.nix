@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: nicolas-bbook.nix
+# Path: ./modules/profiles/nicolas-bbook.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   flake.profileModules.nicolas-bbook = {
     lib,

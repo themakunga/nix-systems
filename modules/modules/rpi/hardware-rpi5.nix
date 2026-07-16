@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: hardware-rpi5.nix
+# Path: ./modules/modules/rpi/hardware-rpi5.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {lib, ...}: {
   flake.rpiModules.hardware-rpi5 = {modulesPath, ...}: {
     imports = [

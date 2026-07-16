@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: kanagawa.nix
+# Path: ./modules/hosts/darwin/kanagawa.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   self,
   inputs,
@@ -27,13 +37,32 @@ in {
     };
 
     modules = [
+      sops-nix.darwinModules.sops
+      nix-homebrew.darwinModules.nix-homebrew
+      home-manager.darwinModules.home-manager
+
       commonModules.arch.darwin.silicon
       commonModules.settings
-      darwinModules.keyboard
-      sops-nix.darwinModules.sops
       commonModules.host-secrets
-      applicationModules.tailscale
+      commonModules.userProfiles
+      commonModules.network
+      commonModules.home-manager
+
+      darwinModules.keyboard
       darwinModules.primaryUser
+      darwinModules.security
+      darwinModules.dock
+      darwinModules.finder
+      darwinModules.extras
+      darwinModules.homebrew
+
+      userModules.nicolas-personal
+
+      profileModules.nicolas-personal
+      profileModules.nicolas-42devs
+      profileModules.nicolas-bbook
+
+      applicationModules.tailscale
       {
         my = {
           hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
@@ -48,24 +77,6 @@ in {
           keyboard.enable = true;
         };
       }
-      commonModules.userProfiles
-      commonModules.network
-
-      darwinModules.security
-      darwinModules.dock
-      darwinModules.finder
-      darwinModules.extras
-
-      nix-homebrew.darwinModules.nix-homebrew
-      darwinModules.homebrew
-
-      home-manager.darwinModules.home-manager
-      commonModules.home-manager
-
-      userModules.nicolas-personal
-      profileModules.nicolas-personal
-      profileModules.nicolas-42devs
-      profileModules.nicolas-bbook
     ];
   };
 }

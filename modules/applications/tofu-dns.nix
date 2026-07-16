@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: tofu-dns.nix
+# Path: ./modules/applications/tofu-dns.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {inputs, ...}: let
   inherit (inputs) tofu-dns;
 in {

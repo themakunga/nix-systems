@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: nicolas-work.nix
+# Path: ./modules/userModules/nicolas-work.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {self, ...}: let
   inherit (self) commonModules;
 in {

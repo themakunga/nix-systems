@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: sd-image.nix
+# Path: ./modules/modules/rpi/sd-image.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {inputs, ...}: let
   inherit (inputs) nixpkgs;
 in {

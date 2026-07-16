@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: disko-sd.nix
+# Path: ./modules/modules/rpi/disko-sd.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   flake.rpiModules.disko-sd = {
     disko.devices.disk.main = {

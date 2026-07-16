@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: grainger.nix
+# Path: ./modules/profiles/grainger.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   flake.profileModules.grainger = {config, ...}: {
     sops.secrets = {

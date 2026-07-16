@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        host: [kanagawa, outer-heaven, lsp-dummy]
+        host: [kanagawa, outer-heaven]
     steps:
       - uses: actions/checkout@v7
       - name: Decode SSH Key
@@ -82,7 +82,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        host: [aperture-science, black-mesa, valve, lsp-dummy]
+        host: [aperture-science, black-mesa, valve]
     steps:
       - uses: actions/checkout@v7
       - name: Decode SSH Key
@@ -115,12 +115,9 @@ jobs:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: |
           export NIX_SSHOPTS="-o StrictHostKeyChecking=no"
-
           if [[ "${{ matrix.host }}" == "black-mesa" || "${{ matrix.host }}" == "valve" ]]; then
-            echo "Construyendo sdImage para ${{ matrix.host }}..."
             nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.sdImage --accept-flake-config
           else
-            echo "Construyendo toplevel para ${{ matrix.host }}..."
             nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --accept-flake-config
           fi
   pr-checks-summary:

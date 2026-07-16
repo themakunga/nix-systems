@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: nicolas-server.nix
+# Path: ./modules/profiles/nicolas-server.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   flake.profileModules.nicolas-server = {config, ...}: {
     sops.secrets = {

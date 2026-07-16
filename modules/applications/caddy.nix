@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: caddy.nix
+# Path: ./modules/applications/caddy.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {lib, ...}: let
   inherit (lib) mkEnableOption mkIf types mkOption mapAttrs;
 in {

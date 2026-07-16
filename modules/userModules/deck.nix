@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: deck.nix
+# Path: ./modules/userModules/deck.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {self, ...}: let
   inherit (self) commonModules;
 in {
