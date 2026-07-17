@@ -1,3 +1,8 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
 {inputs, ...}: let
   inherit (inputs) dotfiles;
   mkAppModule = name: description: appConfig: {
