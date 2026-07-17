@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: flake.nix
+# Path: ./flake.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   description = "Flake build rpi installers and multi host systems";
 

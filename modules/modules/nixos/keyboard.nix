@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: keyboard.nix
+# Path: ./modules/modules/nixos/keyboard.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {lib, ...}: {
   flake.nixosModules.keyboard = {config, ...}: let
     inherit (lib) mkEnableOption mkIf;

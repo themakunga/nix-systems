@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: outer-heaven.nix
+# Path: ./modules/hosts/darwin/outer-heaven.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   self,
   inputs,
@@ -27,15 +37,35 @@ in {
     };
 
     modules = [
+      sops-nix.darwinModules.sops
+      nix-homebrew.darwinModules.nix-homebrew
+      home-manager.darwinModules.home-manager
+      commonModules.home-manager
+
       commonModules.arch.darwin.silicon
       commonModules.settings
-      sops-nix.darwinModules.sops
       commonModules.host-secrets
+      commonModules.userProfiles
+      commonModules.network
+
+      darwinModules.primaryUser
+      darwinModules.keyboard
+      darwinModules.security
+      darwinModules.dock
+      darwinModules.finder
+      darwinModules.extras
+      darwinModules.homebrew
+
       applicationModules.apps
       applicationModules.tailscale
       applicationModules.gh
-      darwinModules.keyboard
-      darwinModules.primaryUser
+
+      userModules.nicolas-work
+
+      profileModules.nicolas-work
+      profileModules.thoughtworks
+      profileModules.grainger
+
       {
         my = {
           hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
@@ -66,24 +96,6 @@ in {
           };
         };
       }
-      commonModules.userProfiles
-      commonModules.network
-
-      darwinModules.security
-      darwinModules.dock
-      darwinModules.finder
-      darwinModules.extras
-
-      nix-homebrew.darwinModules.nix-homebrew
-      darwinModules.homebrew
-
-      home-manager.darwinModules.home-manager
-      commonModules.home-manager
-
-      userModules.nicolas-work
-      profileModules.nicolas-work
-      profileModules.thoughtworks
-      profileModules.grainger
     ];
   };
 }

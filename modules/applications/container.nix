@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: container.nix
+# Path: ./modules/applications/container.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   flake.applicationModules.containers = {
     docker-base = {pkgs, ...}: {

@@ -1,3 +1,29 @@
+# [0.6.0](https://github.com/themakunga/nix-systems/compare/v0.5.0...v0.6.0) (2026-07-16)
+
+
+### Bug Fixes
+
+* add missing disko ([09fc883](https://github.com/themakunga/nix-systems/commit/09fc88373d59a8b1074ccd175070b3548cf49280))
+* change deployments ([6808638](https://github.com/themakunga/nix-systems/commit/6808638951a9613e5c95fe22b2ff7e387cb665b3))
+* change image ([d97c0c9](https://github.com/themakunga/nix-systems/commit/d97c0c9483a60f28a7badf98c8285687adda4197))
+* disko image ([3b25592](https://github.com/themakunga/nix-systems/commit/3b25592df5ac1065c60172fddd5a5a2e65f37a70))
+* hd modules ([9dcb36f](https://github.com/themakunga/nix-systems/commit/9dcb36fce70fc0d8395af28025089d9c5d57684e))
+* image conflict ([54df483](https://github.com/themakunga/nix-systems/commit/54df48335062b94dbf679439134a2e9a515fa3f1))
+* image sd ([8fdeee3](https://github.com/themakunga/nix-systems/commit/8fdeee3605a0c38c80580a132fba854318e0e5de))
+* remove sd image ([9cc5017](https://github.com/themakunga/nix-systems/commit/9cc5017ce4c1b555be543277047ab07e512cb4fe))
+* remove unnecesary char ([65460a5](https://github.com/themakunga/nix-systems/commit/65460a55f36bc63391f8027f9cdfdd65480dcdc2))
+* typo ([69ef309](https://github.com/themakunga/nix-systems/commit/69ef309122349ca43ee6de4d9ba0cc2be087c6e8))
+
+
+### Features
+
+* add doc description ([315d7e0](https://github.com/themakunga/nix-systems/commit/315d7e0938a950710ab00e4179adeb4044fb9256))
+* cleanup workflow ([5071106](https://github.com/themakunga/nix-systems/commit/5071106711747c64223a581172c164647802071a))
+* modules refactor rpi ([cce4289](https://github.com/themakunga/nix-systems/commit/cce4289278a068003b05b749be88c6130e76de95))
+* overclock ([639e047](https://github.com/themakunga/nix-systems/commit/639e0477341e26d78fe4709c02f1b625e027773e))
+* overclock ([d5a8d69](https://github.com/themakunga/nix-systems/commit/d5a8d69197a7e0bdd4f8fd6d475b3156f1e69ce7))
+* overclock ([2778b8b](https://github.com/themakunga/nix-systems/commit/2778b8b331443db60ccf9644ef66edb972552f82))
+
 # [0.5.0](https://github.com/themakunga/nix-systems/compare/v0.4.0...v0.5.0) (2026-07-13)
 
 

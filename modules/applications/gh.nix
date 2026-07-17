@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: gh.nix
+# Path: ./modules/applications/gh.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   flake.applicationModules.gh = {
     lib,

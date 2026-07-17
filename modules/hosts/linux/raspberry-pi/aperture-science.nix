@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: aperture-science.nix
+# Path: ./modules/hosts/linux/raspberry-pi/aperture-science.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   self,
   inputs,
@@ -42,14 +52,14 @@ in {
 
       nixos-hardware.nixosModules.raspberry-pi-5
       disko.nixosModules.disko
-      rpiModules.disko.aperture-science
-      rpiModules.boot-loader
-      rpiModules.boot
-      rpiModules.systemPackages
-      rpiModules.config
 
       home-manager.nixosModules.home-manager
       commonModules.home-manager
+
+      rpiModules.common
+      rpiModules.hardware-rpi5
+      rpiModules.performance
+      rpiModules.disko-nvme
 
       userModules.nicolas-admin
       userModules.glados
@@ -71,7 +81,6 @@ in {
             bootMode = "rpi";
           };
         };
-        fileSystems."/".device = nixpkgs.lib.mkForce "/dev/disk/by-partlabel/disk-main-root";
       }
     ];
   };

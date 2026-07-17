@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: thoughtworks.nix
+# Path: ./modules/profiles/thoughtworks.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   flake.profileModules.thoughtworks = {config, ...}: {
     sops.secrets = {

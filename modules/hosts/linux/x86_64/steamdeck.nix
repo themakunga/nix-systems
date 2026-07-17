@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: steamdeck.nix
+# Path: ./modules/hosts/linux/x86_64/steamdeck.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   self,
   inputs,
@@ -26,22 +36,25 @@ in {
     };
 
     modules = [
+      sops-nix.nixosModules.sops
+      home-manager.nixosModules.home-manager
+
       commonModules.arch.nixos.x64
       commonModules.settings
-      sops-nix.nixosModules.sops
       commonModules.host-secrets
-      nixosModules.keyboard
       commonModules.userProfiles
       commonModules.authorizedKeys
       commonModules.network
-
-      home-manager.nixosModules.home-manager
       commonModules.home-manager
 
-      userModules.deck
-      profileModules.steamdeck
-      applicationModules.tailscale
+      nixosModules.keyboard
       nixosModules.base-machine
+
+      userModules.deck
+
+      profileModules.steamdeck
+
+      applicationModules.tailscale
       {
         my = {
           hostSecrets.file = "${secrets.outPath}/hosts/steamdeck.yaml";

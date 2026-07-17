@@ -4,13 +4,23 @@
 # Módulo auto-gestionado.
 # =========================================================
 # === DOCUMENTATION ===
-# File: devenv.nix
-# Path: ./devenv.nix
+# File: performance.nix
+# Path: ./modules/modules/rpi/performance.nix
 # Description: Módulo de configuración para la infraestructura.
 # =====================
 {
-  cachix = {
-    push = "themakunga";
-    pull = ["themakunga"];
+  flake.rpiModules.performance = {
+    swapDevices = [
+      {
+        device = "/swapfile";
+        size = 8 * 1024;
+        priority = 10;
+      }
+    ];
+
+    boot.kernel.sysctl = {
+      "wm.swappiness" = 10;
+      "wm.dirty_writeback_centisecs" = 6000;
+    };
   };
 }

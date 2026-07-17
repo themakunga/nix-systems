@@ -1,3 +1,13 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: sops.nix
+# Path: ./modules/modules/common/sops.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {inputs, ...}: let
   inherit (inputs) sops-nix secrets;
   # Centralizamos la ruta por defecto para reusarla fácilmente
