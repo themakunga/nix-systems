@@ -47,6 +47,8 @@ in {
       commonModules.host-secrets
       commonModules.userProfiles
       commonModules.network
+      commonModules.applications.neovim
+      commonModules.applications.terminal
 
       darwinModules.primaryUser
       darwinModules.keyboard
