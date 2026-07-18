@@ -20,6 +20,7 @@
     home-manager
     sops-nix
     secrets
+    mac-app-util
     ;
   inherit
     (self)
@@ -41,6 +42,7 @@ in {
       nix-homebrew.darwinModules.nix-homebrew
       home-manager.darwinModules.home-manager
       commonModules.home-manager
+      mac-app-util.darwinModules.default
 
       commonModules.arch.darwin.silicon
       commonModules.settings
@@ -61,12 +63,13 @@ in {
       applicationModules.apps
       applicationModules.tailscale
       applicationModules.gh
+      applicationModules.openconnect
 
       userModules.nicolas-work
 
       profileModules.nicolas-work
       profileModules.thoughtworks
-      profileModules.grainger
+      # profileModules.grainger
 
       {
         my = {
@@ -85,14 +88,15 @@ in {
               enable = true;
               level = "system";
               apps = [
-                "Xcode"
-                "logitech-g-hub"
-                "Magnet"
                 "Amphetamine"
+                "Magnet"
+                "Xcode"
                 "iterm2"
-                "wezterm"
-                "tmux"
+                "logitech-g-hub"
+                "okta-verify"
                 "stow"
+                "tmux"
+                "wezterm"
               ];
             };
           };

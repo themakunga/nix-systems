@@ -54,6 +54,7 @@
       "qmk-toolbox"
       "rancher"
       "signal"
+      "okta-verify"
       "slack"
       "spotify"
       "steam"

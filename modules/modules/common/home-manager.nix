@@ -30,6 +30,7 @@ in {
 
       sharedModules = [
         homeManagerModules.common
+        inputs.mac-app-util.homeManagerModules.default
       ];
     };
   };

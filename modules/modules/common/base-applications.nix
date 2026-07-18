@@ -83,7 +83,6 @@ in {
           "fzf"
           "lazygit"
           "lazyaws"
-          "lazyactions"
           "lazysql"
           "git"
           "neofetch"

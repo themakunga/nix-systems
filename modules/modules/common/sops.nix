@@ -3,18 +3,11 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: sops.nix
-# Path: ./modules/modules/common/sops.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
 {inputs, ...}: let
   inherit (inputs) sops-nix secrets;
-  # Centralizamos la ruta por defecto para reusarla fácilmente
   commonSopsFile = "${secrets.outPath}/common.yaml";
 in {
   flake.commonModules = {
-    # 1. GPG para Home Manager
     sops = {
       gpg = {
         pkgs,
@@ -36,7 +29,6 @@ in {
               options.programs.sops.gpg = {
                 enable = mkEnableOption "Declarative GPG key importer";
                 keys = mkOption {
-                  description = "Private and Public GPG Keys";
                   default = [];
                   type = types.listOf (
                     types.submodule {
@@ -53,11 +45,9 @@ in {
                 home.activation.importSopsGpg = entryAfter ["writeBoundary"] (
                   concatMapStringsSep "\n" (key: ''
                     if [ -f "${key.publicKey}" ]; then
-                      echo "[GPG] import public key to host: ${key.name}..."
                       ${pkgs.gnupg}/bin/gpg --import "${key.publicKey}"
                     fi
                     if [ -f "${key.privateKey}" ]; then
-                      echo "[GPG] import private key to host: ${key.name}..."
                       ${pkgs.gnupg}/bin/gpg --import "${key.privateKey}"
                     fi
                   '')
@@ -70,37 +60,96 @@ in {
       };
     };
 
-    # 2. Secretos a nivel de SISTEMA (UNIVERSAL: NixOS + Darwin)
+    home-gpg-profiles = {
+      config,
+      lib,
+      osConfig ? {},
+      ...
+    }: let
+      inherit (lib) mkEnableOption mkOption types mkIf;
+      cfg = config.my.gpgProfiles;
+      hostName = osConfig.networking.hostName or "default";
+      hostSopsFile = "${secrets.outPath}/hosts/${hostName}.yaml";
+    in {
+      options.my.gpgProfiles = {
+        enable = mkEnableOption "Gestor automático de llaves GPG por host";
+        profiles = mkOption {
+          type = types.listOf types.str;
+          default = [];
+        };
+      };
+
+      config = mkIf cfg.enable {
+        sops.secrets = builtins.listToAttrs (
+          builtins.concatMap (name: [
+            {
+              name = "profiles/${name}/gpg/public_key";
+              value = {sopsFile = hostSopsFile;};
+            }
+            {
+              name = "profiles/${name}/gpg/private_key";
+              value = {sopsFile = hostSopsFile;};
+            }
+          ])
+          cfg.profiles
+        );
+
+        programs.sops.gpg = {
+          enable = true;
+          keys =
+            builtins.map (name: {
+              name = "${name}-key";
+              publicKey = config.sops.secrets."profiles/${name}/gpg/public_key".path;
+              privateKey = config.sops.secrets."profiles/${name}/gpg/private_key".path;
+            })
+            cfg.profiles;
+        };
+      };
+    };
+
     host-secrets = {
       lib,
       config,
+      pkgs,
       ...
     }: let
-      inherit (lib) mkOption types mkDefault;
+      inherit (lib) mkOption types mkDefault mapAttrs;
       cfg = config.my.hostSecrets;
+      user = config.system.primaryUser or "nicolas";
+      userHome =
+        if pkgs.stdenv.isDarwin
+        then "/Users/${user}"
+        else "/home/${user}";
     in {
       options.my.hostSecrets = {
         file = mkOption {
           type = types.str;
           default = commonSopsFile;
-          description = "Ruta al archivo sops específico de este host";
+        };
+        userSecrets = mkOption {
+          type = types.attrsOf types.attrs;
+          default = {};
         };
       };
 
       config = {
-        # OMITIMOS el 'imports = [sops-nix...]' aquí para no romper Darwin.
-        # Esa importación la debes hacer directamente en la lista de módulos de cada host.
         sops = {
           defaultSopsFile = mkDefault cfg.file;
           validateSopsFiles = false;
-
-          # Esta ruta de llave de sistema es válida tanto en macOS como en Linux
-          age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
+          age.sshKeyPaths = [
+            "/etc/ssh/ssh_host_ed25519_key"
+            "${userHome}/.ssh/id_ed25519"
+          ];
+          secrets = mapAttrs (_name: value:
+            value
+            // {
+              owner = mkDefault user;
+            })
+          cfg.userSecrets;
         };
       };
     };
 
-    # 3. Secretos a nivel de USUARIO (Home Manager)
     home-secrets = {
       lib,
       config,
@@ -114,7 +163,6 @@ in {
         defaultSopsFile = lib.mkDefault commonSopsFile;
 
         age = {
-          # Aquí usamos el homeDirectory dinámico, lo cual es seguro y evita el error de la tilde (~)
           sshKeyPaths = ["${homeDirectory}/.ssh/id_ed25519"];
           generateKey = false;
         };
@@ -128,7 +176,6 @@ in {
       };
     };
 
-    # 4. Git Identity
     git-identity = {
       config,
       lib,
@@ -160,7 +207,6 @@ in {
         };
         workspaces = mkOption {
           default = {};
-          description = "Configuraciones de Git aplicadas solo en carpetas específicas";
           type = types.attrsOf (
             types.submodule {
               options = {

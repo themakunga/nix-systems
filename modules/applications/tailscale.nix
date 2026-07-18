@@ -8,7 +8,7 @@
 # Path: ./modules/applications/tailscale.nix
 # Description: Módulo de configuración para la infraestructura.
 # =====================
-{
+{inputs, ...}: {
   flake.applicationModules.tailscale = {
     config,
     lib,
@@ -31,7 +31,9 @@
 
     config = mkIf cfg.enable (mkMerge [
       {
-        sops.secrets."tailscale/auth_token" = {};
+        sops.secrets."tailscale/auth_token" = {
+          sopsFile = "${inputs.secrets}/common.yaml";
+        };
       }
 
       {

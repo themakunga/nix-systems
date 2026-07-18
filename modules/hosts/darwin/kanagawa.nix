@@ -20,6 +20,7 @@
     home-manager
     sops-nix
     secrets
+    mac-app-util
     ;
   inherit
     (self)
@@ -40,6 +41,7 @@ in {
       sops-nix.darwinModules.sops
       nix-homebrew.darwinModules.nix-homebrew
       home-manager.darwinModules.home-manager
+      mac-app-util.darwinModules.default
 
       commonModules.arch.darwin.silicon
       commonModules.settings

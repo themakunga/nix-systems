@@ -3,18 +3,15 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: thoughtworks.nix
-# Path: ./modules/profiles/thoughtworks.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
 {
   flake.profileModules.thoughtworks = {config, ...}: {
     sops.secrets = {
-      "profiles/thouhtworks/ssh/private_key" = {};
-      "profiles/thouhtworks/gpg/private_key" = {};
-      "profiles/thouhtworks/gpg/public_key" = {};
-      "profiles/thouhtworks/gpg/key_id" = {};
+      "profiles/thoughtworks/ssh/private_key" = {
+        owner = config.my.userProfiles.nicolas-work.username or "nicolas";
+      };
+      "profiles/thoughtworks/gpg/key_id" = {
+        owner = config.my.userProfiles.nicolas-work.username or "nicolas";
+      };
     };
 
     my = {
@@ -31,39 +28,28 @@
         };
       };
       gh.thoughtworks.enable = true;
+
       userProfiles.nicolas-work.homeManager = {
-        programs = {
-          sops.gpg = {
-            enable = true;
-            keys = [
-              {
-                name = "thoughtworks-key";
-                publicKey = config.sops.secrets."profiles/thouhtworks/gpg/public_key".path;
-                privateKey = config.sops.secrets."profiles/thouhtworks/gpg/private_key".path;
-              }
-            ];
-          };
-          git-identity = {
-            enable = true;
-            workspaces.thouhtworks = {
-              directory = "~/Projects/Thoughtworks";
-              realName = "Nicolas Villarroel";
-              email = "nicolas.villarroel@thoughtworks.com";
-              gpg = {
-                enable = true;
-                keyId = config.sops.secrets."profiles/thouhtworks/gpg/key_id".path;
-              };
-              ssh = {
-                enableAuth = true;
-                privateKey = config.sops.secrets."profiles/thouhtworks/ssh/private_key".path;
-              };
-            };
-          };
+        my.gpgProfiles = {
+          enable = true;
+          profiles = ["thoughtworks"];
         };
 
-        services.gpg-agent = {
+        programs.git-identity = {
           enable = true;
-          enableSshSupport = true;
+          workspaces.thoughtworks = {
+            directory = "~/Projects/Thoughtworks";
+            realName = "Nicolas Villarroel";
+            email = "nicolas.villarroel@thoughtworks.com";
+            gpg = {
+              enable = true;
+              keyId = config.sops.secrets."profiles/thoughtworks/gpg/key_id".path;
+            };
+            ssh = {
+              enableAuth = true;
+              privateKey = config.sops.secrets."profiles/thoughtworks/ssh/private_key".path;
+            };
+          };
         };
       };
     };
