@@ -1,0 +1,49 @@
+name: Auto-Sync Branches with Develop
+
+on:
+  push:
+    branches:
+      - develop # Se ejecuta cada vez que develop recibe nuevos cambios
+
+jobs:
+  sync-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Necesario para descargar todas las ramas remotas
+
+      - name: Configurar Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Hacer merge de develop en ramas de features
+        run: |
+          # Obtenemos todas las ramas remotas limpiando el prefijo "origin/"
+          BRANCHES=$(git branch -r | grep -v '\->' | sed 's/origin\///')
+
+          for BRANCH in $BRANCHES; do
+            # Ignoramos main, develop y cualquier rama que empiece con release/
+            if [[ "$BRANCH" == "main" || "$BRANCH" == "develop" || "$BRANCH" == release/* ]]; then
+              continue
+            fi
+
+            echo "Revisando la rama: $BRANCH"
+
+            # Cambiamos a la rama de trabajo
+            git checkout $BRANCH
+
+            # Intentamos hacer el merge desde develop de forma automática
+            # --no-edit evita que Git pida un mensaje interactivo
+            if git merge origin/develop --no-edit; then
+              echo "✅ Merge exitoso en $BRANCH. Subiendo cambios..."
+              git push origin $BRANCH
+            else
+              echo "⚠️ Conflicto detectado en $BRANCH. Abortando merge."
+              # Si hay conflicto, abortamos para no romper la rama. 
+              # El desarrollador tendrá que resolverlo manualmente.
+              git merge --abort
+            fi
+          done
