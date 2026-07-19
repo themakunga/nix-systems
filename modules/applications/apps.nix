@@ -51,10 +51,10 @@
       "microsoft-teams"
       "mural"
       "obsidian"
+      "okta-verify"
       "qmk-toolbox"
       "rancher"
       "signal"
-      "okta-verify"
       "slack"
       "spotify"
       "steam"
@@ -62,6 +62,7 @@
       "typora@dev"
       "via"
       "visual-studio-code"
+      "wezterm"
       "zoom"
     ];
 
