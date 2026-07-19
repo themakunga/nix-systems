@@ -1,49 +1,45 @@
-name: Auto-Sync Branches with Develop
+name: Sync con Develop
 
 on:
   push:
-    branches:
-      - develop # Se ejecuta cada vez que develop recibe nuevos cambios
+    # Ignoramos las ramas en las que NO queremos que esto se ejecute
+    branches-ignore:
+      - main
+      - develop
+      - 'release/**'
+
+# Damos permisos de escritura al bot para que pueda hacer el push del merge
+permissions:
+  contents: write
 
 jobs:
-  sync-branches:
+  merge-develop-to-branch:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout del repositorio
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Necesario para descargar todas las ramas remotas
+          # fetch-depth: 0 es crítico para descargar el historial completo 
+          # y permitir que Git calcule el merge correctamente.
+          fetch-depth: 0
 
-      - name: Configurar Git
+      - name: Configurar identidad de Git
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Hacer merge de develop en ramas de features
+      - name: Merge desde develop
         run: |
-          # Obtenemos todas las ramas remotas limpiando el prefijo "origin/"
-          BRANCHES=$(git branch -r | grep -v '\->' | sed 's/origin\///')
+          echo "Actualizando la rama: $GITHUB_REF_NAME"
+          
+          # 1. Traer la versión más reciente de develop desde el remoto
+          git fetch origin develop
+          
+          # 2. Hacer el merge hacia la rama actual. 
+          # --no-edit evita que el pipeline se quede esperando un mensaje de commit manual.
+          git merge origin/develop --no-edit
 
-          for BRANCH in $BRANCHES; do
-            # Ignoramos main, develop y cualquier rama que empiece con release/
-            if [[ "$BRANCH" == "main" || "$BRANCH" == "develop" || "$BRANCH" == release/* ]]; then
-              continue
-            fi
-
-            echo "Revisando la rama: $BRANCH"
-
-            # Cambiamos a la rama de trabajo
-            git checkout $BRANCH
-
-            # Intentamos hacer el merge desde develop de forma automática
-            # --no-edit evita que Git pida un mensaje interactivo
-            if git merge origin/develop --no-edit; then
-              echo "✅ Merge exitoso en $BRANCH. Subiendo cambios..."
-              git push origin $BRANCH
-            else
-              echo "⚠️ Conflicto detectado en $BRANCH. Abortando merge."
-              # Si hay conflicto, abortamos para no romper la rama. 
-              # El desarrollador tendrá que resolverlo manualmente.
-              git merge --abort
-            fi
-          done
+      - name: Subir cambios actualizados
+        run: |
+          # Empujamos el resultado del merge de vuelta a tu rama
+          git push origin HEAD:$GITHUB_REF_NAME
