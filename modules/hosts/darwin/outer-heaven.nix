@@ -52,7 +52,6 @@ in {
           "finder"
           "extras"
           "homebrew"
-          "docker" # TODO: change to applicationModule soon
         ];
         applicationModules = [
           "apps"
