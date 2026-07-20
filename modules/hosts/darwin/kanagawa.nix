@@ -22,7 +22,7 @@
     secrets
     mac-app-util
     ;
-  mkBundle = import ../lib/mkBundle.nix;
+  mkBundle = self.lib.mkBundle inputs.nixpkgs.lib self;
 in {
   flake.darwinConfigurations.kanagawa = nix-darwin.lib.darwinSystem {
     specialArgs = {

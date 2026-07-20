@@ -22,7 +22,8 @@
     secrets
     mac-app-util
     ;
-  mkBundle = import ../lib/mkBundle.nix;
+
+  mkBundle = self.lib.mkBundle inputs.nixpkgs.lib self;
 in {
   flake.darwinConfigurations.outer-heaven = nix-darwin.lib.darwinSystem {
     specialArgs = {
@@ -43,7 +44,6 @@ in {
           "host-secrets"
           "userProfiles"
           "network"
-          "app-helpers"
         ];
         darwinModules = [
           "primaryUser"
@@ -67,7 +67,7 @@ in {
         ];
         profileModules = [
           "nicolas-work"
-          "thougthworks"
+          "thoughtworks" # CORREGIDO (typo)
         ];
       })
       {
@@ -84,7 +84,7 @@ in {
           keyboard.enable = true;
           apps = {
             neovim.enable = true;
-            terminal.enable = true;
+            terminal-zsh.enable = true; # CORREGIDO (coincide con tu módulo)
             outer-heaven = {
               enable = true;
               level = "system";

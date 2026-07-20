@@ -11,9 +11,8 @@
   inherit (inputs) dotfiles;
   inherit (self.lib) mkAppModule;
 in {
-  flake.applicationModule.terminal-zsh = mkAppModule "terminal-zsh" "Enable zsh as main terminal" {
+  flake.applicationModules.terminal-zsh = mkAppModule "terminal-zsh" "Enable zsh as main terminal" {
     my.apps.terminal-zsh = {
-      enable = true;
       level = "system";
       apps = [
         "fzf"

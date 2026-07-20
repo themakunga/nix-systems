@@ -11,7 +11,7 @@
   inherit (inputs) dotfiles;
   inherit (self.lib) mkAppModule;
 in {
-  flake.applicationModules.neovim = mkAppModule "neovim" "Enable NeoVim configueration" ({
+  flake.applicationModules.neovim = mkAppModule "neovim" "Enable NeoVim configuration" ({
     pkgs,
     lib,
     ...
@@ -20,7 +20,6 @@ in {
     inherit (pkgs.stdenv) isLinux;
   in {
     my.apps.neovim = {
-      enable = true;
       level = "system";
       apps =
         [
@@ -48,6 +47,7 @@ in {
           "xclip"
         ];
     };
+
     environment.variables = {
       EDITOR = "nvim";
       VISUAL = "nvim";
