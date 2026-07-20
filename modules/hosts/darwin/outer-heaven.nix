@@ -31,13 +31,14 @@ in {
       hostName = "outer-heaven";
     };
 
-    modules = [
-      sops-nix.darwinModules.sops
-      nix-homebrew.darwinModules.nix-homebrew
-      home-manager.darwinModules.home-manager
-      mac-app-util.darwinModules.default
-
-      (mkBundle {
+    modules =
+      [
+        sops-nix.darwinModules.sops
+        nix-homebrew.darwinModules.nix-homebrew
+        home-manager.darwinModules.home-manager
+        mac-app-util.darwinModules.default
+      ]
+      ++ (mkBundle {
         commonModules = [
           "arch.darwin"
           "settings"
@@ -69,39 +70,40 @@ in {
           "thoughtworks" # CORREGIDO (typo)
         ];
       })
-      {
-        my = {
-          hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
-          tailscale = {
-            enable = true;
-            gui.enable = true;
-          };
-          primaryUser = {
-            enable = true;
-            username = "nicolas";
-          };
-          keyboard.enable = true;
-          apps = {
-            neovim.enable = true;
-            terminal-zsh.enable = true; # CORREGIDO (coincide con tu módulo)
-            outer-heaven = {
+      ++ [
+        {
+          my = {
+            hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
+            tailscale = {
               enable = true;
-              level = "system";
-              apps = [
-                "Amphetamine"
-                "Magnet"
-                "Xcode"
-                "iterm2"
-                "logitech-g-hub"
-                "okta-verify"
-                "stow"
-                "tmux"
-                "wezterm"
-              ];
+              gui.enable = true;
+            };
+            primaryUser = {
+              enable = true;
+              username = "nicolas";
+            };
+            keyboard.enable = true;
+            apps = {
+              neovim.enable = true;
+              terminal-zsh.enable = true; # CORREGIDO (coincide con tu módulo)
+              outer-heaven = {
+                enable = true;
+                level = "system";
+                apps = [
+                  "Amphetamine"
+                  "Magnet"
+                  "Xcode"
+                  "iterm2"
+                  "logitech-g-hub"
+                  "okta-verify"
+                  "stow"
+                  "tmux"
+                  "wezterm"
+                ];
+              };
             };
           };
-        };
-      }
-    ];
+        }
+      ];
   };
 }

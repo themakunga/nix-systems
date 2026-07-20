@@ -30,13 +30,14 @@ in {
       hostName = "kanagawa";
     };
 
-    modules = [
-      sops-nix.darwinModules.sops
-      nix-homebrew.darwinModules.nix-homebrew
-      home-manager.darwinModules.home-manager
-      mac-app-util.darwinModules.default
-
-      (mkBundle {
+    modules =
+      [
+        sops-nix.darwinModules.sops
+        nix-homebrew.darwinModules.nix-homebrew
+        home-manager.darwinModules.home-manager
+        mac-app-util.darwinModules.default
+      ]
+      ++ (mkBundle {
         commonModules = [
           "arch.darwin"
           "settings"
@@ -66,21 +67,21 @@ in {
           "nicolas-42devs"
         ];
       })
-
-      {
-        my = {
-          hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
-          tailscale = {
-            enable = true;
-            gui.enable = true;
+      ++ [
+        {
+          my = {
+            hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
+            tailscale = {
+              enable = true;
+              gui.enable = true;
+            };
+            primaryUser = {
+              enable = true;
+              username = "nicolas";
+            };
+            keyboard.enable = true;
           };
-          primaryUser = {
-            enable = true;
-            username = "nicolas";
-          };
-          keyboard.enable = true;
-        };
-      }
-    ];
+        }
+      ];
   };
 }
