@@ -61,14 +61,19 @@
     "dotfiles": {
       "flake": false,
       "locked": {
-        "path": "~/.public-dotfiles",
-        "type": "path"
+        "lastModified": 1784501719,
+        "narHash": "sha256-e0k/29UPRl/GWRKbp1qY0OKB0hz6WLr73fbd8t2qL94=",
+        "owner": "TheMakunga",
+        "repo": "public-dotfiles",
+        "rev": "214c1e62b46395c375dca56ff19a5c66b00b7692",
+        "type": "github"
       },
       "original": {
-        "path": "~/.public-dotfiles",
-        "type": "path"
-      },
-      "parent": []
+        "owner": "TheMakunga",
+        "ref": "main",
+        "repo": "public-dotfiles",
+        "type": "github"
+      }
     },
     "fenix": {
       "inputs": {

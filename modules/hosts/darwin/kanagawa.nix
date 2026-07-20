@@ -22,14 +22,7 @@
     secrets
     mac-app-util
     ;
-  inherit
-    (self)
-    commonModules
-    userModules
-    darwinModules
-    profileModules
-    applicationModules
-    ;
+  mkBundle = import ../lib/mkBundle.nix;
 in {
   flake.darwinConfigurations.kanagawa = nix-darwin.lib.darwinSystem {
     specialArgs = {
@@ -43,28 +36,39 @@ in {
       home-manager.darwinModules.home-manager
       mac-app-util.darwinModules.default
 
-      commonModules.arch.darwin.silicon
-      commonModules.settings
-      commonModules.host-secrets
-      commonModules.userProfiles
-      commonModules.network
-      commonModules.home-manager
+      (mkBundle {
+        commonModules = [
+          "arch.darwin"
+          "settings"
+          "host-secrets"
+          "userProfile"
+          "network"
+          "app-helpers"
+        ];
+        darwinModules = [
+          "primaryUser"
+          "keyboard"
+          "security"
+          "finder"
+          "extras"
+          "homebrew"
+          "docker"
+        ];
+        applicationModules = [
+          "apps"
+          "tailscale"
+          "gh"
+        ];
+        userModules = [
+          "nicolas-personal"
+        ];
+        profileModules = [
+          "nicolas-personal"
+          "nicolas-bbook"
+          "nicolas-42devs"
+        ];
+      })
 
-      darwinModules.keyboard
-      darwinModules.primaryUser
-      darwinModules.security
-      darwinModules.dock
-      darwinModules.finder
-      darwinModules.extras
-      darwinModules.homebrew
-
-      userModules.nicolas-personal
-
-      profileModules.nicolas-personal
-      profileModules.nicolas-42devs
-      profileModules.nicolas-bbook
-
-      applicationModules.tailscale
       {
         my = {
           hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";

@@ -1,10 +1,17 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
 {
   inputs,
-  mkAppModule,
+  self,
+  ...
 }: let
   inherit (inputs) dotfiles;
-in
-  mkAppModule "terminal-zsh" "Enable zsh as main terminal" {
+  inherit (self.lib) mkAppModule;
+in {
+  flake.applicationModule.terminal-zsh = mkAppModule "terminal-zsh" "Enable zsh as main terminal" {
     my.apps.terminal-zsh = {
       enable = true;
       level = "system";
@@ -55,4 +62,5 @@ in
         };
       }
     ];
-  }
+  };
+}

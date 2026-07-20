@@ -16,7 +16,7 @@ in {
       cfg = config.my.caddy-main;
     in {
       options.my.caddy-main = {
-        enanble = mkEnableOption "Caddt Main Server";
+        enable = mkEnableOption "Caddt Main Server";
 
         email = mkOption {
           type = types.str;

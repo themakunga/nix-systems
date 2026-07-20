@@ -22,14 +22,7 @@
     secrets
     mac-app-util
     ;
-  inherit
-    (self)
-    commonModules
-    userModules
-    darwinModules
-    profileModules
-    applicationModules
-    ;
+  mkBundle = import ../lib/mkBundle.nix;
 in {
   flake.darwinConfigurations.outer-heaven = nix-darwin.lib.darwinSystem {
     specialArgs = {
@@ -41,36 +34,42 @@ in {
       sops-nix.darwinModules.sops
       nix-homebrew.darwinModules.nix-homebrew
       home-manager.darwinModules.home-manager
-      commonModules.home-manager
       mac-app-util.darwinModules.default
 
-      commonModules.arch.darwin.silicon
-      commonModules.settings
-      commonModules.host-secrets
-      commonModules.userProfiles
-      commonModules.network
-      commonModules.applications.neovim
-      commonModules.applications.terminal
-
-      darwinModules.primaryUser
-      darwinModules.keyboard
-      darwinModules.security
-      darwinModules.dock
-      darwinModules.finder
-      darwinModules.extras
-      darwinModules.homebrew
-
-      applicationModules.apps
-      applicationModules.tailscale
-      applicationModules.gh
-      applicationModules.openconnect
-
-      userModules.nicolas-work
-
-      profileModules.nicolas-work
-      profileModules.thoughtworks
-      # profileModules.grainger
-
+      (mkBundle {
+        commonModules = [
+          "arch.darwin"
+          "settings"
+          "host-secrets"
+          "userProfiles"
+          "network"
+          "app-helpers"
+        ];
+        darwinModules = [
+          "primaryUser"
+          "keyboard"
+          "security"
+          "finder"
+          "extras"
+          "homebrew"
+          "docker" # TODO: change to applicationModule soon
+        ];
+        applicationModules = [
+          "apps"
+          "tailscale"
+          "gh"
+          "openconnect"
+          "neovim"
+          "terminal-zsh"
+        ];
+        userModules = [
+          "nicolas-work"
+        ];
+        profileModules = [
+          "nicolas-work"
+          "thougthworks"
+        ];
+      })
       {
         my = {
           hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
@@ -84,6 +83,8 @@ in {
           };
           keyboard.enable = true;
           apps = {
+            neovim.enable = true;
+            terminal.enable = true;
             outer-heaven = {
               enable = true;
               level = "system";

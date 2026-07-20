@@ -5,15 +5,20 @@
 # =========================================================
 {
   inputs,
-  mkAppModule,
+  self,
+  ...
 }: let
   inherit (inputs) dotfiles;
-in
-  mkAppModule "neovim" "Enable NeoVim configueration" ({
+  inherit (self.lib) mkAppModule;
+in {
+  flake.applicationModules.neovim = mkAppModule "neovim" "Enable NeoVim configueration" ({
     pkgs,
     lib,
     ...
-  }: {
+  }: let
+    inherit (lib) optionals;
+    inherit (pkgs.stdenv) isLinux;
+  in {
     my.apps.neovim = {
       enable = true;
       level = "system";
@@ -38,7 +43,7 @@ in
           "unzip"
           "wget"
         ]
-        ++ lib.optionals pkgs.stdenv.isLinux [
+        ++ optionals isLinux [
           "wl-clipboard"
           "xclip"
         ];
@@ -50,10 +55,11 @@ in
 
     home-manager.sharedModules = [
       {
-        xdg.configDile."nvim" = {
+        xdg.configFile."nvim" = {
           source = "${dotfiles}/neovim";
           recursive = true;
         };
       }
     ];
-  })
+  });
+}
