@@ -41,7 +41,7 @@ in {
           "arch.darwin"
           "settings"
           "host-secrets"
-          "userProfile"
+          "userProfiles"
           "network"
           "app-helpers"
         ];
