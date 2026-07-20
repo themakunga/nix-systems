@@ -43,7 +43,6 @@ in {
           "host-secrets"
           "userProfiles"
           "network"
-          "app-helpers"
         ];
         darwinModules = [
           "primaryUser"
