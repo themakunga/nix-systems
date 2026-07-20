@@ -72,6 +72,7 @@ in {
       })
       ++ [
         {
+          nixpkgs.hostPlatform = "aarch64-darwin";
           my = {
             hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
             tailscale = {
