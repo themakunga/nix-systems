@@ -62,6 +62,7 @@ in {
           "openconnect"
           "neovim"
           "terminal-zsh"
+          "google-cloud.gemini"
         ];
         userModules = [
           "nicolas-work"
@@ -79,6 +80,9 @@ in {
               enable = true;
               gui.enable = true;
             };
+            gemini.enable = true;
+            neovim.enable = true;
+            terminal-zsh.enable = true;
             primaryUser = {
               enable = true;
               username = "nicolas";
