@@ -16,7 +16,7 @@
   inherit (inputs) dotfiles;
   inherit (self.lib) mkAppModule;
 in {
-  flake.applicationModule.github-cli =
+  flake.applicationModules.github-cli =
     mkAppModule "github-cli" "Enable GitHub CLI"
     ({config, ...}: {
       my.apps.github-cli = {
