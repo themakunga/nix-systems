@@ -51,7 +51,7 @@ in {
           "media"
         ];
         profileModules = [
-          "mediacenter"
+          "mediaserver"
         ];
         applicationModules = [
           "tailscale"
