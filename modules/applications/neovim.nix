@@ -12,12 +12,12 @@
   inherit (self.lib) mkAppModule;
 in {
   flake.applicationModules.neovim = mkAppModule "neovim" "Enable NeoVim configuration" ({
-    pkgs,
+    options,
     lib,
     ...
   }: let
     inherit (lib) optionals;
-    inherit (pkgs.stdenv) isLinux;
+    isLinux = options ? system.nixos;
   in {
     my.apps.neovim = {
       level = "system";

@@ -34,7 +34,7 @@ in {
       config = mkIf cfg.enable {
         networking.firewall.allowedTCPPorts = [80 443];
 
-        service.caddy = {
+        services.caddy = {
           enable = true;
 
           inherit (cfg) email;
