@@ -7,6 +7,7 @@
 # File: tailscale.nix
 # Path: ./modules/applications/tailscale.nix
 # Description: Módulo de configuración para la infraestructura.
+# =====================
 {self, ...}: let
   inherit (self.lib) mkAppModule;
 in {
@@ -17,35 +18,33 @@ in {
       options,
       ...
     }: let
-      inherit (lib) mkIf mkForce optionalAttrs mkMerge;
+      inherit (lib) mkForce optionalAttrs;
       isLinux = options ? system.nixos;
       isDarwin = options ? system.darwin;
     in
-      mkMerge [
-        {
-          my.apps."tailscale-core" = {
-            level = "system";
-            apps = ["tailscale"];
-          };
+      {
+        my.apps."tailscale-core" = {
+          level = "system";
+          apps = ["tailscale"];
+        };
 
-          sops.secrets."tailscale/auth_token" = {};
+        sops.secrets."tailscale/auth_token" = {};
+      }
+      // optionalAttrs isDarwin {
+        services.tailscale.enable = mkForce false;
+      }
+      // optionalAttrs isLinux {
+        services.tailscale = {
+          enable = true;
+          authKeyFile = config.sops.secrets."tailscale/auth_token".path;
+        };
 
-          services.tailscale.enable = mkIf isDarwin (mkForce false);
-        }
-
-        (optionalAttrs isLinux {
-          services.tailscale = {
-            enable = true;
-            authKeyFile = config.sops.secrets."tailscale/auth_token".path;
-          };
-
-          networking.firewall = {
-            trustedInterfaces = ["tailscale0"];
-            allowedUDPPorts = [config.services.tailscale.port];
-            checkReversePath = "loose";
-          };
-        })
-      ]);
+        networking.firewall = {
+          trustedInterfaces = ["tailscale0"];
+          allowedUDPPorts = [config.services.tailscale.port];
+          checkReversePath = "loose";
+        };
+      });
 
     gui = mkAppModule "tailscale-gui" "Tailscale GUI App" ({
       lib,
