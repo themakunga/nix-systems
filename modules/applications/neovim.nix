@@ -27,7 +27,7 @@ in {
         [
           alejandra
           curl
-          fg
+          fd
           fzf
           gcc
           git

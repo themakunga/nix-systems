@@ -62,6 +62,7 @@ in {
           "neovim"
           "openconnect"
           "tailscale.core"
+          "tailscale.gui"
           "terminal-zsh"
         ];
         userModules = [
@@ -73,7 +74,7 @@ in {
         ];
       })
       ++ [
-        {
+        ({pkgs, ...}: {
           my = {
             hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
             primaryUser = {
@@ -82,27 +83,38 @@ in {
             };
             keyboard.enable = true;
             apps = {
-              tailscale.enable = true;
+              tailscale-core.enable = true;
+              tailscale-gui.enable = true;
               neovim.enable = true;
               terminal-zsh.enable = true;
+              github-cli.enable = true;
+              gemini-cli.enable = true;
+
               outer-heaven = {
                 enable = true;
                 level = "system";
-                apps = [
-                  "Amphetamine"
-                  "Magnet"
-                  "Xcode"
+
+                packages = [
+                  pkgs.stow
+                  pkgs.tmux
+                ];
+
+                casks = [
                   "iterm2"
                   "logitech-g-hub"
                   "okta-verify"
-                  "stow"
-                  "tmux"
                   "wezterm"
                 ];
+
+                masApps = {
+                  "Amphetamine" = 937984704;
+                  "Magnet" = 441258766;
+                  "Xcode" = 497799835;
+                };
               };
             };
           };
-        }
+        })
       ];
   };
 }

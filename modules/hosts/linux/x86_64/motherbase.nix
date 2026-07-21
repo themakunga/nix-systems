@@ -3,68 +3,76 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# =========================================================
-# Archivo de Configuración de NixOS / Home Manager
-# Repositorio: TheMakunga Infrastructure
-# =========================================================
+# === DOCUMENTATION ===
+# File: motherbase.nix
+# Path: ./modules/hosts/linux/x86_64/motherbase.nix
+# Description: Módulo de configuración para la infraestructura.
+# =====================
 {
   self,
   inputs,
   ...
 }: let
-  inherit (inputs) nix-darwin nix-homebrew home-manager sops-nix secrets mac-app-util;
+  inherit
+    (inputs)
+    nixpkgs
+    home-manager
+    sops-nix
+    secrets
+    ;
   mkBundle = self.lib.mkBundle inputs.nixpkgs.lib self;
 in {
-  flake.darwinConfigurations.outer-heaven = nix-darwin.lib.darwinSystem {
+  flake.nixosConfigurations.motherbase = nixpkgs.lib.nixosSystem {
     specialArgs = {
       inherit self inputs;
-      hostName = "outer-heaven";
+      hostName = "motherbase";
     };
+
     modules =
       [
-        sops-nix.darwinModules.sops
-        nix-homebrew.darwinModules.nix-homebrew
-        home-manager.darwinModules.home-manager
-        mac-app-util.darwinModules.default
+        sops-nix.nixosModules.sops
+        home-manager.nixosModules.home-manager
       ]
       ++ (mkBundle {
-        commonModules = ["apps" "arch.darwin.silicon" "home-manager" "host-secrets" "network" "settings" "userProfiles"];
-        darwinModules = ["extras" "finder" "homebrew" "keyboard" "primaryUser" "security"];
-        applicationModules = ["github-cli" "google-cloud.gemini" "neovim" "openconnect" "tailscale.core" "terminal-zsh"];
-        userModules = ["nicolas-work"];
-        profileModules = ["nicolas-work" "thoughtworks"];
+        commonModules = [
+          "arch.nixos.x64"
+          "authorized-keys"
+          "home-manager"
+          "host-secrets"
+          "network"
+          "settings"
+          "userProfiles"
+          "apps"
+        ];
+        nixosModules = [
+          "base-machine"
+          "keyboard"
+        ];
+        userModules = [
+          "nicolas-server"
+        ];
+        profileModules = [
+          "nicolas-server"
+        ];
+        applicationModules = [
+          "tailscale.core"
+        ];
       })
       ++ [
-        ({pkgs, ...}: {
+        {
           my = {
-            hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
-            primaryUser = {
-              enable = true;
-              username = "nicolas";
-            };
+            hostSecrets.file = "${secrets.outPath}/hosts/motherbase.yaml";
             keyboard.enable = true;
+            base-machine = {
+              enable = true;
+              bootMode = "uefi";
+              rootDevice = "/dev/nvme0u1p2";
+            };
             apps = {
               tailscale-core.enable = true;
-              tailscale-gui.enable = true;
-              neovim.enable = true;
-              terminal-zsh.enable = true;
-              github-cli.enable = true;
-              gemini-cli.enable = true;
-
-              outer-heaven = {
-                enable = true;
-                level = "system";
-                packages = with pkgs; [stow tmux];
-                casks = ["iterm2" "logitech-g-hub" "okta-verify" "wezterm"];
-                masApps = {
-                  "Amphetamine" = 937984704;
-                  "Magnet" = 441258766;
-                  "Xcode" = 497799835;
-                };
-              };
             };
           };
-        })
+        }
       ];
   };
 }

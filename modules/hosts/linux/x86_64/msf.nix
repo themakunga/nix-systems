@@ -69,7 +69,7 @@ in {
               rootDevice = "/dev/nvme0u1p2";
             };
             apps = {
-              tailscale.enable = true;
+              tailscale-core.enable = true;
             };
           };
         }

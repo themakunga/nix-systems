@@ -20,16 +20,19 @@ in {
       level = "system";
       packages = with pkgs; [
         fzf
-        lazyaws
         lazygit
         lazysql
-        neofetch
+        fastfetch
         oh-my-posh
         tmux
         wezterm
       ];
     };
-    sysConfig = {
+    sysConfig = {pkgs, ...}: {
+      fonts.packages = [
+        pkgs.nerd-fonts.hack
+      ];
+
       home-manager.sharedModules = [
         {
           home.file = {
@@ -44,8 +47,8 @@ in {
         }
         {
           xdg.configFile = {
-            "neofetch" = {
-              source = "${dotfiles}/neofetch";
+            "fastfetch" = {
+              source = "${dotfiles}/fastfetch";
               recursive = true;
             };
             "lazygit" = {
