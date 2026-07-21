@@ -46,6 +46,7 @@ in {
           "authorized-keys"
           "network"
           "home-manager"
+          "userProfiles"
         ];
         nixosModules = [
           "keyboard"

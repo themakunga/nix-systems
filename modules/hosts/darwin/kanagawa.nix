@@ -44,6 +44,7 @@ in {
           "host-secrets"
           "userProfiles"
           "network"
+          "home-manager"
         ];
         darwinModules = [
           "primaryUser"
@@ -69,7 +70,6 @@ in {
       })
       ++ [
         {
-          nixpkgs.hostPlatform = "aarch64-darwin";
           my = {
             hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
             tailscale = {

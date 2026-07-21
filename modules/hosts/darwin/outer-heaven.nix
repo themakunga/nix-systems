@@ -45,6 +45,7 @@ in {
           "host-secrets"
           "userProfiles"
           "network"
+          "home-manager"
         ];
         darwinModules = [
           "primaryUser"
@@ -67,7 +68,7 @@ in {
         ];
         profileModules = [
           "nicolas-work"
-          "thoughtworks" # CORREGIDO (typo)
+          "thoughtworks"
         ];
       })
       ++ [
@@ -85,7 +86,7 @@ in {
             keyboard.enable = true;
             apps = {
               neovim.enable = true;
-              terminal-zsh.enable = true; # CORREGIDO (coincide con tu módulo)
+              terminal-zsh.enable = true;
               outer-heaven = {
                 enable = true;
                 level = "system";
