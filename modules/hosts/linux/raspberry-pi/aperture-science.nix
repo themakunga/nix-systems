@@ -82,7 +82,7 @@ in {
               bootMode = "rpi";
             };
             apps = {
-              tailscale-core.enable = true;
+              tailscale.enable = true;
               tailscore-gui.enable = true;
             };
           };

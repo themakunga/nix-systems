@@ -83,15 +83,9 @@ in {
         {
           my = {
             hostSecrets.file = "${secrets.outPath}/hosts/black-mesa.yaml";
-
-            tailscale = {
-              enable = true;
-              gui.enable = false;
-            };
-
             pihole.enable = true;
             tofu-dns.enable = true;
-
+            tailscale.enable = true;
             base-machine = {
               enable = true;
               bootMode = "rpi";
