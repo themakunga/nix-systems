@@ -3,6 +3,10 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# =========================================================
 {
   inputs,
   self,
@@ -11,55 +15,50 @@
   inherit (inputs) dotfiles;
   inherit (self.lib) mkAppModule;
 in {
-  flake.applicationModules.neovim = mkAppModule "neovim" "Enable NeoVim configuration" ({
-    options,
-    lib,
-    ...
-  }: let
-    inherit (lib) optionals;
-    isLinux = options ? system.nixos;
-  in {
-    my.apps.neovim = {
+  flake.applicationModules.neovim = mkAppModule "neovim" "Enable NeoVim configuration" {
+    meta = {
+      pkgs,
+      options,
+      lib,
+      ...
+    }: {
       level = "system";
-      apps =
+      packages = with pkgs;
         [
-          "alejandra"
-          "curl"
-          "fg"
-          "fzf"
-          "gcc"
-          "git"
-          "gnumake"
-          "lazygit"
-          "lua-language-server"
-          "neovim"
-          "nil"
-          "nodejs_24"
-          "python3"
-          "ripgrep"
-          "stylua"
-          "tree-sitter"
-          "unzip"
-          "wget"
+          alejandra
+          curl
+          fg
+          fzf
+          gcc
+          git
+          gnumake
+          lazygit
+          lua-language-server
+          neovim
+          nil
+          nodejs_24
+          python3
+          ripgrep
+          stylua
+          tree-sitter
+          unzip
+          wget
         ]
-        ++ optionals isLinux [
-          "wl-clipboard"
-          "xclip"
-        ];
+        ++ lib.optionals (options ? system.nixos) [wl-clipboard xclip];
     };
-
-    environment.variables = {
-      EDITOR = "nvim";
-      VISUAL = "nvim";
+    sysConfig = {
+      environment.variables = {
+        EDITOR = "nvim";
+        VISUAL = "nvim";
+      };
+      home-manager.sharedModules = [
+        {
+          xdg.configFile."nvim" = {
+            source = "${dotfiles}/neovim";
+            recursive = true;
+          };
+        }
+      ];
     };
-
-    home-manager.sharedModules = [
-      {
-        xdg.configFile."nvim" = {
-          source = "${dotfiles}/neovim";
-          recursive = true;
-        };
-      }
-    ];
-  });
+  };
 }

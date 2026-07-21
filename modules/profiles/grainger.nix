@@ -3,11 +3,10 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: grainger.nix
-# Path: ./modules/profiles/grainger.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# =========================================================
 {
   flake.profileModules.grainger = {config, ...}: {
     sops.secrets = {
@@ -23,15 +22,10 @@
           enable = true;
           level = "user";
           targetUser = "nicolas";
-          apps = [
-            "microsoft-teams"
-            "slack"
-            "dbeaver-community"
-            "rancher"
-          ];
+          casks = ["microsoft-teams" "slack" "dbeaver-community" "rancher"];
         };
+        github-cli.enable = true;
       };
-      gh.grainger.enable = true;
 
       userProfiles.nicolas-work.homeManager = {
         programs = {
@@ -62,7 +56,6 @@
             };
           };
         };
-
         services.gpg-agent = {
           enable = true;
           enableSshSupport = true;

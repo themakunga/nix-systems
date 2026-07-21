@@ -3,15 +3,15 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# =========================================================
 {
   flake.profileModules.thoughtworks = {config, ...}: {
     sops.secrets = {
-      "profiles/thoughtworks/ssh/private_key" = {
-        owner = config.my.userProfiles.nicolas-work.username or "nicolas";
-      };
-      "profiles/thoughtworks/gpg/key_id" = {
-        owner = config.my.userProfiles.nicolas-work.username or "nicolas";
-      };
+      "profiles/thoughtworks/ssh/private_key" = {owner = config.my.userProfiles.nicolas-work.username or "nicolas";};
+      "profiles/thoughtworks/gpg/key_id" = {owner = config.my.userProfiles.nicolas-work.username or "nicolas";};
     };
 
     my = {
@@ -22,11 +22,7 @@
           enable = true;
           level = "user";
           targetUser = "nicolas";
-          apps = [
-            "google-chrome"
-            "zoom"
-            "figma"
-          ];
+          casks = ["google-chrome" "zoom" "figma"];
         };
       };
 
@@ -35,7 +31,6 @@
           enable = true;
           profiles = ["thoughtworks"];
         };
-
         programs.git-identity = {
           enable = true;
           workspaces.thoughtworks = {

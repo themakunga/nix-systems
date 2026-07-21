@@ -3,11 +3,10 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: apps.nix
-# Path: ./modules/applications/apps.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# =========================================================
 {
   flake.commonModules.apps = {
     config,
@@ -15,81 +14,16 @@
     pkgs,
     ...
   }: let
-    inherit
-      (lib)
-      mkOption
-      types
-      mkEnableOption
-      mkIf
-      mkMerge
-      filterAttrs
-      mapAttrsToList
-      flatten
-      unique
-      foldl'
-      filter
-      splitString
-      getAttrFromPath
-      ;
+    inherit (lib) mkOption types mkEnableOption mkIf mkMerge filterAttrs mapAttrsToList flatten foldl';
     inherit (pkgs.stdenv.hostPlatform) isDarwin;
     cfg = config.my.apps;
-
-    macCasks = [
-      "1password"
-      "1password-cli"
-      "arc"
-      "arduino-ide"
-      "bartender"
-      "dbeaver-community"
-      "discord"
-      "figma"
-      "firefox"
-      "google-chrome"
-      "iterm2"
-      "logitech-g-hub"
-      "mattermost"
-      "microsoft-teams"
-      "mural"
-      "obsidian"
-      "okta-verify"
-      "qmk-toolbox"
-      "rancher"
-      "signal"
-      "slack"
-      "spotify"
-      "steam"
-      "topnotch"
-      "typora@dev"
-      "via"
-      "visual-studio-code"
-      "wezterm"
-      "zoom"
-    ];
-
-    macMasApps = {
-      "Amphetamine" = 937984704;
-      "Apple Configurator" = 1037126344;
-      "Be Focused Pro" = 961632517;
-      "Magnet" = 441258766;
-      "Parcel" = 375589283;
-      "Termius" = 1176074088;
-      "Whatsapp Messenger" = 310633997;
-      "Xcode" = 497799835;
-      "bitwarden" = 1352778147;
-      "goodnotes" = 1444383602;
-      "tailscale" = 1475387142;
-      "wireguard" = 1451685025;
-      "xcode" = 497799835;
-    };
-
-    strToPkg = name: getAttrFromPath (splitString "." name) pkgs;
   in {
     options.my.apps = mkOption {
       default = {};
-      description = "Smart motor apps routing Nix, Casks, and Mac App Store";
+      description = "Smart Application Routing Engine";
       type = types.attrsOf (types.submodule {
         options = {
-          enable = mkEnableOption "Activate group";
+          enable = mkEnableOption "Enable this application group";
           level = mkOption {
             type = types.enum ["system" "user"];
             default = "system";
@@ -98,86 +32,50 @@
             type = types.str;
             default = "nicolas";
           };
-          apps = mkOption {
+          packages = mkOption {
+            type = types.listOf types.package;
+            default = [];
+            description = "Native Nixpkgs derivations";
+          };
+          casks = mkOption {
             type = types.listOf types.str;
             default = [];
-            description = "List of app names (e.g., [\"git\" \"docker\" \"slack\"])";
+            description = "Homebrew Casks (macOS only)";
+          };
+          masApps = mkOption {
+            type = types.attrsOf types.ints.unsigned;
+            default = {};
+            description = "Mac App Store IDs (macOS only)";
           };
         };
       });
     };
 
     config = let
-      activeGroups = filterAttrs (_: g: g.enable) cfg;
-      systemGroups = filterAttrs (_: g: g.level == "system") activeGroups;
-      userGroups = filterAttrs (_: g: g.level == "user") activeGroups;
+      activeApps = filterAttrs (_: g: g.enable) cfg;
+      sysApps = filterAttrs (_: g: g.level == "system") activeApps;
+      userApps = filterAttrs (_: g: g.level == "user") activeApps;
 
-      sysAppsRaw = flatten (mapAttrsToList (_: g: g.apps) systemGroups);
+      sysPackages = flatten (mapAttrsToList (_: g: g.packages) sysApps);
+      sysCasks = flatten (mapAttrsToList (_: g: g.casks) sysApps);
+      sysMasApps = foldl' (acc: g: acc // g.masApps) {} (builtins.attrValues sysApps);
 
-      sysCasks =
-        if isDarwin
-        then filter (x: builtins.elem x macCasks) sysAppsRaw
-        else [];
+      uniqueUsers = lib.unique (mapAttrsToList (_: g: g.targetUser) userApps);
+      userPackagesConfig = foldl' (acc: user: let
+        userPkgs = flatten (mapAttrsToList (_: g: g.packages) (filterAttrs (_: g: g.targetUser == user) userApps));
+      in
+        acc // {${user} = {home.packages = userPkgs;};}) {}
+      uniqueUsers;
 
-      sysMasAppsKeys =
-        if isDarwin
-        then filter (x: builtins.hasAttr x macMasApps) sysAppsRaw
-        else [];
-      sysMasApps = builtins.listToAttrs (map (name: {
-          inherit name;
-          value = macMasApps.${name};
-        })
-        sysMasAppsKeys);
-
-      sysNixStrings =
-        if isDarwin
-        then filter (x: !(builtins.elem x macCasks) && !(builtins.hasAttr x macMasApps)) sysAppsRaw
-        else sysAppsRaw;
-      sysPackages = map strToPkg sysNixStrings;
-
-      uniqueUsers = unique (mapAttrsToList (_: g: g.targetUser) userGroups);
-
-      userPackagesConfig =
-        foldl' (
-          acc: user: let
-            userAppsRaw = flatten (mapAttrsToList (_: g: g.apps) (filterAttrs (_: g: g.targetUser == user) userGroups));
-            userNixStrings =
-              if isDarwin
-              then filter (x: !(builtins.elem x macCasks) && !(builtins.hasAttr x macMasApps)) userAppsRaw
-              else userAppsRaw;
-            userPkgs = map strToPkg userNixStrings;
-          in
-            acc
-            // {
-              ${user} = {
-                home.packages = userPkgs;
-              };
-            }
-        ) {}
-        uniqueUsers;
-
-      userCasksRaw = flatten (mapAttrsToList (_: g: g.apps) userGroups);
-      userCasks =
-        if isDarwin
-        then filter (x: builtins.elem x macCasks) userCasksRaw
-        else [];
-
-      userMasAppsKeys =
-        if isDarwin
-        then filter (x: builtins.hasAttr x macMasApps) userCasksRaw
-        else [];
-      userMasApps = builtins.listToAttrs (map (name: {
-          inherit name;
-          value = macMasApps.${name};
-        })
-        userMasAppsKeys);
+      userCasks = flatten (mapAttrsToList (_: g: g.casks) userApps);
+      userMasApps = foldl' (acc: g: acc // g.masApps) {} (builtins.attrValues userApps);
     in
       mkMerge [
         (mkIf (sysPackages != []) {
           environment.systemPackages = sysPackages;
         })
 
-        (mkIf (isDarwin && (sysCasks != [] || userCasks != [] || sysMasApps != {} || userMasApps != {})) {
+        (mkIf isDarwin {
           homebrew.casks = sysCasks ++ userCasks;
           homebrew.masApps = sysMasApps // userMasApps;
         })

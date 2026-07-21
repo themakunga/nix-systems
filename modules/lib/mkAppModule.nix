@@ -3,8 +3,15 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# =========================================================
 {
-  flake.lib.mkAppModule = name: _description: appConfig: {
+  flake.lib.mkAppModule = name: _description: {
+    meta ? {},
+    sysConfig ? {},
+  }: {
     lib,
     config,
     ...
@@ -12,35 +19,19 @@
     safePkgs = args.pkgs or config._module.args.pkgs;
     childArgs = args // {pkgs = safePkgs;};
 
-    evaluated =
-      if builtins.isFunction appConfig
-      then appConfig childArgs
-      else appConfig;
-
-    hasMyApp = evaluated ? my && evaluated.my ? apps && evaluated.my.apps ? ${name};
-    appMeta =
-      if hasMyApp
-      then evaluated.my.apps.${name}
-      else {};
-
-    payload =
-      if hasMyApp
-      then
-        builtins.removeAttrs evaluated ["my"]
-        // {
-          my =
-            builtins.removeAttrs evaluated.my ["apps"]
-            // {
-              apps = builtins.removeAttrs evaluated.my.apps [name];
-            };
-        }
-      else evaluated;
+    evalMeta =
+      if builtins.isFunction meta
+      then meta childArgs
+      else meta;
+    evalConf =
+      if builtins.isFunction sysConfig
+      then sysConfig childArgs
+      else sysConfig;
   in
     lib.mkMerge [
       {
-        my.apps.${name} = appMeta // {enable = lib.mkDefault false;};
+        my.apps.${name} = {enable = lib.mkDefault false;} // evalMeta;
       }
-
-      (lib.mkIf config.my.apps.${name}.enable payload)
+      (lib.mkIf config.my.apps.${name}.enable evalConf)
     ];
 }
