@@ -25,7 +25,7 @@ in {
   flake.nixosConfigurations.msf = nixpkgs.lib.nixosSystem {
     specialArgs = {
       inherit self inputs;
-      hostName = "mfs";
+      hostName = "msf";
     };
 
     modules =

@@ -46,7 +46,7 @@ in {
         nixosModules = [
           "base-machine"
           "keyboard"
-          "primearyUser"
+          "primaryUser"
         ];
         userModules = [
           "deck"
