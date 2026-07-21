@@ -9,7 +9,7 @@
 # Description: Módulo de configuración para la infraestructura.
 # =====================
 {
-  flake.applicationModules.apps = {
+  flake.commonModules.apps = {
     config,
     lib,
     pkgs,

@@ -80,15 +80,13 @@ in {
               enable = true;
               gui.enable = true;
             };
-            gemini.enable = true;
-            neovim.enable = true;
-            terminal-zsh.enable = true;
             primaryUser = {
               enable = true;
               username = "nicolas";
             };
             keyboard.enable = true;
             apps = {
+              gemini-cli.enable = true;
               neovim.enable = true;
               terminal-zsh.enable = true;
               outer-heaven = {
