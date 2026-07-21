@@ -42,11 +42,11 @@ in {
           "network"
           "settings"
           "userProfiles"
+          "primaryUser"
         ];
         nixosModules = [
           "base-machine"
           "keyboard"
-          "primaryUser"
         ];
         userModules = [
           "nicolas-server"
