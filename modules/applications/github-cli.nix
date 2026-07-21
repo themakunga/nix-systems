@@ -17,7 +17,7 @@
   inherit (self.lib) mkAppModule;
 in {
   flake.applicationModule.github-cli =
-    mkAppModule "github" "Enable GitHub CLI"
+    mkAppModule "github-cli" "Enable GitHub CLI"
     ({config, ...}: {
       my.apps.github-cli = {
         level = "system";
