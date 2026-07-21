@@ -24,7 +24,7 @@ in {
         apps = ["gh"];
       };
 
-      sops.secret."applications/gh/token" = {};
+      sops.secrets."applications/gh/token" = {};
 
       environment.interactiveShellInit = ''
         export GH_TOKEN="$(cat
