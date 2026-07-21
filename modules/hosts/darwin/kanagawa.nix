@@ -56,7 +56,7 @@ in {
           "security"
         ];
         applicationModules = [
-          "gh"
+          "github-cli"
           "neovim"
           "tailscale.core"
           "terminal-zsh"
@@ -80,6 +80,7 @@ in {
             };
             keyboard.enable = true;
             apps = {
+              github-cli.enable = true;
               tailscale.enable = true;
             };
           };

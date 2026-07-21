@@ -57,7 +57,7 @@ in {
           "security"
         ];
         applicationModules = [
-          "gh"
+          "github-cli"
           "google-cloud.gemini"
           "neovim"
           "openconnect"
@@ -86,6 +86,7 @@ in {
               gemini-cli.enable = true;
               neovim.enable = true;
               terminal-zsh.enable = true;
+              github-cli.enable = true;
               outer-heaven = {
                 enable = true;
                 level = "system";
