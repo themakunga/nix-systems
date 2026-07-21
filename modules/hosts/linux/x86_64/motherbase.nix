@@ -42,7 +42,6 @@ in {
           "network"
           "settings"
           "userProfiles"
-          "primaryUser"
         ];
         nixosModules = [
           "base-machine"
