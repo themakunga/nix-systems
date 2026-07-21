@@ -40,29 +40,29 @@ in {
       ]
       ++ (mkBundle {
         commonModules = [
+          "apps"
           "arch.darwin.silicon"
-          "settings"
-          "host-secrets"
-          "userProfiles"
-          "network"
           "home-manager"
+          "host-secrets"
+          "network"
+          "settings"
+          "userProfiles"
         ];
         darwinModules = [
-          "primaryUser"
-          "keyboard"
-          "security"
-          "finder"
           "extras"
+          "finder"
           "homebrew"
+          "keyboard"
+          "primaryUser"
+          "security"
         ];
         applicationModules = [
-          "apps"
-          "tailscale"
           "gh"
-          "openconnect"
-          "neovim"
-          "terminal-zsh"
           "google-cloud.gemini"
+          "neovim"
+          "openconnect"
+          "tailscale.core"
+          "terminal-zsh"
         ];
         userModules = [
           "nicolas-work"
@@ -76,16 +76,13 @@ in {
         {
           my = {
             hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
-            tailscale = {
-              enable = true;
-              gui.enable = true;
-            };
             primaryUser = {
               enable = true;
               username = "nicolas";
             };
             keyboard.enable = true;
             apps = {
+              tailscale.enable = true;
               gemini-cli.enable = true;
               neovim.enable = true;
               terminal-zsh.enable = true;

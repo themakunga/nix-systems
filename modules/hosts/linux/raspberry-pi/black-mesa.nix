@@ -40,6 +40,7 @@ in {
       ]
       ++ (mkBundle {
         commonModules = [
+          "apps"
           "arch.nixos.rpi"
           "settings"
           "host-secrets"
@@ -66,7 +67,7 @@ in {
         ];
         applicationModules = [
           "pihole"
-          "tailscale"
+          "tailscale.core"
           "tofu-dns"
           "kvm"
         ];

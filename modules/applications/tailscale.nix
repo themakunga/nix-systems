@@ -8,64 +8,57 @@
 # Path: ./modules/applications/tailscale.nix
 # Description: Módulo de configuración para la infraestructura.
 # =====================
-{inputs, ...}: {
+{self, ...}: let
+  inherit (self.lib) mkAppModule;
+in {
   flake.applicationModules.tailscale = {
-    config,
-    lib,
-    pkgs,
-    options,
-    ...
-  }: let
-    inherit (lib) mkEnableOption mkIf mkMerge mkForce optionalAttrs;
-    cfg = config.my.tailscale;
-
-    isLinux = options ? system.nixos;
-    isDarwin = options ? system.darwin;
-  in {
-    options.my.tailscale = {
-      enable = mkEnableOption "Universal Tailscale client";
-      gui = {
-        enable = mkEnableOption "Graphical interface (Trayscale on Linux, Homebrew Cask on macOS)";
-      };
-    };
-
-    config = mkIf cfg.enable (mkMerge [
-      {
-        sops.secrets."tailscale/auth_token" = {
-          sopsFile = "${inputs.secrets}/common.yaml";
+    core =
+      mkAppModule "tailscale" "Enable tailscale
+    module" ({
+        config,
+        lib,
+        pkgs,
+        ...
+      }: let
+        inherit (lib) mkIf mkForce;
+        inherit (pkgs.stdenv.hostPlaform) isLinux isDarwin;
+      in {
+        my.apps.tailscale = {
+          level = "system";
+          apps = [
+            "tailscale"
+          ];
         };
-      }
 
-      {
-        services.tailscale = {
+        sops.secrets."tailscale/auth_token" = {};
+
+        services.tailscale = mkIf isLinux {
           enable = true;
+          authKeyFile = config.sops.secrets."tailscale/auth_token".path;
         };
 
-        environment.systemPackages = [pkgs.tailscale];
-      }
-
-      (optionalAttrs isLinux {
-        services.tailscale.authKeyFile =
-          config.sops.secrets."tailscale/auth_token".path;
-        networking.firewall = {
+        networking.firewall = mkIf isLinux {
           trustedInterfaces = ["tailscale0"];
           allowedUDPPorts = [config.services.tailscale.port];
           checkReversePath = "loose";
         };
 
-        environment.systemPackages = mkIf cfg.gui.enable [
-          pkgs.trayscale
-        ];
-      })
-
-      (optionalAttrs isDarwin {
-        services.tailscale.enable = mkIf cfg.gui.enable (mkForce false);
-
-        homebrew = mkIf cfg.gui.enable {
-          enable = true;
-          casks = ["tailscale"];
+        service.tailscale.enable = mkIf isDarwin (mkForce false);
+      });
+    gui =
+      mkAppModule "tailscale-gui" "Enable GUI in Tailscale, only in linux"
+      ({
+        pkgs,
+        lib,
+        ...
+      }: let
+        inherit (lib) optionals;
+        inherit (pkgs.stdenv.hostPlaform) isLinux;
+      in {
+        my.apps."tailscale-gui" = {
+          level = "system";
+          apps = optionals isLinux ["trayscale"];
         };
-      })
-    ]);
+      });
   };
 }

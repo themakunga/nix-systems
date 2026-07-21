@@ -42,6 +42,7 @@ in {
           "network"
           "settings"
           "userProfiles"
+          "apps"
         ];
         nixosModules = [
           "base-machine"
@@ -54,7 +55,7 @@ in {
           "mediaserver"
         ];
         applicationModules = [
-          "tailscale"
+          "tailscale.core"
         ];
       })
       ++ [
@@ -62,14 +63,13 @@ in {
           my = {
             hostSecrets.file = "${secrets.outPath}/hosts/msf.yaml";
             keyboard.enable = true;
-            tailscale = {
-              enable = true;
-              gui.enable = true;
-            };
             base-machine = {
               enable = true;
               bootMode = "uefi";
               rootDevice = "/dev/nvme0u1p2";
+            };
+            apps = {
+              tailscale-core.enable = true;
             };
           };
         }

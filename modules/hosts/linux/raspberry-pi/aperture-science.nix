@@ -39,6 +39,7 @@ in {
       ]
       ++ (mkBundle {
         commonModules = [
+          "apps"
           "arch.nixos.rpi"
           "authorized-keys"
           "home-manager"
@@ -67,7 +68,8 @@ in {
           "glados"
         ];
         applicationModules = [
-          "tailscale"
+          "tailscale.core"
+          "tailscale.gui"
         ];
       })
       ++ [
@@ -75,13 +77,13 @@ in {
           my = {
             hostSecrets.file = "${secrets.outPath}/hosts/aperture-science.yaml";
             keyboard.enable = true;
-            tailscale = {
-              enable = true;
-              gui.enable = true;
-            };
             base-machine = {
               enable = true;
               bootMode = "rpi";
+            };
+            apps = {
+              tailscale-core.enable = true;
+              tailscore-gui.enable = true;
             };
           };
         }

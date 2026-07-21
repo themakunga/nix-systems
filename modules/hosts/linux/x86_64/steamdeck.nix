@@ -36,6 +36,7 @@ in {
       ++ (mkBundle {
         commonModules = [
           "arch.nixos.x64"
+          "apps"
           "authorized-keys"
           "home-manager"
           "host-secrets"
@@ -54,7 +55,8 @@ in {
           "steamdeck"
         ];
         applicationModules = [
-          "tailscale"
+          "tailscale.core"
+          "tailscale.gui"
         ];
       })
       ++ [
@@ -62,14 +64,14 @@ in {
           my = {
             hostSecrets.file = "${secrets.outPath}/hosts/steamdeck.yaml";
             keyboard.enable = true;
-            tailscale = {
-              enable = true;
-              gui.enable = true;
-            };
             base-machine = {
               enable = true;
               bootMode = "uefi";
               rootDevice = "/dev/nvme0u1p2";
+            };
+            apps = {
+              tailscale-core.enable = true;
+              tailscale-gui.enable = true;
             };
           };
         }
