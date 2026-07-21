@@ -45,7 +45,7 @@ in {
           "host-secrets"
           "network"
           "settings"
-          "userModules"
+          "userProfiles"
         ];
         nixosModules = [
           "base-machine"

@@ -39,7 +39,7 @@ in {
       ]
       ++ (mkBundle {
         commonModules = [
-          "arch.darwin"
+          "arch.darwin.silicon"
           "settings"
           "host-secrets"
           "userProfiles"
