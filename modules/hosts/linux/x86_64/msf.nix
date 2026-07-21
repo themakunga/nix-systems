@@ -16,18 +16,11 @@
   inherit
     (inputs)
     nixpkgs
-    sops-nix
     home-manager
+    sops-nix
     secrets
     ;
-  inherit
-    (self)
-    nixosModules
-    commonModules
-    userModules
-    profileModules
-    applicationModules
-    ;
+  mkBundle = self.lib.mkBundle inputs.nixpkgs.lib self;
 in {
   flake.nixosConfigurations.msf = nixpkgs.lib.nixosSystem {
     specialArgs = {
@@ -35,42 +28,52 @@ in {
       hostName = "mfs";
     };
 
-    modules = [
-      sops-nix.nixosModules.sops
-      home-manager.nixosModules.home-manager
-
-      commonModules.arch.nixos.x64
-      commonModules.settings
-      commonModules.host-secrets
-      commonModules.userProfiles
-      commonModules.authorizedKeys
-      commonModules.network
-      commonModules.home-manager
-
-      nixosModules.keyboard
-      nixosModules.base-machine
-
-      userModules.media
-
-      profileModules.mediaserver
-
-      applicationModules.tailscale
-
-      {
-        my = {
-          hostSecrets.file = "${secrets.outPath}/hosts/msf.yaml";
-          keyboard.enable = true;
-          tailscale = {
-            enable = true;
-            gui.enable = true;
+    modules =
+      [
+        sops-nix.nixosModules.sops
+        home-manager.nixosModules.home-manager
+      ]
+      ++ (mkBundle {
+        commonModules = [
+          "arch.nixos.x64"
+          "authorized-keys"
+          "home-manager"
+          "host-secrets"
+          "network"
+          "settings"
+          "userProfiles"
+        ];
+        nixosModules = [
+          "base-machine"
+          "keyboard"
+          "primaryUser"
+        ];
+        userModules = [
+          "media"
+        ];
+        profileModules = [
+          "mediacenter"
+        ];
+        applicationModules = [
+          "tailscale"
+        ];
+      })
+      ++ [
+        {
+          my = {
+            hostSecrets.file = "${secrets.outPath}/hosts/msf.yaml";
+            keyboard.enable = true;
+            tailscale = {
+              enable = true;
+              gui.enable = true;
+            };
+            base-machine = {
+              enable = true;
+              bootMode = "uefi";
+              rootDevice = "/dev/nvme0u1p2";
+            };
           };
-          base-machine = {
-            enable = true;
-            bootMode = "uefi";
-            rootDevice = "/dev/nvme0u1p2";
-          };
-        };
-      }
-    ];
+        }
+      ];
   };
 }

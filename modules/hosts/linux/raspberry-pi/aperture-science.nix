@@ -22,15 +22,7 @@
     nixos-hardware
     secrets
     ;
-  inherit
-    (self)
-    nixosModules
-    rpiModules
-    commonModules
-    userModules
-    profileModules
-    applicationModules
-    ;
+  mkBundle = self.lib.mkBundle inputs.nixpkgs.lib self;
 in {
   flake.nixosConfigurations.aperture-science = nixpkgs.lib.nixosSystem {
     specialArgs = {
@@ -38,50 +30,61 @@ in {
       hostName = "aperture-science";
     };
 
-    modules = [
-      commonModules.arch.nixos.rpi
-      commonModules.settings
-      sops-nix.nixosModules.sops
-      commonModules.host-secrets
-
-      commonModules.userProfiles
-      commonModules.authorizedKeys
-      commonModules.network
-      nixosModules.keyboard
-      nixosModules.wifi
-
-      nixos-hardware.nixosModules.raspberry-pi-5
-      disko.nixosModules.disko
-
-      home-manager.nixosModules.home-manager
-      commonModules.home-manager
-
-      rpiModules.common
-      rpiModules.hardware-rpi5
-      rpiModules.performance
-      rpiModules.disko-nvme
-
-      userModules.nicolas-admin
-      userModules.glados
-      profileModules.nicolas-admin
-      profileModules.glados
-
-      applicationModules.tailscale
-      nixosModules.base-machine
-      {
-        my = {
-          hostSecrets.file = "${secrets.outPath}/hosts/aperture-science.yaml";
-          keyboard.enable = true;
-          tailscale = {
-            enable = true;
-            gui.enable = true;
+    modules =
+      [
+        nixos-hardware.nixosModules.raspberry-pi-5
+        disko.nixosModules.disko
+        home-manager.nixosModules.home-manager
+        sops-nix.nixosModules.sops
+      ]
+      ++ (mkBundle {
+        commonModules = [
+          "arch.nixos.rpi"
+          "authorized-keys"
+          "home-manager"
+          "host-secrets"
+          "network"
+          "settings"
+          "userModules"
+        ];
+        nixosModules = [
+          "base-machine"
+          "keyboard"
+          "wifi"
+        ];
+        rpiModules = [
+          "common"
+          "disko-nvme"
+          "hardware-rpi5"
+          "performance"
+        ];
+        userModules = [
+          "nicolas-admin"
+          "glados"
+        ];
+        profileModules = [
+          "nicolas-admin"
+          "glados"
+        ];
+        applicationModules = [
+          "tailscale"
+        ];
+      })
+      ++ [
+        {
+          my = {
+            hostSecrets.file = "${secrets.outPath}/hosts/aperture-science.yaml";
+            keyboard.enable = true;
+            tailscale = {
+              enable = true;
+              gui.enable = true;
+            };
+            base-machine = {
+              enable = true;
+              bootMode = "rpi";
+            };
           };
-          base-machine = {
-            enable = true;
-            bootMode = "rpi";
-          };
-        };
-      }
-    ];
+        }
+      ];
   };
 }

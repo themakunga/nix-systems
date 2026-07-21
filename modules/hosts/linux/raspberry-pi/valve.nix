@@ -20,12 +20,7 @@
     sops-nix
     disko
     ;
-  inherit
-    (self)
-    rpiModules
-    commonModules
-    nixosModules
-    ;
+  mkBundle = self.lib.mkBundle inputs.nixpkgs.lib self;
 in {
   flake.nixosConfigurations.valve = nixpkgs.lib.nixosSystem {
     specialArgs = {
@@ -33,34 +28,45 @@ in {
       hostName = "valve";
     };
 
-    modules = [
-      commonModules.arch.nixos.rpi
-      commonModules.settings
-
-      disko.nixosModules.disko
-      nixos-hardware.nixosModules.raspberry-pi-5
-      sops-nix.nixosModules.sops
-      rpiModules.common
-      rpiModules.performance
-      rpiModules.hardware-rpi5
-      rpiModules.sd-image
-      nixosModules.wifi
-
-      commonModules.network
-      commonModules.authorizedKeys
-
-      ({lib, ...}: {
-        networking.hostName = "valve";
-
-        services.openssh.settings.PermitRootLogin = "yes";
-
-        my.authorizedKeys = {
-          enable = true;
-          assignTo = ["root"];
-        };
-
-        systemd.services.NetworkManager-wait-online.enable = lib.mkForce false;
+    modules =
+      [
+        disko.nixosModules.disko
+        nixos-hardware.nixosModules.raspberry-pi-5
+        sops-nix.nixosModules.sops
+      ]
+      ++ (mkBundle {
+        commonModules = [
+          "arch.nixos.rpi"
+          "settings"
+          "authorized-keys"
+          "network"
+        ];
+        nixosModules = [
+          "wifi"
+        ];
+        rpiModules = [
+          "common"
+          "performance"
+          "hardware-rpi5"
+          "sd-image"
+        ];
+        # userModules = [];
+        # profileModules = [];
+        # applicationModules = [];
       })
-    ];
+      ++ [
+        ({lib, ...}: {
+          networking.hostName = "valve";
+
+          services.openssh.settings.PermitRootLogin = "yes";
+
+          my.authorizedKeys = {
+            enable = true;
+            assignTo = ["root"];
+          };
+
+          systemd.services.NetworkManager-wait-online.enable = lib.mkForce false;
+        })
+      ];
   };
 }
