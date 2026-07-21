@@ -7,58 +7,58 @@
 # File: tailscale.nix
 # Path: ./modules/applications/tailscale.nix
 # Description: Módulo de configuración para la infraestructura.
-# =====================
 {self, ...}: let
   inherit (self.lib) mkAppModule;
 in {
   flake.applicationModules.tailscale = {
-    core =
-      mkAppModule "tailscale" "Enable tailscale
-    module" ({
-        config,
-        lib,
-        pkgs,
-        ...
-      }: let
-        inherit (lib) mkIf mkForce;
-        inherit (pkgs.stdenv.hostPlaform) isLinux isDarwin;
-      in {
-        my.apps.tailscale = {
-          level = "system";
-          apps = [
-            "tailscale"
-          ];
-        };
+    core = mkAppModule "tailscale-core" "Tailscale Core Daemon and CLI" ({
+      config,
+      lib,
+      options,
+      ...
+    }: let
+      inherit (lib) mkIf mkForce optionalAttrs mkMerge;
+      isLinux = options ? system.nixos;
+      isDarwin = options ? system.darwin;
+    in
+      mkMerge [
+        {
+          my.apps."tailscale-core" = {
+            level = "system";
+            apps = ["tailscale"];
+          };
 
-        sops.secrets."tailscale/auth_token" = {};
+          sops.secrets."tailscale/auth_token" = {};
 
-        services.tailscale = mkIf isLinux {
-          enable = true;
-          authKeyFile = config.sops.secrets."tailscale/auth_token".path;
-        };
+          services.tailscale.enable = mkIf isDarwin (mkForce false);
+        }
 
-        networking.firewall = mkIf isLinux {
-          trustedInterfaces = ["tailscale0"];
-          allowedUDPPorts = [config.services.tailscale.port];
-          checkReversePath = "loose";
-        };
+        (optionalAttrs isLinux {
+          services.tailscale = {
+            enable = true;
+            authKeyFile = config.sops.secrets."tailscale/auth_token".path;
+          };
 
-        service.tailscale.enable = mkIf isDarwin (mkForce false);
-      });
-    gui =
-      mkAppModule "tailscale-gui" "Enable GUI in Tailscale, only in linux"
-      ({
-        pkgs,
-        lib,
-        ...
-      }: let
-        inherit (lib) optionals;
-        inherit (pkgs.stdenv.hostPlaform) isLinux;
-      in {
-        my.apps."tailscale-gui" = {
-          level = "system";
-          apps = optionals isLinux ["trayscale"];
-        };
-      });
+          networking.firewall = {
+            trustedInterfaces = ["tailscale0"];
+            allowedUDPPorts = [config.services.tailscale.port];
+            checkReversePath = "loose";
+          };
+        })
+      ]);
+
+    gui = mkAppModule "tailscale-gui" "Tailscale GUI App" ({
+      lib,
+      options,
+      ...
+    }: let
+      inherit (lib) optionals;
+      isLinux = options ? system.nixos;
+    in {
+      my.apps."tailscale-gui" = {
+        level = "system";
+        apps = optionals isLinux ["trayscale"];
+      };
+    });
   };
 }

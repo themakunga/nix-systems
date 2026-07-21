@@ -83,10 +83,8 @@ in {
             keyboard.enable = true;
             apps = {
               tailscale.enable = true;
-              gemini-cli.enable = true;
               neovim.enable = true;
               terminal-zsh.enable = true;
-              github-cli.enable = true;
               outer-heaven = {
                 enable = true;
                 level = "system";

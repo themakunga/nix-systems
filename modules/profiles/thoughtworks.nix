@@ -16,6 +16,8 @@
 
     my = {
       apps = {
+        github-cli.enable = true;
+        gemini-cli.enable = true;
         tw = {
           enable = true;
           level = "user";
@@ -27,7 +29,6 @@
           ];
         };
       };
-      gh.thoughtworks.enable = true;
 
       userProfiles.nicolas-work.homeManager = {
         my.gpgProfiles = {
