@@ -7,6 +7,7 @@
   flake.lib.mkAppModule = name: _description: appConfig: {
     lib,
     config,
+    pkgs,
     ...
   } @ args: let
     inherit (lib) mkIf;
@@ -14,7 +15,7 @@
   in {
     config = mkIf cfg.enable (
       if builtins.isFunction appConfig
-      then appConfig args
+      then appConfig (args // {inherit pkgs lib config;})
       else appConfig
     );
   };
