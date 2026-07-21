@@ -18,10 +18,10 @@ in {
         apps = ["gemini-cli"];
       };
 
-      sops.secrets."applications.gemini.api-key" = {};
+      sops.secrets."applications/gemini/api-key" = {};
 
       environment.interactiveShellInit = ''
-        export GEMINI_API_KEY="$( cat ${config.sops.secrets."applications.gemini.api-key".path} 2>/dev/null)"
+        export GEMINI_API_KEY="$(cat ${config.sops.secrets."applications/gemini/api-key".path} 2>/dev/null)"
       '';
 
       home-manager.sharedModules = [
