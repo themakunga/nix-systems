@@ -29,10 +29,26 @@ in {
         zstd
       ];
     };
-    sysConfig = {pkgs, ...}: {
+    sysConfig = {
+      pkgs,
+      lib,
+      ...
+    }: {
       fonts.packages = [
         pkgs.nerd-fonts.hack
       ];
+
+      system.activationScripts.terminalProfile = lib.mkIf pkgs.stdenv.isDarwin {
+        text = ''
+          echo "Setting up macOS Terminal profile..."
+          if ! defaults read com.apple.Terminal "Window Settings" 2>/dev/null | grep -q "TokyoNight-Storm"; then
+            open -g -a Terminal.app "${dotfiles}/terminal/TokyoNight-Storm.terminal"
+            sleep 1
+          fi
+          defaults write com.apple.Terminal "Default Window Settings" -string "TokyoNight-Storm"
+          defaults write com.apple.Terminal "Startup Window Settings" -string "TokyoNight-Storm"
+        '';
+      };
 
       home-manager.sharedModules = [
         {
