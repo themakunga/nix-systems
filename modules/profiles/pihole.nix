@@ -37,8 +37,7 @@
             email = "nmartinezv@icloud.com";
             gpg = {
               enable = true;
-              keyId =
-                config.sops.secrets."profiles/nicolas-pihole/gpg/key_id".path;
+              keyId = config.sops.secrets."profiles/nicolas-pihole/gpg/key_id".path;
             };
             ssh = {
               enableAuth = true;
@@ -50,7 +49,7 @@
 
       # home.packages = with pkgs; [ ];
 
-      services.gpg-pihole = {
+      services.gpg-agent = {
         enable = true;
         enableSshSupport = true;
       };

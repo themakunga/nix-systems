@@ -38,7 +38,7 @@
           "legacy"
           "rpi"
         ];
-        default = "eufi";
+        default = "uefi";
         description = "Boot loader type";
       };
 
@@ -58,7 +58,7 @@
 
       boot = {
         loader =
-          if cfg.bootMode == "eufi"
+          if cfg.bootMode == "uefi"
           then {
             systemd-boot.enable = true;
             efi.canTouchEfiVariables = true;

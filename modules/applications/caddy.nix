@@ -16,7 +16,7 @@ in {
       cfg = config.my.caddy-main;
     in {
       options.my.caddy-main = {
-        enanble = mkEnableOption "Caddt Main Server";
+        enable = mkEnableOption "Caddt Main Server";
 
         email = mkOption {
           type = types.str;
@@ -34,7 +34,7 @@ in {
       config = mkIf cfg.enable {
         networking.firewall.allowedTCPPorts = [80 443];
 
-        service.caddy = {
+        services.caddy = {
           enable = true;
 
           inherit (cfg) email;

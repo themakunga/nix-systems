@@ -20,13 +20,8 @@
     sops-nix
     nix-darwin
     ;
-  inherit
-    (self)
-    commonModules
-    darwinModules
-    nixosModules
-    userModules
-    ;
+
+  mkBundle = self.lib.mkBundle inputs.nixpkgs.lib self;
 in {
   flake = {
     nixosConfigurations.lsp-dummy = nixpkgs.lib.nixosSystem {
@@ -35,59 +30,77 @@ in {
         hostName = "lsp-dummy-nixos";
       };
 
-      modules = [
-        sops-nix.nixosModules.sops
-        home-manager.nixosModules.home-manager
-
-        commonModules.host-secrets
-        commonModules.settings
-        commonModules.arch.nixos.x64
-        commonModules.userProfiles
-        commonModules.authorizedKeys
-        commonModules.network
-        commonModules.home-manager
-
-        nixosModules.base-machine
-
-        userModules.nicolas-admin
-
-        {
-          my.base-machine = {
-            enable = true;
-            bootMode = "uefi";
-          };
-          fileSystems."/".device = "/dev/null";
-          boot.loader.grub.device = ["/dev/null"];
-        }
-      ];
+      modules =
+        [
+          sops-nix.nixosModules.sops
+          home-manager.nixosModules.home-manager
+        ]
+        ++ (mkBundle {
+          commonModules = [
+            "arch.nixos.x64"
+            "settings"
+            "host-secrets"
+            "userProfiles"
+            "authorized-keys"
+            "network"
+            "home-manager"
+          ];
+          nixosModules = [
+            "base-machine"
+          ];
+          userModules = [
+            "nicolas-admin"
+          ];
+        })
+        ++ [
+          {
+            my.base-machine = {
+              enable = true;
+              bootMode = "uefi";
+            };
+            fileSystems."/".device = "/dev/null";
+            boot.loader.grub.device = ["/dev/null"];
+          }
+        ];
     };
+
     darwinConfigurations.lsp-dummy = nix-darwin.lib.darwinSystem {
       specialArgs = {
         inherit self inputs;
         hostName = "lsp-dummy-darwin";
       };
 
-      modules = [
-        sops-nix.darwinModules.sops
-        home-manager.darwinModules.home-manager
-
-        commonModules.host-secrets
-        commonModules.arch.darwin.silicon
-        commonModules.settings
-        commonModules.userProfiles
-        commonModules.home-manager
-
-        darwinModules.extras
-        darwinModules.security
-        darwinModules.dock
-        darwinModules.finder
-
-        userModules.nicolas-personal
-
-        {
-          system.primaryUser = "nicolas";
-        }
-      ];
+      modules =
+        [
+          sops-nix.darwinModules.sops
+          home-manager.darwinModules.home-manager
+        ]
+        ++ (mkBundle {
+          commonModules = [
+            "arch.darwin.silicon"
+            "settings"
+            "host-secrets"
+            "userProfiles"
+            "home-manager"
+          ];
+          darwinModules = [
+            "primaryUser"
+            "extras"
+            "security"
+            "finder"
+          ];
+          userModules = [
+            "nicolas-personal"
+          ];
+        })
+        ++ [
+          {
+            my.primaryUser = {
+              enable = true;
+              username = "nicolas";
+            };
+          }
+        ];
     };
   };
 }

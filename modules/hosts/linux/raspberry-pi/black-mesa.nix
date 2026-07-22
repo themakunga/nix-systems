@@ -22,15 +22,8 @@
     disko
     secrets
     ;
-  inherit
-    (self)
-    nixosModules
-    rpiModules
-    commonModules
-    userModules
-    profileModules
-    applicationModules
-    ;
+
+  mkBundle = self.lib.mkBundle inputs.nixpkgs.lib self;
 in {
   flake.nixosConfigurations.black-mesa = nixpkgs.lib.nixosSystem {
     specialArgs = {
@@ -38,67 +31,73 @@ in {
       hostName = "black-mesa";
     };
 
-    modules = [
-      commonModules.arch.nixos.rpi
-      commonModules.settings
-      sops-nix.nixosModules.sops
-      commonModules.host-secrets
-      commonModules.userProfiles
-      commonModules.authorizedKeys
-      commonModules.network
-      nixosModules.keyboard
-
-      nixos-hardware.nixosModules.raspberry-pi-3
-      disko.nixosModules.disko
-
-      rpiModules.common
-      rpiModules.performance
-      rpiModules.sd-image
-
-      home-manager.nixosModules.home-manager
-      commonModules.home-manager
-
-      userModules.nicolas-pihole
-      profileModules.pihole
-      nixosModules.base-machine
-      nixosModules.wifi
-
-      applicationModules.tailscale
-      applicationModules.pihole
-      applicationModules.tofu-dns
-      applicationModules.kvm
-
-      {
-        zramSwap = {
-          enable = true;
-          memoryPercent = 100;
-        };
-      }
-
-      {
-        my = {
-          hostSecrets.file = "${secrets.outPath}/hosts/black-mesa.yaml";
-
-          tailscale = {
+    modules =
+      [
+        home-manager.nixosModules.home-manager
+        disko.nixosModules.disko
+        sops-nix.nixosModules.sops
+        nixos-hardware.nixosModules.raspberry-pi-3
+      ]
+      ++ (mkBundle {
+        commonModules = [
+          "apps"
+          "arch.nixos.rpi"
+          "settings"
+          "host-secrets"
+          "authorized-keys"
+          "network"
+          "home-manager"
+          "userProfiles"
+        ];
+        nixosModules = [
+          "keyboard"
+          "base-machine"
+          "wifi"
+        ];
+        rpiModules = [
+          "common"
+          "performance"
+          "sd-image"
+        ];
+        userModules = [
+          "nicolas-pihole"
+        ];
+        profileModules = [
+          "pihole"
+        ];
+        applicationModules = [
+          "pihole"
+          "tailscale.core"
+          "tofu-dns"
+          "kvm"
+        ];
+      })
+      ++ [
+        {
+          zramSwap = {
             enable = true;
-            gui.enable = false;
+            memoryPercent = 100;
           };
+        }
 
-          pihole.enable = true;
-          tofu-dns.enable = true;
-
-          base-machine = {
-            enable = true;
-            bootMode = "rpi";
+        {
+          my = {
+            hostSecrets.file = "${secrets.outPath}/hosts/black-mesa.yaml";
+            pihole.enable = true;
+            tofu-dns.enable = true;
+            apps.tailscale-core.enable = true;
+            base-machine = {
+              enable = true;
+              bootMode = "rpi";
+            };
+            kvm = {
+              enable = true;
+              device = "/dev/video0";
+              port = 8081;
+              resolution = "1920x1080";
+            };
           };
-          kvm = {
-            enable = true;
-            device = "/dev/video0";
-            port = 8081;
-            resolution = "1920x1080";
-          };
-        };
-      }
-    ];
+        }
+      ];
   };
 }

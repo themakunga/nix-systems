@@ -20,15 +20,9 @@
     home-manager
     sops-nix
     secrets
+    mac-app-util
     ;
-  inherit
-    (self)
-    commonModules
-    userModules
-    darwinModules
-    profileModules
-    applicationModules
-    ;
+  mkBundle = self.lib.mkBundle inputs.nixpkgs.lib self;
 in {
   flake.darwinConfigurations.kanagawa = nix-darwin.lib.darwinSystem {
     specialArgs = {
@@ -36,47 +30,90 @@ in {
       hostName = "kanagawa";
     };
 
-    modules = [
-      sops-nix.darwinModules.sops
-      nix-homebrew.darwinModules.nix-homebrew
-      home-manager.darwinModules.home-manager
+    modules =
+      [
+        sops-nix.darwinModules.sops
+        nix-homebrew.darwinModules.nix-homebrew
+        home-manager.darwinModules.home-manager
+        mac-app-util.darwinModules.default
+      ]
+      ++ (mkBundle {
+        commonModules = [
+          "apps"
+          "arch.darwin.silicon"
+          "home-manager"
+          "host-secrets"
+          "network"
+          "settings"
+          "userProfiles"
+        ];
+        darwinModules = [
+          "extras"
+          "finder"
+          "homebrew"
+          "keyboard"
+          "primaryUser"
+          "security"
+        ];
+        applicationModules = [
+          "github-cli"
+          "google-cloud.gcloud"
+          "neovim"
+          "openconnect"
+          "tailscale.core"
+          "tailscale.gui"
+          "terminal-zsh"
+        ];
+        userModules = [
+          "nicolas-personal"
+        ];
+        profileModules = [
+          "nicolas-personal"
+          "nicolas-bbook"
+          "nicolas-42devs"
+        ];
+      })
+      ++ [
+        ({pkgs, ...}: {
+          my = {
+            hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
+            primaryUser = {
+              enable = true;
+              username = "nicolas";
+            };
+            keyboard.enable = true;
+            apps = {
+              tailscale-core.enable = true;
+              tailscale-gui.enable = true;
+              neovim.enable = true;
+              terminal-zsh.enable = true;
+              github-cli.enable = true;
+              gcloud.enable = true;
 
-      commonModules.arch.darwin.silicon
-      commonModules.settings
-      commonModules.host-secrets
-      commonModules.userProfiles
-      commonModules.network
-      commonModules.home-manager
+              kanagawa = {
+                enable = true;
+                level = "system";
 
-      darwinModules.keyboard
-      darwinModules.primaryUser
-      darwinModules.security
-      darwinModules.dock
-      darwinModules.finder
-      darwinModules.extras
-      darwinModules.homebrew
+                packages = [
+                  pkgs.stow
+                ];
 
-      userModules.nicolas-personal
+                casks = [
+                  "iterm2"
+                  "logitech-g-hub"
+                  "okta-verify"
+                  "wezterm"
+                ];
 
-      profileModules.nicolas-personal
-      profileModules.nicolas-42devs
-      profileModules.nicolas-bbook
-
-      applicationModules.tailscale
-      {
-        my = {
-          hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
-          tailscale = {
-            enable = true;
-            gui.enable = true;
+                masApps = {
+                  "Amphetamine" = 937984704;
+                  "Magnet" = 441258766;
+                  "Xcode" = 497799835;
+                };
+              };
+            };
           };
-          primaryUser = {
-            enable = true;
-            username = "nicolas";
-          };
-          keyboard.enable = true;
-        };
-      }
-    ];
+        })
+      ];
   };
 }

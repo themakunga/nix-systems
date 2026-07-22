@@ -43,9 +43,7 @@
         "mas" # Habilita la Mac App Store
       ];
       casks = [];
-      masApps = {
-        "xcode" = 497799835;
-      };
+      masApps = {};
     };
   };
 
