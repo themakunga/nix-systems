@@ -47,7 +47,7 @@ jobs:
             echo ""
             echo "$EOF_DELIMITER"
           } >> "$GITHUB_ENV"
-      - name: Create Pull Request to main
+      - name: Create Pull Request to develop
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.RELEASE_TOKEN }}
@@ -56,7 +56,7 @@ jobs:
           author: 'github-actions[bot] <github-actions[bot]@users.noreply.github.com>'
           branch: 'chore/nix-flake-update-${{ steps.date.outputs.current_date }}'
           delete-branch: true
-          base: 'main'
+          base: 'develop'
           title: 'chore(deps): update flake.lock - ${{ steps.date.outputs.current_date }}'
           body: |
             ## Automated Weekly Flake Update
@@ -66,7 +66,7 @@ jobs:
             ${{ env.UPDATE_LOG }}
             ```
             - **Date of Update:** ${{ steps.date.outputs.current_date }}
-            - **Target Branch:** `main`
+            - **Target Branch:** `develop`
             _Generated automatically by the CI pipeline._
           labels: |
             dependencies
