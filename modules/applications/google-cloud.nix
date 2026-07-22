@@ -31,6 +31,7 @@ in {
             xdg.configFile."gemini" = {
               source = "${dotfiles}/gemini";
               recursive = true;
+              force = true;
             };
           }
         ];
@@ -48,6 +49,7 @@ in {
             xdg.configFile."gcloud" = {
               source = "${dotfiles}/gcloud";
               recursive = true;
+              force = true;
             };
           }
         ];

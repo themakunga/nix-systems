@@ -69,6 +69,7 @@ in {
           xdg.configFile."nvim" = {
             source = "${dotfiles}/nvim";
             recursive = true;
+            force = true;
           };
         }
       ];
@@ -94,9 +95,11 @@ in {
           home.file = {
             ".tmux.conf" = {
               source = "${dotfiles}/.tmux.conf";
+              force = true;
             };
             ".wezterm" = {
               source = "${dotfiles}/.wezterm";
+              force = true;
             };
           };
         }
@@ -105,6 +108,7 @@ in {
             "neofetch" = {
               source = "${dotfiles}/neofetch";
               recursive = true;
+              force = true;
             };
           };
         }

@@ -30,6 +30,7 @@ in {
           xdg.configFile."gh" = {
             source = "${dotfiles}/gh";
             recursive = true;
+            force = true;
           };
         }
       ];

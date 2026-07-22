@@ -36,12 +36,22 @@ in {
       home-manager.sharedModules = [
         {
           home.file = {
-            ".wezterm.lua".source = "${dotfiles}/.wezterm.lua";
-            ".tmux.conf".source = "${dotfiles}/.tmux.conf";
-            ".zshrc".source = "${dotfiles}/.zshrc";
+            ".tmux.conf" = {
+              source = "${dotfiles}/.tmux.conf";
+              force = true;
+            };
+            ".wezterm.lua" = {
+              source = "${dotfiles}/.wezterm.lua";
+              force = true;
+            };
+            ".zshrc" = {
+              source = "${dotfiles}/.zshrc";
+              force = true;
+            };
             ".zsh" = {
               source = "${dotfiles}/.zsh";
               recursive = true;
+              force = true;
             };
           };
         }
@@ -50,14 +60,17 @@ in {
             "fastfetch" = {
               source = "${dotfiles}/fastfetch";
               recursive = true;
+              force = true;
             };
             "lazygit" = {
               source = "${dotfiles}/lazygit";
               recursive = true;
+              force = true;
             };
             "ohmyposh" = {
               source = "${dotfiles}/ohmyposh";
               recursive = true;
+              force = true;
             };
           };
         }

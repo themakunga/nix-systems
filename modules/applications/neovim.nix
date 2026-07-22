@@ -56,6 +56,7 @@ in {
           xdg.configFile."nvim" = {
             source = "${dotfiles}/neovim";
             recursive = true;
+            force = true;
           };
         }
       ];
