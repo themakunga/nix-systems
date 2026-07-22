@@ -27,6 +27,7 @@ in {
         tmux
         wezterm
         zstd
+        sops
       ];
     };
     sysConfig = {

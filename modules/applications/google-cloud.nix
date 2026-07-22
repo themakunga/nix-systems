@@ -44,6 +44,11 @@ in {
               source = "${dotfiles}/gemini/config.yaml";
               force = true;
             };
+            home.file.".gemini/hooks" = {
+              source = "${dotfiles}/gemini/hooks";
+              recursive = true;
+              force = true;
+            };
           }
         ];
       };
