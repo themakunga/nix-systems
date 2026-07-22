@@ -1,5 +1,4 @@
 name: Sync con Develop
-
 on:
   push:
     # Ignoramos las ramas en las que NO queremos que esto se ejecute
@@ -7,11 +6,9 @@ on:
       - main
       - develop
       - 'release/**'
-
 # Damos permisos de escritura al bot para que pueda hacer el push del merge
 permissions:
   contents: write
-
 jobs:
   merge-develop-to-branch:
     runs-on: ubuntu-latest
@@ -19,26 +16,23 @@ jobs:
       - name: Checkout del repositorio
         uses: actions/checkout@v4
         with:
-          # fetch-depth: 0 es crítico para descargar el historial completo 
+          # fetch-depth: 0 es crítico para descargar el historial completo
           # y permitir que Git calcule el merge correctamente.
           fetch-depth: 0
-
       - name: Configurar identidad de Git
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
       - name: Merge desde develop
         run: |
           echo "Actualizando la rama: $GITHUB_REF_NAME"
-          
+
           # 1. Traer la versión más reciente de develop desde el remoto
           git fetch origin develop
-          
-          # 2. Hacer el merge hacia la rama actual. 
+
+          # 2. Hacer el merge hacia la rama actual.
           # --no-edit evita que el pipeline se quede esperando un mensaje de commit manual.
           git merge origin/develop --no-edit
-
       - name: Subir cambios actualizados
         run: |
           # Empujamos el resultado del merge de vuelta a tu rama
