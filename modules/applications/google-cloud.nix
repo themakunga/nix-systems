@@ -7,12 +7,7 @@
 # Archivo de Configuración de NixOS / Home Manager
 # Repositorio: TheMakunga Infrastructure
 # =========================================================
-{
-  inputs,
-  self,
-  ...
-}: let
-  inherit (inputs) dotfiles;
+{self, ...}: let
   inherit (self.lib) mkAppModule;
 in {
   flake.applicationModules.google-cloud = {
@@ -38,19 +33,6 @@ in {
         environment.interactiveShellInit = ''
           export GEMINI_API_KEY="$(cat ${config.sops.secrets."applications/gemini/api-key".path} 2>/dev/null)"
         '';
-        home-manager.sharedModules = [
-          {
-            home.file.".gemini/config.yaml" = {
-              source = "${dotfiles}/gemini/config.yaml";
-              force = true;
-            };
-            home.file.".gemini/hooks" = {
-              source = "${dotfiles}/gemini/hooks";
-              recursive = true;
-              force = true;
-            };
-          }
-        ];
       };
     };
 
@@ -58,17 +40,6 @@ in {
       meta = {pkgs, ...}: {
         level = "system";
         packages = [pkgs.google-cloud-sdk];
-      };
-      sysConfig = {
-        home-manager.sharedModules = [
-          {
-            xdg.configFile."gcloud" = {
-              source = "${dotfiles}/gcloud";
-              recursive = true;
-              force = true;
-            };
-          }
-        ];
       };
     };
   };

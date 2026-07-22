@@ -36,7 +36,6 @@
       nullOr
       listOf
       package
-      unspecified
       ;
   in {
     options.my.userProfiles = mkOption {
@@ -89,11 +88,6 @@
                 default = null;
                 description = "Path for hashed password";
               };
-              homeManager = mkOption {
-                type = unspecified;
-                default = {};
-                description = "Home Manager configuration module or attrset";
-              };
             };
           }
         )
@@ -144,12 +138,6 @@
       users.groups = optionalAttrs isLinux (
         mapAttrs' (_: userCfg: nameValuePair userCfg.username {}) cfg
       );
-
-      home-manager.users =
-        mapAttrs' (
-          _: userCfg: nameValuePair userCfg.username userCfg.homeManager
-        )
-        cfg;
     };
   };
 }

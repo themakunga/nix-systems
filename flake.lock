@@ -58,23 +58,6 @@
         "type": "github"
       }
     },
-    "dotfiles": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1784747277,
-        "narHash": "sha256-yLK0cmYh82hjNTj8R2jx7uVRD4KxbKKjgipg7Ty71vg=",
-        "owner": "TheMakunga",
-        "repo": "public-dotfiles",
-        "rev": "7056c300358913f23bb2e48d33222cc752c5211e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "TheMakunga",
-        "ref": "main",
-        "repo": "public-dotfiles",
-        "type": "github"
-      }
-    },
     "fenix": {
       "inputs": {
         "nixpkgs": [
@@ -210,26 +193,6 @@
         "type": "github"
       }
     },
-    "home-manager": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1784725727,
-        "narHash": "sha256-J5+C9wsO0lhDyUalQzfplDbRjyHDYeEH5+9sdyXtwa8=",
-        "owner": "nix-community",
-        "repo": "home-manager",
-        "rev": "041a999e8c1c5b731913855909e68d30ca69b8e0",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "home-manager",
-        "type": "github"
-      }
-    },
     "homebrew-bundle": {
       "flake": false,
       "locked": {
@@ -249,11 +212,11 @@
     "homebrew-cask": {
       "flake": false,
       "locked": {
-        "lastModified": 1784746598,
-        "narHash": "sha256-1XOQemXfj3kFgz64TUWOQmgTb2E3ywonyB/c6I9A6QM=",
+        "lastModified": 1784751008,
+        "narHash": "sha256-g4k+NGRA8l6/ovdiChHotnISUv16e5D125Q1w+flKLo=",
         "owner": "homebrew",
         "repo": "homebrew-cask",
-        "rev": "3234029a4f480ca1cde39b84b3b20779ba818dd0",
+        "rev": "51f556a388f297a441d296ee2a80e96467d8e008",
         "type": "github"
       },
       "original": {
@@ -265,11 +228,11 @@
     "homebrew-core": {
       "flake": false,
       "locked": {
-        "lastModified": 1784746919,
-        "narHash": "sha256-3HLw1dhbuveXiSEXd8GKBs8DBXYgX92dsy7bUz0DSl0=",
+        "lastModified": 1784754725,
+        "narHash": "sha256-wHxfBvQQFbvrgI7x3efdEziSltzmobVionYP6rr33HM=",
         "owner": "homebrew",
         "repo": "homebrew-core",
-        "rev": "14565f9d83b20c1ceb7a67411ce0be19c939a63b",
+        "rev": "009b4c473755c9d312b65379ebb7e786fbe9271f",
         "type": "github"
       },
       "original": {
@@ -582,10 +545,8 @@
     "root": {
       "inputs": {
         "disko": "disko",
-        "dotfiles": "dotfiles",
         "flake-parts": "flake-parts",
         "globalprotect-openconnect": "globalprotect-openconnect",
-        "home-manager": "home-manager",
         "homebrew-bundle": "homebrew-bundle",
         "homebrew-cask": "homebrew-cask",
         "homebrew-core": "homebrew-core",
@@ -639,11 +600,11 @@
     "secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1784647666,
-        "narHash": "sha256-sUwUqhMl+BS7DsurczTj7iLeMSfmbjRPEfZbJj2okO4=",
+        "lastModified": 1784749842,
+        "narHash": "sha256-MJHwfHwmeNUSfWmj9Zspz2SiMojZsjFFyZmuR7Z728U=",
         "ref": "refs/heads/main",
-        "rev": "e5d27b0cc5bbea949dd602bc8a0a0253e1d06988",
-        "revCount": 74,
+        "rev": "5d430a06bac0cc895d9373aef1ab956c97b8a710",
+        "revCount": 76,
         "type": "git",
         "url": "ssh://git@github.com/TheMakunga/.secrets.git"
       },

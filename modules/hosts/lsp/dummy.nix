@@ -16,7 +16,6 @@
   inherit
     (inputs)
     nixpkgs
-    home-manager
     sops-nix
     nix-darwin
     ;
@@ -33,7 +32,6 @@ in {
       modules =
         [
           sops-nix.nixosModules.sops
-          home-manager.nixosModules.home-manager
         ]
         ++ (mkBundle {
           commonModules = [
@@ -43,7 +41,6 @@ in {
             "userProfiles"
             "authorized-keys"
             "network"
-            "home-manager"
           ];
           nixosModules = [
             "base-machine"
@@ -73,7 +70,6 @@ in {
       modules =
         [
           sops-nix.darwinModules.sops
-          home-manager.darwinModules.home-manager
         ]
         ++ (mkBundle {
           commonModules = [
@@ -81,7 +77,6 @@ in {
             "settings"
             "host-secrets"
             "userProfiles"
-            "home-manager"
           ];
           darwinModules = [
             "primaryUser"

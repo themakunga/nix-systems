@@ -55,11 +55,6 @@
       url = "github:hraban/mac-app-util";
     };
 
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     nixos-hardware.url = "github:NixOS/nixos-hardware";
 
     sops-nix = {
@@ -82,11 +77,6 @@
       flake = false;
     };
 
-    dotfiles = {
-      url = "github:TheMakunga/public-dotfiles/main";
-      flake = false;
-    };
-
     globalprotect-openconnect.url = "github:yuezk/GlobalProtect-openconnect";
   };
 
@@ -95,7 +85,6 @@
       stateVersion = {
         nixos = "26.05";
         darwin = 6;
-        home-manager = "26.05";
       };
     };
   in

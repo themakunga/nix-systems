@@ -3,8 +3,7 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-{inputs, ...}: let
-  inherit (inputs) dotfiles;
+_: let
   mkAppModule = name: description: appConfig: {
     lib,
     config,
@@ -63,16 +62,6 @@ in {
         EDITOR = "nvim";
         VISUAL = "nvim";
       };
-
-      home-manager.sharedModules = [
-        {
-          xdg.configFile."nvim" = {
-            source = "${dotfiles}/nvim";
-            recursive = true;
-            force = true;
-          };
-        }
-      ];
     });
     terminal = mkAppModule "terminal" "Terminal Applications and tools" {
       my.apps.terminal = {
@@ -89,30 +78,6 @@ in {
           "neofetch"
         ];
       };
-
-      home-manager.sharedModules = [
-        {
-          home.file = {
-            ".tmux.conf" = {
-              source = "${dotfiles}/.tmux.conf";
-              force = true;
-            };
-            ".wezterm" = {
-              source = "${dotfiles}/.wezterm";
-              force = true;
-            };
-          };
-        }
-        {
-          xdg.configFile = {
-            "neofetch" = {
-              source = "${dotfiles}/neofetch";
-              recursive = true;
-              force = true;
-            };
-          };
-        }
-      ];
     };
   };
 }
