@@ -1,3 +1,58 @@
+# [0.7.0](https://github.com/themakunga/nix-systems/compare/v0.6.0...v0.7.0) (2026-07-22)
+
+
+### Bug Fixes
+
+* add host platform ([9886066](https://github.com/themakunga/nix-systems/commit/988606614262e7c244ad134a9e4c23e47b1c7041))
+* args ([48657f9](https://github.com/themakunga/nix-systems/commit/48657f9d63a1f558db3cfd4b986ff9879b39e730))
+* correct modules ([5cc6426](https://github.com/themakunga/nix-systems/commit/5cc6426ca0f225962525b6b0fe4b94d9d2f0adaf))
+* fallback ([cecf399](https://github.com/themakunga/nix-systems/commit/cecf3997dfc33b95d2232e864f2245fbb54aa1e6))
+* function nomination ([d0cbab8](https://github.com/themakunga/nix-systems/commit/d0cbab8b37031718f11d1b6cb6fd30ab8a6c810d))
+* **home-manager:** force overwrite existing config files ([d6fe088](https://github.com/themakunga/nix-systems/commit/d6fe08899dfeed88c148ee6a6014e996ee10decf))
+* load errtor ([f029742](https://github.com/themakunga/nix-systems/commit/f0297424790c0eb541768877d31b0b9b203d6b4a))
+* lsp module update ([a817aa7](https://github.com/themakunga/nix-systems/commit/a817aa7aabf825d3fbc8acf88897187d13706fd6))
+* move and update modules ([80aee24](https://github.com/themakunga/nix-systems/commit/80aee243aea2fe2a9231eea3e44d57472cf9d7aa))
+* move module ([5f33046](https://github.com/themakunga/nix-systems/commit/5f33046a6af52a40e082c6a4c3d4150e15b2892e))
+* move module ([27a0567](https://github.com/themakunga/nix-systems/commit/27a05676a05fb42bfa445268aa1bd9a73eff99fa))
+* move package groups ([1ad600a](https://github.com/themakunga/nix-systems/commit/1ad600a4c02439f92e43f1dc5fd7031c9e3dbe7c))
+* multiple missing ([c034470](https://github.com/themakunga/nix-systems/commit/c03447080cd5047ce2782f42a2c483d36e6f97d5))
+* refactor ([7f5d733](https://github.com/themakunga/nix-systems/commit/7f5d733874bd77d89ca9bc7b469aa482e10196e3))
+* refactor common Module ([a3bae55](https://github.com/themakunga/nix-systems/commit/a3bae552ff0241af6369127edf7f3ce151a5db70))
+* remove core from app ([241f0de](https://github.com/themakunga/nix-systems/commit/241f0de9469c9de4c1f161a1283c637de6acc23f))
+* remove docker modules ([6d20a76](https://github.com/themakunga/nix-systems/commit/6d20a76b18280a2209b6f9255ed88b834f94e665))
+* remove module ([356f2b2](https://github.com/themakunga/nix-systems/commit/356f2b2016a6ffebc4a9c02e44693acd38888455))
+* remove primary users ([515e86c](https://github.com/themakunga/nix-systems/commit/515e86cca43ff64b5f32e2b5d18d84d630f39d07))
+* remove unnecesary moduile ([77c3dc5](https://github.com/themakunga/nix-systems/commit/77c3dc5487933a17d3d8630c08b16ce058c8fe82))
+* rename profile ([b08ae3f](https://github.com/themakunga/nix-systems/commit/b08ae3f42d283f98a48baac71e8b42d5d314a436))
+* rename sops call ([1e813df](https://github.com/themakunga/nix-systems/commit/1e813df1a433dca6c53c3f27967c07e59456f4e4))
+* **tailscale:** only request auth_token secret on linux ([9920efe](https://github.com/themakunga/nix-systems/commit/9920efe724dd8550f41ff05a7a0b0e672e7b18d6))
+* terminal working ([6791bb6](https://github.com/themakunga/nix-systems/commit/6791bb690c5e971feceda82f96861d790ec17fc6))
+* typo ([d99c7fa](https://github.com/themakunga/nix-systems/commit/d99c7facb0e9a757e6e5b416a7aeea344b86da38))
+* typo ([69bc11c](https://github.com/themakunga/nix-systems/commit/69bc11c210379479fb39358368efb614c552dddb))
+* typo ([cdb801d](https://github.com/themakunga/nix-systems/commit/cdb801d4bcfcb4acc8eb20de610aa028b28ff5e1))
+* typos ([33fcfae](https://github.com/themakunga/nix-systems/commit/33fcfae8abf88cd47b92300ddc3f0c32bfc04efb))
+* typos ([b85b2c2](https://github.com/themakunga/nix-systems/commit/b85b2c2bda71ad96ac4a0ef4a2b56dda8822ac78))
+* update tailscale ([c1cf00e](https://github.com/themakunga/nix-systems/commit/c1cf00ea06b6391ffcaa9785aa68f975fc6d2f20))
+
+
+### Features
+
+* add modules ([6cda9fd](https://github.com/themakunga/nix-systems/commit/6cda9fdd50067372e4441cb8d33eb2af03cb6269))
+* add sops file ([3f24b41](https://github.com/themakunga/nix-systems/commit/3f24b418a5e6434dd2b52de953fef37fbe620d77))
+* base app ([0148dfc](https://github.com/themakunga/nix-systems/commit/0148dfcf7532562308113fd7aa42ff96a88bd6cb))
+* gemini and google cloud ([b3ccf66](https://github.com/themakunga/nix-systems/commit/b3ccf662f983a82e0591e5b577c1d5499f40e118))
+* github cli ([fe42b8a](https://github.com/themakunga/nix-systems/commit/fe42b8a7130ad63484a7d170b38f8753802c4f6a))
+* modularity ([1e7a77f](https://github.com/themakunga/nix-systems/commit/1e7a77f08a3b9014baafae62e693c1fb553ab58b))
+* move github ([9d02863](https://github.com/themakunga/nix-systems/commit/9d028635a70b5d4291f3673f83f9836c07c28eee))
+* outer-heaven config test ([f00319d](https://github.com/themakunga/nix-systems/commit/f00319d255dc12447dcec205652772ecc0dc0a59))
+* outer-heaven config test ([5b4a259](https://github.com/themakunga/nix-systems/commit/5b4a259e096b7692c5f471fb314231d311d2a79c))
+* refactor ([8a135c6](https://github.com/themakunga/nix-systems/commit/8a135c67a7a13756e5b247cdeb81a070887c7c76))
+* refactor modules to actual ([82d329e](https://github.com/themakunga/nix-systems/commit/82d329e2a25b197c4a2d74105e010998278db4b8))
+* rename module keys ([1ca62ad](https://github.com/themakunga/nix-systems/commit/1ca62ad25ad4c77478eddf0b00a61a0acb74c79c))
+* tailscale refactorization ([17494a2](https://github.com/themakunga/nix-systems/commit/17494a2f5e82789e528058f651d3a56dfbf896fc))
+* terminal apps ([f89c584](https://github.com/themakunga/nix-systems/commit/f89c584c765862753e6961e295420f5b4495f598))
+* tw working ([a7e3c3b](https://github.com/themakunga/nix-systems/commit/a7e3c3b65ab2359580c20eaaa296d32cffcc053f))
+
 # [0.6.0](https://github.com/themakunga/nix-systems/compare/v0.5.0...v0.6.0) (2026-07-16)
 
 
