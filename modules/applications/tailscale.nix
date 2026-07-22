@@ -28,10 +28,10 @@ in {
       in
         mkMerge [
           {
-            sops.secrets."tailscale/auth_token" = {};
             services.tailscale.enable = mkIf isDarwin (mkForce false);
           }
           (optionalAttrs isLinux {
+            sops.secrets."tailscale/auth_token" = {};
             services.tailscale = {
               enable = true;
               authKeyFile = config.sops.secrets."tailscale/auth_token".path;
