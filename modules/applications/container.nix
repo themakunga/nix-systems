@@ -34,7 +34,7 @@
             colima
           ];
           shellInit = ''
-            export DOCKER_HOST=unix://User/${username}/.colima/default/docker.sock
+            export DOCKER_HOST=unix://Users/${username}/.colima/default/docker.sock
           '';
         };
 

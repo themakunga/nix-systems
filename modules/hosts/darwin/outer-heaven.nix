@@ -20,15 +20,10 @@
     home-manager
     sops-nix
     secrets
+    mac-app-util
     ;
-  inherit
-    (self)
-    commonModules
-    userModules
-    darwinModules
-    profileModules
-    applicationModules
-    ;
+
+  mkBundle = self.lib.mkBundle inputs.nixpkgs.lib self;
 in {
   flake.darwinConfigurations.outer-heaven = nix-darwin.lib.darwinSystem {
     specialArgs = {
@@ -36,66 +31,89 @@ in {
       hostName = "outer-heaven";
     };
 
-    modules = [
-      sops-nix.darwinModules.sops
-      nix-homebrew.darwinModules.nix-homebrew
-      home-manager.darwinModules.home-manager
-      commonModules.home-manager
-
-      commonModules.arch.darwin.silicon
-      commonModules.settings
-      commonModules.host-secrets
-      commonModules.userProfiles
-      commonModules.network
-
-      darwinModules.primaryUser
-      darwinModules.keyboard
-      darwinModules.security
-      darwinModules.dock
-      darwinModules.finder
-      darwinModules.extras
-      darwinModules.homebrew
-
-      applicationModules.apps
-      applicationModules.tailscale
-      applicationModules.gh
-
-      userModules.nicolas-work
-
-      profileModules.nicolas-work
-      profileModules.thoughtworks
-      profileModules.grainger
-
-      {
-        my = {
-          hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
-          tailscale = {
-            enable = true;
-            gui.enable = true;
-          };
-          primaryUser = {
-            enable = true;
-            username = "nicolas";
-          };
-          keyboard.enable = true;
-          apps = {
-            outer-heaven = {
+    modules =
+      [
+        sops-nix.darwinModules.sops
+        nix-homebrew.darwinModules.nix-homebrew
+        home-manager.darwinModules.home-manager
+        mac-app-util.darwinModules.default
+      ]
+      ++ (mkBundle {
+        commonModules = [
+          "apps"
+          "arch.darwin.silicon"
+          "home-manager"
+          "host-secrets"
+          "network"
+          "settings"
+          "userProfiles"
+        ];
+        darwinModules = [
+          "extras"
+          "finder"
+          "homebrew"
+          "keyboard"
+          "primaryUser"
+          "security"
+        ];
+        applicationModules = [
+          "github-cli"
+          "google-cloud.gemini"
+          "neovim"
+          "openconnect"
+          "tailscale.core"
+          "tailscale.gui"
+          "terminal-zsh"
+        ];
+        userModules = [
+          "nicolas-work"
+        ];
+        profileModules = [
+          "nicolas-work"
+          "thoughtworks"
+        ];
+      })
+      ++ [
+        ({pkgs, ...}: {
+          my = {
+            hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
+            primaryUser = {
               enable = true;
-              level = "system";
-              apps = [
-                "Xcode"
-                "logitech-g-hub"
-                "Magnet"
-                "Amphetamine"
-                "iterm2"
-                "wezterm"
-                "tmux"
-                "stow"
-              ];
+              username = "nicolas";
+            };
+            keyboard.enable = true;
+            apps = {
+              tailscale-core.enable = true;
+              tailscale-gui.enable = true;
+              neovim.enable = true;
+              terminal-zsh.enable = true;
+              github-cli.enable = true;
+              gemini-cli.enable = true;
+
+              outer-heaven = {
+                enable = true;
+                level = "system";
+
+                packages = [
+                  pkgs.stow
+                ];
+
+                casks = [
+                  "iterm2"
+                  "logitech-g-hub"
+                  "okta-verify"
+                  "wezterm"
+                ];
+
+                masApps = {
+                  "Amphetamine" = 937984704;
+                  "Magnet" = 441258766;
+                  "Xcode" = 497799835;
+                };
+              };
             };
           };
-        };
-      }
-    ];
+        })
+      ];
   };
 }

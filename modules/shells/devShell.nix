@@ -22,6 +22,7 @@
         fzf
         bat
         lazygit
+        sops
         pre-commit
         statix
         deadnix

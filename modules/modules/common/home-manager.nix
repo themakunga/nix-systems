@@ -23,6 +23,7 @@ in {
     home-manager = {
       useGlobalPkgs = true;
       useUserPackages = true;
+      backupFileExtension = "backup";
 
       extraSpecialArgs = {
         inherit inputs self;
@@ -30,6 +31,7 @@ in {
 
       sharedModules = [
         homeManagerModules.common
+        inputs.mac-app-util.homeManagerModules.default
       ];
     };
   };

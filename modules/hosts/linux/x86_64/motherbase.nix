@@ -17,19 +17,10 @@
     (inputs)
     nixpkgs
     home-manager
-    # disko
     sops-nix
-    # nix-hardware
     secrets
     ;
-  inherit
-    (self)
-    nixosModules
-    commonModules
-    userModules
-    profileModules
-    applicationModules
-    ;
+  mkBundle = self.lib.mkBundle inputs.nixpkgs.lib self;
 in {
   flake.nixosConfigurations.motherbase = nixpkgs.lib.nixosSystem {
     specialArgs = {
@@ -37,41 +28,51 @@ in {
       hostName = "motherbase";
     };
 
-    modules = [
-      sops-nix.nixosModules.sops
-      home-manager.nixosModules.home-manager
-
-      commonModules.arch.nixos.x64
-      commonModules.settings
-      commonModules.host-secrets
-      commonModules.userProfiles
-      commonModules.authorizedKeys
-      commonModules.network
-      commonModules.home-manager
-
-      nixosModules.keyboard
-      nixosModules.base-machine
-
-      userModules.nicolas-server
-
-      profileModules.nicolas-server
-      applicationModules.tailscale
-
-      {
-        my = {
-          hostSecrets.file = "${secrets.outPath}/hosts/motherbase.yaml";
-          keyboard.enable = true;
-          tailscale = {
-            enable = true;
-            gui.enable = true;
+    modules =
+      [
+        sops-nix.nixosModules.sops
+        home-manager.nixosModules.home-manager
+      ]
+      ++ (mkBundle {
+        commonModules = [
+          "arch.nixos.x64"
+          "authorized-keys"
+          "home-manager"
+          "host-secrets"
+          "network"
+          "settings"
+          "userProfiles"
+          "apps"
+        ];
+        nixosModules = [
+          "base-machine"
+          "keyboard"
+        ];
+        userModules = [
+          "nicolas-server"
+        ];
+        profileModules = [
+          "nicolas-server"
+        ];
+        applicationModules = [
+          "tailscale.core"
+        ];
+      })
+      ++ [
+        {
+          my = {
+            hostSecrets.file = "${secrets.outPath}/hosts/motherbase.yaml";
+            keyboard.enable = true;
+            base-machine = {
+              enable = true;
+              bootMode = "uefi";
+              rootDevice = "/dev/nvme0u1p2";
+            };
+            apps = {
+              tailscale-core.enable = true;
+            };
           };
-          base-machine = {
-            enable = true;
-            bootMode = "uefi";
-            rootDevice = "/dev/nvme0u1p2";
-          };
-        };
-      }
-    ];
+        }
+      ];
   };
 }

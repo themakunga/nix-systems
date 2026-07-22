@@ -3,67 +3,63 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: tailscale.nix
-# Path: ./modules/applications/tailscale.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
-{
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# =========================================================
+{self, ...}: let
+  inherit (self.lib) mkAppModule;
+in {
   flake.applicationModules.tailscale = {
-    config,
-    lib,
-    pkgs,
-    options,
-    ...
-  }: let
-    inherit (lib) mkEnableOption mkIf mkMerge mkForce optionalAttrs;
-    cfg = config.my.tailscale;
-
-    isLinux = options ? system.nixos;
-    isDarwin = options ? system.darwin;
-  in {
-    options.my.tailscale = {
-      enable = mkEnableOption "Universal Tailscale client";
-      gui = {
-        enable = mkEnableOption "Graphical interface (Trayscale on Linux, Homebrew Cask on macOS)";
+    core = mkAppModule "tailscale-core" "Tailscale Core Daemon and CLI" {
+      meta = {pkgs, ...}: {
+        level = "system";
+        packages = [pkgs.tailscale];
       };
+      sysConfig = {
+        config,
+        lib,
+        options,
+        ...
+      }: let
+        inherit (lib) mkForce optionalAttrs mkMerge mkIf;
+        isLinux = options ? system.nixos;
+        isDarwin = options ? system.darwin;
+      in
+        mkMerge [
+          {
+            services.tailscale.enable = mkIf isDarwin (mkForce false);
+          }
+          (optionalAttrs isLinux {
+            sops.secrets."tailscale/auth_token" = {};
+            services.tailscale = {
+              enable = true;
+              authKeyFile = config.sops.secrets."tailscale/auth_token".path;
+            };
+            networking.firewall = {
+              trustedInterfaces = ["tailscale0"];
+              allowedUDPPorts = [config.services.tailscale.port];
+              checkReversePath = "loose";
+            };
+          })
+        ];
     };
 
-    config = mkIf cfg.enable (mkMerge [
-      {
-        sops.secrets."tailscale/auth_token" = {};
-      }
-
-      {
-        services.tailscale = {
-          enable = true;
-        };
-
-        environment.systemPackages = [pkgs.tailscale];
-      }
-
-      (optionalAttrs isLinux {
-        services.tailscale.authKeyFile =
-          config.sops.secrets."tailscale/auth_token".path;
-        networking.firewall = {
-          trustedInterfaces = ["tailscale0"];
-          allowedUDPPorts = [config.services.tailscale.port];
-          checkReversePath = "loose";
-        };
-
-        environment.systemPackages = mkIf cfg.gui.enable [
-          pkgs.trayscale
-        ];
-      })
-
-      (optionalAttrs isDarwin {
-        services.tailscale.enable = mkIf cfg.gui.enable (mkForce false);
-
-        homebrew = mkIf cfg.gui.enable {
-          enable = true;
-          casks = ["tailscale"];
-        };
-      })
-    ]);
+    gui = mkAppModule "tailscale-gui" "Tailscale GUI App" {
+      meta = {
+        pkgs,
+        lib,
+        options,
+        ...
+      }: let
+        isLinux = options ? system.nixos;
+        isDarwin = options ? system.darwin;
+      in {
+        level = "system";
+        packages = lib.optionals isLinux [pkgs.trayscale];
+        masApps = lib.optionalAttrs isDarwin {"tailscale" = 1475387142;};
+      };
+      sysConfig = {};
+    };
   };
 }

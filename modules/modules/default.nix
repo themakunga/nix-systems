@@ -54,6 +54,11 @@ in {
         type = types.attrsOf types.raw;
         default = {};
       };
+      lib = mkOption {
+        description = "lib helpers for flakes";
+        type = types.attrsOf types.raw;
+        default = {};
+      };
     };
   };
   config = {};

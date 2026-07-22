@@ -3,11 +3,6 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: nicolas-work.nix
-# Path: ./modules/userModules/nicolas-work.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
 {self, ...}: let
   inherit (self) commonModules;
 in {
@@ -28,6 +23,7 @@ in {
         imports = [
           commonModules.home-secrets
           commonModules.git-identity
+          commonModules.home-gpg-profiles
         ];
 
         services.gpg-agent = {

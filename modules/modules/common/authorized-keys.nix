@@ -9,7 +9,7 @@
 # Description: Módulo de configuración para la infraestructura.
 # =====================
 {
-  flake.commonModules.authorizedKeys = {
+  flake.commonModules.authorized-keys = {
     config,
     lib,
     ...
