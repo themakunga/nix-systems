@@ -57,8 +57,11 @@ in {
         ];
         applicationModules = [
           "github-cli"
+          "google-cloud.gcloud"
           "neovim"
+          "openconnect"
           "tailscale.core"
+          "tailscale.gui"
           "terminal-zsh"
         ];
         userModules = [
@@ -71,7 +74,7 @@ in {
         ];
       })
       ++ [
-        {
+        ({pkgs, ...}: {
           my = {
             hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
             primaryUser = {
@@ -80,11 +83,37 @@ in {
             };
             keyboard.enable = true;
             apps = {
+              tailscale-core.enable = true;
+              tailscale-gui.enable = true;
+              neovim.enable = true;
+              terminal-zsh.enable = true;
               github-cli.enable = true;
-              tailscale.enable = true;
+              gcloud.enable = true;
+
+              kanagawa = {
+                enable = true;
+                level = "system";
+
+                packages = [
+                  pkgs.stow
+                ];
+
+                casks = [
+                  "iterm2"
+                  "logitech-g-hub"
+                  "okta-verify"
+                  "wezterm"
+                ];
+
+                masApps = {
+                  "Amphetamine" = 937984704;
+                  "Magnet" = 441258766;
+                  "Xcode" = 497799835;
+                };
+              };
             };
           };
-        }
+        })
       ];
   };
 }

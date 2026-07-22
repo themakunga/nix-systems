@@ -49,16 +49,17 @@ in {
       };
 
       systemd.services."podman-tofu-dns" = {
+        wantedBy = ["multi-user.target"];
         wants = [
           "network-online.target"
           "sops-nix.service"
-          "tailscale.service"
+          "tailscaled.service"
           "podman-pihole.service"
         ];
         after = [
           "network-online.target"
           "sops-nix.service"
-          "tailscale.service"
+          "tailscaled.service"
           "podman-pihole.service"
         ];
         preStart = ''

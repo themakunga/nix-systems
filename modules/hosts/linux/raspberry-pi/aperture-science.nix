@@ -82,8 +82,8 @@ in {
               bootMode = "rpi";
             };
             apps = {
-              tailscale.enable = true;
-              tailscore-gui.enable = true;
+              tailscale-core.enable = true;
+              tailscale-gui.enable = true;
             };
           };
         }

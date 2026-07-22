@@ -96,7 +96,6 @@ in {
 
                 packages = [
                   pkgs.stow
-                  pkgs.tmux
                 ];
 
                 casks = [

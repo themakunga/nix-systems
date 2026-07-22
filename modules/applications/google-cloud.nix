@@ -21,8 +21,20 @@ in {
         level = "system";
         packages = [pkgs.gemini-cli];
       };
-      sysConfig = {config, ...}: {
-        sops.secrets."applications/gemini/api-key" = {};
+      sysConfig = {
+        config,
+        options,
+        ...
+      }: let
+        isDarwin = options ? system.darwin;
+        username =
+          if isDarwin
+          then config.my.primaryUser.username
+          else "nicolas";
+      in {
+        sops.secrets."applications/gemini/api-key" = {
+          owner = username;
+        };
         environment.interactiveShellInit = ''
           export GEMINI_API_KEY="$(cat ${config.sops.secrets."applications/gemini/api-key".path} 2>/dev/null)"
         '';

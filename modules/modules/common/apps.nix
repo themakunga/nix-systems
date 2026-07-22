@@ -10,6 +10,7 @@
 {
   flake.commonModules.apps = {
     config,
+    options,
     lib,
     pkgs,
     ...
@@ -75,10 +76,10 @@
           environment.systemPackages = sysPackages;
         })
 
-        (mkIf isDarwin {
+        (mkIf isDarwin (lib.optionalAttrs (options ? homebrew) {
           homebrew.casks = sysCasks ++ userCasks;
           homebrew.masApps = sysMasApps // userMasApps;
-        })
+        }))
 
         (mkIf (userPackagesConfig != {}) {
           home-manager.users = userPackagesConfig;

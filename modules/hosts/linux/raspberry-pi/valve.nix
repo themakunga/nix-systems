@@ -17,8 +17,6 @@
     (inputs)
     nixpkgs
     nixos-hardware
-    sops-nix
-    disko
     ;
   mkBundle = self.lib.mkBundle inputs.nixpkgs.lib self;
 in {
@@ -30,9 +28,7 @@ in {
 
     modules =
       [
-        disko.nixosModules.disko
         nixos-hardware.nixosModules.raspberry-pi-5
-        sops-nix.nixosModules.sops
       ]
       ++ (mkBundle {
         commonModules = [
@@ -42,17 +38,12 @@ in {
           "network"
         ];
         nixosModules = [
-          "wifi"
         ];
         rpiModules = [
           "common"
-          "performance"
           "hardware-rpi5"
           "sd-image"
         ];
-        # userModules = [];
-        # profileModules = [];
-        # applicationModules = [];
       })
       ++ [
         ({lib, ...}: {
