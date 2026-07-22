@@ -40,9 +40,8 @@ in {
         '';
         home-manager.sharedModules = [
           {
-            xdg.configFile."gemini" = {
-              source = "${dotfiles}/gemini";
-              recursive = true;
+            home.file.".gemini/config.yaml" = {
+              source = "${dotfiles}/gemini/config.yaml";
               force = true;
             };
           }
