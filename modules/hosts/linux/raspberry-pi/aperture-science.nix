@@ -16,7 +16,6 @@
   inherit
     (inputs)
     nixpkgs
-    home-manager
     disko
     sops-nix
     nixos-hardware
@@ -34,7 +33,6 @@ in {
       [
         nixos-hardware.nixosModules.raspberry-pi-5
         disko.nixosModules.disko
-        home-manager.nixosModules.home-manager
         sops-nix.nixosModules.sops
       ]
       ++ (mkBundle {
@@ -42,7 +40,6 @@ in {
           "apps"
           "arch.nixos.rpi"
           "authorized-keys"
-          "home-manager"
           "host-secrets"
           "network"
           "settings"

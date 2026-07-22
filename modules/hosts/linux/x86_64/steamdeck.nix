@@ -16,7 +16,6 @@
   inherit
     (inputs)
     nixpkgs
-    home-manager
     sops-nix
     secrets
     ;
@@ -31,14 +30,12 @@ in {
     modules =
       [
         sops-nix.nixosModules.sops
-        home-manager.nixosModules.home-manager
       ]
       ++ (mkBundle {
         commonModules = [
           "arch.nixos.x64"
           "apps"
           "authorized-keys"
-          "home-manager"
           "host-secrets"
           "network"
           "settings"

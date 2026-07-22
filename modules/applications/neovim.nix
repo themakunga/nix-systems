@@ -7,12 +7,7 @@
 # Archivo de Configuración de NixOS / Home Manager
 # Repositorio: TheMakunga Infrastructure
 # =========================================================
-{
-  inputs,
-  self,
-  ...
-}: let
-  inherit (inputs) dotfiles;
+{self, ...}: let
   inherit (self.lib) mkAppModule;
 in {
   flake.applicationModules.neovim = mkAppModule "neovim" "Enable NeoVim configuration" {
@@ -51,15 +46,6 @@ in {
         EDITOR = "nvim";
         VISUAL = "nvim";
       };
-      home-manager.sharedModules = [
-        {
-          xdg.configFile."nvim" = {
-            source = "${dotfiles}/neovim";
-            recursive = true;
-            force = true;
-          };
-        }
-      ];
     };
   };
 }
