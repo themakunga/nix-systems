@@ -18,7 +18,10 @@ in {
   flake.applicationModules.github-cli = mkAppModule "github-cli" "Enable GitHub CLI" {
     meta = {pkgs, ...}: {
       level = "system";
-      packages = [pkgs.gh];
+      packages = with pkgs; [
+        gh
+        gama-tui # Alternative to lazyactions to monitor and manage GitHub Actions
+      ];
     };
     sysConfig = {config, ...}: {
       sops.secrets."applications/gh/token" = {};
