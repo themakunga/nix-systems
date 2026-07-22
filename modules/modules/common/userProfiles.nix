@@ -36,6 +36,7 @@
       nullOr
       listOf
       package
+      unspecified
       ;
   in {
     options.my.userProfiles = mkOption {
@@ -87,6 +88,11 @@
                 type = nullOr str;
                 default = null;
                 description = "Path for hashed password";
+              };
+              homeManager = mkOption {
+                type = unspecified;
+                default = {};
+                description = "Legacy Home Manager configuration (Ignored)";
               };
             };
           }
