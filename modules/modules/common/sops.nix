@@ -12,51 +12,41 @@ in {
       gpg = {
         pkgs,
         lib,
+        config,
         ...
       }: let
         inherit (lib) mkEnableOption mkOption types mkIf concatMapStringsSep;
+        cfg = config.programs.sops.gpg;
       in {
-        home-manager.sharedModules = [
-          (
-            {
-              config,
-              lib,
-              ...
-            }: let
-              cfg = config.programs.sops.gpg;
-              inherit (lib.hm.dag) entryAfter;
-            in {
-              options.programs.sops.gpg = {
-                enable = mkEnableOption "Declarative GPG key importer";
-                keys = mkOption {
-                  default = [];
-                  type = types.listOf (
-                    types.submodule {
-                      options = {
-                        name = mkOption {type = types.str;};
-                        publicKey = mkOption {type = types.str;};
-                        privateKey = mkOption {type = types.str;};
-                      };
-                    }
-                  );
+        options.programs.sops.gpg = {
+          enable = mkEnableOption "Declarative GPG key importer";
+          keys = mkOption {
+            default = [];
+            type = types.listOf (
+              types.submodule {
+                options = {
+                  name = mkOption {type = types.str;};
+                  publicKey = mkOption {type = types.str;};
+                  privateKey = mkOption {type = types.str;};
                 };
-              };
-              config = mkIf cfg.enable {
-                home.activation.importSopsGpg = entryAfter ["writeBoundary"] (
-                  concatMapStringsSep "\n" (key: ''
-                    if [ -f "${key.publicKey}" ]; then
-                      ${pkgs.gnupg}/bin/gpg --import "${key.publicKey}"
-                    fi
-                    if [ -f "${key.privateKey}" ]; then
-                      ${pkgs.gnupg}/bin/gpg --import "${key.privateKey}"
-                    fi
-                  '')
-                  cfg.keys
-                );
-              };
-            }
-          )
-        ];
+              }
+            );
+          };
+        };
+        config = mkIf cfg.enable {
+          system.activationScripts.importSopsGpg = {
+            text =
+              concatMapStringsSep "\n" (key: ''
+                if [ -f "${key.publicKey}" ]; then
+                  sudo -u ''${USER:-nicolas} ${pkgs.gnupg}/bin/gpg --import "${key.publicKey}"
+                fi
+                if [ -f "${key.privateKey}" ]; then
+                  sudo -u ''${USER:-nicolas} ${pkgs.gnupg}/bin/gpg --import "${key.privateKey}"
+                fi
+              '')
+              cfg.keys;
+          };
+        };
       };
     };
 

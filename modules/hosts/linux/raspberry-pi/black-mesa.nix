@@ -16,7 +16,6 @@
   inherit
     (inputs)
     nixpkgs
-    home-manager
     sops-nix
     nixos-hardware
     disko
@@ -33,7 +32,6 @@ in {
 
     modules =
       [
-        home-manager.nixosModules.home-manager
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
         nixos-hardware.nixosModules.raspberry-pi-3
@@ -46,7 +44,6 @@ in {
           "host-secrets"
           "authorized-keys"
           "network"
-          "home-manager"
           "userProfiles"
         ];
         nixosModules = [
