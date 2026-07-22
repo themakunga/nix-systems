@@ -17,7 +17,6 @@
     (inputs)
     nix-darwin
     nix-homebrew
-    home-manager
     sops-nix
     secrets
     mac-app-util
@@ -34,14 +33,12 @@ in {
       [
         sops-nix.darwinModules.sops
         nix-homebrew.darwinModules.nix-homebrew
-        home-manager.darwinModules.home-manager
         mac-app-util.darwinModules.default
       ]
       ++ (mkBundle {
         commonModules = [
           "apps"
           "arch.darwin.silicon"
-          "home-manager"
           "host-secrets"
           "network"
           "settings"

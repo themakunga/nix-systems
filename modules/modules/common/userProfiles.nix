@@ -92,7 +92,7 @@
               homeManager = mkOption {
                 type = unspecified;
                 default = {};
-                description = "Home Manager configuration module or attrset";
+                description = "Legacy Home Manager configuration (Ignored)";
               };
             };
           }
@@ -144,12 +144,6 @@
       users.groups = optionalAttrs isLinux (
         mapAttrs' (_: userCfg: nameValuePair userCfg.username {}) cfg
       );
-
-      home-manager.users =
-        mapAttrs' (
-          _: userCfg: nameValuePair userCfg.username userCfg.homeManager
-        )
-        cfg;
     };
   };
 }

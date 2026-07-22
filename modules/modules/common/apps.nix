@@ -58,32 +58,24 @@
       userApps = filterAttrs (_: g: g.level == "user") activeApps;
 
       sysPackages = flatten (mapAttrsToList (_: g: g.packages) sysApps);
+      userPackages = flatten (mapAttrsToList (_: g: g.packages) userApps);
+      allPackages = sysPackages ++ userPackages;
+
       sysCasks = flatten (mapAttrsToList (_: g: g.casks) sysApps);
       sysMasApps = foldl' (acc: g: acc // g.masApps) {} (builtins.attrValues sysApps);
-
-      uniqueUsers = lib.unique (mapAttrsToList (_: g: g.targetUser) userApps);
-      userPackagesConfig = foldl' (acc: user: let
-        userPkgs = flatten (mapAttrsToList (_: g: g.packages) (filterAttrs (_: g: g.targetUser == user) userApps));
-      in
-        acc // {${user} = {home.packages = userPkgs;};}) {}
-      uniqueUsers;
 
       userCasks = flatten (mapAttrsToList (_: g: g.casks) userApps);
       userMasApps = foldl' (acc: g: acc // g.masApps) {} (builtins.attrValues userApps);
     in
       mkMerge [
-        (mkIf (sysPackages != []) {
-          environment.systemPackages = sysPackages;
+        (mkIf (allPackages != []) {
+          environment.systemPackages = allPackages;
         })
 
         (mkIf isDarwin (lib.optionalAttrs (options ? homebrew) {
           homebrew.casks = sysCasks ++ userCasks;
           homebrew.masApps = sysMasApps // userMasApps;
         }))
-
-        (mkIf (userPackagesConfig != {}) {
-          home-manager.users = userPackagesConfig;
-        })
       ];
   };
 }
