@@ -69,133 +69,7 @@ lazy attribute set of raw value
 
 
 
-## my\.apps
-
-
-
-Smart motor apps routing Nix, Casks, and Mac App Store
-
-
-
-*Type:*
-attribute set of (submodule)
-
-
-
-*Default:*
-
-```nix
-{ }
-```
-
-
-
-## my\.apps\.\<name>\.enable
-
-
-
-Whether to enable Activate group\.
-
-
-
-*Type:*
-boolean
-
-
-
-*Default:*
-
-```nix
-false
-```
-
-
-
-*Example:*
-
-```nix
-true
-```
-
-
-
-## my\.apps\.\<name>\.apps
-
-
-
-List of app names (e\.g\., \[“git” “docker” “slack”])
-
-
-
-*Type:*
-list of string
-
-
-
-*Default:*
-
-```nix
-[ ]
-```
-
-
-
-## my\.apps\.\<name>\.level
-
-
-
-This option has no description\.
-
-
-
-*Type:*
-one of “system”, “user”
-
-
-
-*Default:*
-
-```nix
-"system"
-```
-
-
-
-## my\.apps\.\<name>\.targetUser
-
-
-
-This option has no description\.
-
-
-
-*Type:*
-string
-
-
-
-*Default:*
-
-```nix
-"nicolas"
-```
-
-
-
-## my\.caddy-main\.email
-
-
-
-Email for SSL Cert
-
-
-
-*Type:*
-string
-
-
-
-## my\.caddy-main\.enanble
+## my\.caddy-main\.enable
 
 
 
@@ -221,6 +95,19 @@ false
 ```nix
 true
 ```
+
+
+
+## my\.caddy-main\.email
+
+
+
+Email for SSL Cert
+
+
+
+*Type:*
+string
 
 
 
@@ -260,56 +147,6 @@ attribute set of string
 
 
 Whether to enable Caddy node\.
-
-
-
-*Type:*
-boolean
-
-
-
-*Default:*
-
-```nix
-false
-```
-
-
-
-*Example:*
-
-```nix
-true
-```
-
-
-
-## my\.gh
-
-
-
-Smart multiprofile gh environment
-
-
-
-*Type:*
-attribute set of (submodule)
-
-
-
-*Default:*
-
-```nix
-{ }
-```
-
-
-
-## my\.gh\.\<name>\.enable
-
-
-
-Whether to enable Configure multiprofile github cli\.
 
 
 
@@ -460,64 +297,6 @@ true
 
 
 Whether to enable Main config pihole\.
-
-
-
-*Type:*
-boolean
-
-
-
-*Default:*
-
-```nix
-false
-```
-
-
-
-*Example:*
-
-```nix
-true
-```
-
-
-
-## my\.tailscale\.enable
-
-
-
-Whether to enable Universal Tailscale client\.
-
-
-
-*Type:*
-boolean
-
-
-
-*Default:*
-
-```nix
-false
-```
-
-
-
-*Example:*
-
-```nix
-true
-```
-
-
-
-## my\.tailscale\.gui\.enable
-
-
-
-Whether to enable Graphical interface (Trayscale on Linux, Homebrew Cask on macOS)\.
 
 
 
