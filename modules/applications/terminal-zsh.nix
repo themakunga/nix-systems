@@ -26,6 +26,7 @@ in {
         oh-my-posh
         tmux
         wezterm
+        zstd
       ];
     };
     sysConfig = {pkgs, ...}: {
