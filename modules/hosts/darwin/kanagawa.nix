@@ -86,6 +86,7 @@ in {
               terminal-zsh.enable = true;
               github-cli.enable = true;
               gcloud.enable = true;
+              ghostty.enable = true;
 
               kanagawa = {
                 enable = true;

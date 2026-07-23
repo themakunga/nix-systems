@@ -86,6 +86,7 @@ in {
               terminal-zsh.enable = true;
               github-cli.enable = true;
               gemini-cli.enable = true;
+              ghostty.enable = true;
 
               outer-heaven = {
                 enable = true;
