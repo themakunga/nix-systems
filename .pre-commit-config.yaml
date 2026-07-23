@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+    rev: v4.6.0
     hooks:
       - id: trailing-whitespace
         name: "Formatter - trailing-whitespace - All files - pre-commit"
@@ -23,12 +23,18 @@ repos:
         name: "Formatter - mixed-line-ending - All files - pre-commit"
         stages: [pre-commit]
         exclude: '^(MODULES\.md|CHANGELOG\.md|update_log\.txt)$'
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.2
+    hooks:
+      - id: gitleaks
+        stages: [pre-push]
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.5.6
+    rev: v1.5.5
     hooks:
       - id: insert-license
         name: Insertar cabecera de documentación
         files: \.nix$
+        stages: [pre-commit]
         args:
           - --license-filepath
           - .github/file-header.txt
@@ -103,7 +109,7 @@ repos:
         name: "Formatter - yamlfmt - .yaml, .yml - pre-commit"
         stages: [pre-commit]
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-    rev: v9.26.0
+    rev: v9.16.0
     hooks:
       - id: commitlint
         name: "Linter - commitlint - Commit Message - commit-msg"
