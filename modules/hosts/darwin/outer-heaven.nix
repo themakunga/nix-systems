@@ -38,6 +38,7 @@ in {
       ]
       ++ (mkBundle {
         commonModules = [
+          "dotfiles"
           "apps"
           "arch.darwin.silicon"
           "host-secrets"

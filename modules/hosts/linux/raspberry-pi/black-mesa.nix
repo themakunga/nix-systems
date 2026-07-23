@@ -38,6 +38,7 @@ in {
       ]
       ++ (mkBundle {
         commonModules = [
+          "dotfiles"
           "apps"
           "arch.nixos.rpi"
           "settings"
