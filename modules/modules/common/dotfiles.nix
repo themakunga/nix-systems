@@ -26,6 +26,7 @@
     "zsh"
     "tmux"
     "wezterm"
+    "ghostty"
     "fastfetch"
     "lazygit"
     "ohmyposh"

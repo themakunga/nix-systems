@@ -81,6 +81,7 @@ in {
             apps = {
               tailscale-core.enable = true;
               tailscale-gui.enable = true;
+              ghostty.enable = true;
             };
           };
         }
