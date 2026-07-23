@@ -12,6 +12,13 @@
   inherit (self) commonModules;
 in {
   flake.userModules.nicolas-personal = {config, ...}: {
+    imports = [
+      commonModules.shared-secrets
+      commonModules.secret-dotfiles
+    ];
+
+    my.secretDotfiles.enable = true;
+
     sops.secrets."passwords/nicolas/hashed" = {
       neededForUsers = true;
     };
