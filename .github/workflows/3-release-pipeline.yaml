@@ -1,11 +1,23 @@
-name: "3. PR Checks (Build & Cache)"
+name: "3. Release Pipeline (Validation, Build, Publish, PR)"
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - 'release/v*'
 permissions:
   contents: write
+  pull-requests: write
 jobs:
+  pre-commit-checks:
+    name: "Run Validations & Linters"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+      - name: Install pre-commit
+        run: pipx install pre-commit
+      - name: Run all pre-commit hooks
+        run: pre-commit run --all-files
   build-darwin:
     name: "Darwin: ${{ matrix.host }}"
     runs-on: macos-14
@@ -116,25 +128,60 @@ jobs:
         run: |
           export NIX_SSHOPTS="-o StrictHostKeyChecking=no"
           if [[ "${{ matrix.host }}" == "black-mesa" || "${{ matrix.host }}" == "valve" ]]; then
+            mkdir -p output
             nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.sdImage --accept-flake-config
+            for file in result/sd-image/*; do
+              if [ -f "$file" ]; then
+                filename=$(basename "$file")
+                cp -L "$file" "output/${{ matrix.host }}-$filename"
+              fi
+            done
           else
             nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --accept-flake-config
           fi
-  pr-checks-summary:
-    name: "3. PR Checks (Build & Cache)"
-    needs:
-      - build-darwin
-      - build-linux-x86_64
-      - build-linux-arm64
+      - name: Upload Artifact
+        if: ${{ matrix.host == 'black-mesa' || matrix.host == 'valve' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-${{ matrix.host }}
+          path: output/*
+          retention-days: 1
+  publish-and-pr:
+    name: "Publish Release & Create PR"
+    needs: [pre-commit-checks, build-darwin, build-linux-x86_64, build-linux-arm64]
     runs-on: ubuntu-latest
-    if: always()
     steps:
-      - name: Evaluate Job Statuses
+      - uses: actions/checkout@v7
+      - name: Setup Git Identity
         run: |
-          if [[ "${{ needs.build-darwin.result }}" != "success" || \
-                "${{ needs.build-linux-x86_64.result }}" != "success" || \
-                "${{ needs.build-linux-arm64.result }}" != "success" ]]; then
-            echo "❌ ERROR: One or more matrix builds failed."
-            exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Download Built Images
+        uses: actions/download-artifact@v4
+        with:
+          path: output
+          pattern: image-*
+          merge-multiple: true
+      - name: Create Release and PR
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          # Extract version from branch name (e.g. release/v0.8.1 -> v0.8.1)
+          VERSION="${GITHUB_REF#refs/heads/release/}"
+
+          echo "Publishing GitHub Release $VERSION..."
+          gh release create "$VERSION" output/* --title "Release $VERSION" --generate-notes
+
+          echo "Creating Pull Request to main..."
+          PR_EXISTS=$(gh pr list --head "release/$VERSION" --base main --json id --jq 'length')
+          if [ "$PR_EXISTS" -eq "0" ]; then
+            gh pr create \
+              --base main \
+              --head "release/$VERSION" \
+              --title "🚀 Production Release Integration: $VERSION" \
+              --body "### Production Release Deployment: $VERSION
+              This PR integrates the released code from \`release/$VERSION\` into \`main\`.
+              All checks have passed and the GitHub Release has been successfully published."
+          else
+            echo "PR already exists. Skipping."
           fi
-          echo "✅ All compilation checks passed successfully."

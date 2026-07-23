@@ -1,0 +1,54 @@
+name: "4. Cleanup Pre-Releases"
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  cleanup:
+    name: "Cleanup Old Pre-Releases"
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
+      - name: Setup Git Identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Delete Old Pre-Release Tags
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          # Only keep the last 2 valid releases
+          VALID_RELEASES=$(git tag -l "v*.*.*" --sort=-v:refname | grep -v "-" | head -n 2)
+          if [ -z "$VALID_RELEASES" ]; then
+            echo "No valid releases found. Skipping cleanup."
+            exit 0
+          fi
+
+          # Find all pre-release tags (containing '-')
+          PRE_RELEASES=$(git tag -l "v*-*" --sort=-v:refname)
+
+          for tag in $PRE_RELEASES; do
+            echo "Deleting pre-release tag and GitHub Release: $tag"
+            gh release delete "$tag" --yes || true
+            git push origin ":refs/tags/$tag" || true
+          done
+      - name: Delete Old Release Branches
+        run: |
+          # Keep the branch of the current release that was just merged, delete older ones
+          # We can just rely on the PR head ref being deleted by GitHub usually, but to be safe:
+          BRANCHES=$(git branch -r | grep 'origin/release/v' | sed 's/origin\///')
+          for branch in $BRANCHES; do
+            # Don't delete the branch that just got merged
+            if [ "$branch" != "${{ github.event.pull_request.head.ref }}" ]; then
+              echo "Deleting old release branch: $branch"
+              git push origin --delete "$branch" || true
+            fi
+          done
