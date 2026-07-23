@@ -14,7 +14,7 @@
   pkgs,
   ...
 }: let
-  inherit (lib) mkEnableOption mkIf;
+  inherit (lib) mkEnableOption mkOption types mkIf;
   cfg = config.my.dotfiles;
   user = config.system.primaryUser or "nicolas";
   userHome =
@@ -22,23 +22,15 @@
     then "/Users/${user}"
     else "/home/${user}";
   dotfilesDir = "${userHome}/Projects/personal/public-dotfiles";
-  packages = [
-    "zsh"
-    "tmux"
-    "wezterm"
-    "ghostty"
-    "fastfetch"
-    "lazygit"
-    "ohmyposh"
-    "nvim"
-    "gh"
-    "gemini"
-    "neofetch"
-  ];
 in {
   flake.commonModules.dotfiles = {
     options.my.dotfiles = {
       enable = mkEnableOption "Enable GNU Stow automatic activation for dotfiles";
+      packages = mkOption {
+        type = types.listOf types.str;
+        default = [];
+        description = "List of package names to stow from public-dotfiles.";
+      };
     };
 
     config = mkIf cfg.enable {
@@ -54,7 +46,7 @@ in {
                 sudo -u ${user} ${pkgs.stow}/bin/stow -t ${userHome} -d ${dotfilesDir} --restow ${pkg}
               fi
             '')
-            packages)}
+            cfg.packages)}
             echo "Dotfiles stowed successfully."
           else
             echo "Local dotfiles directory not found at ${dotfilesDir}. Skipping stow."

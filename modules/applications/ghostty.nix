@@ -18,5 +18,8 @@ in {
         pkgs.ghostty
       ];
     };
+    sysConfig = {
+      my.dotfiles.packages = ["ghostty"];
+    };
   };
 }
