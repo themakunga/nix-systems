@@ -16,7 +16,7 @@ in {
     lib,
     ...
   }: let
-    inherit (lib) mkOption types mkIf mapAttrsToList flatten optionalAttrs hasSuffix;
+    inherit (lib) mkOption types mkIf mapAttrsToList flatten optionalAttrs;
     cfg = config.my.sharedSecrets;
     user = config.system.primaryUser or "nicolas";
 
@@ -60,18 +60,10 @@ in {
                 then secret.path
                 else "${secret.path}/${relFile}";
 
-              # Determinamos el formato por extensión si no se ha forzado en la configuración
+              # Determinamos el formato: si no se especifica, asumimos 'binary' porque los dotfiles están cifrados como blobs completos.
               actualFormat =
                 if secret.format != null
                 then secret.format
-                else if hasSuffix ".yaml" actualSource || hasSuffix ".yml" actualSource
-                then "yaml"
-                else if hasSuffix ".json" actualSource
-                then "json"
-                else if hasSuffix ".ini" actualSource
-                then "ini"
-                else if hasSuffix ".env" actualSource
-                then "dotenv"
                 else "binary";
             in {
               name = "shared-conf/${actualSource}";
@@ -98,7 +90,7 @@ in {
             source = mkOption {
               type = types.str;
               default = name;
-              description = "Path relative to shared-conf directory in secrets repo. Can be a file or a directory.";
+              description = "Path relative to shared-conf/encrypted directory in secrets repo. Can be a file or a directory.";
             };
             path = mkOption {
               type = types.str;
