@@ -16,7 +16,7 @@ in {
     lib,
     ...
   }: let
-    inherit (lib) mkOption types mkIf mapAttrsToList flatten optionalAttrs;
+    inherit (lib) mkOption types mkIf mapAttrsToList flatten optionalAttrs hasSuffix;
     cfg = config.my.sharedSecrets;
     user = config.system.primaryUser or "nicolas";
 
@@ -60,10 +60,19 @@ in {
                 then secret.path
                 else "${secret.path}/${relFile}";
 
-              # Determinamos el formato por extensión si no es binario forzado
-              # sops-nix soporta yaml, json, env, ini, binary. Para simplificar, usamos la configuración del usuario.
-              # Sin embargo, dotfiles mixtos suelen requerir "binary" a menos que se sepa que son yaml puros.
-              actualFormat = secret.format;
+              # Determinamos el formato por extensión si no se ha forzado en la configuración
+              actualFormat =
+                if secret.format != null
+                then secret.format
+                else if hasSuffix ".yaml" actualSource || hasSuffix ".yml" actualSource
+                then "yaml"
+                else if hasSuffix ".json" actualSource
+                then "json"
+                else if hasSuffix ".ini" actualSource
+                then "ini"
+                else if hasSuffix ".env" actualSource
+                then "dotenv"
+                else "binary";
             in {
               name = "shared-conf/${actualSource}";
               value =
@@ -111,9 +120,9 @@ in {
               description = "Permissions mode";
             };
             format = mkOption {
-              type = types.str;
-              default = "binary";
-              description = "SOPS format (binary, yaml, json, etc). Applied to all files if source is a directory.";
+              type = types.nullOr types.str;
+              default = null;
+              description = "SOPS format (binary, yaml, json, etc). If null, it is inferred from the file extension.";
             };
           };
         })

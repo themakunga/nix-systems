@@ -28,7 +28,7 @@
     homebrew = mkIf isDarwin {
       casks = [
         "firefox"
-        "firefox-dev"
+        "firefox@developer-edition"
       ];
     };
 
