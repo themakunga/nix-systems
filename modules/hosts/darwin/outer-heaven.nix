@@ -88,6 +88,9 @@ in {
               github-cli.enable = true;
               gemini-cli.enable = true;
               ghostty.enable = true;
+              halloy.enable = true;
+              irssi.enable = true;
+              nchat.enable = true;
 
               outer-heaven = {
                 enable = true;
