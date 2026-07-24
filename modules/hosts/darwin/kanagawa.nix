@@ -88,6 +88,9 @@ in {
               github-cli.enable = true;
               gcloud.enable = true;
               ghostty.enable = true;
+              halloy.enable = true;
+              irssi.enable = true;
+              nchat.enable = true;
 
               kanagawa = {
                 enable = true;
