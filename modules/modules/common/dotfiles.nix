@@ -8,22 +8,22 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: let
-  inherit (lib) mkEnableOption mkOption types mkIf;
-  cfg = config.my.dotfiles;
-  user = config.system.primaryUser or "nicolas";
-  userHome =
-    if pkgs.stdenv.isDarwin
-    then "/Users/${user}"
-    else "/home/${user}";
-  dotfilesDir = "${userHome}/Projects/personal/public-dotfiles";
-in {
+_: {
   flake.commonModules.dotfiles = {
+    config,
+    lib,
+    pkgs,
+    ...
+  }: let
+    inherit (lib) mkEnableOption mkOption types mkIf;
+    cfg = config.my.dotfiles;
+    user = config.system.primaryUser or "nicolas";
+    userHome =
+      if pkgs.stdenv.isDarwin
+      then "/Users/${user}"
+      else "/home/${user}";
+    dotfilesDir = "${userHome}/Projects/personal/public-dotfiles";
+  in {
     options.my.dotfiles = {
       enable = mkEnableOption "Enable GNU Stow automatic activation for dotfiles";
       packages = mkOption {
