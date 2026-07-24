@@ -102,6 +102,7 @@ in {
                   "logitech-g-hub"
                   "okta-verify"
                   "wezterm"
+                  "zen"
                 ];
 
                 masApps = {
