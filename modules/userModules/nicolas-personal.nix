@@ -14,6 +14,7 @@ in {
   flake.userModules.nicolas-personal = {config, ...}: {
     imports = [
       commonModules.shared-secrets
+      commonModules.shared-plain
       commonModules.secret-dotfiles
     ];
 

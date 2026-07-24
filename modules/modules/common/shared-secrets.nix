@@ -90,7 +90,7 @@ in {
             source = mkOption {
               type = types.str;
               default = name;
-              description = "Path relative to shared-conf directory in secrets repo. Can be a file or a directory.";
+              description = "Path relative to shared-conf/encrypted directory in secrets repo. Can be a file or a directory.";
             };
             path = mkOption {
               type = types.str;
