@@ -30,6 +30,16 @@ in {
       lib,
       ...
     }: {
+      my.dotfiles.packages = [
+        "zsh"
+        "tmux"
+        "wezterm"
+        "fastfetch"
+        "lazygit"
+        "ohmyposh"
+        "neofetch"
+      ];
+
       fonts.packages = [
         pkgs.nerd-fonts.hack
       ];

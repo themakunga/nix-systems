@@ -4,26 +4,22 @@
 # Módulo auto-gestionado.
 # =========================================================
 # =========================================================
-# Archivo de Configuración de NixOS / Home Manager
+# Archivo de Configuración de NixOS / Nix-Darwin
 # Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
 # =========================================================
 {self, ...}: let
   inherit (self.lib) mkAppModule;
 in {
-  flake.applicationModules.github-cli = mkAppModule "github-cli" "Enable GitHub CLI" {
+  flake.applicationModules.ghostty = mkAppModule "ghostty" "Enable Ghostty terminal emulator" {
     meta = {pkgs, ...}: {
       level = "system";
-      packages = with pkgs; [
-        gh
-        gama-tui # Alternative to lazyactions to monitor and manage GitHub Actions
+      packages = [
+        pkgs.ghostty
       ];
     };
-    sysConfig = {config, ...}: {
-      my.dotfiles.packages = ["gh"];
-      sops.secrets."applications/gh/token" = {};
-      environment.interactiveShellInit = ''
-        export GH_TOKEN="$(cat ${config.sops.secrets."applications/gh/token".path} 2>/dev/null)"
-      '';
+    sysConfig = {
+      my.dotfiles.packages = ["ghostty"];
     };
   };
 }

@@ -33,6 +33,7 @@ in {
       ]
       ++ (mkBundle {
         commonModules = [
+          "dotfiles"
           "arch.nixos.x64"
           "authorized-keys"
           "host-secrets"

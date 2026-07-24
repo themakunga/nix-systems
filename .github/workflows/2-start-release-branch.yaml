@@ -1,4 +1,4 @@
-name: '2. Start Release (Develop -> Main)'
+name: '2. Start Release (Develop -> Release Branch)'
 on:
   workflow_dispatch:
     inputs:
@@ -10,10 +10,9 @@ on:
         default: patch
 permissions:
   contents: write
-  pull-requests: write
 jobs:
-  create-release-pr:
-    name: 'Create Release PR'
+  create-release-branch:
+    name: 'Create Release Branch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -28,7 +27,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Calculate Next Version
         run: |
-          LATEST_TAG=$(git tag -l "v*.*.*" --sort=-v:refname | head -n 1 || echo "v0.0.0")
+          LATEST_TAG=$(git tag -l "v*.*.*" --sort=-v:refname | grep -v "-" | head -n 1 || echo "v0.0.0")
           VERSION_CORE="${LATEST_TAG#v}"
           IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION_CORE"
           BUMP="${{ inputs.bump_type }}"
@@ -41,7 +40,7 @@ jobs:
           fi
           NEXT_VERSION="v$MAJOR.$MINOR.$PATCH"
           echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
-      - name: Create Release Branch & PR
+      - name: Create Release Branch
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
@@ -52,13 +51,6 @@ jobs:
             exit 1
           fi
 
-          git checkout -b "release/${{ env.NEXT_VERSION }}"
-          git push origin "release/${{ env.NEXT_VERSION }}"
-
-          gh pr create \
-            --base main \
-            --head "release/${{ env.NEXT_VERSION }}" \
-            --title "🚀 Release: ${{ env.NEXT_VERSION }}" \
-            --body "### Production Release Deployment: ${{ env.NEXT_VERSION }}
-            This Pull Request integrates the stabilized code from develop branch into main.
-            The compilation and caching security checks are currently running."
+          git checkout -B "release/${{ env.NEXT_VERSION }}"
+          git push -f origin "release/${{ env.NEXT_VERSION }}"
+          echo "✅ Successfully created and pushed branch release/${{ env.NEXT_VERSION }}"

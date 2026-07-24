@@ -38,6 +38,7 @@ in {
       ]
       ++ (mkBundle {
         commonModules = [
+          "dotfiles"
           "apps"
           "arch.darwin.silicon"
           "host-secrets"
@@ -86,6 +87,7 @@ in {
               terminal-zsh.enable = true;
               github-cli.enable = true;
               gemini-cli.enable = true;
+              ghostty.enable = true;
 
               outer-heaven = {
                 enable = true;

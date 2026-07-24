@@ -32,6 +32,7 @@ in {
       ]
       ++ (mkBundle {
         commonModules = [
+          "dotfiles"
           "arch.nixos.rpi"
           "settings"
           "authorized-keys"

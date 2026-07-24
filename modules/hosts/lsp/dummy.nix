@@ -35,6 +35,7 @@ in {
         ]
         ++ (mkBundle {
           commonModules = [
+            "dotfiles"
             "arch.nixos.x64"
             "settings"
             "host-secrets"
@@ -73,6 +74,7 @@ in {
         ]
         ++ (mkBundle {
           commonModules = [
+            "dotfiles"
             "arch.darwin.silicon"
             "settings"
             "host-secrets"

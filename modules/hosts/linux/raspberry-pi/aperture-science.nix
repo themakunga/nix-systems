@@ -37,6 +37,7 @@ in {
       ]
       ++ (mkBundle {
         commonModules = [
+          "dotfiles"
           "apps"
           "arch.nixos.rpi"
           "authorized-keys"
@@ -81,6 +82,7 @@ in {
             apps = {
               tailscale-core.enable = true;
               tailscale-gui.enable = true;
+              ghostty.enable = true;
             };
           };
         }
