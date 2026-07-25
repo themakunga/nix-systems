@@ -28,7 +28,7 @@ _: {
     };
 
     config = mkIf cfg.enable {
-      my.sharedSecrets = {
+      my.sharedPlain = {
         "aws" = {
           path = "${userHome}/.aws";
           mode = "0600";
