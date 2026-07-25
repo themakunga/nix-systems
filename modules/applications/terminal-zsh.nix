@@ -31,13 +31,27 @@ in {
       ...
     }: {
       my.dotfiles.packages = [
-        "zsh"
-        "tmux"
-        "wezterm"
-        "fastfetch"
-        "lazygit"
-        "ohmyposh"
-        "neofetch"
+        {
+          name = "zsh";
+        }
+        {
+          name = "tmux";
+        }
+        {
+          name = "wezterm";
+        }
+        {
+          name = "fastfetch";
+        }
+        {
+          name = "lazygit";
+        }
+        {
+          name = "ohmyposh";
+        }
+        {
+          name = "neofetch";
+        }
       ];
 
       fonts.packages = [

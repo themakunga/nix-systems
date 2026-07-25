@@ -59,6 +59,7 @@ in {
       ++ [
         {
           my = {
+            dotfiles.enable = true;
             hostSecrets.file = "${secrets.outPath}/hosts/motherbase.yaml";
             keyboard.enable = true;
             base-machine = {

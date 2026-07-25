@@ -59,6 +59,7 @@ in {
       ++ [
         {
           my = {
+            dotfiles.enable = true;
             hostSecrets.file = "${secrets.outPath}/hosts/msf.yaml";
             keyboard.enable = true;
             base-machine = {
