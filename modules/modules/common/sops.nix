@@ -34,18 +34,34 @@ in {
           };
         };
         config = mkIf cfg.enable {
-          system.activationScripts.importSopsGpg = {
-            text =
-              concatMapStringsSep "\n" (key: ''
-                if [ -f "${key.publicKey}" ]; then
-                  sudo -u ''${USER:-nicolas} ${pkgs.gnupg}/bin/gpg --import "${key.publicKey}"
-                fi
-                if [ -f "${key.privateKey}" ]; then
-                  sudo -u ''${USER:-nicolas} ${pkgs.gnupg}/bin/gpg --import "${key.privateKey}"
-                fi
-              '')
-              cfg.keys;
-          };
+          system.activationScripts =
+            if pkgs.stdenv.isDarwin
+            then {
+              postActivation.text =
+                concatMapStringsSep "\n" (key: ''
+                  if [ -f "${key.publicKey}" ]; then
+                    sudo -u ''${USER:-nicolas} ${pkgs.gnupg}/bin/gpg --import "${key.publicKey}"
+                  fi
+                  if [ -f "${key.privateKey}" ]; then
+                    sudo -u ''${USER:-nicolas} ${pkgs.gnupg}/bin/gpg --import "${key.privateKey}"
+                  fi
+                '')
+                cfg.keys;
+            }
+            else {
+              importSopsGpg = {
+                text =
+                  concatMapStringsSep "\n" (key: ''
+                    if [ -f "${key.publicKey}" ]; then
+                      sudo -u ''${USER:-nicolas} ${pkgs.gnupg}/bin/gpg --import "${key.publicKey}"
+                    fi
+                    if [ -f "${key.privateKey}" ]; then
+                      sudo -u ''${USER:-nicolas} ${pkgs.gnupg}/bin/gpg --import "${key.privateKey}"
+                    fi
+                  '')
+                  cfg.keys;
+              };
+            };
         };
       };
     };
