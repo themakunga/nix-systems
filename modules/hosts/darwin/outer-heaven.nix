@@ -75,6 +75,7 @@ in {
       ++ [
         ({pkgs, ...}: {
           my = {
+            dotfiles.enable = true;
             cloudProfiles = {
               aws = ["latam" "grainger"];
               gcp = ["personal"];

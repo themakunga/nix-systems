@@ -73,6 +73,7 @@ in {
       ++ [
         {
           my = {
+            dotfiles.enable = true;
             hostSecrets.file = "${secrets.outPath}/hosts/aperture-science.yaml";
             keyboard.enable = true;
             base-machine = {

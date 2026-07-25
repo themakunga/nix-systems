@@ -19,7 +19,11 @@ in {
       ];
     };
     sysConfig = {
-      my.dotfiles.packages = ["ghostty"];
+      my.dotfiles.packages = [
+        {
+          name = "ghostty";
+        }
+      ];
     };
   };
 }

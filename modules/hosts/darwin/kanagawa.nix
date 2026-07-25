@@ -74,6 +74,7 @@ in {
       ++ [
         ({pkgs, ...}: {
           my = {
+            dotfiles.enable = true;
             hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
             primaryUser = {
               enable = true;
