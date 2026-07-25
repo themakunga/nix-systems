@@ -114,6 +114,7 @@ in {
                   "okta-verify"
                   "wezterm"
                   "zen"
+                  "ghostty"
                 ];
 
                 masApps = {

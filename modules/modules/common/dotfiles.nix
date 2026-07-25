@@ -18,7 +18,7 @@ _: {
     inherit (lib) mkEnableOption mkOption types mkIf;
     cfg = config.my.dotfiles;
     user = config.system.primaryUser or "nicolas";
-    isDarwin = config.system.darwin or false;
+    isDarwin = pkgs.stdenv.isDarwin;
     userHome =
       if isDarwin
       then "/Users/${user}"

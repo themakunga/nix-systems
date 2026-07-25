@@ -17,11 +17,13 @@ in {
       packages = [
         pkgs.ghostty
       ];
+      casks = ["ghostty"];
     };
     sysConfig = {
       my.dotfiles.packages = [
         {
           name = "ghostty";
+          isConfig = true;
         }
       ];
     };
