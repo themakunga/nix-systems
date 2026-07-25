@@ -19,7 +19,11 @@ in {
       ];
     };
     sysConfig = {config, ...}: {
-      my.dotfiles.packages = ["gh"];
+      my.dotfiles.packages = [
+        {
+          name = "gh";
+        }
+      ];
       sops.secrets."applications/gh/token" = {};
       environment.interactiveShellInit = ''
         export GH_TOKEN="$(cat ${config.sops.secrets."applications/gh/token".path} 2>/dev/null)"

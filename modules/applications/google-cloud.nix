@@ -27,7 +27,11 @@ in {
           then config.my.primaryUser.username
           else "nicolas";
       in {
-        my.dotfiles.packages = ["gemini"];
+        my.dotfiles.packages = [
+          {
+            name = "gemini";
+          }
+        ];
         sops.secrets."applications/gemini/api-key" = {
           owner = username;
         };

@@ -42,7 +42,11 @@ in {
         ++ lib.optionals (options ? system.nixos) [wl-clipboard xclip];
     };
     sysConfig = {
-      my.dotfiles.packages = ["neovim"];
+      my.dotfiles.packages = [
+        {
+          name = "neovim";
+        }
+      ];
       environment.variables = {
         EDITOR = "nvim";
         VISUAL = "nvim";
