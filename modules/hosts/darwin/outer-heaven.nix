@@ -38,6 +38,7 @@ in {
       ]
       ++ (mkBundle {
         commonModules = [
+          "cloud-profiles"
           "dotfiles"
           "apps"
           "arch.darwin.silicon"
@@ -74,6 +75,10 @@ in {
       ++ [
         ({pkgs, ...}: {
           my = {
+            cloudProfiles = {
+              aws = ["latam" "grainger"];
+              gcp = ["personal"];
+            };
             hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
             primaryUser = {
               enable = true;
@@ -81,12 +86,14 @@ in {
             };
             keyboard.enable = true;
             apps = {
+              aws-cli.enable = true;
               tailscale-core.enable = true;
               tailscale-gui.enable = true;
               neovim.enable = true;
               terminal-zsh.enable = true;
               github-cli.enable = true;
               gemini-cli.enable = true;
+              gcloud.enable = true;
               ghostty.enable = true;
               halloy.enable = true;
               irssi.enable = true;
