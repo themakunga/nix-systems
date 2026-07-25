@@ -21,11 +21,12 @@ in {
     sysConfig = {
       config,
       lib,
+      pkgs,
       ...
     }: let
       cfg = config.my.cloudProfiles;
       user = config.system.primaryUser or "nicolas";
-      isDarwin = config.system.darwin or false;
+      isDarwin = pkgs.stdenv.isDarwin;
       userHome =
         if isDarwin
         then "/Users/${user}"
