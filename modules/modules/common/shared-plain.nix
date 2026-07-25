@@ -38,15 +38,15 @@ in {
 
     copyCommands = flatten (mapAttrsToList (
         _name: plainItem: let
-          fullSourcePath = "${secrets.outPath}/shared-conf/plain/${plainItem.source}";
+          fullSourcePath = "${secrets.outPath}/shared-conf/${plainItem.source}";
           relativeFiles = getFilesRecursive fullSourcePath "";
         in
           builtins.map (
             relFile: let
               actualSource =
                 if relFile == ""
-                then "${secrets.outPath}/shared-conf/plain/${plainItem.source}"
-                else "${secrets.outPath}/shared-conf/plain/${plainItem.source}/${relFile}";
+                then "${secrets.outPath}/shared-conf/${plainItem.source}"
+                else "${secrets.outPath}/shared-conf/${plainItem.source}/${relFile}";
               actualDest =
                 if relFile == ""
                 then plainItem.path
@@ -68,14 +68,14 @@ in {
   in {
     options.my.sharedPlain = mkOption {
       default = {};
-      description = "Declarative mapping of shared-conf/plain files to filesystem paths";
+      description = "Declarative mapping of shared-conf files to filesystem paths";
       type = types.attrsOf (
         types.submodule ({name, ...}: {
           options = {
             source = mkOption {
               type = types.str;
               default = name;
-              description = "Path relative to shared-conf/plain directory in secrets repo. Can be a file or a directory.";
+              description = "Path relative to shared-conf directory in secrets repo. Can be a file or a directory.";
             };
             path = mkOption {
               type = types.str;
