@@ -14,6 +14,7 @@ in {
   flake.commonModules.shared-plain = {
     config,
     lib,
+    pkgs,
     ...
   }: let
     inherit (lib) mkOption types mkIf mapAttrsToList flatten concatStringsSep;
@@ -102,9 +103,16 @@ in {
     };
 
     config = mkIf (cfg != {}) {
-      system.activationScripts.copySharedPlain = {
-        text = concatStringsSep "\n" copyCommands;
-      };
+      system.activationScripts =
+        if pkgs.stdenv.isDarwin
+        then {
+          postActivation.text = concatStringsSep "\n" copyCommands;
+        }
+        else {
+          copySharedPlain = {
+            text = concatStringsSep "\n" copyCommands;
+          };
+        };
     };
   };
 }

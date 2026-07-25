@@ -57,16 +57,26 @@ in {
           owner = user;
         };
 
-        system.activationScripts.setupAwsConfig = {
-          text = ''
-            mkdir -p ${userHome}/.aws
-            # Replace placeholder with actual SOPS placeholder syntax: config.sops.placeholder."..."
-            # Since sops-nix handles the templates, we just symlink the rendered files
-            ln -sf ${config.sops.templates."aws_credentials".path} ${userHome}/.aws/credentials
-            ln -sf ${config.sops.templates."aws_config".path} ${userHome}/.aws/config
-            chown -R ${user} ${userHome}/.aws
-          '';
-        };
+        system.activationScripts =
+          if isDarwin
+          then {
+            postActivation.text = ''
+              mkdir -p ${userHome}/.aws
+              ln -sf ${config.sops.templates."aws_credentials".path} ${userHome}/.aws/credentials
+              ln -sf ${config.sops.templates."aws_config".path} ${userHome}/.aws/config
+              chown -R ${user} ${userHome}/.aws
+            '';
+          }
+          else {
+            setupAwsConfig = {
+              text = ''
+                mkdir -p ${userHome}/.aws
+                ln -sf ${config.sops.templates."aws_credentials".path} ${userHome}/.aws/credentials
+                ln -sf ${config.sops.templates."aws_config".path} ${userHome}/.aws/config
+                chown -R ${user} ${userHome}/.aws
+              '';
+            };
+          };
       };
   };
 }
