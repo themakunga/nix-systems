@@ -58,8 +58,8 @@ in {
         pkgs.nerd-fonts.hack
       ];
 
-      system.activationScripts.terminalProfile = lib.mkIf pkgs.stdenv.isDarwin {
-        text = ''
+      system.activationScripts = lib.mkIf pkgs.stdenv.isDarwin {
+        postActivation.text = ''
           echo "Setting up macOS Terminal profile..."
           if ! defaults read com.apple.Terminal "Window Settings" 2>/dev/null | grep -q "TokyoNight-Storm"; then
             open -g -a Terminal.app "/Users/nicolas/Projects/personal/public-dotfiles/terminal/TokyoNight-Storm.terminal"
