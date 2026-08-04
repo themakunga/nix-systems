@@ -3,11 +3,6 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: userProfiles.nix
-# Path: ./modules/modules/common/userProfiles.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
 {
   flake.commonModules.userProfiles = {
     config,
@@ -34,13 +29,12 @@
       submodule
       bool
       nullOr
-      listOf
+      either
       package
-      unspecified
+      listOf
       ;
   in {
     options.my.userProfiles = mkOption {
-      description = "Dinamyc user profile";
       default = {};
       type = attrsOf (
         submodule (
@@ -49,7 +43,14 @@
               username = mkOption {
                 type = str;
                 default = name;
-                description = "login username";
+              };
+              fullName = mkOption {
+                type = str;
+                default = "";
+              };
+              email = mkOption {
+                type = str;
+                default = "";
               };
               description = mkOption {
                 type = str;
@@ -58,41 +59,30 @@
               isSystem = mkOption {
                 type = bool;
                 default = false;
-                description = "If the user is sys level";
               };
               createHome = mkOption {
                 type = bool;
                 default = true;
-                description = "Create user home directory";
               };
               isAdmin = mkOption {
                 type = bool;
                 default = false;
-                description = "If user is admin / sudo permission";
               };
               isNetworkManager = mkOption {
                 type = bool;
                 default = false;
-                description = "If the user is nertworking manager";
               };
               extraGroups = mkOption {
                 type = listOf str;
                 default = [];
-                description = "Additional groups for the user";
               };
               shell = mkOption {
-                type = nullOr package;
+                type = either package str;
                 default = pkgs.bashInteractive;
               };
               hashedPasswordFile = mkOption {
                 type = nullOr str;
                 default = null;
-                description = "Path for hashed password";
-              };
-              homeManager = mkOption {
-                type = unspecified;
-                default = {};
-                description = "Legacy Home Manager configuration (Ignored)";
               };
             };
           }
@@ -106,8 +96,11 @@
           _: userCfg:
             nameValuePair userCfg.username (
               {
-                inherit (userCfg) description shell;
-
+                description =
+                  if userCfg.fullName != ""
+                  then userCfg.fullName
+                  else userCfg.description;
+                inherit (userCfg) shell;
                 home =
                   if userCfg.isSystem
                   then "/opt/${userCfg.username}"
@@ -116,13 +109,9 @@
                   else "/home/${userCfg.username}";
               }
               // optionalAttrs isLinux {
-                inherit (userCfg) hashedPasswordFile;
-
+                inherit (userCfg) hashedPasswordFile createHome;
                 isNormalUser = !userCfg.isSystem;
                 isSystemUser = userCfg.isSystem;
-
-                inherit (userCfg) createHome;
-
                 group = userCfg.username;
                 extraGroups =
                   userCfg.extraGroups

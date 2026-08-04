@@ -3,35 +3,41 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: glados.nix
-# Path: ./modules/userModules/glados.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
 {self, ...}: let
   inherit (self) commonModules;
 in {
-  flake.userModules.glados = {
+  flake.userModules.glados = {...}: {
+    imports = [
+      commonModules.home-secrets
+    ];
+
     my.userProfiles.glados = {
       username = "glados";
-      description = "Aperture Science Core AI - absolutelly not evil";
+      fullName = "GLaDOS";
+      email = "glados@aperturescience.com";
+      description = "Aperture Science Core AI";
       isSystem = true;
       isAdmin = false;
-      isNetworkManager = true;
+      isNetworkManager = false;
       extraGroups = ["docker"];
       createHome = true;
-
-      homeManager = {
-        imports = [
-          commonModules.home-secrets
-          commonModules.git-identity
-        ];
-
-        services.gpg-agent = {
-          enable = true;
-          enableSshSupport = true;
-        };
-      };
+      shell = "/usr/bin/false";
     };
+
+    # Usamos un bloque de activación universal y dejamos que Bash resuelva el SO.
+    system.activationScripts.postActivation.text = ''
+      echo "=> Configurando la jaula de GLaDOS en /opt/glados..."
+      mkdir -p /opt/glados
+
+      if [ "$(uname)" = "Darwin" ]; then
+        # En macOS: GLaDOS es la dueña, admin (nicolas) tiene acceso total
+        chown -R glados:admin /opt/glados 2>/dev/null || true
+        chmod 770 /opt/glados
+      else
+        # En Linux: Seguridad estricta
+        chown -R glados:glados /opt/glados 2>/dev/null || true
+        chmod 700 /opt/glados
+      fi
+    '';
   };
 }

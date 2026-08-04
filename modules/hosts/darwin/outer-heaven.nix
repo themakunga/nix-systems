@@ -46,6 +46,9 @@ in {
           "network"
           "settings"
           "userProfiles"
+          "home-secrets"
+          "git-identity"
+          "sops-gpg"
         ];
         darwinModules = [
           "extras"
@@ -66,9 +69,13 @@ in {
         ];
         userModules = [
           "nicolas-work"
+          "glados"
         ];
         profileModules = [
           "nicolas-work"
+          "nicolas-personal"
+          "latam"
+          "glados"
           "thoughtworks"
         ];
       })
@@ -77,8 +84,12 @@ in {
           my = {
             dotfiles.enable = true;
             cloudProfiles = {
-              aws = ["latam" "grainger"];
-              gcp = ["personal"];
+              aws = [
+              ];
+              gcp = [
+                # "personal"
+                # "latam"
+              ];
             };
             hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
             primaryUser = {
@@ -104,8 +115,10 @@ in {
                 enable = true;
                 level = "system";
 
-                packages = [
-                  pkgs.stow
+                packages = with pkgs; [
+                  stow
+                  btop
+                  ctop
                 ];
 
                 casks = [

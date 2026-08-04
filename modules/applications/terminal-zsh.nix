@@ -32,6 +32,10 @@ in {
     }: {
       my.dotfiles.packages = [
         {
+          name = "git";
+          isConfig = true;
+        }
+        {
           name = "zsh";
         }
         {
@@ -42,15 +46,19 @@ in {
         }
         {
           name = "fastfetch";
+          isConfig = true;
         }
         {
           name = "lazygit";
+          isConfig = true;
         }
         {
           name = "ohmyposh";
+          isConfig = true;
         }
         {
-          name = "neofetch";
+          name = "ohmyposh";
+          isConfig = true;
         }
       ];
 
