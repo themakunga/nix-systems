@@ -44,9 +44,8 @@ in {
     sysConfig = {
       my.dotfiles.packages = [
         {
-          name = "neovim";
+          name = "nvim";
           isConfig = true;
-          output-name = "nvim";
         }
       ];
       environment.variables = {

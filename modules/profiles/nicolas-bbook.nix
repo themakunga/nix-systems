@@ -3,11 +3,6 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: nicolas-bbook.nix
-# Path: ./modules/profiles/nicolas-bbook.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
 {
   flake.profileModules.nicolas-bbook = {
     lib,
@@ -32,37 +27,31 @@
       ];
     };
 
-    my.userProfiles.nicolas-personal.homeManager = {
-      services.gpg-agent = {
+    programs = {
+      sops.gpg = {
         enable = true;
-        enableSshSupport = true;
+        keys = [
+          {
+            name = "bbook-key";
+            publicKey = config.sops.secrets."profiles/nicolas-bbook/gpg/public_key".path;
+            privateKey = config.sops.secrets."profiles/nicolas-bbook/gpg/private_key".path;
+          }
+        ];
       };
 
-      programs = {
-        sops.gpg = {
-          enable = true;
-          keys = [
-            {
-              name = "bbook-key";
-              publicKey = config.sops.secrets."profiles/nicolas-bbook/gpg/public_key".path;
-              privateKey = config.sops.secrets."profiles/nicolas-bbook/gpg/private_key".path;
-            }
-          ];
-        };
-        git-identity = {
-          enable = true;
-          workspaces.nicolas-bbook = {
-            directory = "~/Projects/Bbook";
-            realName = "Nicolas Villarroel Martinez.";
-            email = "nmartinez@bbook.cl";
-            gpg = {
-              enable = true;
-              keyId = config.sops.secrets."profiles/nicolas-bbook/gpg/key_id".path;
-            };
-            ssh = {
-              enableAuth = true;
-              privateKey = config.sops.secrets."profiles/nicolas-bbook/ssh/private_key".path;
-            };
+      git-identity = {
+        enable = true;
+        workspaces.nicolas-bbook = {
+          directory = "~/Projects/Bbook";
+          realName = "Nicolas Villarroel Martinez.";
+          email = "nmartinez@bbook.cl";
+          gpg = {
+            enable = true;
+            keyId = config.sops.secrets."profiles/nicolas-bbook/gpg/key_id".path;
+          };
+          ssh = {
+            enable = true;
+            privateKey = config.sops.secrets."profiles/nicolas-bbook/ssh/private_key".path;
           };
         };
       };

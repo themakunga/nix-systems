@@ -3,11 +3,6 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: nicolas-personal.nix
-# Path: ./modules/userModules/nicolas-personal.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
 {self, ...}: let
   inherit (self) commonModules;
 in {
@@ -16,6 +11,7 @@ in {
       commonModules.shared-secrets
       commonModules.shared-plain
       commonModules.secret-dotfiles
+      commonModules.home-secrets
     ];
 
     my.secretDotfiles.enable = true;
@@ -26,23 +22,19 @@ in {
 
     my.userProfiles.nicolas-personal = {
       username = "nicolas";
+      fullName = "Nicolas";
+      email = "nicolas@tudominio.com";
       description = "Personal Account - Main to use";
       isSystem = false;
       isAdmin = true;
       isNetworkManager = true;
       hashedPasswordFile = config.sops.secrets."passwords/nicolas/hashed".path;
       extraGroups = ["docker"];
-      homeManager = {
-        imports = [
-          commonModules.home-secrets
-          commonModules.git-identity
-        ];
+    };
 
-        services.gpg-agent = {
-          enable = true;
-          enableSshSupport = true;
-        };
-      };
+    programs.gnupg.agent = {
+      enable = true;
+      enableSSHSupport = true;
     };
   };
 }

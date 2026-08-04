@@ -8,9 +8,7 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-{inputs, ...}: let
-  inherit (inputs) secrets;
-in {
+_: {
   flake.commonModules.cloud-profiles = {
     config,
     lib,
@@ -29,7 +27,6 @@ in {
     # AWS
     mkAwsSecret = profile: field:
       nameValuePair "cloud/aws/${profile}/${field}" {
-        sopsFile = "${secrets.outPath}/cloud.yaml";
       };
 
     awsProfilesSecrets = builtins.concatLists (
@@ -44,7 +41,6 @@ in {
     # GCP
     gcpProfilesSecrets = builtins.map (p:
       nameValuePair "cloud/gcp/${p}/service_account_json" {
-        sopsFile = "${secrets.outPath}/cloud.yaml";
         path = "${userHome}/.config/gcloud/legacy_credentials/${p}/adc.json";
         owner = user;
         mode = "0400";

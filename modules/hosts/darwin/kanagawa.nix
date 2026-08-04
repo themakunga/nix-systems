@@ -44,6 +44,9 @@ in {
           "network"
           "settings"
           "userProfiles"
+          "home-secrets"
+          "git-identity"
+          "sops-gpg"
         ];
         darwinModules = [
           "extras"

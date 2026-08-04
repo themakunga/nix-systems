@@ -41,6 +41,8 @@ in {
           "network"
           "settings"
           "userProfiles"
+          "git-identity"
+          "sops-gpg"
         ];
         nixosModules = [
           "base-machine"
