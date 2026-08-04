@@ -4,29 +4,32 @@
 # Módulo auto-gestionado.
 # =========================================================
 # =========================================================
-# Archivo de Configuración de NixOS / Home Manager
+# Archivo de Configuración de NixOS / Nix-Darwin
 # Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
 # =========================================================
 {self, ...}: let
   inherit (self.lib) mkAppModule;
 in {
-  flake.applicationModules.github-cli = mkAppModule "github-cli" "Enable GitHub CLI" {
+  flake.applicationModules.gitlab-cli = mkAppModule "gitlab-cli" "Enable GitLab CLI" {
     meta = {pkgs, ...}: {
       level = "system";
       packages = with pkgs; [
-        gh
-        gama-tui
+        glab
       ];
     };
     sysConfig = {config, ...}: {
       my.dotfiles.packages = [
         {
-          name = "gh";
+          name = "glab";
+          isConfig = true;
         }
       ];
-      sops.secrets."applications/gh/token" = {};
+
+      sops.secrets."applications/glab/token" = {};
+
       environment.interactiveShellInit = ''
-        export GH_TOKEN="$(cat ${config.sops.secrets."applications/gh/token".path} 2>/dev/null)"
+        export GITLAB_TOKEN="$(cat ${config.sops.secrets."applications/glab/token".path} 2>/dev/null)"
       '';
     };
   };

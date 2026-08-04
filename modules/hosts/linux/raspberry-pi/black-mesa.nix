@@ -46,6 +46,8 @@ in {
           "authorized-keys"
           "network"
           "userProfiles"
+          "git-identity"
+          "sops-gpg"
         ];
         nixosModules = [
           "keyboard"

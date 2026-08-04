@@ -3,11 +3,6 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: nicolas-personal.nix
-# Path: ./modules/profiles/nicolas-personal.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
 {
   flake.profileModules.nicolas-personal = {
     pkgs,
@@ -17,53 +12,64 @@
   }: let
     inherit (lib) mkIf;
     inherit (pkgs.stdenv.hostPlatform) isDarwin;
+    sopsConf = {
+      owner = config.my.userProfiles.personal.username or  "nicolas";
+    };
   in {
     sops.secrets = {
-      "profiles/nicolas-personal/ssh/private_key" = {};
-      "profiles/nicolas-personal/gpg/private_key" = {};
-      "profiles/nicolas-personal/gpg/public_key" = {};
-      "profiles/nicolas-personal/gpg/key_id" = {};
+      "profiles/personal/ssh/private_key" = sopsConf;
+      "profiles/personal/gpg/private_key" = sopsConf;
+      "profiles/personal/gpg/public_key" = sopsConf;
+      "profiles/personal/gpg/key_id" = sopsConf;
     };
 
-    homebrew = mkIf isDarwin {
-      casks = [
-        "firefox"
-        "firefox@developer-edition"
-      ];
-    };
-
-    my.userProfiles.nicolas-personal.homeManager = {
-      services.gpg-agent = {
+    my.apps = {
+      github-cli.enable = true;
+      personal = {
         enable = true;
-        enableSshSupport = true;
+        level = "user";
+        targetUser = "nicolas";
+        casks = mkIf isDarwin [
+          "firefox"
+          "firefox@developer-edition"
+          "zen"
+          "ghostty"
+        ];
+        packages = with pkgs; [
+          lynx
+          unstable.nchat
+          btop
+          ctop
+          glab
+        ];
+      };
+    };
+
+    programs = {
+      sops.gpg = {
+        enable = true;
+        keys = [
+          {
+            name = "personal-key";
+            publicKey = config.sops.secrets."profiles/personal/gpg/public_key".path;
+            privateKey = config.sops.secrets."profiles/personal/gpg/private_key".path;
+          }
+        ];
       };
 
-      programs = {
-        sops.gpg = {
-          enable = true;
-          keys = [
-            {
-              name = "personal-key";
-              publicKey = config.sops.secrets."profiles/nicolas-personal/gpg/public_key".path;
-              privateKey = config.sops.secrets."profiles/nicolas-personal/gpg/private_key".path;
-            }
-          ];
-        };
-        git-identity = {
-          enable = true;
-          workspaces.nicolas-personal = {
-            directory = "~/Projects/Personal";
-            realName = "Nicolas Villarroel Martinez.";
-            email = "nmartinezv@icloud.com";
-            gpg = {
-              enable = true;
-              keyId =
-                config.sops.secrets."profiles/nicolas-personal/gpg/key_id".path;
-            };
-            ssh = {
-              enableAuth = true;
-              privateKey = config.sops.secrets."profiles/nicolas-personal/ssh/private_key".path;
-            };
+      git-identity = {
+        enable = true;
+        workspaces.personal = {
+          directory = "~/Projects/personal/**";
+          realName = "Nicolas Villarroel Martinez.";
+          email = "nmartinezv@icloud.com";
+          gpg = {
+            enable = true;
+            keyId = config.sops.secrets."profiles/personal/gpg/key_id".path;
+          };
+          ssh = {
+            enable = true;
+            privateKey = config.sops.secrets."profiles/personal/ssh/private_key".path;
           };
         };
       };

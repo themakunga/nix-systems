@@ -76,40 +76,53 @@ _: {
             REPO_URL="${cfg.repository}"
             USER_HOME="${userHome}"
             USER="${user}"
+            HOSTNAME=$(hostname)
+
+            # Función para ejecutar comandos con el usuario y su HOME real
+            run_as_user() {
+              sudo -H -u "$USER" env HOME="$USER_HOME" "$@"
+            }
 
             echo "=> Sincronizando repositorio public-dotfiles en $DOTFILES_DIR..."
             if [ ! -d "$DOTFILES_DIR/.git" ]; then
               echo "Clonando repositorio..."
-              sudo -u $USER ${pkgs.git}/bin/git clone "$REPO_URL" "$DOTFILES_DIR"
+              run_as_user ${pkgs.git}/bin/git clone "$REPO_URL" "$DOTFILES_DIR"
             else
               cd "$DOTFILES_DIR"
-              sudo -u $USER ${pkgs.git}/bin/git fetch origin main
+              run_as_user ${pkgs.git}/bin/git fetch origin main
 
-              LOCAL_DIFF=$(sudo -u $USER ${pkgs.git}/bin/git status --porcelain)
-              AHEAD=$(sudo -u $USER ${pkgs.git}/bin/git rev-list --count origin/main..HEAD 2>/dev/null || echo "0")
-              BEHIND=$(sudo -u $USER ${pkgs.git}/bin/git rev-list --count HEAD..origin/main 2>/dev/null || echo "0")
+              LOCAL_DIFF=$(run_as_user ${pkgs.git}/bin/git status --porcelain)
+              AHEAD=$(run_as_user ${pkgs.git}/bin/git rev-list --count origin/main..HEAD 2>/dev/null || echo "0")
+              BEHIND=$(run_as_user ${pkgs.git}/bin/git rev-list --count HEAD..origin/main 2>/dev/null || echo "0")
 
               if [ -n "$LOCAL_DIFF" ] || [ "$AHEAD" -gt 0 ]; then
                 echo "Cambios locales detectados. Generando sincronización automática..."
                 DATE_STR=$(date +%Y%m%d%H%M%S)
                 BRANCH_NAME="chore/sync-$DATE_STR"
 
-                sudo -u $USER ${pkgs.git}/bin/git checkout -b "$BRANCH_NAME"
-                sudo -u $USER ${pkgs.git}/bin/git add .
-                sudo -u $USER ${pkgs.git}/bin/git commit -m "chore: sync local dotfiles changes from host" || true
-                sudo -u $USER ${pkgs.git}/bin/git push -u origin "$BRANCH_NAME" || true
+                run_as_user ${pkgs.git}/bin/git checkout -b "$BRANCH_NAME"
+                run_as_user ${pkgs.git}/bin/git add .
+
+                # Forzamos un autor por defecto para evitar fallos si Git no encuentra la identidad
+                run_as_user ${pkgs.git}/bin/git \
+                  -c user.name="Nix Auto Sync" \
+                  -c user.email="$USER@$HOSTNAME" \
+                  commit -m "chore: sync local dotfiles changes from host" || true
+
+                # Desactivamos el prompt interactivo de credenciales para evitar que se cuelgue
+                run_as_user env GIT_TERMINAL_PROMPT=0 ${pkgs.git}/bin/git push -u origin "$BRANCH_NAME" || true
 
                 if command -v ${pkgs.gh}/bin/gh >/dev/null 2>&1; then
-                  PR_EXISTS=$(sudo -u $USER ${pkgs.gh}/bin/gh pr list --head "$BRANCH_NAME" --json id --jq 'length' 2>/dev/null || echo "0")
+                  PR_EXISTS=$(run_as_user ${pkgs.gh}/bin/gh pr list --head "$BRANCH_NAME" --json id --jq 'length' 2>/dev/null || echo "0")
                   if [ "$PR_EXISTS" -eq "0" ]; then
-                    sudo -u $USER ${pkgs.gh}/bin/gh pr create --base develop --head "$BRANCH_NAME" --title "chore: sync dotfiles from host" --body "Automated PR syncing local dotfiles changes." || echo "Fallo al crear PR (requiere autenticación)."
+                    run_as_user ${pkgs.gh}/bin/gh pr create --base develop --head "$BRANCH_NAME" --title "chore: sync dotfiles from host" --body "Automated PR syncing local dotfiles changes." || echo "Fallo al crear PR (requiere autenticación)."
                   fi
                 fi
                 # Se recomienda resolver los PRs y hacer pull para mantener main sincronizado.
-                sudo -u $USER ${pkgs.git}/bin/git checkout main
+                run_as_user ${pkgs.git}/bin/git checkout main
               elif [ "$BEHIND" -gt 0 ]; then
                 echo "Actualizando cambios desde origin/main..."
-                sudo -u $USER ${pkgs.git}/bin/git pull origin main
+                run_as_user ${pkgs.git}/bin/git pull origin main
               else
                 echo "Dotfiles actualizados."
               fi
@@ -150,8 +163,8 @@ _: {
 
                 if [ -d "$DOTFILES_DIR/$PKG_NAME" ]; then
                   echo "Aplicando stow para $PKG_NAME hacia $TARGET_DIR..."
-                  sudo -u $USER mkdir -p "$TARGET_DIR"
-                  sudo -u $USER ${pkgs.stow}/bin/stow -t "$TARGET_DIR" -d "$DOTFILES_DIR" --adopt "$PKG_NAME"
+                  run_as_user mkdir -p "$TARGET_DIR"
+                  run_as_user ${pkgs.stow}/bin/stow -t "$TARGET_DIR" -d "$DOTFILES_DIR" --adopt "$PKG_NAME"
                 else
                   echo "Advertencia: El paquete $PKG_NAME no existe en $DOTFILES_DIR."
                 fi
@@ -166,40 +179,51 @@ _: {
               REPO_URL="${cfg.repository}"
               USER_HOME="${userHome}"
               USER="${user}"
+              HOSTNAME=$(hostname)
+
+              # Función para ejecutar comandos con el usuario y su HOME real (Versión Linux)
+              run_as_user() {
+                sudo -H -u "$USER" env HOME="$USER_HOME" "$@"
+              }
 
               echo "=> Sincronizando repositorio public-dotfiles en $DOTFILES_DIR..."
               if [ ! -d "$DOTFILES_DIR/.git" ]; then
                 echo "Clonando repositorio..."
-                sudo -u $USER ${pkgs.git}/bin/git clone "$REPO_URL" "$DOTFILES_DIR"
+                run_as_user ${pkgs.git}/bin/git clone "$REPO_URL" "$DOTFILES_DIR"
               else
                 cd "$DOTFILES_DIR"
-                sudo -u $USER ${pkgs.git}/bin/git fetch origin main
+                run_as_user ${pkgs.git}/bin/git fetch origin main
 
-                LOCAL_DIFF=$(sudo -u $USER ${pkgs.git}/bin/git status --porcelain)
-                AHEAD=$(sudo -u $USER ${pkgs.git}/bin/git rev-list --count origin/main..HEAD 2>/dev/null || echo "0")
-                BEHIND=$(sudo -u $USER ${pkgs.git}/bin/git rev-list --count HEAD..origin/main 2>/dev/null || echo "0")
+                LOCAL_DIFF=$(run_as_user ${pkgs.git}/bin/git status --porcelain)
+                AHEAD=$(run_as_user ${pkgs.git}/bin/git rev-list --count origin/main..HEAD 2>/dev/null || echo "0")
+                BEHIND=$(run_as_user ${pkgs.git}/bin/git rev-list --count HEAD..origin/main 2>/dev/null || echo "0")
 
                 if [ -n "$LOCAL_DIFF" ] || [ "$AHEAD" -gt 0 ]; then
                   echo "Cambios locales detectados. Generando sincronización automática..."
                   DATE_STR=$(date +%Y%m%d%H%M%S)
                   BRANCH_NAME="chore/sync-$DATE_STR"
 
-                  sudo -u $USER ${pkgs.git}/bin/git checkout -b "$BRANCH_NAME"
-                  sudo -u $USER ${pkgs.git}/bin/git add .
-                  sudo -u $USER ${pkgs.git}/bin/git commit -m "chore: sync local dotfiles changes from host" || true
-                  sudo -u $USER ${pkgs.git}/bin/git push -u origin "$BRANCH_NAME" || true
+                  run_as_user ${pkgs.git}/bin/git checkout -b "$BRANCH_NAME"
+                  run_as_user ${pkgs.git}/bin/git add .
+
+                  run_as_user ${pkgs.git}/bin/git \
+                    -c user.name="Nix Auto Sync" \
+                    -c user.email="$USER@$HOSTNAME" \
+                    commit -m "chore: sync local dotfiles changes from host" || true
+
+                  run_as_user env GIT_TERMINAL_PROMPT=0 ${pkgs.git}/bin/git push -u origin "$BRANCH_NAME" || true
 
                   if command -v ${pkgs.gh}/bin/gh >/dev/null 2>&1; then
-                    PR_EXISTS=$(sudo -u $USER ${pkgs.gh}/bin/gh pr list --head "$BRANCH_NAME" --json id --jq 'length' 2>/dev/null || echo "0")
+                    PR_EXISTS=$(run_as_user ${pkgs.gh}/bin/gh pr list --head "$BRANCH_NAME" --json id --jq 'length' 2>/dev/null || echo "0")
                     if [ "$PR_EXISTS" -eq "0" ]; then
-                      sudo -u $USER ${pkgs.gh}/bin/gh pr create --base develop --head "$BRANCH_NAME" --title "chore: sync dotfiles from host" --body "Automated PR syncing local dotfiles changes." || echo "Fallo al crear PR (requiere autenticación)."
+                      run_as_user ${pkgs.gh}/bin/gh pr create --base develop --head "$BRANCH_NAME" --title "chore: sync dotfiles from host" --body "Automated PR syncing local dotfiles changes." || echo "Fallo al crear PR (requiere autenticación)."
                     fi
                   fi
                   # Se recomienda resolver los PRs y hacer pull para mantener main sincronizado.
-                  sudo -u $USER ${pkgs.git}/bin/git checkout main
+                  run_as_user ${pkgs.git}/bin/git checkout main
                 elif [ "$BEHIND" -gt 0 ]; then
                   echo "Actualizando cambios desde origin/main..."
-                  sudo -u $USER ${pkgs.git}/bin/git pull origin main
+                  run_as_user ${pkgs.git}/bin/git pull origin main
                 else
                   echo "Dotfiles actualizados."
                 fi
@@ -240,8 +264,8 @@ _: {
 
                   if [ -d "$DOTFILES_DIR/$PKG_NAME" ]; then
                     echo "Aplicando stow para $PKG_NAME hacia $TARGET_DIR..."
-                    sudo -u $USER mkdir -p "$TARGET_DIR"
-                    sudo -u $USER ${pkgs.stow}/bin/stow -t "$TARGET_DIR" -d "$DOTFILES_DIR" --adopt "$PKG_NAME"
+                    run_as_user mkdir -p "$TARGET_DIR"
+                    run_as_user ${pkgs.stow}/bin/stow -t "$TARGET_DIR" -d "$DOTFILES_DIR" --adopt "$PKG_NAME"
                   else
                     echo "Advertencia: El paquete $PKG_NAME no existe en $DOTFILES_DIR."
                   fi

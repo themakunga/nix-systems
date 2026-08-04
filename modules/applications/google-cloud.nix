@@ -30,6 +30,7 @@ in {
         my.dotfiles.packages = [
           {
             name = "gemini";
+            isConfig = true;
           }
         ];
         sops.secrets."applications/gemini/api-key" = {

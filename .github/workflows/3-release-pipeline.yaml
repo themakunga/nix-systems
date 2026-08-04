@@ -1,4 +1,4 @@
-name: "3. Release Pipeline (Validation, Build, Publish, PR)"
+name: '3. Release Pipeline (Validation, Build, Publish, PR)'
 on:
   push:
     branches:
@@ -8,7 +8,7 @@ permissions:
   pull-requests: write
 jobs:
   pre-commit-checks:
-    name: "Run Validations & Linters"
+    name: 'Run Validations & Linters'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -19,7 +19,7 @@ jobs:
       - name: Run all pre-commit hooks
         run: pre-commit run --all-files
   build-darwin:
-    name: "Darwin: ${{ matrix.host }}"
+    name: 'Darwin: ${{ matrix.host }}'
     runs-on: macos-14
     strategy:
       fail-fast: false
@@ -54,12 +54,12 @@ jobs:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: nix build .#darwinConfigurations.${{matrix.host}}.system --accept-flake-config
   build-linux-x86_64:
-    name: "Linux x86: ${{ matrix.host }}"
+    name: 'Linux x86: ${{ matrix.host }}'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        host: [msf, motherbase, steamdeck, lsp-dummy]
+        host: [msf, motherbase, steamdeck]
     steps:
       - uses: actions/checkout@v7
       - name: Decode SSH Key
@@ -89,7 +89,7 @@ jobs:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: nix build .#nixosConfigurations.${{matrix.host}}.config.system.build.toplevel --accept-flake-config
   build-linux-arm64:
-    name: "Linux ARM: ${{ matrix.host }}"
+    name: 'Linux ARM: ${{ matrix.host }}'
     runs-on: ubuntu-24.04-arm
     strategy:
       fail-fast: false
@@ -147,7 +147,7 @@ jobs:
           path: output/*
           retention-days: 1
   publish-and-pr:
-    name: "Publish Release & Create PR"
+    name: 'Publish Release & Create PR'
     needs: [pre-commit-checks, build-darwin, build-linux-x86_64, build-linux-arm64]
     runs-on: ubuntu-latest
     steps:
