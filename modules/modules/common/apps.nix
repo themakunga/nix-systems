@@ -4,78 +4,77 @@
 # Módulo auto-gestionado.
 # =========================================================
 # =========================================================
-# Archivo de Configuración de NixOS / Home Manager
-# Repositorio: TheMakunga Infrastructure
+# Módulo de Aplicaciones de la Infraestructura
+# Archivo: modules/modules/common/apps.nix
 # =========================================================
 {
   flake.commonModules.apps = {
     config,
-    options,
     lib,
-    pkgs,
     ...
   }: let
-    inherit (lib) mkOption types mkEnableOption mkIf mkMerge filterAttrs mapAttrsToList flatten foldl';
-    inherit (pkgs.stdenv.hostPlatform) isDarwin;
+    inherit (lib) mkOption types filterAttrs mapAttrsToList flatten;
     cfg = config.my.apps;
   in {
     options.my.apps = mkOption {
-      default = {};
-      description = "Smart Application Routing Engine";
       type = types.attrsOf (types.submodule {
         options = {
-          enable = mkEnableOption "Enable this application group";
+          enable = lib.mkEnableOption "Habilitar esta app/perfil";
+
           level = mkOption {
             type = types.enum ["system" "user"];
-            default = "system";
+            default = "user";
+            description = "Nivel de instalación de los paquetes.";
           };
+
           targetUser = mkOption {
-            type = types.str;
-            default = "nicolas";
+            type = types.nullOr types.str;
+            default = null;
+            description = "Usuario objetivo opcional para el contexto del módulo.";
           };
+
           packages = mkOption {
             type = types.listOf types.package;
             default = [];
-            description = "Native Nixpkgs derivations";
+            description = "Paquetes nativos de Nix.";
           };
+
           casks = mkOption {
             type = types.listOf types.str;
             default = [];
-            description = "Homebrew Casks (macOS only)";
+            description = "Casks de Homebrew (GUI).";
           };
+
+          brews = mkOption {
+            type = types.listOf types.str;
+            default = [];
+            description = "Fórmulas CLI de Homebrew.";
+          };
+
           masApps = mkOption {
-            type = types.attrsOf types.ints.unsigned;
+            type = types.attrsOf types.int;
             default = {};
-            description = "Mac App Store IDs (macOS only)";
+            description = "Aplicaciones de la Mac App Store.";
           };
         };
       });
+      default = {};
+      description = "Colección de aplicaciones configuradas.";
     };
 
     config = let
       activeApps = filterAttrs (_: g: g.enable) cfg;
       sysApps = filterAttrs (_: g: g.level == "system") activeApps;
-      userApps = filterAttrs (_: g: g.level == "user") activeApps;
 
-      sysPackages = flatten (mapAttrsToList (_: g: g.packages) sysApps);
-      userPackages = flatten (mapAttrsToList (_: g: g.packages) userApps);
-      allPackages = sysPackages ++ userPackages;
+      allBrews = flatten (mapAttrsToList (_: g: g.brews) activeApps);
+      allCasks = flatten (mapAttrsToList (_: g: g.casks) activeApps);
+    in {
+      homebrew = {
+        brews = allBrews;
+        casks = allCasks;
+      };
 
-      sysCasks = flatten (mapAttrsToList (_: g: g.casks) sysApps);
-      sysMasApps = foldl' (acc: g: acc // g.masApps) {} (builtins.attrValues sysApps);
-
-      userCasks = flatten (mapAttrsToList (_: g: g.casks) userApps);
-      userMasApps = foldl' (acc: g: acc // g.masApps) {} (builtins.attrValues userApps);
-    in
-      mkMerge [
-        (mkIf (allPackages != []) {
-          environment.systemPackages = allPackages;
-        })
-
-        (mkIf isDarwin (lib.optionalAttrs (options ? homebrew) {
-          homebrew.casks = sysCasks ++ userCasks;
-          homebrew.masApps = sysMasApps // userMasApps;
-        }))
-      ];
+      environment.systemPackages = flatten (mapAttrsToList (_: g: g.packages) sysApps);
+    };
   };
 }
