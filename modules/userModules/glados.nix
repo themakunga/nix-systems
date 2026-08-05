@@ -14,14 +14,17 @@ in {
     users = {
       knownUsers = ["glados"];
       knownGroups = ["glados"];
+
       users.glados = {
         uid = 466;
         gid = 466;
+        home = "/opt/glados";
+        description = "Service Account para IA Local";
       };
-      groups.glados = {
-        gid = 466;
-      };
+
+      groups.glados = {gid = 466;};
     };
+
     my.userProfiles.glados = {
       username = "glados";
       fullName = "GLaDOS";
