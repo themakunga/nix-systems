@@ -11,10 +11,12 @@
   flake.commonModules.apps = {
     config,
     lib,
+    pkgs,
     ...
   }: let
-    inherit (lib) mkOption types filterAttrs mapAttrsToList flatten;
+    inherit (lib) mkOption types filterAttrs mapAttrsToList flatten mkIf;
     cfg = config.my.apps;
+    isDarwin = pkgs.stdenv.isDarwin;
   in {
     options.my.apps = mkOption {
       type = types.attrsOf (types.submodule {
@@ -69,7 +71,7 @@
       allBrews = flatten (mapAttrsToList (_: g: g.brews) activeApps);
       allCasks = flatten (mapAttrsToList (_: g: g.casks) activeApps);
     in {
-      homebrew = {
+      homebrew = mkIf isDarwin {
         brews = allBrews;
         casks = allCasks;
       };
