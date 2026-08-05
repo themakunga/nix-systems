@@ -14,7 +14,7 @@
     pkgs,
     ...
   }: let
-    inherit (lib) mkOption types filterAttrs mapAttrsToList flatten mkIf;
+    inherit (lib) mkOption types filterAttrs mapAttrsToList flatten optionalAttrs;
     cfg = config.my.apps;
     isDarwin = pkgs.stdenv.isDarwin;
   in {
@@ -70,13 +70,15 @@
 
       allBrews = flatten (mapAttrsToList (_: g: g.brews) activeApps);
       allCasks = flatten (mapAttrsToList (_: g: g.casks) activeApps);
-    in {
-      homebrew = mkIf isDarwin {
-        brews = allBrews;
-        casks = allCasks;
-      };
-
-      environment.systemPackages = flatten (mapAttrsToList (_: g: g.packages) sysApps);
-    };
+    in
+      {
+        environment.systemPackages = flatten (mapAttrsToList (_: g: g.packages) sysApps);
+      }
+      // (optionalAttrs isDarwin {
+        homebrew = {
+          brews = allBrews;
+          casks = allCasks;
+        };
+      });
   };
 }
