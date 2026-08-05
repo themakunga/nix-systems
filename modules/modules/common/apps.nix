@@ -3,20 +3,22 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# =========================================================
+#git add modules/modules/common/apps.nix =========================================================
 # Módulo de Aplicaciones de la Infraestructura
 # Archivo: modules/modules/common/apps.nix
 # =========================================================
-{
+_: {
   flake.commonModules.apps = {
     config,
     lib,
-    pkgs,
+    options,
     ...
   }: let
     inherit (lib) mkOption types filterAttrs mapAttrsToList flatten optionalAttrs;
     cfg = config.my.apps;
-    isDarwin = pkgs.stdenv.isDarwin;
+
+    # Comprobamos de forma pura si la opción homebrew existe en el sistema (solo en darwin)
+    isDarwin = options?homebrew;
   in {
     options.my.apps = mkOption {
       type = types.attrsOf (types.submodule {
@@ -74,6 +76,7 @@
       {
         environment.systemPackages = flatten (mapAttrsToList (_: g: g.packages) sysApps);
       }
+      # Si la opción 'homebrew' existe en el sistema (Darwin), inyectamos el bloque sin tocar pkgs
       // (optionalAttrs isDarwin {
         homebrew = {
           brews = allBrews;
