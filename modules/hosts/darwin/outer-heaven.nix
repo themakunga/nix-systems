@@ -66,6 +66,7 @@ in {
           "tailscale.core"
           "tailscale.gui"
           "terminal-zsh"
+          "local-ai"
         ];
         userModules = [
           "nicolas-work"
@@ -136,6 +137,12 @@ in {
                   "Xcode" = 497799835;
                 };
               };
+            };
+            services.local-ai = {
+              enable = true;
+              cpuThreads = "10";
+              maxVramBytes = "27917287424";
+              parallelRequests = "4";
             };
           };
         })
