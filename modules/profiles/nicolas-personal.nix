@@ -35,6 +35,9 @@
           "zen"
           "ghostty"
         ];
+        brews = [
+          "xcode-build-server"
+        ];
         packages = with pkgs; [
           lynx
           unstable.nchat
