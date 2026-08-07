@@ -6,10 +6,38 @@
 {self, ...}: let
   inherit (self) commonModules;
 in {
-  flake.userModules.glados = {...}: {
+  flake.userModules.glados = {
+    lib,
+    pkgs,
+    ...
+  }: let
+    isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
+  in {
     imports = [
       commonModules.home-secrets
     ];
+
+    users =
+      {
+        users.glados =
+          {
+            uid = 466;
+            home = "/opt/glados";
+            description = lib.mkDefault "Service Account para IA Local";
+          }
+          // lib.optionalAttrs isDarwin {
+            gid = 466; # Darwin usa el ID numérico para el grupo primario
+          }
+          // lib.optionalAttrs (!isDarwin) {
+            group = "glados"; # NixOS usa el nombre del grupo como string
+          };
+
+        groups.glados = {gid = 466;};
+      }
+      // lib.optionalAttrs isDarwin {
+        knownUsers = ["glados"];
+        knownGroups = ["glados"];
+      };
 
     my.userProfiles.glados = {
       username = "glados";
@@ -20,8 +48,8 @@ in {
       isAdmin = false;
       isNetworkManager = false;
       extraGroups = ["docker"];
-      createHome = true;
-      shell = "/usr/bin/false";
+      createHome = false;
+      shell = "/usr/sbin/nologin";
     };
 
     # Usamos un bloque de activación universal y dejamos que Bash resuelva el SO.
