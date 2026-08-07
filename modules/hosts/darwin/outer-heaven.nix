@@ -51,7 +51,7 @@ in {
           "sops-gpg"
           "devenv"
           "wallpaper"
-          "wheather"
+          "weather"
         ];
         darwinModules = [
           "extras"
