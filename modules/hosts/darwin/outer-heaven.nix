@@ -51,6 +51,7 @@ in {
           "sops-gpg"
           "devenv"
           "wallpaper"
+          "wheather"
         ];
         darwinModules = [
           "extras"
@@ -103,6 +104,11 @@ in {
               path = "${self}/media/wp/kanagawa-fullsize.jpg";
               enable = true;
               fileName = "kanagawa-fullsize.jpg";
+            };
+            weather = {
+              enable = true;
+              location = "Penalolen, Chile";
+              units = "c";
             };
             cloudProfiles = {
               aws = [
