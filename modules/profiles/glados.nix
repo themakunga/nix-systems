@@ -3,6 +3,11 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado: Profile GLaDOS
+# =========================================================
 {
   flake.profileModules.glados = {
     config,
@@ -14,7 +19,7 @@
     # Extraemos tu usuario de forma segura
     primaryUserName = config.my.primaryUser.username or "nicolas";
 
-    # LA MAGIA ESTÁ AQUÍ: Si es macOS, tú eres el dueño. Si es Linux, es GLaDOS.
+    # Si es macOS, tú eres el dueño. Si es Linux, es GLaDOS.
     secretOwner =
       if isDarwin
       then primaryUserName
@@ -39,7 +44,7 @@
       "profiles/glados/gpg/key_id" = sopsConf;
     };
 
-    # Asignamos las herramientas de IA
+    # Asignamos las herramientas de IA refactorizadas
     my.apps.glados-tools = {
       enable = true;
       level =
@@ -52,7 +57,6 @@
         else "glados";
       packages = with pkgs; [
         ollama
-        # zeroclaw
       ];
     };
 

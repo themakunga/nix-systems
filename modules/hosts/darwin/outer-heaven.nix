@@ -49,6 +49,8 @@ in {
           "home-secrets"
           "git-identity"
           "sops-gpg"
+          "devenv"
+          "wallpaper"
         ];
         darwinModules = [
           "extras"
@@ -66,7 +68,14 @@ in {
           "tailscale.core"
           "tailscale.gui"
           "terminal-zsh"
-          "local-ai"
+          "ollama"
+          "zeroclaw"
+        ];
+        deviceModules = [
+          "audio"
+          "logitech"
+          "sony"
+          "hyperx"
         ];
         userModules = [
           "nicolas-work"
@@ -84,6 +93,17 @@ in {
         ({pkgs, ...}: {
           my = {
             dotfiles.enable = true;
+            devices = {
+              audio.enable = true;
+              logitech.enable = true;
+              sony.enable = true;
+              hyperx.enable = true;
+            };
+            wallpaper = {
+              path = "${self}/media/wp/kanagawa-fullsize.jpg";
+              enable = true;
+              fileName = "kanagawa-fullsize.jpg";
+            };
             cloudProfiles = {
               aws = [
               ];
@@ -138,11 +158,20 @@ in {
                 };
               };
             };
-            services.local-ai = {
-              enable = true;
-              cpuThreads = "10";
-              maxVramBytes = "27917287424";
-              parallelRequests = "4";
+
+            tools = {
+              devenv.enable = true;
+            };
+            services = {
+              ollama = {
+                enable = true;
+                maxVramBytes = "27917287424";
+                parallelRequests = "4";
+              };
+              zeroclaw = {
+                enable = true;
+                cpuThreads = "10";
+              };
             };
           };
         })

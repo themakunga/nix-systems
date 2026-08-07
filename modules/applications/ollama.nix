@@ -6,21 +6,19 @@
 # =========================================================
 # Archivo de Configuración de NixOS / Nix-Darwin
 # Repositorio: TheMakunga Infrastructure
-# Módulo: local-ai (Ollama + Zeroclaw)
+# Módulo: ollama (Motor de Modelos LLM)
 # =========================================================
-{lib, ...}: {
-  flake.applicationModules.local-ai = {config, ...}: let
+{
+  flake.applicationModules.ollama = {
+    config,
+    lib,
+    ...
+  }: let
     inherit (lib) mkEnableOption mkOption types mkIf;
-    cfg = config.my.services.local-ai;
+    cfg = config.my.services.ollama;
   in {
-    options.my.services.local-ai = {
-      enable = mkEnableOption "Habilitar entorno de IA local";
-
-      cpuThreads = mkOption {
-        type = types.str;
-        default = "4";
-        description = "Número de P-Cores de CPU a utilizar.";
-      };
+    options.my.services.ollama = {
+      enable = mkEnableOption "Habilitar servicio de Ollama";
 
       maxVramBytes = mkOption {
         type = types.str;
@@ -31,12 +29,12 @@
       parallelRequests = mkOption {
         type = types.str;
         default = "1";
-        description = "Peticiones dinámicas en paralelo.";
+        description = "Número de peticiones paralelas de inferencia.";
       };
     };
 
     config = mkIf cfg.enable {
-      my.apps."local-ai".enable = true;
+      my.apps."ollama".enable = true;
     };
   };
 }

@@ -64,6 +64,7 @@ repos:
         language: system
         files: '\.nix$'
         stages: [pre-commit]
+        pass_filenames: false
       - id: alejandra
         name: 'Formatter - alejandra - .nix - pre-commit'
         entry: nix run nixpkgs#alejandra --

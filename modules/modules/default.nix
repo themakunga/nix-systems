@@ -39,8 +39,8 @@ in {
         type = types.attrsOf types.raw;
         default = {};
       };
-      homeManagerModules = mkOption {
-        description = "Home Manager Modules, shared and single profiles for each hosto";
+      deviceModules = mkOption {
+        description = "devices Modules";
         type = types.attrsOf types.raw;
         default = {};
       };

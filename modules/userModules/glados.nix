@@ -3,7 +3,11 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-{self, ...}: let
+{
+  self,
+  lib,
+  ...
+}: let
   inherit (self) commonModules;
 in {
   flake.userModules.glados = {
@@ -19,7 +23,7 @@ in {
         uid = 466;
         gid = 466;
         home = "/opt/glados";
-        description = "Service Account para IA Local";
+        description = lib.mkDefault "Service Account para IA Local";
       };
 
       groups.glados = {gid = 466;};
