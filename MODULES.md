@@ -321,6 +321,127 @@ true
 
 
 
+## my\.services\.ollama\.enable
+
+
+
+Whether to enable Habilitar servicio de Ollama\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+
+```nix
+false
+```
+
+
+
+*Example:*
+
+```nix
+true
+```
+
+
+
+## my\.services\.ollama\.maxVramBytes
+
+
+
+Límite máximo de VRAM en bytes\.
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+
+```nix
+"8589934592"
+```
+
+
+
+## my\.services\.ollama\.parallelRequests
+
+
+
+Número de peticiones paralelas de inferencia\.
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+
+```nix
+"1"
+```
+
+
+
+## my\.services\.zeroclaw\.enable
+
+
+
+Whether to enable Habilitar servicio y CLI GLaDOS (Zeroclaw)\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+
+```nix
+false
+```
+
+
+
+*Example:*
+
+```nix
+true
+```
+
+
+
+## my\.services\.zeroclaw\.cpuThreads
+
+
+
+Número de hilos de CPU asignados\.
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+
+```nix
+"4"
+```
+
+
+
 ## my\.tofu-dns\.enable
 
 
