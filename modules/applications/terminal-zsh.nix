@@ -42,6 +42,10 @@ in {
           name = "tmux";
         }
         {
+          name = "btop";
+          isConfig = true;
+        }
+        {
           name = "wezterm";
         }
         {
