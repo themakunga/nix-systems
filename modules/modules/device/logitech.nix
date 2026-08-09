@@ -20,7 +20,7 @@
     config = mkIf (cfg.enable && pkgs.stdenv.hostPlatform.isDarwin) {
       homebrew = {
         casks = [
-          "logi-options-plus"
+          "logi-options+"
           "logitech-g-hub"
         ];
       };
