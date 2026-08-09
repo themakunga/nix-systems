@@ -60,6 +60,7 @@ in {
           "keyboard"
           "primaryUser"
           "security"
+          "janitor"
         ];
         applicationModules = [
           "github-cli"
