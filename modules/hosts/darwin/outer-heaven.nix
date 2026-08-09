@@ -109,6 +109,7 @@ in {
               enable = true;
               location = "Penalolen, Chile";
               units = "c";
+              forecast = ["d" "w"];
             };
             cloudProfiles = {
               aws = [
@@ -169,6 +170,19 @@ in {
               devenv.enable = true;
             };
             services = {
+              janitor = {
+                enable = true;
+                cleanCaches = true;
+                emptyTrash = true;
+                cleanXcode = true;
+                cleanBrew = true;
+                cleanNpm = true;
+                cleanTerraform = true;
+                cleanGolang = true;
+                cleanJava = true;
+                cleanPython = true;
+                cleanNix = false;
+              };
               ollama = {
                 enable = true;
                 maxVramBytes = "27917287424";
