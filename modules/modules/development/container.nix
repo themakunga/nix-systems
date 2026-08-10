@@ -3,11 +3,11 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# =========================================================
-# Archivo de Configuración de NixOS / Nix-Darwin
-# Repositorio: TheMakunga Infrastructure
-# Módulo: developmentModules.containers
-# =========================================================
+# === DOCUMENTATION ===
+# File: container.nix
+# Path: ./modules/applications/container.nix
+# Description: Módulo de desarrollo y contenedores
+# =====================
 {
   flake.developmentModules.containers = {
     config,
@@ -50,45 +50,69 @@
       useSecrets = mkOption {
         type = types.bool;
         default = false;
-        description = "Cargar tokens y variables sensibles (ej. KUBECONFIG secrets) desde SOPS";
+        description = "Cargar variables de entorno sencillas desde SOPS";
+      };
+
+      # 👇 NUEVA OPCIÓN PARA MANEJO EXPERTO DE KUBECONFIGS 👇
+      kubeconfigs = mkOption {
+        type = types.listOf types.str;
+        default = [];
+        description = "Lista de llaves SOPS (ej. 'kubernetes/cluster_dev') que se descifrarán y concatenarán en la variable KUBECONFIG.";
       };
     };
 
     config = mkIf cfg.enable (mkMerge [
       {
-        environment = {
-          systemPackages = with pkgs;
-            [
-              lazydocker
-            ]
-            ++ optionals (cfg.runtime == "docker") [docker-client docker-compose docker-credential-helpers]
-            ++ optionals (cfg.runtime == "colima") [colima docker-client docker-compose docker-credential-helpers]
-            ++ optionals (cfg.runtime == "podman") [podman podman-compose]
-            ++ optionals cfg.kubernetes [
-              kubectl
-              kubernetes-helm
-              kubectx
-              kustomize
-              k9s
-            ]
-            ++ optional cfg.argocd argocd;
+        environment.systemPackages = with pkgs;
+          [
+            lazydocker
+          ]
+          ++ optionals (cfg.runtime == "docker") [docker-client docker-compose docker-credential-helpers]
+          ++ optionals (cfg.runtime == "colima") [colima docker-client docker-compose docker-credential-helpers]
+          ++ optionals (cfg.runtime == "podman") [podman podman-compose]
+          ++ optionals cfg.kubernetes [
+            kubectl
+            kubernetes-helm
+            kubectx
+            kustomize
+            k9s
+          ]
+          ++ optional cfg.argocd argocd;
 
-          interactiveShellInit = ''
-            ${optionalString cfg.kubernetes ''
-              # Alias de productividad para K8s
-              alias k="kubectl"
-              alias kx="kubectx"
-              alias kn="kubens"
-            ''}
+        # Declaramos los secretos de SOPS para cada Kubeconfig de la lista
+        sops.secrets =
+          builtins.listToAttrs (builtins.map (k: {
+              name = k;
+              value = {owner = user;};
+            })
+            cfg.kubeconfigs)
+          # Agregamos el archivo env por defecto si está habilitado
+          // (
+            if cfg.useSecrets
+            then {"development/containers/env" = {owner = user;};}
+            else {}
+          );
 
-            ${optionalString cfg.useSecrets ''
-              # Carga de secretos K8s/Docker si están habilitados
-              if [ -f "${config.sops.secrets."development/containers/env".path}" ]; then
-                source "${config.sops.secrets."development/containers/env".path}"
-              fi
-            ''}
-          '';
-        };
+        environment.interactiveShellInit = ''
+          ${optionalString cfg.kubernetes ''
+            # Alias de productividad para K8s
+            alias k="kubectl"
+            alias kx="kubectx"
+            alias kn="kubens"
+          ''}
+
+          ${optionalString cfg.useSecrets ''
+            # Carga de variables entorno simples
+            if [ -f "${config.sops.secrets."development/containers/env".path}" ]; then
+              source "${config.sops.secrets."development/containers/env".path}"
+            fi
+          ''}
+
+          ${optionalString (builtins.length cfg.kubeconfigs > 0) ''
+            # Inyección de Kubeconfigs Seguros (Descifrados dinámicamente)
+            export KUBECONFIG="${builtins.concatStringsSep ":" (builtins.map (k: config.sops.secrets.${k}.path) cfg.kubeconfigs)}"
+          ''}
+        '';
 
         my.dotfiles.packages = mkIf cfg.useDotfiles [
           {
@@ -96,10 +120,11 @@
             isConfig = false;
           }
         ];
-
-        sops.secrets."development/containers/env" = mkIf cfg.useSecrets {};
       }
 
+      # ==========================================
+      # 🍎 OPTIMIZACIONES ESPECÍFICAS PARA MACOS
+      # ==========================================
       (mkIf isDarwin {
         homebrew.casks =
           optional (cfg.runtime == "docker") "docker"
