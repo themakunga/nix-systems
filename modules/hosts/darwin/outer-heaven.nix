@@ -148,6 +148,7 @@ in {
                   stow
                   btop
                   ctop
+                  pre-commit
                 ];
 
                 casks = [
@@ -182,7 +183,7 @@ in {
                 cleanGolang = true;
                 cleanJava = true;
                 cleanPython = true;
-                cleanNix = false;
+                cleanNix = true;
               };
               ollama = {
                 enable = true;
