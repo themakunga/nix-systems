@@ -59,6 +59,11 @@ in {
         type = types.attrsOf types.raw;
         default = {};
       };
+      developmentModules = mkOption {
+        description = "Development tools and languages";
+        type = types.attrsOf types.raw;
+        default = {};
+      };
     };
   };
   config = {};
