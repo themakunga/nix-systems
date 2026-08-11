@@ -54,7 +54,7 @@
             awscli2
 
             # Linter para CloudFormation (Soporte para NeoVim)
-            cfn-lint
+            python3Packages.cfn-lint
           ]
           ++ optional cfg.enableSSM ssm-session-manager-plugin
           ++ optional cfg.enableLocalStack awslocal;

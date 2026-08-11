@@ -40,7 +40,7 @@
           delve
         ];
 
-        inteactiveShellInit = mkIf cfg.useSecrets ''
+        interactiveShellInit = mkIf cfg.useSecrets ''
           if [ -f "${config.sops.secrets."development/golang/env".path}" ]; then
             source "${config.sops.secrets."development/golang/env".path}"
           fi

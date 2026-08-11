@@ -82,18 +82,16 @@
           ++ optional cfg.enableDeno deno
           # 🛠️ Paquetes Globales del Ecosistema
           ++ optionals cfg.enableGlobals [
-            nodePackages.typescript
-            nodePackages.ts-node
-            nodePackages.jest
+            typescript
           ]
           ++ [
-            nodePackages.typescript-language-server
-            nodePackages.vscode-langservers-extracted # HTML, CSS, JSON, ESLint
+            typescript-language-server
+            vscode-langservers-extracted # HTML, CSS, JSON, ESLint
 
-            nodePackages.prettier
-            nodePackages.eslint
+            prettier
+            eslint
 
-            nodePackages.npm-check-updates
+            npm-check-updates
           ];
         interactiveShellInit = mkIf cfg.useSecrets ''
           if [ -f "${config.sops.secrets."development/nodejs/env".path}" ]; then
