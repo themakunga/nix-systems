@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [black-mesa, valve]
+        target: [black-mesa, valve, aperture-bootstrap]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7

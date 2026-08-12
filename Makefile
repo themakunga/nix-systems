@@ -6,7 +6,7 @@
 TARGET_IP ?= 192.168.1.100
 HOST ?= aperture-science
 
-.PHONY: all test help switch-outer-heaven switch-kanagawa switch-motherbase switch-msf switch-steamdeck deploy-aperture deploy-black-mesa deploy-valve build-host build-vm build-sd check fmt sops-common sops-host update clean shell
+.PHONY: all test help switch-outer-heaven switch-kanagawa switch-motherbase switch-msf switch-steamdeck deploy-aperture deploy-black-mesa deploy-valve build-host build-vm build-sd build-bootstrap check fmt sops-common sops-host update clean shell
 
 all: ## Objetivo por defecto requerido por checkmake
 	@echo "No default 'all' target configured. Please specify a target like 'switch-outer-heaven'."
@@ -61,6 +61,11 @@ deploy-aperture: ## Instala aperture-science (Pi 5) vía nix-anywhere. Uso: make
 	@echo "=> Desplegando aperture-science en $(TARGET_IP)..."
 	git add -A
 	./scripts/deploy.sh $(TARGET_IP) .#aperture-science
+
+build-bootstrap: ## Genera la imagen SD de instalación inicial (aperture-bootstrap)
+	@echo "=> Generando imagen de Bootstrap para Raspberry Pi 5..."
+	git add -A
+	make build-sd HOST=aperture-bootstrap
 
 deploy-black-mesa: ## Instala black-mesa (Pi Zero/3) vía nix-anywhere. Uso: make deploy-black-mesa TARGET_IP=192.168.x.x
 	@echo "=> Desplegando black-mesa en $(TARGET_IP)..."

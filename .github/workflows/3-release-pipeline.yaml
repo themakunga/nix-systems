@@ -94,7 +94,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        host: [aperture-science, black-mesa, valve]
+        host: [aperture-science, black-mesa, valve, aperture-bootstrap]
     steps:
       - uses: actions/checkout@v7
       - name: Decode SSH Key
@@ -127,7 +127,7 @@ jobs:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: |
           export NIX_SSHOPTS="-o StrictHostKeyChecking=no"
-          if [[ "${{ matrix.host }}" == "black-mesa" \vert{}\vert{} "${{ matrix.host }}" == "valve" ]]; then
+          if [[ "${{ matrix.host }}" == "black-mesa" || "${{ matrix.host }}" == "valve" || "${{ matrix.host }}" == "aperture-bootstrap" ]]; then
             mkdir -p output
             make build-sd HOST=${{ matrix.host }}
             for file in result/sd-image/*; do
@@ -140,7 +140,7 @@ jobs:
             make build-host HOST=${{ matrix.host }}
           fi
       - name: Upload Artifact
-        if: ${{ matrix.host == 'black-mesa' || matrix.host == 'valve' }}
+        if: ${{ matrix.host == 'black-mesa' || matrix.host == 'valve' || matrix.host == 'aperture-bootstrap' }}
         uses: actions/upload-artifact@v7
         with:
           name: image-${{ matrix.host }}
