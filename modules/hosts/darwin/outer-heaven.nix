@@ -61,6 +61,7 @@ in {
           "primaryUser"
           "security"
           "janitor"
+          "linux-builder" # <--- AÑADE ESTA LÍNEA
         ];
         applicationModules = [
           "github-cli"
@@ -109,6 +110,7 @@ in {
         ({pkgs, ...}: {
           my = {
             dotfiles.enable = true;
+            linux-builder.enable = true; # <--- AÑ
             devices = {
               audio.enable = true;
               logitech.enable = true;

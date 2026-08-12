@@ -3,14 +3,15 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: aperture-science.nix
-# Path: ./modules/hosts/linux/raspberry-pi/aperture-science.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Host: aperture-science (RPi 5 AI Node)
+# =========================================================
 {
   self,
   inputs,
+  lib,
   ...
 }: let
   inherit
@@ -19,7 +20,6 @@
     disko
     sops-nix
     nixos-hardware
-    secrets
     ;
   mkBundle = self.lib.mkBundle inputs.nixpkgs.lib self;
 in {
@@ -45,49 +45,74 @@ in {
           "network"
           "settings"
           "userProfiles"
-          "git-identity"
-          "sops-gpg"
-          # "sops-gpg"
-          # "git-identiry"
         ];
         nixosModules = [
           "base-machine"
-          "keyboard"
+          "nix-anywhere" # Fundamental para inyectar llaves SSH durante el despliegue
           "wifi"
         ];
         rpiModules = [
           "common"
-          "disko-nvme"
+          "disko-nvme" # Utiliza tu módulo que formatea automáticamente /dev/nvme0n1
           "hardware-rpi5"
           "performance"
         ];
         userModules = [
-          "nicolas-admin"
-          "glados"
-        ];
-        profileModules = [
-          "nicolas-admin"
-          "glados"
+          "glados" # Importa el módulo y la jaula de GLaDOS
         ];
         applicationModules = [
           "tailscale.core"
-          "tailscale.gui"
+          "agents"
         ];
       })
       ++ [
         {
-          my = {
-            dotfiles.enable = true;
-            hostSecrets.file = "${secrets.outPath}/hosts/aperture-science.yaml";
-            keyboard.enable = true;
+          # Declaramos primaryUser localmente para satisfacer al módulo nix-anywhere
+          options.my.primaryUser.username = lib.mkOption {
+            type = lib.types.str;
+            default = "admin";
+          };
+
+          config.my = {
+            # Establece al usuario "admin" como el objetivo para inyectar tus llaves SSH
+            primaryUser.username = "admin";
+
+            nix-anywhere.enable = true;
+
+            # Si ya configuraste sops para este host, descomenta la siguiente línea:
+            # hostSecrets.file = "${secrets.outPath}/hosts/aperture-science.yaml";
+
             base-machine = {
               enable = true;
               bootMode = "rpi";
             };
+
             apps = {
               tailscale-core.enable = true;
-              tailscale-gui.enable = true;
-              ghostty.enable = true;
+            };
+
+            agents = {
+              ollama = {
+                enable = true;
+                cores = 4;
+                memory = "6G"; # Asignamos 6GB al LLM, reservando 2GB para el OS
+              };
+              zeroclaw = {
+                enable = true;
+                cores = 2;
+                memory = "1G";
+              };
+            };
+
+            # Creamos al usuario Administrador al vuelo
+            userProfiles.admin = {
+              username = "admin";
+              fullName = "Aperture Admin";
+              description = "System Administrator";
+              isSystem = false;
+              isAdmin = true; # Otorga permisos de sudo/wheel
+              isNetworkManager = true;
+              extraGroups = ["docker"];
             };
           };
         }
