@@ -13,7 +13,6 @@
     config,
     lib,
     pkgs,
-    options, # <--- AÑADIMOS options AQUÍ
     ...
   }: let
     inherit
@@ -29,9 +28,8 @@
     cfg = config.my.agents;
     user = config.system.primaryUser or "nicolas";
 
-    # 👇 LA SOLUCIÓN A LA RECURSIÓN INFINITA 👇
-    # Detectamos macOS verificando si el sistema tiene la opción launchd
-    isDarwin = options ? launchd;
+    # 👇 Volvemos al método seguro para evitar la recursión infinita
+    isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
   in {
     options.my.agents = {
       claude = {
@@ -49,7 +47,6 @@
           default = false;
         };
       };
-
       codeen = {
         enable = mkEnableOption "Codeen CLI";
         package = mkOption {
@@ -65,7 +62,6 @@
           default = false;
         };
       };
-
       zeroclaw = {
         enable = mkEnableOption "ZeroClaw Agent";
         package = mkOption {
@@ -96,7 +92,6 @@
           description = "Variables de entorno adicionales para configuración avanzada.";
         };
       };
-
       ollama = {
         enable = mkEnableOption "Ollama Local LLM";
         package = mkOption {
@@ -130,9 +125,6 @@
     };
 
     config = mkMerge [
-      # ===============================
-      # 🤖 CLAUDE
-      # ===============================
       (mkIf cfg.claude.enable {
         environment = {
           systemPackages = optional (cfg.claude.package != null) cfg.claude.package;
@@ -151,9 +143,6 @@
         sops.secrets."agents/claude/env" = mkIf cfg.claude.useSecrets {owner = user;};
       })
 
-      # ===============================
-      # 🤖 CODEEN
-      # ===============================
       (mkIf cfg.codeen.enable {
         environment = {
           systemPackages = optional (cfg.codeen.package != null) cfg.codeen.package;
@@ -172,9 +161,6 @@
         sops.secrets."agents/codeen/env" = mkIf cfg.codeen.useSecrets {owner = user;};
       })
 
-      # ===============================
-      # 🤖 ZEROCLAW
-      # ===============================
       (mkIf cfg.zeroclaw.enable {
         environment = {
           systemPackages = optional (cfg.zeroclaw.package != null) cfg.zeroclaw.package;
@@ -197,9 +183,6 @@
         sops.secrets."agents/zeroclaw/env" = mkIf cfg.zeroclaw.useSecrets {owner = user;};
       })
 
-      # ===============================
-      # 🦙 OLLAMA
-      # ===============================
       (mkIf cfg.ollama.enable (
         {
           environment = {
@@ -222,7 +205,7 @@
           ];
           sops.secrets."agents/ollama/env" = mkIf cfg.ollama.useSecrets {owner = user;};
         }
-        # 👇 Usamos nuestra variable segura `isDarwin` 👇
+        # 👇 Usamos optionalAttrs para que NixOS no vea la llave launchd, pero evaluada de forma segura
         // optionalAttrs isDarwin {
           launchd.user.agents.ollama = {
             serviceConfig = {

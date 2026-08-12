@@ -21,12 +21,14 @@
     inherit (lib) mkEnableOption mkIf mapAttrsToList;
     cfg = config.my.nix-anywhere;
 
-    keysFile = "${inputs.secrets}/public_keys.yaml";
+    # ⚠️ NIX NO LEE YAML NATIVAMENTE, CAMBIADO A JSON
+    # Asegúrate de tener este archivo como JSON en tu repositorio de secretos
+    keysFile = "${inputs.secrets}/public_keys.json";
     templateFile = "${self}/template/hardware-configuration.nix";
 
     publicKeysData =
       if builtins.pathExists keysFile
-      then builtins.fromYAML (builtins.readFile keysFile)
+      then builtins.fromJSON (builtins.readFile keysFile)
       else {};
 
     sshKeysAttr = publicKeysData.ssh or {};
@@ -38,7 +40,6 @@
       enable = mkEnableOption "Habilitar soporte base para instalación con nix-anywhere";
     };
 
-    # 👇 MOVIDO AL NIVEL CORRECTO (FUERA DE config) 👇
     imports = lib.optional (builtins.pathExists templateFile) templateFile;
 
     config = mkIf cfg.enable {
