@@ -6,7 +6,13 @@
 TARGET_IP ?= 192.168.1.100
 HOST ?= aperture-science
 
-.PHONY: help switch-outer-heaven switch-kanagawa switch-motherbase switch-msf switch-steamdeck deploy-aperture deploy-black-mesa deploy-valve build-host build-vm build-sd check fmt sops-common sops-host update clean shell
+.PHONY: all test help switch-outer-heaven switch-kanagawa switch-motherbase switch-msf switch-steamdeck deploy-aperture deploy-black-mesa deploy-valve build-host build-vm build-sd check fmt sops-common sops-host update clean shell
+
+all: ## Objetivo por defecto requerido por checkmake
+	@echo "No default 'all' target configured. Please specify a target like 'switch-outer-heaven'."
+
+test: ## Objetivo de pruebas requerido por checkmake
+	@echo "No tests configured for this infrastructure repository yet."
 
 help: ## Muestra este menú de ayuda
 	@echo "========================================================="
