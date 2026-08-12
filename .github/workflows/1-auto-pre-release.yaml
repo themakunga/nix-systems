@@ -1,4 +1,4 @@
-name: "1. Auto Pre-Release (Develop)"
+name: '1. Auto Pre-Release (Develop)'
 on:
   push:
     branches:
@@ -57,8 +57,8 @@ jobs:
       - name: Build SD Image
         run: |
           mkdir -p output
-          echo "=> Building ${{ matrix.target }} for Pre-Release ${TIMESTAMP_TAG}..."
-          nix build .#nixosConfigurations.${{ matrix.target }}.config.system.build.sdImage --accept-flake-config
+          echo "=> Building ${{ matrix.target }} for Pre-Release${TIMESTAMP_TAG}..."
+          make build-sd HOST=${{ matrix.target }}
           for file in result/sd-image/*; do
             if [ -f "$file" ]; then
               filename=$(basename "$file")
@@ -72,7 +72,7 @@ jobs:
           file: output/*
           file_glob: true
           tag: ${{ env.TIMESTAMP_TAG }}
-          release_name: "Pre-Release ${{ env.TIMESTAMP_TAG }}"
+          release_name: 'Pre-Release ${{ env.TIMESTAMP_TAG }}'
           prerelease: true
           overwrite: true
           body: |
