@@ -62,7 +62,6 @@ in {
         ];
         applicationModules = [
           "tailscale.core"
-          "agents"
         ];
       })
       ++ [
@@ -89,19 +88,6 @@ in {
 
             apps = {
               tailscale-core.enable = true;
-            };
-
-            agents = {
-              ollama = {
-                enable = true;
-                cores = 4;
-                memory = "6G"; # Asignamos 6GB al LLM, reservando 2GB para el OS
-              };
-              zeroclaw = {
-                enable = true;
-                cores = 2;
-                memory = "1G";
-              };
             };
 
             # Creamos al usuario Administrador al vuelo
