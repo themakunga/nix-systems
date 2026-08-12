@@ -71,7 +71,6 @@ in {
           "tailscale.core"
           "tailscale.gui"
           "terminal-zsh"
-          "agents"
         ];
         deviceModules = [
           "audio"
@@ -280,28 +279,6 @@ in {
 
             tools = {
               devenv.enable = true;
-            };
-            agents = {
-              claude.enable = true;
-              codeen.enable = true;
-              zeroclaw = {
-                enable = false;
-                # /* c */ores = 8; # Nix lo convertirá a la variable de entorno ZEROCLAW_CORES="8"
-                # /* m */emory = "16G"; # ZEROCLAW_MEMORY="16G"
-                # extraEnv = {
-                #   ZEROCLAW_LOG_LEVEL = "debug";
-                #   ZEROCLAW_OFFLOAD = "true";
-                # };
-              };
-              ollama = {
-                enable = false;
-                # cores = 8; # OLLAMA_OMP_NUM_THREADS="8" (Controla CPU)
-                # memory = "12G"; # OLLAMA_MAX_VRAM="12G" (Controla Memoria Máxima)
-                # extraEnv = {
-                #   OLLAMA_KEEP_ALIVE = "10m"; # Mantiene el modelo en memoria 10 mins después del último uso
-                #   OLLAMA_HOST = "127.0.0.1:11434";
-                # };
-              };
             };
             services = {
               janitor = {
