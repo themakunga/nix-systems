@@ -38,9 +38,10 @@
       enable = mkEnableOption "Habilitar soporte base para instalación con nix-anywhere";
     };
 
-    config = mkIf cfg.enable {
-      imports = lib.optional (builtins.pathExists templateFile) templateFile;
+    # 👇 MOVIDO AL NIVEL CORRECTO (FUERA DE config) 👇
+    imports = lib.optional (builtins.pathExists templateFile) templateFile;
 
+    config = mkIf cfg.enable {
       services.openssh = {
         enable = true;
         settings.PermitRootLogin = "prohibit-password";
