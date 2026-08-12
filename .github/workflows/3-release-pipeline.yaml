@@ -16,8 +16,8 @@ jobs:
         uses: cachix/install-nix-action@v31
       - name: Install pre-commit
         run: pipx install pre-commit
-      - name: Run all pre-commit hooks
-        run: pre-commit run --all-files
+      - name: Run all checks via Makefile
+        run: make check
   build-darwin:
     name: 'Darwin: ${{ matrix.host }}'
     runs-on: macos-14
@@ -87,14 +87,14 @@ jobs:
           authToken: ${{ secrets.CACHIX_TOKEN }}
       - env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
-        run: nix build .#nixosConfigurations.${{matrix.host}}.config.system.build.toplevel --accept-flake-config
+        run: make build-host HOST=${{matrix.host}}
   build-linux-arm64:
     name: 'Linux ARM: ${{ matrix.host }}'
     runs-on: ubuntu-24.04-arm
     strategy:
       fail-fast: false
       matrix:
-        host: [aperture-science, black-mesa, valve]
+        host: [aperture-science, black-mesa, valve, aperture-bootstrap]
     steps:
       - uses: actions/checkout@v7
       - name: Decode SSH Key
@@ -127,9 +127,9 @@ jobs:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: |
           export NIX_SSHOPTS="-o StrictHostKeyChecking=no"
-          if [[ "${{ matrix.host }}" == "black-mesa" || "${{ matrix.host }}" == "valve" ]]; then
+          if [[ "${{ matrix.host }}" == "black-mesa" || "${{ matrix.host }}" == "valve" || "${{ matrix.host }}" == "aperture-bootstrap" ]]; then
             mkdir -p output
-            nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.sdImage --accept-flake-config
+            make build-sd HOST=${{ matrix.host }}
             for file in result/sd-image/*; do
               if [ -f "$file" ]; then
                 filename=$(basename "$file")
@@ -137,11 +137,11 @@ jobs:
               fi
             done
           else
-            nix build .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel --accept-flake-config
+            make build-host HOST=${{ matrix.host }}
           fi
       - name: Upload Artifact
-        if: ${{ matrix.host == 'black-mesa' || matrix.host == 'valve' }}
-        uses: actions/upload-artifact@v4
+        if: ${{ matrix.host == 'black-mesa' || matrix.host == 'valve' || matrix.host == 'aperture-bootstrap' }}
+        uses: actions/upload-artifact@v7
         with:
           name: image-${{ matrix.host }}
           path: output/*
@@ -157,7 +157,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Download Built Images
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: output
           pattern: image-*
