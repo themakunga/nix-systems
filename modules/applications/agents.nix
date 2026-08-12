@@ -195,44 +195,48 @@
       # ===============================
       # 🦙 OLLAMA
       # ===============================
-      (mkIf cfg.ollama.enable {
-        environment = {
-          systemPackages = optional (cfg.ollama.package != null) cfg.ollama.package;
-          interactiveShellInit = mkIf cfg.ollama.useSecrets ''
-            if [ -f "${config.sops.secrets."agents/ollama/env".path}" ]; then
-              source "${config.sops.secrets."agents/ollama/env".path}"
-            fi
-          '';
-          variables =
-            (optionalAttrs (cfg.ollama.cores != null) {OLLAMA_OMP_NUM_THREADS = toString cfg.ollama.cores;})
-            // (optionalAttrs (cfg.ollama.memory != null) {OLLAMA_MAX_VRAM = cfg.ollama.memory;})
-            // cfg.ollama.extraEnv;
-        };
-        my.dotfiles.packages = mkIf cfg.ollama.useDotfiles [
-          {
-            name = "ollama";
-            isConfig = true;
-          }
-        ];
-        sops.secrets."agents/ollama/env" = mkIf cfg.ollama.useSecrets {owner = user;};
-        launchd.user.agents.ollama = mkIf pkgs.stdenv.hostPlatform.isDarwin {
-          serviceConfig = {
-            ProgramArguments = [
-              "${cfg.ollama.package}/bin/ollama"
-              "serve"
-            ];
-            KeepAlive = true;
-            RunAtLoad = true;
-            StandardOutPath = "/tmp/ollama.out";
-            StandardErrorPath = "/tmp/ollama.err";
-            # Le inyectamos los recursos directamente al motor del daemon
-            EnvironmentVariables =
+      (mkIf cfg.ollama.enable (
+        {
+          environment = {
+            systemPackages = optional (cfg.ollama.package != null) cfg.ollama.package;
+            interactiveShellInit = mkIf cfg.ollama.useSecrets ''
+              if [ -f "${config.sops.secrets."agents/ollama/env".path}" ]; then
+                source "${config.sops.secrets."agents/ollama/env".path}"
+              fi
+            '';
+            variables =
               (optionalAttrs (cfg.ollama.cores != null) {OLLAMA_OMP_NUM_THREADS = toString cfg.ollama.cores;})
               // (optionalAttrs (cfg.ollama.memory != null) {OLLAMA_MAX_VRAM = cfg.ollama.memory;})
               // cfg.ollama.extraEnv;
           };
-        };
-      })
+          my.dotfiles.packages = mkIf cfg.ollama.useDotfiles [
+            {
+              name = "ollama";
+              isConfig = true;
+            }
+          ];
+          sops.secrets."agents/ollama/env" = mkIf cfg.ollama.useSecrets {owner = user;};
+        }
+        # 👇 MAGIA: Si no es Darwin (Mac), este bloque completo devuelve {} y NixOS nunca lo ve
+        // optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
+          launchd.user.agents.ollama = {
+            serviceConfig = {
+              ProgramArguments = [
+                "${cfg.ollama.package}/bin/ollama"
+                "serve"
+              ];
+              KeepAlive = true;
+              RunAtLoad = true;
+              StandardOutPath = "/tmp/ollama.out";
+              StandardErrorPath = "/tmp/ollama.err";
+              EnvironmentVariables =
+                (optionalAttrs (cfg.ollama.cores != null) {OLLAMA_OMP_NUM_THREADS = toString cfg.ollama.cores;})
+                // (optionalAttrs (cfg.ollama.memory != null) {OLLAMA_MAX_VRAM = cfg.ollama.memory;})
+                // cfg.ollama.extraEnv;
+            };
+          };
+        }
+      ))
     ];
   };
 }
