@@ -51,6 +51,7 @@ in {
           "sops-gpg"
           "devenv"
           "wallpaper"
+          "weather"
         ];
         darwinModules = [
           "extras"
@@ -59,6 +60,8 @@ in {
           "keyboard"
           "primaryUser"
           "security"
+          "janitor"
+          "linux-builder" # <--- AÑADE ESTA LÍNEA
         ];
         applicationModules = [
           "github-cli"
@@ -68,8 +71,6 @@ in {
           "tailscale.core"
           "tailscale.gui"
           "terminal-zsh"
-          "ollama"
-          "zeroclaw"
         ];
         deviceModules = [
           "audio"
@@ -88,11 +89,27 @@ in {
           "glados"
           "thoughtworks"
         ];
+        developmentModules = [
+          "argocd"
+          "aws"
+          "containers"
+          "gcp"
+          "golang"
+          "groovy"
+          "iac"
+          "java"
+          "nodejs"
+          "python"
+          "ruby"
+          "rust"
+          "swift"
+        ];
       })
       ++ [
         ({pkgs, ...}: {
           my = {
             dotfiles.enable = true;
+            linux-builder.enable = true; # <--- AÑ
             devices = {
               audio.enable = true;
               logitech.enable = true;
@@ -103,6 +120,12 @@ in {
               path = "${self}/media/wp/kanagawa-fullsize.jpg";
               enable = true;
               fileName = "kanagawa-fullsize.jpg";
+            };
+            weather = {
+              enable = true;
+              location = "Penalolen, Chile";
+              units = "c";
+              forecast = ["d" "w"];
             };
             cloudProfiles = {
               aws = [
@@ -140,6 +163,7 @@ in {
                   stow
                   btop
                   ctop
+                  pre-commit
                 ];
 
                 casks = [
@@ -159,18 +183,116 @@ in {
               };
             };
 
+            development = {
+              containers = {
+                enable = true;
+                runtime = "colima";
+                kubernetes = true;
+                argocd = false;
+                useDotfiles = true;
+                useSecrets = false;
+                kubeconfigs = [
+                  # "kubernetes/latam_config"
+                ];
+              };
+              aws = {
+                enable = true;
+                enableSSM = true;
+                enableLocalStack = true;
+                useDotfiles = true;
+                useSecrets = false;
+              };
+              gcp = {
+                enable = true;
+                enableGkePlugin = true;
+                useDotfiles = false;
+                useSecrets = false;
+              };
+              iac = {
+                enable = true;
+                enableOpenTofu = true;
+                enableTerraform = false;
+                enablePulumi = true;
+                useDotfiles = true;
+                useSecrets = false;
+              };
+              argocd = {
+                enable = true;
+                enableAutopilot = true;
+                useDotfiles = true;
+                useSecrets = false;
+              };
+              nodejs = {
+                enable = true;
+                package = pkgs.nodejs_24;
+                packageManager = "pnpm";
+                enableBun = true;
+                enableGlobals = true;
+                useDotfiles = true;
+                useSecrets = false;
+              };
+              python = {
+                enable = true;
+                package = pkgs.python3;
+                enablePoetry = true;
+                useDotfiles = true;
+                useSecrets = false;
+              };
+              golang = {
+                enable = true;
+                useDotfiles = true;
+                useSecrets = false;
+              };
+              rust = {
+                enable = true;
+                useDotfiles = true;
+                useSecrets = false;
+              };
+              java = {
+                enable = true;
+                jdk = pkgs.jdk21;
+                enableMaven = true;
+                enableGradle = true;
+                useDotfiles = true;
+                useSecrets = false;
+              };
+              ruby = {
+                enable = true;
+                package = pkgs.ruby;
+                useDotfiles = true;
+                useSecrets = false;
+              };
+              groovy = {
+                enable = true;
+                enableGradle = true;
+                useDotfiles = true;
+                useSecrets = false;
+              };
+              swift = {
+                enable = true;
+                enableTuist = true;
+                enableFastlane = true;
+                useDotfiles = true;
+                useSecrets = false; # Fundamental
+              };
+            };
+
             tools = {
               devenv.enable = true;
             };
             services = {
-              ollama = {
+              janitor = {
                 enable = true;
-                maxVramBytes = "27917287424";
-                parallelRequests = "4";
-              };
-              zeroclaw = {
-                enable = true;
-                cpuThreads = "10";
+                cleanCaches = true;
+                emptyTrash = true;
+                cleanXcode = true;
+                cleanBrew = true;
+                cleanNpm = true;
+                cleanTerraform = true;
+                cleanGolang = true;
+                cleanJava = true;
+                cleanPython = true;
+                cleanNix = true;
               };
             };
           };

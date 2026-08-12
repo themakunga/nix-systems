@@ -32,7 +32,7 @@
         ${pkgs.switchaudio-osx}/bin/SwitchAudioSource -t input -s "HyperX SoloCast" 2>/dev/null || \
         ${pkgs.switchaudio-osx}/bin/SwitchAudioSource -t input -s "HyperX QuadCast" 2>/dev/null || true
 
-        ${pkgs.switchaudio-osx}/bin/SwitchAudioSource -t output -s "WH-1000XM4" 2>/dev/null || true
+        ${pkgs.switchaudio-osx}/bin/SwitchAudioSource -t output -s "head radio" 2>/dev/null || true
       '';
     };
   };

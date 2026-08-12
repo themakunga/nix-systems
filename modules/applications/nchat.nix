@@ -16,5 +16,13 @@ in {
       level = "system";
       packages = [pkgs.nchat];
     };
+    sysConfig = {
+      my.dotfiles.packages = [
+        {
+          name = "nchat";
+          isConfig = true; # Esto le indica a GNU Stow que lo enlace en ~/.config/nchat
+        }
+      ];
+    };
   };
 }
