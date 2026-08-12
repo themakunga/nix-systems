@@ -13,6 +13,7 @@
     config,
     lib,
     pkgs,
+    options, # <--- AÑADIMOS options AQUÍ
     ...
   }: let
     inherit
@@ -27,6 +28,10 @@
       ;
     cfg = config.my.agents;
     user = config.system.primaryUser or "nicolas";
+
+    # 👇 LA SOLUCIÓN A LA RECURSIÓN INFINITA 👇
+    # Detectamos macOS verificando si el sistema tiene la opción launchd
+    isDarwin = options ? launchd;
   in {
     options.my.agents = {
       claude = {
@@ -217,8 +222,8 @@
           ];
           sops.secrets."agents/ollama/env" = mkIf cfg.ollama.useSecrets {owner = user;};
         }
-        # 👇 MAGIA: Si no es Darwin (Mac), este bloque completo devuelve {} y NixOS nunca lo ve
-        // optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
+        # 👇 Usamos nuestra variable segura `isDarwin` 👇
+        // optionalAttrs isDarwin {
           launchd.user.agents.ollama = {
             serviceConfig = {
               ProgramArguments = [
