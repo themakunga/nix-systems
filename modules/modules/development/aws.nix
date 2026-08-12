@@ -4,7 +4,7 @@
 # Módulo auto-gestionado.
 # =========================================================
 # =========================================================
-# Archivo de Configuración de NixOS / Nix-Darwin
+# Archivo de Configuración de NixOS / Home Manager
 # Repositorio: TheMakunga Infrastructure
 # Módulo: developmentModules.aws
 # =========================================================
@@ -15,7 +15,7 @@
     pkgs,
     ...
   }: let
-    inherit (lib) mkEnableOption mkOption types mkIf optional;
+    inherit (lib) mkEnableOption mkOption types mkIf optional optionalString;
     cfg = config.my.development.aws;
   in {
     options.my.development.aws = {
@@ -57,11 +57,19 @@
             python3Packages.cfn-lint
           ]
           ++ optional cfg.enableSSM ssm-session-manager-plugin
-          ++ optional cfg.enableLocalStack awslocal;
-        interactiveShellInit = mkIf cfg.useSecrets ''
-          if [ -f "${config.sops.secrets."development/aws/env".path}" ]; then
-            source "${config.sops.secrets."development/aws/env".path}"
-          fi
+          ++ optional cfg.enableLocalStack localstack;
+
+        interactiveShellInit = ''
+          ${optionalString cfg.useSecrets ''
+            if [ -f "${config.sops.secrets."development/aws/env".path}" ]; then
+              source "${config.sops.secrets."development/aws/env".path}"
+            fi
+          ''}
+
+          ${optionalString cfg.enableLocalStack ''
+            # Emulamos el comportamiento de awslocal de forma nativa
+            alias awslocal="aws --endpoint-url=http://localhost:4566"
+          ''}
         '';
       };
 

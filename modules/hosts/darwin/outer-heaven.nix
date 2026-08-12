@@ -70,8 +70,7 @@ in {
           "tailscale.core"
           "tailscale.gui"
           "terminal-zsh"
-          "ollama"
-          "zeroclaw"
+          "agents"
         ];
         deviceModules = [
           "audio"
@@ -192,7 +191,7 @@ in {
                 useDotfiles = true;
                 useSecrets = false;
                 kubeconfigs = [
-                  "kubernetes/latam_config"
+                  # "kubernetes/latam_config"
                 ];
               };
               aws = {
@@ -205,7 +204,7 @@ in {
               gcp = {
                 enable = true;
                 enableGkePlugin = true;
-                useDotfiles = true;
+                useDotfiles = false;
                 useSecrets = false;
               };
               iac = {
@@ -214,13 +213,13 @@ in {
                 enableTerraform = false;
                 enablePulumi = true;
                 useDotfiles = true;
-                useSecrets = true;
+                useSecrets = false;
               };
               argocd = {
                 enable = true;
                 enableAutopilot = true;
                 useDotfiles = true;
-                useSecrets = true;
+                useSecrets = false;
               };
               nodejs = {
                 enable = true;
@@ -229,24 +228,24 @@ in {
                 enableBun = true;
                 enableGlobals = true;
                 useDotfiles = true;
-                useSecrets = true;
+                useSecrets = false;
               };
               python = {
                 enable = true;
                 package = pkgs.python3;
                 enablePoetry = true;
                 useDotfiles = true;
-                useSecrets = true;
+                useSecrets = false;
               };
               golang = {
                 enable = true;
                 useDotfiles = true;
-                useSecrets = true;
+                useSecrets = false;
               };
               rust = {
                 enable = true;
                 useDotfiles = true;
-                useSecrets = true;
+                useSecrets = false;
               };
               java = {
                 enable = true;
@@ -254,7 +253,7 @@ in {
                 enableMaven = true;
                 enableGradle = true;
                 useDotfiles = true;
-                useSecrets = true;
+                useSecrets = false;
               };
               ruby = {
                 enable = true;
@@ -280,6 +279,28 @@ in {
             tools = {
               devenv.enable = true;
             };
+            agents = {
+              claude.enable = true;
+              codeen.enable = true;
+              zeroclaw = {
+                enable = false;
+                # /* c */ores = 8; # Nix lo convertirá a la variable de entorno ZEROCLAW_CORES="8"
+                # /* m */emory = "16G"; # ZEROCLAW_MEMORY="16G"
+                # extraEnv = {
+                #   ZEROCLAW_LOG_LEVEL = "debug";
+                #   ZEROCLAW_OFFLOAD = "true";
+                # };
+              };
+              ollama = {
+                enable = false;
+                # cores = 8; # OLLAMA_OMP_NUM_THREADS="8" (Controla CPU)
+                # memory = "12G"; # OLLAMA_MAX_VRAM="12G" (Controla Memoria Máxima)
+                # extraEnv = {
+                #   OLLAMA_KEEP_ALIVE = "10m"; # Mantiene el modelo en memoria 10 mins después del último uso
+                #   OLLAMA_HOST = "127.0.0.1:11434";
+                # };
+              };
+            };
             services = {
               janitor = {
                 enable = true;
@@ -293,15 +314,6 @@ in {
                 cleanJava = true;
                 cleanPython = true;
                 cleanNix = true;
-              };
-              ollama = {
-                enable = true;
-                maxVramBytes = "27917287424";
-                parallelRequests = "4";
-              };
-              zeroclaw = {
-                enable = true;
-                cpuThreads = "10";
               };
             };
           };

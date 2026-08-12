@@ -145,7 +145,7 @@
               "--cpu=4"
               "--memory=8"
             ];
-            RunAtLogin = true;
+            RunAtLoad = true;
             KeepAlive = true;
             StandardErrorPath = "/tmp/colima.err";
             StandardOutPath = "/tmp/colima.out";
