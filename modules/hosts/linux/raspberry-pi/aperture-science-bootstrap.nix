@@ -69,21 +69,24 @@ in {
 
           system.stateVersion = "26.04";
 
-          sdImage.populateFirmwareCommands = lib.mkAfter ''
-            echo "=> Solucionando compatibilidad de Raspberry Pi 5 (Inyectando DTB)..."
+          sdImage = {
+            compressImage = true;
+            populateFirmwareCommands = lib.mkAfter ''
+              echo "=> Solucionando compatibilidad de Raspberry Pi 5 (Inyectando DTB)..."
 
-            # Copiar todos los Device Trees de Broadcom generados por el kernel
-            if [ -d "${config.boot.kernelPackages.kernel}/dtbs/broadcom" ]; then
-              cp -rf ${config.boot.kernelPackages.kernel}/dtbs/broadcom/* firmware/
-            fi
+              # Copiar todos los Device Trees de Broadcom generados por el kernel
+              if [ -d "${config.boot.kernelPackages.kernel}/dtbs/broadcom" ]; then
+                cp -rf ${config.boot.kernelPackages.kernel}/dtbs/broadcom/* firmware/
+              fi
 
-            # Verificación de seguridad
-            if [ -f "firmware/bcm2712-rpi-5-b.dtb" ]; then
-              echo "✅ DTB de RPi 5 inyectado correctamente en la partición boot."
-            else
-              echo "⚠️ Advertencia: No se encontró el DTB para RPi 5 en el kernel."
-            fi
-          '';
+              # Verificación de seguridad
+              if [ -f "firmware/bcm2712-rpi-5-b.dtb" ]; then
+                echo "✅ DTB de RPi 5 inyectado con EXITO."
+              else
+                echo "⚠️ Advertencia: No se encontró el DTB para RPi 5 en el kernel."
+              fi
+            '';
+          };
         }
       ];
   };
