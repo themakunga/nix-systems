@@ -8,7 +8,7 @@
 in {
   flake.applicationModules.traefik = mkAppModule "trafik" "Traefik Reverse Proxy
     containers" {
-    meta = { ...}: {
+    meta = {...}: {
       level = "system";
       packages = [];
     };
@@ -19,23 +19,27 @@ in {
       ...
     }: let
       cfg = config.my.services.trafik;
-      inherit (lib) mkIf mkOption types;
+      inherit (lib) mkEnableOption mkIf mkOption types;
     in {
       options.my.services.trafik = {
         acmeEmail = mkOption {
           type = types.str;
           description = "Email fort certification";
         };
-        cloudflareEnvFile = mkOption {
-          type = types.nullIr types.path;
-          default = null;
-          description = "SOPS pathj for CF_DNS_API_TOKEN";
-        };
+        useCloudflare = mkEnableOption "Use Cloudflare DNS Challenge option";
       };
 
       config = mkIf config.my.services.trafik.enable {
+        sops.secrets."applications/traefik/cloudflare_env" =
+          mkIf
+          cfg.useCloudflare {};
+
         users.users.traefik.extraGroups = ["docker"];
         networking.firewall.allowedTCPPorts = [80 443];
+
+        environmentFiles = mkIf cfg.useCloudflare [
+          config.sops.secrets."applications/traefik/cloudflare_env".path
+        ];
 
         staticConfigOptions = {
           api.dashboard = true;

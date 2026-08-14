@@ -81,6 +81,7 @@ in {
               podman.enable = true;
               container-stack = {
                 enable = true;
+                portainer.enable = true;
               };
               samba-share = {
                 enable = true;

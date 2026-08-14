@@ -19,18 +19,11 @@ in {
         pkgs,
         ...
       }: let
-        inherit (lib) mkIf types mkOption;
-        cfg = config.my.services.cloudflare-tunnel;
+        inherit (lib) mkIf;
       in {
-        options.my.services.cloudflare-tunnel = {
-          tokenEnvFile = mkOption {
-            type = types.nullOr types.path;
-            default = null;
-            description = "Path for the TUNNEL_TOKEN";
-          };
-        };
-
         config = mkIf config.my.services.cloudflare-tunnel.enable {
+          sops.secrets."applications/cloudflare_tunnel/env" = {};
+
           systemd.services.cloudflare-tunnel = {
             description = "Cloudflare Tunnel (cloudflared)";
             wantedBy = ["muli-ser.target"];
@@ -38,8 +31,7 @@ in {
 
             serviceConfig = {
               EnvironmentFile =
-                mkIf (cfg.tokenEnvFile != null)
-                cfg.tokenEnvFile;
+                config.sops.secrets."applications/cloudflare_tunnel/env".path;
               ExecStart = "${pkgs.cloudflared}/bin/cloudflared tunnel run";
               Restart = "always";
               RestartSec = "5s";
