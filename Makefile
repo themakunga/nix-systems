@@ -76,6 +76,17 @@ deploy-valve: ## Instala valve (Pi 5) vía nix-anywhere. Uso: make deploy-valve 
 	@echo "=> Desplegando valve en $(TARGET_IP)..."
 	git add -A
 	./scripts/deploy.sh $(TARGET_IP) .#valve
+# ==========================================
+# Despliegue Remoto (Motherbase)
+# ==========================================
+deploy-motherbase:
+	@echo "=> Desplegando configuración en motherbase.local..."
+	git add -A
+	nix run nixpkgs#nixos-rebuild -- switch \
+		--flake .#motherbase \
+		--target-host root@192.168.5.153 \
+		--build-host ssh-ng://builder@linux-builder \
+		--fast
 
 # =========================================================
 # 🧪 PRUEBAS Y CONSTRUCCIÓN (TESTING)
