@@ -12,11 +12,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Install Nix
-        uses: cachix/install-nix-action@v31
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ env.DECODED_KEY }}
+      - uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - uses: cachix/cachix-action@v17
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_TOKEN }}
       - name: Install pre-commit
         run: pipx install pre-commit
       - name: Run all checks via Makefile
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: make check
   build-darwin:
     name: 'Darwin: ${{ matrix.host }}'
