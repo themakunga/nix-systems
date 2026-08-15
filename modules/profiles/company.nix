@@ -4,7 +4,7 @@
 # Módulo auto-gestionado.
 # =========================================================
 {
-  flake.profileModules.nicolas-42devs = {
+  flake.profileModules.company = {
     lib,
     pkgs,
     config,
@@ -14,10 +14,10 @@
     inherit (pkgs.stdenv.hostPlatform) isDarwin;
   in {
     sops.secrets = {
-      "profiles/nicolas-42devs/ssh/private_key" = {};
-      "profiles/nicolas-42devs/gpg/private_key" = {};
-      "profiles/nicolas-42devs/gpg/public_key" = {};
-      "profiles/nicolas-42devs/gpg/key_id" = {};
+      "profiles/42devs/ssh/private_key" = {};
+      "profiles/42devs/gpg/private_key" = {};
+      "profiles/42devs/gpg/public_key" = {};
+      "profiles/42devs/gpg/key_id" = {};
     };
 
     homebrew = mkIf isDarwin {
@@ -33,25 +33,25 @@
         keys = [
           {
             name = "company-key";
-            publicKey = config.sops.secrets."profiles/nicolas-42devs/gpg/public_key".path;
-            privateKey = config.sops.secrets."profiles/nicolas-42devs/gpg/private_key".path;
+            publicKey = config.sops.secrets."profiles/42devs/gpg/public_key".path;
+            privateKey = config.sops.secrets."profiles/42devs/gpg/private_key".path;
           }
         ];
       };
 
       git-identity = {
         enable = true;
-        workspaces.nicolas-42devs = {
+        workspaces.company = {
           directory = "~/Projects/42Devs";
           realName = "Nicolas Villarroel Martinez.";
           email = "nicolas@42devs.cl";
           gpg = {
             enable = true;
-            keyId = config.sops.secrets."profiles/nicolas-42devs/gpg/key_id".path;
+            keyId = config.sops.secrets."profiles/42devs/gpg/key_id".path;
           };
           ssh = {
             enable = true;
-            privateKey = config.sops.secrets."profiles/nicolas-42devs/ssh/private_key".path;
+            privateKey = config.sops.secrets."profiles/42devs/ssh/private_key".path;
           };
         };
       };

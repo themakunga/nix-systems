@@ -6,28 +6,26 @@
 {self, ...}: let
   inherit (self.lib) mkAppModule;
 in {
-  flake.applicationModules.podman =
-    mkAppModule "podman" "Podman Containers
-  runtime" {
-      meta = { ...}: {
-        level = "system";
-        packages = [];
-      };
-      systemConfig = {
-        config,
-        lib,
-        ...
-      }: {
-        config = lib.mkIf config.my.services.podman.enable {
-          virtualsation = {
-            container.enable = true;
-            podman = {
-              dockerCompat = true;
-              dockerSocket.enable = true;
-              defaultNetwork.settings.dns_enabled = true;
-            };
+  flake.applicationModules.podman = mkAppModule "podman" "Podman Containersruntime" {
+    meta = {pkgs, ...}: {
+      level = "system";
+      packages = [];
+    };
+    sysConfig = {
+      config,
+      lib,
+      ...
+    }: {
+      config = lib.mkIf config.my.services.podman.enable {
+        virtualsation = {
+          container.enable = true;
+          podman = {
+            dockerCompat = true;
+            dockerSocket.enable = true;
+            defaultNetwork.settings.dns_enabled = true;
           };
         };
       };
     };
+  };
 }

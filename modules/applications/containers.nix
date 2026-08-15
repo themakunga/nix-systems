@@ -18,7 +18,7 @@ in {
         ];
       };
 
-      systemConfig = {
+      sysConfig = {
         config,
         lib,
         ...
