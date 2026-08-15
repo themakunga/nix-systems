@@ -36,7 +36,7 @@ in {
         after = ["network-online.target"];
 
         serviceConfig = {
-          EnvironmentFile = config.sops.secrets.cloudflare_tunnel_env.path or "";
+          EnvironmentFile = config.sops.secrets.cloudflare_tunnet_env.path or "";
           ExecStart = "${pkgs.cloudflared}/bin/cloudflared tunnel run";
           Restart = "always";
           RestartSec = "5s";
