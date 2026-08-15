@@ -6,7 +6,7 @@
 {self, ...}: let
   inherit (self.lib) mkAppModule;
 in {
-  flake.applicationModule.samba-share = mkAppModule "samba-share" "Samba Server
+  flake.applicationModules.samba-share = mkAppModule "samba-share" "Samba Server
     to share files" {
     meta = {
       level = "system";
