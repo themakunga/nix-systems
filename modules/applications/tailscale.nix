@@ -9,6 +9,7 @@
 # =========================================================
 {self, ...}: let
   inherit (self.lib) mkAppModule;
+  inherit (self.inputs) secrets; # <--- ¡AGREGA ESTA LÍNEA!
 in {
   flake.applicationModules.tailscale = {
     core = mkAppModule "tailscale-core" "Tailscale Core Daemon and CLI" {
@@ -31,7 +32,9 @@ in {
             services.tailscale.enable = mkIf isDarwin (mkForce false);
           }
           (optionalAttrs isLinux {
-            sops.secrets."tailscale/auth_token" = {};
+            sops.secrets."tailscale/auth_token" = {
+              sopsFile = "${secrets.outPath}/common.yaml";
+            };
             services.tailscale = {
               enable = true;
               authKeyFile = config.sops.secrets."tailscale/auth_token".path;
@@ -53,11 +56,10 @@ in {
         ...
       }: let
         isLinux = options ? system.nixos;
-        isDarwin = options ? system.darwin;
       in {
         level = "system";
         packages = lib.optionals isLinux [pkgs.trayscale];
-        masApps = lib.optionalAttrs isDarwin {"tailscale" = 1475387142;};
+        casks = ["tailscale-app"];
       };
       sysConfig = {};
     };

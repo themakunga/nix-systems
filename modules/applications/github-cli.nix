@@ -15,7 +15,7 @@ in {
       level = "system";
       packages = with pkgs; [
         gh
-        gama-tui # Alternative to lazyactions to monitor and manage GitHub Actions
+        gama-tui
       ];
     };
     sysConfig = {config, ...}: {

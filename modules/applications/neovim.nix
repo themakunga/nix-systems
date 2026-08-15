@@ -20,33 +20,39 @@ in {
       level = "system";
       packages = with pkgs;
         [
-          alejandra
+          neovim
           curl
           fd
           fzf
           gcc
           git
           gnumake
-          lazygit
-          lua-language-server
-          neovim
-          nil
-          nodejs_24
-          python3
           ripgrep
-          stylua
           tree-sitter
           unzip
           wget
+          cargo
+          rustc
+          lazygit
+          gh
+          pandoc
+          texliveSmall
+          lua-language-server
+          stylua
+          nixd
+          alejandra
+          efm-langserver
+          yaml-language-server
+          nodejs_24
+          python3
         ]
         ++ lib.optionals (options ? system.nixos) [wl-clipboard xclip];
     };
     sysConfig = {
       my.dotfiles.packages = [
         {
-          name = "neovim";
+          name = "nvim";
           isConfig = true;
-          output-name = "nvim";
         }
       ];
       environment.variables = {
