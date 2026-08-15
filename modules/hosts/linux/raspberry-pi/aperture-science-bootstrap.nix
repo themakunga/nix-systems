@@ -68,6 +68,7 @@ in {
             assignTo = ["root"];
             keys = [
               "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFfrS5Ps9OxiIKgMJo718RbJ7Lwaijwt3g0lEBb8mhCt nicolas@Nicolass-MacBook-Pro.local"
+              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINvc7ExxEKPdvwtfa701VyQbrZWUGPCmvFjSAGoqRc7V nmartinezv@icloud.com"
             ];
           };
 

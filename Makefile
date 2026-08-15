@@ -6,7 +6,7 @@
 TARGET_IP ?= 192.168.1.100
 HOST ?= aperture-science
 
-.PHONY: all test help switch-outer-heaven switch-kanagawa switch-motherbase switch-msf switch-steamdeck deploy-aperture deploy-black-mesa deploy-valve build-host build-vm build-sd build-bootstrap check fmt sops-common sops-host update clean shell
+.PHONY: all test help install-nix bootstrap-darwin switch-outer-heaven switch-kanagawa switch-motherbase switch-msf switch-steamdeck deploy-aperture deploy-black-mesa deploy-valve deploy-motherbase build-host build-vm build-sd build-bootstrap check fmt sops-common sops-host update clean shell
 
 all: ## Objetivo por defecto requerido por checkmake
 	@echo "No default 'all' target configured. Please specify a target like 'switch-outer-heaven'."
@@ -21,6 +21,18 @@ help: ## Muestra este menú de ayuda
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
 
 # =========================================================
+# 🚀 INSTALACIÓN INICIAL (BOOTSTRAP)
+# =========================================================
+
+install-nix: ## Instala Nix oficial (Determinate Systems) habilitando Flakes automáticamente
+	@echo "=> Instalando Nix..."
+	curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+
+bootstrap-darwin: ## Primera instalación de Nix-Darwin en un Mac virgen. Uso: make bootstrap-darwin HOST=kanagawa
+	@echo "=> Bootstrap inicial de Nix-Darwin para $(HOST)..."
+	nix run nix-darwin -- switch --flake .#$(HOST)
+
+# =========================================================
 # 🍎 DESPLIEGUES MACOS (NIX-DARWIN)
 # =========================================================
 
@@ -29,16 +41,10 @@ switch-outer-heaven: ## Aplica la configuración en outer-heaven (Mac Principal)
 	git add -A
 	sudo darwin-rebuild switch --flake .#outer-heaven
 
-switch-kanagawa:
-	@echo "=> Evaluando y construyendo Nix-Darwin (como usuario normal)..."
+switch-kanagawa: ## Aplica la configuración en kanagawa
+	@echo "=> Aplicando Nix-Darwin en kanagawa..."
 	git add -A
-	# 1. Construye el sistema y crea un link "./result" sin usar sudo
-	darwin-rebuild build --flake .#kanagawa
-	@echo "=> Activando el nuevo sistema (requiere privilegios de administrador)..."
-	# 2. Registra el nuevo sistema en los perfiles de root
-	sudo nix-env -p /nix/var/nix/profiles/system --set ./result
-	# 3. Ejecuta el script de activación de macOS
-	sudo /nix/var/nix/profiles/system/activate
+	sudo darwin-rebuild switch --flake .#kanagawa
 
 # =========================================================
 # 🐧 DESPLIEGUES NIXOS LOCALES (X86_64)
@@ -82,17 +88,15 @@ deploy-valve: ## Instala valve (Pi 5) vía nix-anywhere. Uso: make deploy-valve 
 	@echo "=> Desplegando valve en $(TARGET_IP)..."
 	git add -A
 	./scripts/deploy.sh $(TARGET_IP) .#valve
+
 # ==========================================
-# Despliegue Remoto (Motherbase)
+# 🌍 DESPLIEGUE REMOTO X86_64
 # ==========================================
-deploy-motherbase:
+
+deploy-motherbase: ## Despliega motherbase remoto usando linux-builder local
 	@echo "=> Desplegando configuración en motherbase.local..."
 	git add -A
-	nix run nixpkgs#nixos-rebuild -- switch \
-		--flake .#motherbase \
-		--target-host root@192.168.5.153 \
-		--build-host ssh-ng://builder@linux-builder \
-		--fast
+	nix run nixpkgs#nixos-rebuild -- switch --flake .#motherbase --target-host root@192.168.5.153 --build-host ssh-ng://builder@linux-builder --fast
 
 # =========================================================
 # 🧪 PRUEBAS Y CONSTRUCCIÓN (TESTING)
@@ -103,7 +107,7 @@ build-host: ## Compila la configuración de un host SIN aplicarla. Uso: make bui
 	git add -A
 	nix build .#nixosConfigurations.$(HOST).config.system.build.toplevel
 
-build-vm: ## Levanta una Máquina Virtual efímera de un host NixOS para pruebas. Uso: make build-vm HOST=motherbase
+build-vm: ## Levanta una VM efímera de un host NixOS para pruebas. Uso: make build-vm HOST=motherbase
 	@echo "=> Construyendo y ejecutando VM para $(HOST)..."
 	git add -A
 	nix build .#nixosConfigurations.$(HOST).config.system.build.vm
