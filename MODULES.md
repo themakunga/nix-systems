@@ -321,6 +321,106 @@ true
 
 
 
+## my\.services\.container-stack\.portainer\.enable
+
+
+
+Whether to enable Portainer web UI via OCI container\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+
+```nix
+false
+```
+
+
+
+*Example:*
+
+```nix
+true
+```
+
+
+
+## my\.services\.samba-share\.user
+
+
+
+Admin server username
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+
+```nix
+"nicolas"
+```
+
+
+
+## my\.services\.traefik\.acmeEmail
+
+
+
+Email for Let’s Encrypt certification
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+
+```nix
+""
+```
+
+
+
+## my\.services\.traefik\.useCloudflare
+
+
+
+Whether to enable Usar Cloudflare DNS Challenge\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+
+```nix
+false
+```
+
+
+
+*Example:*
+
+```nix
+true
+```
+
+
+
 ## my\.tofu-dns\.enable
 
 
