@@ -3,42 +3,46 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo: applicationModules.cloudflare-tunnel
+# =========================================================
 {self, ...}: let
   inherit (self.lib) mkAppModule;
+  inherit (self.inputs) secrets;
 in {
-  flake.applicationModules.cloudflare-tunnel =
-    mkAppModule "cloudflare-tunnel"
-    "Clouldflare resolve dns tunnel" {
-      meta = {pkgs, ...}: {
-        level = "system";
-        packages = [pkgs.cloudflared];
+  flake.applicationModules.cloudflare-tunnel = mkAppModule "cloudflare-tunnel" "Cloudflare Tunnel" {
+    meta = _: {
+      level = "system";
+      packages = [];
+    };
+
+    sysConfig = {
+      config,
+      pkgs,
+      ...
+    }: {
+      sops.secrets.cloudflare_tunnel_env = {
+        sopsFile = "${secrets}/common.yaml";
       };
-      sysConfig = {
-        config,
-        lib,
-        pkgs,
-        ...
-      }: let
-        inherit (lib) mkIf;
-      in {
-        config = mkIf config.my.services.cloudflare-tunnel.enable {
-          sops.secrets."applications/cloudflare_tunnel/env" = {};
 
-          systemd.services.cloudflare-tunnel = {
-            description = "Cloudflare Tunnel (cloudflared)";
-            wantedBy = ["muli-ser.target"];
-            after = ["network-online.target"];
+      environment.systemPackages = [pkgs.cloudflared];
 
-            serviceConfig = {
-              EnvironmentFile =
-                config.sops.secrets."applications/cloudflare_tunnel/env".path;
-              ExecStart = "${pkgs.cloudflared}/bin/cloudflared tunnel run";
-              Restart = "always";
-              RestartSec = "5s";
-              DynamicUser = true;
-            };
-          };
+      systemd.services.cloudflare-tunnel = {
+        description = "Cloudflare Tunnel (cloudflared)";
+        wantedBy = ["multi-user.target"];
+        after = ["network-online.target"];
+
+        serviceConfig = {
+          # 👇 LA MAGIA ESTÁ AQUÍ: Añadimos 'or ""' al final de la línea
+          EnvironmentFile = config.sops.secrets.cloudflare_tunnel_env.path or "";
+          ExecStart = "${pkgs.cloudflared}/bin/cloudflared tunnel run";
+          Restart = "always";
+          RestartSec = "5s";
+          DynamicUser = true;
         };
       };
     };
+  };
 }

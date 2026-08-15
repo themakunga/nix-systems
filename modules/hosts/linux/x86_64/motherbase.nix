@@ -76,19 +76,20 @@ in {
             };
             apps = {
               tailscale-core.enable = true;
+              cloudflare-tunnel.enable = true;
+              podman.enable = true;
+              container-stack.enable = true;
+              traefik.enable = true;
+              samba-share.enable = true; # <--- AÑADIDO AQUÍ
             };
             services = {
-              podman.enable = true;
-              container-stack = {
-                enable = true;
-                portainer.enable = true;
-              };
+              container-stack.portainer.enable = true;
               samba-share = {
-                enable = true;
                 user = "admin";
               };
               traefik = {
-                enable = true;
+                acmeEmail = "tu_correo@ejemplo.com";
+                useCloudflare = true;
               };
             };
           };
