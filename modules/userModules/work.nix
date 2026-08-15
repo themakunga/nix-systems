@@ -11,7 +11,7 @@
 {self, ...}: let
   inherit (self) commonModules;
 in {
-  flake.userModules.nicolas-work = {config, ...}: {
+  flake.userModules.work = {config, ...}: {
     imports = [
       commonModules.home-secrets
     ];
@@ -20,7 +20,7 @@ in {
       neededForUsers = true;
     };
 
-    my.userProfiles.nicolas-work = {
+    my.userProfiles.work = {
       username = "nicolas";
       fullName = "Nicolas [Tu Apellido]";
       email = "nicolas@tu-empresa.com";

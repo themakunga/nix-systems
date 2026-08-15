@@ -56,6 +56,11 @@ in {
         ];
         applicationModules = [
           "tailscale.core"
+          "podman"
+          "container-stack"
+          "samba-share"
+          "traefik"
+          "cloudflare-tunnel"
         ];
       })
       ++ [
@@ -71,6 +76,21 @@ in {
             };
             apps = {
               tailscale-core.enable = true;
+              cloudflare-tunnel.enable = true;
+              podman.enable = true;
+              container-stack.enable = true;
+              traefik.enable = true;
+              samba-share.enable = true; # <--- AÑADIDO AQUÍ
+            };
+            services = {
+              container-stack.portainer.enable = true;
+              samba-share = {
+                user = "admin";
+              };
+              traefik = {
+                acmeEmail = "tu_correo@ejemplo.com";
+                useCloudflare = true;
+              };
             };
           };
         }

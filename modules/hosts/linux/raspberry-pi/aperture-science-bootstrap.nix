@@ -25,7 +25,7 @@ in {
     modules =
       [
         nixos-hardware.nixosModules.raspberry-pi-5
-        inputs.sops-nix.nixosModules.sops # <--- 1. Agregamos el motor de SOPS
+        inputs.sops-nix.nixosModules.sops
       ]
       ++ (mkBundle {
         commonModules = [
@@ -34,7 +34,7 @@ in {
           "network"
         ];
         nixosModules = [
-          "wifi" # <--- 2. Vuelve tu módulo de WiFi con SOPS
+          "wifi"
         ];
         rpiModules = [
           "common"
@@ -43,13 +43,19 @@ in {
         ];
       })
       ++ [
-        {
+        # 👇 ARREGLO: Convertimos este bloque en una función de módulo de NixOS
+        ({
+          config,
+          pkgs,
+          lib,
+          ...
+        }: {
           networking.hostName = "aperture-bootstrap";
 
           sops = {
             defaultSopsFile = "${inputs.secrets}/common.yaml";
             validateSopsFiles = false;
-            age.keyFile = "/var/lib/sops.txt";
+            age.keyFile = "/Users/nicolas/.config/sops/age/keys.txt";
           };
 
           services.openssh = {
@@ -66,7 +72,32 @@ in {
           };
 
           system.stateVersion = "26.04";
-        }
+
+          sdImage = {
+            compressImage = true;
+            populateFirmwareCommands = lib.mkForce ''
+              echo "=> Inyectando firmware oficial de Raspberry Pi 5..."
+
+              # 1. Dar permisos de escritura a la carpeta por si Nix bloqueó archivos previos
+              chmod -R +w firmware/
+
+              # 2. Copiar todo el firmware base forzando sobreescritura (-rf)
+              cp -rf ${pkgs.raspberrypifw}/share/raspberrypi/boot/* firmware/
+
+              # 3. Volver a dar permisos (los archivos recién copiados vienen como read-only)
+              chmod -R +w firmware/
+
+              # 4. Copiar los Device Trees (DTB) actualizados del kernel
+              if [ -d "${config.boot.kernelPackages.kernel}/dtbs/broadcom" ]; then
+                cp -rf ${config.boot.kernelPackages.kernel}/dtbs/broadcom/* firmware/
+              fi
+
+              # 5. Limpieza para evitar conflictos si existe un kernel viejo
+              rm -f firmware/kernel*.img
+
+              echo "✅ Firmware base y DTBs inyectados con éxito."            '';
+          };
+        })
       ];
   };
 }

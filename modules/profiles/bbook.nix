@@ -4,7 +4,7 @@
 # Módulo auto-gestionado.
 # =========================================================
 {
-  flake.profileModules.nicolas-bbook = {
+  flake.profileModules.bbook = {
     lib,
     pkgs,
     config,
@@ -14,10 +14,10 @@
     inherit (pkgs.stdenv.hostPlatform) isDarwin;
   in {
     sops.secrets = {
-      "profiles/nicolas-bbook/ssh/private_key" = {};
-      "profiles/nicolas-bbook/gpg/private_key" = {};
-      "profiles/nicolas-bbook/gpg/public_key" = {};
-      "profiles/nicolas-bbook/gpg/key_id" = {};
+      "profiles/bbook/ssh/private_key" = {};
+      "profiles/bbook/gpg/private_key" = {};
+      "profiles/bbook/gpg/public_key" = {};
+      "profiles/bbook/gpg/key_id" = {};
     };
 
     homebrew = mkIf isDarwin {
@@ -33,25 +33,25 @@
         keys = [
           {
             name = "bbook-key";
-            publicKey = config.sops.secrets."profiles/nicolas-bbook/gpg/public_key".path;
-            privateKey = config.sops.secrets."profiles/nicolas-bbook/gpg/private_key".path;
+            publicKey = config.sops.secrets."profiles/bbook/gpg/public_key".path;
+            privateKey = config.sops.secrets."profiles/bbook/gpg/private_key".path;
           }
         ];
       };
 
       git-identity = {
         enable = true;
-        workspaces.nicolas-bbook = {
+        workspaces.bbook = {
           directory = "~/Projects/Bbook";
           realName = "Nicolas Villarroel Martinez.";
           email = "nmartinez@bbook.cl";
           gpg = {
             enable = true;
-            keyId = config.sops.secrets."profiles/nicolas-bbook/gpg/key_id".path;
+            keyId = config.sops.secrets."profiles/bbook/gpg/key_id".path;
           };
           ssh = {
             enable = true;
-            privateKey = config.sops.secrets."profiles/nicolas-bbook/ssh/private_key".path;
+            privateKey = config.sops.secrets."profiles/bbook/ssh/private_key".path;
           };
         };
       };

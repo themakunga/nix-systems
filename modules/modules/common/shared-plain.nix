@@ -53,7 +53,7 @@ in {
                 then plainItem.path
                 else "${plainItem.path}/${relFile}";
             in ''
-              mkdir -p $(dirname "${actualDest}")
+              mkdir -p "$(dirname "${actualDest}")"
               cp -f "${actualSource}" "${actualDest}"
               chown ${plainItem.owner}${
                 if plainItem.group != null

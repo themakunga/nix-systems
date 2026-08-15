@@ -6,7 +6,7 @@
 {self, ...}: let
   inherit (self) commonModules;
 in {
-  flake.userModules.nicolas-personal = {config, ...}: {
+  flake.userModules.personal = {config, ...}: {
     imports = [
       commonModules.shared-secrets
       commonModules.shared-plain
@@ -20,7 +20,7 @@ in {
       neededForUsers = true;
     };
 
-    my.userProfiles.nicolas-personal = {
+    my.userProfiles.personal = {
       username = "nicolas";
       fullName = "Nicolas";
       email = "nicolas@tudominio.com";

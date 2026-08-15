@@ -29,10 +29,16 @@ switch-outer-heaven: ## Aplica la configuración en outer-heaven (Mac Principal)
 	git add -A
 	sudo darwin-rebuild switch --flake .#outer-heaven
 
-switch-kanagawa: ## Aplica la configuración en kanagawa (Mac Secundario)
-	@echo "=> Aplicando Nix-Darwin en kanagawa..."
+switch-kanagawa:
+	@echo "=> Evaluando y construyendo Nix-Darwin (como usuario normal)..."
 	git add -A
-	sudo darwin-rebuild switch --flake .#kanagawa
+	# 1. Construye el sistema y crea un link "./result" sin usar sudo
+	darwin-rebuild build --flake .#kanagawa
+	@echo "=> Activando el nuevo sistema (requiere privilegios de administrador)..."
+	# 2. Registra el nuevo sistema en los perfiles de root
+	sudo nix-env -p /nix/var/nix/profiles/system --set ./result
+	# 3. Ejecuta el script de activación de macOS
+	sudo /nix/var/nix/profiles/system/activate
 
 # =========================================================
 # 🐧 DESPLIEGUES NIXOS LOCALES (X86_64)
@@ -76,6 +82,17 @@ deploy-valve: ## Instala valve (Pi 5) vía nix-anywhere. Uso: make deploy-valve 
 	@echo "=> Desplegando valve en $(TARGET_IP)..."
 	git add -A
 	./scripts/deploy.sh $(TARGET_IP) .#valve
+# ==========================================
+# Despliegue Remoto (Motherbase)
+# ==========================================
+deploy-motherbase:
+	@echo "=> Desplegando configuración en motherbase.local..."
+	git add -A
+	nix run nixpkgs#nixos-rebuild -- switch \
+		--flake .#motherbase \
+		--target-host root@192.168.5.153 \
+		--build-host ssh-ng://builder@linux-builder \
+		--fast
 
 # =========================================================
 # 🧪 PRUEBAS Y CONSTRUCCIÓN (TESTING)

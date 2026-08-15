@@ -79,12 +79,12 @@ in {
           "hyperx"
         ];
         userModules = [
-          "nicolas-work"
+          "work"
           "glados"
         ];
         profileModules = [
-          "nicolas-work"
-          "nicolas-personal"
+          "work"
+          "personal"
           "latam"
           "glados"
           "thoughtworks"

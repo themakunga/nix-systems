@@ -26,8 +26,6 @@
     config = mkIf cfg.enable (mkMerge [
       (mkIf isDarwin {
         homebrew.casks = [
-          "blackhole-2ch"
-          "krisp"
         ];
       })
 
