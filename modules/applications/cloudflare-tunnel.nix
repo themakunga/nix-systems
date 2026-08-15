@@ -32,10 +32,10 @@ in {
       systemd.services.cloudflare-tunnel = {
         description = "Cloudflare Tunnel (cloudflared)";
         wantedBy = ["multi-user.target"];
+        wants = ["network-online.target"]; # <--- AÑADE ESTO AQUÍ
         after = ["network-online.target"];
 
         serviceConfig = {
-          # 👇 LA MAGIA ESTÁ AQUÍ: Añadimos 'or ""' al final de la línea
           EnvironmentFile = config.sops.secrets.cloudflare_tunnel_env.path or "";
           ExecStart = "${pkgs.cloudflared}/bin/cloudflared tunnel run";
           Restart = "always";

@@ -21,7 +21,6 @@ in {
       packages = with pkgs;
         [
           neovim
-
           curl
           fd
           fzf
@@ -32,21 +31,21 @@ in {
           tree-sitter
           unzip
           wget
+          cargo
+          rustc
+          lazygit
+          gh
+          pandoc
+          texliveSmall
+          lua-language-server
+          stylua
+          nixd
+          alejandra
+          efm-langserver
+          yaml-language-server
+          nodejs_24
+          python3
         ]
-        cargo
-        rustc
-        lazygit
-        gh
-        pandoc
-        texliveSmall
-        lua-language-server
-        stylua
-        nixd
-        alejandra
-        efm-langserver
-        yaml-language-server
-        node_24
-        python3
         ++ lib.optionals (options ? system.nixos) [wl-clipboard xclip];
     };
     sysConfig = {
