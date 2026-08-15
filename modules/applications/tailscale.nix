@@ -56,11 +56,10 @@ in {
         ...
       }: let
         isLinux = options ? system.nixos;
-        isDarwin = options ? system.darwin;
       in {
         level = "system";
         packages = lib.optionals isLinux [pkgs.trayscale];
-        masApps = lib.optionalAttrs isDarwin {"tailscale" = 1475387142;};
+        casks = ["tailscale-app"];
       };
       sysConfig = {};
     };
