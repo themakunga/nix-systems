@@ -4,7 +4,7 @@
 # Módulo auto-gestionado.
 # =========================================================
 {
-  flake.profileModules.nicolas-work = {
+  flake.profileModules.work = {
     config,
     pkgs,
     ...
