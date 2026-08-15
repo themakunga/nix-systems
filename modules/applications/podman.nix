@@ -7,7 +7,7 @@
   inherit (self.lib) mkAppModule;
 in {
   flake.applicationModules.podman = mkAppModule "podman" "Podman Containersruntime" {
-    meta = {pkgs, ...}: {
+    meta = {
       level = "system";
       packages = [];
     };

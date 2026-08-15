@@ -6,9 +6,9 @@
 {self, ...}: let
   inherit (self.lib) mkAppModule;
 in {
-  flake.applicationModules.traefik = mkAppModule "trafik" "Traefik Reverse Proxy
+  flake.applicationModules.traefik = mkAppModule "traefik" "Traefik Reverse Proxy
     containers" {
-    meta = {...}: {
+    meta = {
       level = "system";
       packages = [];
     };

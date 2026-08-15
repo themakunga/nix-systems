@@ -1,3 +1,8 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
 {
   flake.developmentModules.ios-terminal = {
     config,
@@ -5,7 +10,7 @@
     pkgs,
     ...
   }: let
-    inherit (lib) mkEnableOption mkIf optionals;
+    inherit (lib) mkEnableOption mkIf;
     cfg = config.my.development.ios-terminal;
     inherit (pkgs.stdenv.hostPlatform) isDarwin;
 

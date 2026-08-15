@@ -8,7 +8,7 @@
 in {
   flake.applicationModule.samba-share = mkAppModule "samba-share" "Samba Server
     to share files" {
-    meta = { ...}: {
+    meta = {
       level = "system";
       packages = [];
     };
