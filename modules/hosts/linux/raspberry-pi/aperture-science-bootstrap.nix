@@ -82,32 +82,40 @@ in {
             # Pi3/4 igual que nixpkgs + Pi5 con boot directo via EEPROM (sin u-boot,
             # que no existe para Pi5 en nixpkgs 26.05).
             populateFirmwareCommands = lib.mkForce ''
+              mkdir -p firmware
+
               # ── Firmware base (Pi 3 / 4 compatible) ─────────────────────────
               (cd ${pkgs.raspberrypifw}/share/raspberrypi/boot && \
                 cp bootcode.bin fixup*.dat start*.elf $NIX_BUILD_TOP/firmware/ 2>/dev/null || true)
 
+              # 👇 AQUÍ ESTÁ EL ARREGLO:
+              # El firmware copiado arriba es de solo lectura. Le damos permisos
+              # de escritura a la carpeta para poder meter los siguientes archivos.
+              chmod -R +w firmware/
+
               # ── Pi 3 / Pi 0-2 ────────────────────────────────────────────────
               cp ${pkgs.ubootRaspberryPi3_64bit}/u-boot.bin firmware/u-boot-rpi3.bin
-              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2710-rpi-3-b.dtb      firmware/
-              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2710-rpi-3-b-plus.dtb firmware/
-              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2710-rpi-zero-2.dtb   firmware/
-              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2710-rpi-zero-2-w.dtb firmware/
+              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2710-rpi-3-b.dtb      firmware/ || true
+              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2710-rpi-3-b-plus.dtb firmware/ || true
+              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2710-rpi-zero-2.dtb   firmware/ || true
+              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2710-rpi-zero-2-w.dtb firmware/ || true
 
               # ── Pi 4 ─────────────────────────────────────────────────────────
               cp ${pkgs.ubootRaspberryPi4_64bit}/u-boot.bin firmware/u-boot-rpi4.bin
-              cp ${pkgs.raspberrypi-armstubs}/armstub8-gic.bin                         firmware/
-              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2711-rpi-4-b.dtb      firmware/
-              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2711-rpi-400.dtb      firmware/
-              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2711-rpi-cm4.dtb      firmware/
-              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2711-rpi-cm4s.dtb     firmware/
+              cp ${pkgs.raspberrypi-armstubs}/armstub8-gic.bin                         firmware/ || true
+              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2711-rpi-4-b.dtb      firmware/ || true
+              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2711-rpi-400.dtb      firmware/ || true
+              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2711-rpi-cm4.dtb      firmware/ || true
+              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2711-rpi-cm4s.dtb     firmware/ || true
 
               # ── Pi 5 (BCM2712) ───────────────────────────────────────────────
-              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/armstub8-2712.bin        firmware/
-              cp ${config.boot.kernelPackages.kernel}/dtbs/broadcom/bcm2712-rpi-5-b.dtb firmware/
+              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/armstub8-2712.bin        firmware/ || true
+              cp ${config.boot.kernelPackages.kernel}/dtbs/broadcom/bcm2712-rpi-5-b.dtb firmware/ || true
 
               # Overlays (incluye nvme.dtbo para el HAT NVMe)
               mkdir -p firmware/overlays
               cp -r ${pkgs.raspberrypifw}/share/raspberrypi/boot/overlays/. firmware/overlays/
+              chmod -R +w firmware/overlays/ # Por si acaso los overlays vienen bloqueados
 
               # Kernel NixOS + initrd en la partición FAT para boot directo EEPROM
               cp ${config.system.build.toplevel}/kernel firmware/kernel-pi5.bin
@@ -148,8 +156,7 @@ in {
               arm_64bit=1
               enable_uart=1
               avoid_warnings=1
-              CONFIGEOF
-            '';
+              CONFIGEOF            '';
           };
         })
       ];
