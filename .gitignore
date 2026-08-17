@@ -1,6 +1,9 @@
 .pre-commit-cache/
 !flake.lock
 
+*.img
+
+
 result
 
 result-*
