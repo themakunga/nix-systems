@@ -164,6 +164,8 @@ in {
                   btop
                   ctop
                   pre-commit
+                  terminal-notifier
+                  claude-code
                 ];
 
                 casks = [
@@ -173,6 +175,7 @@ in {
                   "wezterm"
                   "zen"
                   "ghostty"
+                  "miniconda"
                 ];
 
                 masApps = {

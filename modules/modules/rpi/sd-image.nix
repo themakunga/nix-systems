@@ -39,7 +39,7 @@ in {
       enableRedistributableFirmware = true;
     };
 
-    fileSystems."." = {
+    fileSystems."/" = {
       device = lib.mkForce "/dev/disk/by-label/NIXOS_SD";
       fsType = "ext4";
     };

@@ -55,7 +55,7 @@ in {
           sops = {
             defaultSopsFile = "${inputs.secrets}/common.yaml";
             validateSopsFiles = false;
-            age.keyFile = "/Users/nicolas/.config/sops/age/keys.txt";
+            age.keyFile = "/etc/age/keys.txt";
           };
 
           services.openssh = {
@@ -72,31 +72,84 @@ in {
             ];
           };
 
-          system.stateVersion = "26.04";
+          system.stateVersion = "26.05";
 
           sdImage = {
             compressImage = true;
+
+            # mkForce reemplaza por completo el script de sd-image-aarch64.nix,
+            # que no tiene soporte para Pi5. Reconstruimos todo manualmente:
+            # Pi3/4 igual que nixpkgs + Pi5 con boot directo via EEPROM (sin u-boot,
+            # que no existe para Pi5 en nixpkgs 26.05).
             populateFirmwareCommands = lib.mkForce ''
-              echo "=> Inyectando firmware oficial de Raspberry Pi 5..."
+              # ── Firmware base (Pi 3 / 4 compatible) ─────────────────────────
+              (cd ${pkgs.raspberrypifw}/share/raspberrypi/boot && \
+                cp bootcode.bin fixup*.dat start*.elf $NIX_BUILD_TOP/firmware/ 2>/dev/null || true)
 
-              # 1. Dar permisos de escritura a la carpeta por si Nix bloqueó archivos previos
-              chmod -R +w firmware/
+              # ── Pi 3 / Pi 0-2 ────────────────────────────────────────────────
+              cp ${pkgs.ubootRaspberryPi3_64bit}/u-boot.bin firmware/u-boot-rpi3.bin
+              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2710-rpi-3-b.dtb      firmware/
+              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2710-rpi-3-b-plus.dtb firmware/
+              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2710-rpi-zero-2.dtb   firmware/
+              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2710-rpi-zero-2-w.dtb firmware/
 
-              # 2. Copiar todo el firmware base forzando sobreescritura (-rf)
-              cp -rf ${pkgs.raspberrypifw}/share/raspberrypi/boot/* firmware/
+              # ── Pi 4 ─────────────────────────────────────────────────────────
+              cp ${pkgs.ubootRaspberryPi4_64bit}/u-boot.bin firmware/u-boot-rpi4.bin
+              cp ${pkgs.raspberrypi-armstubs}/armstub8-gic.bin                         firmware/
+              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2711-rpi-4-b.dtb      firmware/
+              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2711-rpi-400.dtb      firmware/
+              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2711-rpi-cm4.dtb      firmware/
+              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/bcm2711-rpi-cm4s.dtb     firmware/
 
-              # 3. Volver a dar permisos (los archivos recién copiados vienen como read-only)
-              chmod -R +w firmware/
+              # ── Pi 5 (BCM2712) ───────────────────────────────────────────────
+              cp ${pkgs.raspberrypifw}/share/raspberrypi/boot/armstub8-2712.bin        firmware/
+              cp ${config.boot.kernelPackages.kernel}/dtbs/broadcom/bcm2712-rpi-5-b.dtb firmware/
 
-              # 4. Copiar los Device Trees (DTB) actualizados del kernel
-              if [ -d "${config.boot.kernelPackages.kernel}/dtbs/broadcom" ]; then
-                cp -rf ${config.boot.kernelPackages.kernel}/dtbs/broadcom/* firmware/
-              fi
+              # Overlays (incluye nvme.dtbo para el HAT NVMe)
+              mkdir -p firmware/overlays
+              cp -r ${pkgs.raspberrypifw}/share/raspberrypi/boot/overlays/. firmware/overlays/
 
-              # 5. Limpieza para evitar conflictos si existe un kernel viejo
-              rm -f firmware/kernel*.img
+              # Kernel NixOS + initrd en la partición FAT para boot directo EEPROM
+              cp ${config.system.build.toplevel}/kernel firmware/kernel-pi5.bin
+              cp ${config.system.build.toplevel}/initrd firmware/initrd-pi5.img
 
-              echo "✅ Firmware base y DTBs inyectados con éxito."            '';
+              # cmdline.txt: leído por el EEPROM del Pi5 en boot directo
+              echo "root=LABEL=NIXOS_SD rootfstype=ext4 rootwait console=ttyAMA10,115200 console=tty0 init=${config.system.build.toplevel}/init" \
+                > firmware/cmdline.txt
+
+              # ── config.txt ───────────────────────────────────────────────────
+              cat > firmware/config.txt << 'CONFIGEOF'
+              [pi3]
+              kernel=u-boot-rpi3.bin
+              core_freq=250
+
+              [pi02]
+              kernel=u-boot-rpi3.bin
+
+              [pi4]
+              kernel=u-boot-rpi4.bin
+              enable_gic=1
+              armstub=armstub8-gic.bin
+              disable_overscan=1
+              arm_boost=1
+
+              [cm4]
+              otg_mode=1
+
+              [pi5]
+              armstub=armstub8-2712.bin
+              kernel=kernel-pi5.bin
+              initramfs initrd-pi5.img followkernel
+              dtparam=pciex1_gen=3
+              dtoverlay=nvme
+              dtoverlay=vc4-kms-v3d-pi5
+
+              [all]
+              arm_64bit=1
+              enable_uart=1
+              avoid_warnings=1
+              CONFIGEOF
+            '';
           };
         })
       ];
