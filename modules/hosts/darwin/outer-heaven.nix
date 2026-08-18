@@ -117,9 +117,9 @@ in {
               hyperx.enable = true;
             };
             wallpaper = {
-              path = "${self}/media/wp/kanagawa-fullsize.jpg";
+              path = "${self}/media/wp/wallpaper-outer-heaven.jpg";
               enable = true;
-              fileName = "kanagawa-fullsize.jpg";
+              fileName = "wallpaper-outer-heaven.jpg";
             };
             weather = {
               enable = true;
