@@ -17,7 +17,6 @@
     (inputs)
     nixpkgs
     sops-nix
-    nixos-hardware
     disko
     secrets
     ;
@@ -34,7 +33,6 @@ in {
       [
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
-        nixos-hardware.nixosModules.raspberry-pi-3
       ]
       ++ (mkBundle {
         commonModules = [
@@ -56,6 +54,7 @@ in {
         ];
         rpiModules = [
           "common"
+          "hardware-rpi-zero2w"
           "performance"
           "sd-image"
         ];

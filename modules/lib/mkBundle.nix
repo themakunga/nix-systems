@@ -18,4 +18,20 @@
       )
       specs
     );
+
+  # extendBundle: extiende un bundle base añadiendo módulos por categoría.
+  # Las listas se concatenan; las categorías ausentes en `extensions`
+  # se heredan intactas desde `base`.
+  #
+  # Uso:
+  #   extendBundle bundles.darwin.base {
+  #     commonModules = [ "cloud-profiles" ];
+  #     userModules   = [ "work" "glados" ];
+  #   }
+  flake.lib.extendBundle = base: extensions:
+    base
+    // builtins.mapAttrs (
+      category: extra: (base.${category} or []) ++ extra
+    )
+    extensions;
 }

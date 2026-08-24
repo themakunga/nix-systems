@@ -43,7 +43,7 @@ in {
         rpiModules = [
           "common"
           "hardware-rpi5"
-          "sd-image"
+          "sd-image-rpi5"
         ];
       })
       ++ [

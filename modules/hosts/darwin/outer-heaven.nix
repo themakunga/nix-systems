@@ -21,8 +21,9 @@
     secrets
     mac-app-util
     ;
-
   mkBundle = self.lib.mkBundle inputs.nixpkgs.lib self;
+  extendBundle = self.lib.extendBundle;
+  bundles = self.bundle;
 in {
   flake.darwinConfigurations.outer-heaven = nix-darwin.lib.darwinSystem {
     specialArgs = {
@@ -36,75 +37,13 @@ in {
         nix-homebrew.darwinModules.nix-homebrew
         mac-app-util.darwinModules.default
       ]
-      ++ (mkBundle {
-        commonModules = [
-          "cloud-profiles"
-          "dotfiles"
-          "apps"
-          "arch.darwin.silicon"
-          "host-secrets"
-          "network"
-          "settings"
-          "userProfiles"
-          "home-secrets"
-          "git-identity"
-          "sops-gpg"
-          "devenv"
-          "wallpaper"
-          "weather"
-        ];
-        darwinModules = [
-          "extras"
-          "finder"
-          "homebrew"
-          "keyboard"
-          "primaryUser"
-          "security"
-          "janitor"
-          "linux-builder" # <--- AÑADE ESTA LÍNEA
-        ];
-        applicationModules = [
-          "github-cli"
-          "google-cloud.gemini"
-          "neovim"
-          "openconnect"
-          "tailscale.core"
-          "tailscale.gui"
-          "terminal-zsh"
-        ];
-        deviceModules = [
-          "audio"
-          "logitech"
-          "sony"
-          "hyperx"
-        ];
-        userModules = [
-          "work"
-          "glados"
-        ];
-        profileModules = [
-          "work"
-          "personal"
-          "latam"
-          "glados"
-          "thoughtworks"
-        ];
-        developmentModules = [
-          "argocd"
-          "aws"
-          "containers"
-          "gcp"
-          "golang"
-          "groovy"
-          "iac"
-          "java"
-          "nodejs"
-          "python"
-          "ruby"
-          "rust"
-          "swift"
-        ];
-      })
+      ++ (mkBundle (extendBundle bundles.darwin.base {
+        commonModules = ["cloud-profiles"];
+        darwinModules = ["linux-builder" "tiling"];
+        applicationModules = ["google-cloud.gemini"];
+        userModules = ["work" "glados"];
+        profileModules = ["work" "personal" "latam" "glados" "thoughtworks"];
+      }))
       ++ [
         ({pkgs, ...}: {
           my = {
@@ -123,7 +62,7 @@ in {
             };
             weather = {
               enable = true;
-              location = "Penalolen, Chile";
+              location = "Quebrada de Macul, Chile";
               units = "c";
               forecast = ["d" "w"];
             };
@@ -166,6 +105,9 @@ in {
                   pre-commit
                   terminal-notifier
                   claude-code
+                  unstable.nchat
+                  jdk25
+                  cliamp
                 ];
 
                 casks = [
@@ -284,6 +226,7 @@ in {
               devenv.enable = true;
             };
             services = {
+              tiling.enable = false;
               janitor = {
                 enable = true;
                 cleanCaches = true;

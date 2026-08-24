@@ -42,26 +42,32 @@
     };
 
     config = mkIf cfg.enable {
-      system.activationScripts.postActivation.text = lib.mkAfter ''
-        echo "=> Sincronizando wallpaper en ${wallpaperTargetDir}..."
+      system.activationScripts = {
+        postActivation.text = lib.mkAfter ''
+          echo "=> Sincronizando wallpaper en ${wallpaperTargetDir}..."
 
-        SRC_PATH="${toString cfg.path}"
-        TARGET_FILE="${wallpaperTargetDir}/${cfg.fileName}"
+          SRC_PATH="${toString cfg.path}"
+          TARGET_FILE="${wallpaperTargetDir}/${cfg.fileName}"
 
-        if [ -f "$SRC_PATH" ]; then
-          mkdir -p "${wallpaperTargetDir}"
-          cp -f "$SRC_PATH" "$TARGET_FILE"
-          chmod 644 "$TARGET_FILE"
-          chown "${targetUser}" "$TARGET_FILE" 2>/dev/null || true
+          if [ -f "$SRC_PATH" ]; then
+            mkdir -p "${wallpaperTargetDir}"
+            cp -f "$SRC_PATH" "$TARGET_FILE"
+            chmod 644 "$TARGET_FILE"
+            chown "${targetUser}" "$TARGET_FILE" 2>/dev/null || true
 
-          ${lib.optionalString isDarwin ''
-          echo "=> Aplicando wallpaper desde $TARGET_FILE..."
-          sudo -u "${targetUser}" osascript -e "tell application \"System Events\" to set picture of every desktop to \"$TARGET_FILE\"" 2>/dev/null || true
-        ''}
-        else
-          echo "Error: No se encontró el archivo de origen del wallpaper en '$SRC_PATH'"
-        fi
-      '';
+            ${lib.optionalString isDarwin ''
+            echo "=> Aplicando wallpaper desde $TARGET_FILE..."
+            sudo -u "${targetUser}" osascript -e "tell application \"System Events\" to set picture of every desktop to \"$TARGET_FILE\"" 2>/dev/null || true
+          ''}
+          else
+            echo "Error: No se encontró el archivo de origen del wallpaper en '$SRC_PATH'"
+          fi
+        '';
+        wallpaper.text = mkIf isDarwin ''
+          echo "=> Aplicando Wallpaper en todas las pantallas..."
+          osascript -e 'tell application "System Events" to tell every desktop to set picture to "${cfg.path}"'
+        '';
+      };
 
       environment.systemPackages = lib.mkIf (!isDarwin) (with pkgs; [
         swww
