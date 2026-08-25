@@ -3,11 +3,7 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: black-mesa.nix
-# Path: ./modules/hosts/linux/raspberry-pi/black-mesa.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
+# NixOS host: black-mesa — Raspberry Pi Zero 2W running Pi-hole and KVM.
 {
   self,
   inputs,
@@ -17,7 +13,6 @@
     (inputs)
     nixpkgs
     sops-nix
-    nixos-hardware
     disko
     secrets
     ;
@@ -34,7 +29,6 @@ in {
       [
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
-        nixos-hardware.nixosModules.raspberry-pi-3
       ]
       ++ (mkBundle {
         commonModules = [
@@ -56,6 +50,7 @@ in {
         ];
         rpiModules = [
           "common"
+          "hardware-rpi-zero2w"
           "performance"
           "sd-image"
         ];

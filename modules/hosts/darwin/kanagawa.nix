@@ -3,11 +3,7 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: kanagawa.nix
-# Path: ./modules/hosts/darwin/kanagawa.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
+# Darwin host: kanagawa — personal MacBook Pro (Apple Silicon).
 {
   self,
   inputs,
@@ -22,6 +18,8 @@
     mac-app-util
     ;
   mkBundle = self.lib.mkBundle inputs.nixpkgs.lib self;
+  extendBundle = self.lib.extendBundle;
+  bundles = self.bundle;
 in {
   flake.darwinConfigurations.kanagawa = nix-darwin.lib.darwinSystem {
     specialArgs = {
@@ -35,71 +33,12 @@ in {
         nix-homebrew.darwinModules.nix-homebrew
         mac-app-util.darwinModules.default
       ]
-      ++ (mkBundle {
-        commonModules = [
-          "dotfiles"
-          "apps"
-          "arch.darwin.silicon"
-          "host-secrets"
-          "network"
-          "settings"
-          "userProfiles"
-          "home-secrets"
-          "git-identity"
-          "sops-gpg"
-          "devenv"
-          "wallpaper"
-          "weather"
-        ];
-        darwinModules = [
-          "extras"
-          "finder"
-          "homebrew"
-          "keyboard"
-          "primaryUser"
-          "security"
-          "janitor"
-        ];
-        applicationModules = [
-          "github-cli"
-          "google-cloud.gcloud"
-          "neovim"
-          "openconnect"
-          "tailscale.core"
-          "tailscale.gui"
-          "terminal-zsh"
-        ];
-        deviceModules = [
-          "audio"
-          "logitech"
-          "sony"
-          "hyperx"
-        ];
-        userModules = [
-          "personal"
-        ];
-        profileModules = [
-          "personal"
-          "bbook"
-          "company"
-        ];
-        developmentModules = [
-          "argocd"
-          "aws"
-          "containers"
-          "gcp"
-          "golang"
-          "groovy"
-          "iac"
-          "java"
-          "nodejs"
-          "python"
-          "ruby"
-          "rust"
-          "swift"
-          "ios-terminal"
-        ];
-      })
+      ++ (mkBundle (extendBundle bundles.darwin.base {
+        applicationModules = ["google-cloud.gcloud"];
+        developmentModules = ["ios-terminal"];
+        userModules = ["personal"];
+        profileModules = ["personal" "bbook" "company"];
+      }))
       ++ [
         ({pkgs, ...}: {
           my = {
@@ -264,7 +203,7 @@ in {
                 enableTuist = true;
                 enableFastlane = true;
                 useDotfiles = true;
-                useSecrets = false; # Fundamental
+                useSecrets = false;
               };
               ios-terminal.enable = true;
             };
