@@ -39,6 +39,8 @@ jobs:
       - name: Install pre-commit
         run: pipx install pre-commit
       - name: Run all checks via Makefile
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: make check
   build-darwin:
     name: 'Darwin: ${{ matrix.host }}'
