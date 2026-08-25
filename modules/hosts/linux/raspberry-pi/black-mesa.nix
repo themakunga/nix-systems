@@ -3,11 +3,7 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: black-mesa.nix
-# Path: ./modules/hosts/linux/raspberry-pi/black-mesa.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
+# NixOS host: black-mesa — Raspberry Pi Zero 2W running Pi-hole and KVM.
 {
   self,
   inputs,

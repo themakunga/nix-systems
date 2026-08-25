@@ -3,11 +3,7 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: valve.nix
-# Path: ./modules/hosts/linux/raspberry-pi/valve.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
+# NixOS host: valve — Raspberry Pi 5 general-purpose server.
 {
   self,
   inputs,

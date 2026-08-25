@@ -3,6 +3,5 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# Stub reservado. El bundle darwin.base vive en
-# modules/bundles/darwin.nix (flake.bundle.darwin.base).
+# Reserved stub. The darwin base bundle is defined in modules/bundles/darwin.nix.
 _: {}

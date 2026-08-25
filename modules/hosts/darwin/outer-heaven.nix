@@ -3,11 +3,7 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: outer-heaven.nix
-# Path: ./modules/hosts/darwin/outer-heaven.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
+# Darwin host: outer-heaven — work MacBook Pro (Apple Silicon).
 {
   self,
   inputs,
@@ -48,7 +44,7 @@ in {
         ({pkgs, ...}: {
           my = {
             dotfiles.enable = true;
-            linux-builder.enable = true; # <--- AÑ
+            linux-builder.enable = true;
             devices = {
               audio.enable = true;
               logitech.enable = true;
@@ -218,7 +214,7 @@ in {
                 enableTuist = true;
                 enableFastlane = true;
                 useDotfiles = true;
-                useSecrets = false; # Fundamental
+                useSecrets = false;
               };
             };
 

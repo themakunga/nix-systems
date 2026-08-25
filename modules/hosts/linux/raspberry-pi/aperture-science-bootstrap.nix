@@ -3,11 +3,8 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# =========================================================
-# Archivo de Configuración de NixOS / Home Manager
-# Repositorio: TheMakunga Infrastructure
-# Host: aperture-bootstrap (Imagen SD efímera para instalación)
-# =========================================================
+# NixOS host: aperture-bootstrap — ephemeral SD image for Raspberry Pi 5.
+# Boot once from this image to provision aperture-science via nixos-anywhere.
 {
   self,
   inputs,

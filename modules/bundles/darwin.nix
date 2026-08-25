@@ -3,27 +3,10 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: darwin.nix
-# Path: ./modules/bundles/darwin.nix
-# Description: Bundle specs compartidos para hosts Darwin.
-#              Usar con self.lib.extendBundle en archivos de host.
-#
-#   let
-#     mkBundle     = self.lib.mkBundle inputs.nixpkgs.lib self;
-#     extendBundle = self.lib.extendBundle;
-#     bundles      = self.bundle;
-#   in mkBundle (extendBundle bundles.darwin.base {
-#     commonModules = [ "cloud-profiles" ];
-#     userModules   = [ "work" "glados" ];
-#   })
-# =====================
+# Darwin base bundle: common modules shared by all macOS workstations.
+# Extend with extendBundle in each host file — never edit entries here per-host.
 _: {
   flake.bundle.darwin = {
-    # -------------------------------------------------------
-    # base: módulos comunes a TODOS los hosts Darwin.
-    # Extender con extendBundle, nunca editar por host.
-    # -------------------------------------------------------
     base = {
       commonModules = [
         "dotfiles"

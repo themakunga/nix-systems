@@ -3,6 +3,5 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# Stub reservado para un futuro bundle darwin.workstation.
-# Por ahora usar extendBundle bundles.darwin.base directamente en el host.
+# Reserved stub for a future darwin.workstation bundle.
 _: {}

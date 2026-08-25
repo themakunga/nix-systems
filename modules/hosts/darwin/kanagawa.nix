@@ -3,11 +3,7 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: kanagawa.nix
-# Path: ./modules/hosts/darwin/kanagawa.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
+# Darwin host: kanagawa — personal MacBook Pro (Apple Silicon).
 {
   self,
   inputs,
@@ -207,7 +203,7 @@ in {
                 enableTuist = true;
                 enableFastlane = true;
                 useDotfiles = true;
-                useSecrets = false; # Fundamental
+                useSecrets = false;
               };
               ios-terminal.enable = true;
             };

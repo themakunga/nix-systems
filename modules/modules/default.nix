@@ -3,11 +3,8 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: default.nix
-# Path: ./modules/modules/default.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
+# Declares all custom flake output namespaces used across the module tree.
+# flake-parts merges these options from every module that contributes values.
 {lib, ...}: let
   inherit (lib) mkOption types;
   inherit (types) attrsOf raw;
@@ -15,59 +12,67 @@ in {
   options = {
     flake = {
       applicationModules = mkOption {
-        description = "custom apps config";
+        description = "Application configuration modules";
         type = attrsOf raw;
         default = {};
       };
 
       bundle = mkOption {
-        description = "Bundle packages";
+        description = "Named module bundle specs (resolved by mkBundle)";
         type = attrsOf raw;
         default = {};
       };
+
       commonModules = mkOption {
-        description = "Shared Modules accross differents systems";
+        description = "Modules shared across NixOS and Darwin hosts";
         type = attrsOf raw;
         default = {};
       };
+
       darwinModules = mkOption {
-        description = "Darwin Modules to use with Apple Sillicon products";
+        description = "macOS-specific modules (nix-darwin)";
         type = attrsOf raw;
         default = {};
       };
+
       darwinConfigurations = mkOption {
-        description = "Darwin main configurations";
+        description = "Darwin host configurations";
         type = attrsOf raw;
         default = {};
       };
+
       rpiModules = mkOption {
-        description = "Nixos aarch64-linux focused modules, to use exclusivelly
-          with raspberry pi";
+        description = "aarch64-linux modules for Raspberry Pi hosts";
         type = attrsOf raw;
         default = {};
       };
+
       deviceModules = mkOption {
-        description = "devices Modules";
+        description = "Peripheral and device configuration modules";
         type = attrsOf raw;
         default = {};
       };
+
       profileModules = mkOption {
-        description = "Profile Management";
+        description = "User profile and environment modules";
         type = attrsOf raw;
         default = {};
       };
+
       userModules = mkOption {
-        description = "User creation Modules";
+        description = "User account creation modules";
         type = attrsOf raw;
         default = {};
       };
+
       lib = mkOption {
-        description = "lib helpers for flakes";
+        description = "Flake-level library helpers";
         type = attrsOf raw;
         default = {};
       };
+
       developmentModules = mkOption {
-        description = "Development tools and languages";
+        description = "Development language and toolchain modules";
         type = attrsOf raw;
         default = {};
       };

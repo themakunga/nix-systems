@@ -3,7 +3,7 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# Stub reservado. Los módulos SD concretos viven en:
-#   modules/modules/rpi/sd-image.nix      → U-Boot (Pi 3, Zero 2W)
-#   modules/modules/rpi/sd-image-rpi5.nix → EEPROM directo (Pi 5)
+# Reserved stub. SD image modules live in modules/modules/rpi/:
+#   sd-image.nix      - U-Boot boot for Pi 3 and Zero 2W
+#   sd-image-rpi5.nix - EEPROM direct boot for Pi 5
 _: {}

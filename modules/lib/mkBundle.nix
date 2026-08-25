@@ -3,6 +3,11 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
+# mkBundle: resolves a spec map of { category = [ "dot.path" ... ] } into a flat
+# list of NixOS/Darwin modules by looking up each path in self.<category>.
+#
+# extendBundle: merges a bundle spec with extra per-category lists. Categories
+# absent in extensions are inherited unchanged from base.
 {
   flake.lib.mkBundle = lib: self: specs:
     lib.flatten (
@@ -19,15 +24,6 @@
       specs
     );
 
-  # extendBundle: extiende un bundle base añadiendo módulos por categoría.
-  # Las listas se concatenan; las categorías ausentes en `extensions`
-  # se heredan intactas desde `base`.
-  #
-  # Uso:
-  #   extendBundle bundles.darwin.base {
-  #     commonModules = [ "cloud-profiles" ];
-  #     userModules   = [ "work" "glados" ];
-  #   }
   flake.lib.extendBundle = base: extensions:
     base
     // builtins.mapAttrs (

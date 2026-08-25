@@ -3,5 +3,5 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# Stub reservado para un futuro bundle nixos.base.
+# Reserved stub for a future nixos.base bundle.
 _: {}

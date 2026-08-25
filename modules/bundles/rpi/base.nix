@@ -3,18 +3,11 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: base.nix
-# Path: ./modules/bundles/rpi/base.nix
-# Description: Bundle specs compartidos para hosts Raspberry Pi.
-#              Usar con self.lib.extendBundle en archivos de host.
-# =====================
+# Raspberry Pi bundle specs. Extend base with extendBundle in host files.
+#   rpi.base          - minimal modules shared by all RPi hosts
+#   rpi.bootstrap-rpi5 - ephemeral SD image for first-time Pi 5 provisioning
 _: {
   flake.bundle.rpi = {
-    # -------------------------------------------------------
-    # base: módulos mínimos comunes a TODOS los hosts RPi.
-    # Extender con extendBundle añadiendo hardware y perfil SD.
-    # -------------------------------------------------------
     base = {
       commonModules = [
         "arch.nixos.rpi"
@@ -24,11 +17,6 @@ _: {
       rpiModules = ["common"];
     };
 
-    # -------------------------------------------------------
-    # bootstrap-rpi5: imagen SD efímera para instalación
-    # inicial en Raspberry Pi 5. Uso único, no para installs
-    # permanentes.
-    # -------------------------------------------------------
     bootstrap-rpi5 = {
       commonModules = [
         "arch.nixos.rpi"

@@ -3,6 +3,7 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
+# Tiling window manager module for macOS using yabai (BSP layout) and skhd.
 {
   flake.darwinModules.tiling = {
     config,
@@ -13,7 +14,7 @@
     cfg = config.my.services.tiling;
   in {
     options.my.services.tiling = {
-      enable = mkEnableOption "Tiling Windows manager";
+      enable = mkEnableOption "Tiling window manager";
     };
 
     config = mkIf cfg.enable {
@@ -47,23 +48,21 @@
         skhd = {
           enable = true;
           skhdConfig = ''
-             alt - h : yagai -m --focus west
-             alt - j : yagai -m --focus south
-             all - k : yagai -m --focus north
-             alt - l : yagai -m --focus east
+            alt - h : yagai -m --focus west
+            alt - j : yagai -m --focus south
+            all - k : yagai -m --focus north
+            alt - l : yagai -m --focus east
 
-             shift + alt - h : yagai -m window --warp west
-             shift + alt - j : yagai -m window --warp south
-             shift + alt - k : yagai -m window --warp north
-             shift + alt - l : yagai -m window --warp east
+            shift + alt - h : yagai -m window --warp west
+            shift + alt - j : yagai -m window --warp south
+            shift + alt - k : yagai -m window --warp north
+            shift + alt - l : yagai -m window --warp east
 
-             # 4. Mover ventana al monitor 1 o 2 (Shift + Alt + 1 / 2)
             shift + alt - 1 : yabai -m window --display 1; yabai -m display --focus 1
-             shift + alt - 2 : yabai -m window --display 2; yabai -m display --focus 2
+            shift + alt - 2 : yabai -m window --display 2; yabai -m display --focus 2
 
-             # 5. Balancear tamaños y flotar
-             shift + alt - 0 : yabai -m space --balance
-             shift + alt - space : yabai -m window --toggle float
+            shift + alt - 0 : yabai -m space --balance
+            shift + alt - space : yabai -m window --toggle float
           '';
         };
       };
