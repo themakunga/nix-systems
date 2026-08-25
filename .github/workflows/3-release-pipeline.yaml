@@ -12,8 +12,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - name: Decode SSH Key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/raw_ssh_key
+          EOF_DELIMITER=$(openssl rand -hex 8)
+          {
+            echo "DECODED_KEY<<$EOF_DELIMITER"
+            cat /tmp/raw_ssh_key
+            echo ""
+            echo "$EOF_DELIMITER"
+          } >> "$GITHUB_ENV"
+          rm /tmp/raw_ssh_key
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ env.DECODED_KEY }}
       - name: Install Nix
         uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - uses: cachix/cachix-action@v17
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_TOKEN }}
       - name: Install pre-commit
         run: pipx install pre-commit
       - name: Run all checks via Makefile
