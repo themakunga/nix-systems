@@ -26,7 +26,8 @@ jobs:
       - uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ env.DECODED_KEY }}
-      - uses: cachix/install-nix-action@v31
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
         with:
           github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
           extra_nix_config: |

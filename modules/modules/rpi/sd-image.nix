@@ -3,11 +3,9 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: sd-image.nix
-# Path: ./modules/modules/rpi/sd-image.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
+# SD image configuration for Raspberry Pi 3 and Zero 2W.
+# Uses U-Boot via generic-extlinux-compatible. Wraps sd-image-aarch64.nix
+# with a minimal initrd kernel module set and an ext4 root filesystem.
 {inputs, ...}: let
   inherit (inputs) nixpkgs;
 in {
@@ -39,7 +37,7 @@ in {
       enableRedistributableFirmware = true;
     };
 
-    fileSystems."." = {
+    fileSystems."/" = {
       device = lib.mkForce "/dev/disk/by-label/NIXOS_SD";
       fsType = "ext4";
     };
