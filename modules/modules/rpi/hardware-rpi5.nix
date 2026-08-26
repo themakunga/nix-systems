@@ -18,6 +18,16 @@
       kernelParams = ["pcie_aspm=off"];
       initrd = {
         includeDefaultModules = false;
+        # mkForce necesario: nixos-hardware.raspberry-pi-5 y not-detected.nix añaden
+        # módulos que NO existen en el kernel RPi (ej: tpm-crb), lo que rompe
+        # makeModulesClosure con "Module not found". Controlamos la lista exacta aquí.
+        #
+        # clk-rp1, rp1/rp1_pci, nvme, pcie_brcmstb, reset-raspberrypi son BUILTIN
+        # en el kernel RPi 6.x — no necesitan estar en availableKernelModules.
+        # tpm-crb NO existe en el kernel RPi → excluido explícitamente con mkForce.
+        #
+        # sd-image-rpi5.nix tiene su propio mkForce (misma prioridad 50) que agrega
+        # mmc_block para boot desde SD; ambas listas se concatenan sin conflicto.
         availableKernelModules = lib.mkForce [
           "usbhid"
           "usb_storage"

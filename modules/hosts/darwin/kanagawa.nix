@@ -56,25 +56,36 @@ in {
             };
             weather = {
               enable = true;
-              location = "Penalolen, Chile";
+              location = "Quebrada de macul, Chile";
               units = "c";
               forecast = ["d" "w"];
             };
-            # cloudProfiles = {
-            #   aws = [
-            #   ];
-            #   gcp = [
-            #     # "personal"
-            #     # "latam"
-            #   ];
-            # };
-
             hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
             primaryUser = {
               enable = true;
               username = "nicolas";
             };
             keyboard.enable = true;
+            packages = with pkgs; [
+              stow
+              btop
+              ctop
+              pre-commit
+            ];
+
+            casks = [
+              "iterm2"
+              "wezterm"
+              "zen"
+              "ghostty"
+            ];
+
+            masApps = {
+              "Amphetamine" = 937984704;
+              "Magnet" = 441258766;
+              "Xcode" = 497799835;
+            };
+
             apps = {
               tailscale-core.enable = true;
               tailscale-gui.enable = true;
@@ -86,31 +97,6 @@ in {
               halloy.enable = true;
               irssi.enable = true;
               nchat.enable = true;
-
-              kanagawa = {
-                enable = true;
-                level = "system";
-
-                packages = with pkgs; [
-                  stow
-                  btop
-                  ctop
-                  pre-commit
-                ];
-
-                casks = [
-                  "iterm2"
-                  "wezterm"
-                  "zen"
-                  "ghostty"
-                ];
-
-                masApps = {
-                  "Amphetamine" = 937984704;
-                  "Magnet" = 441258766;
-                  "Xcode" = 497799835;
-                };
-              };
             };
 
             development = {
@@ -129,28 +115,20 @@ in {
                 enable = true;
                 enableSSM = true;
                 enableLocalStack = true;
-                useDotfiles = true;
-                useSecrets = false;
               };
               gcp = {
                 enable = true;
                 enableGkePlugin = true;
-                useDotfiles = false;
-                useSecrets = false;
               };
               iac = {
                 enable = true;
                 enableOpenTofu = true;
                 enableTerraform = false;
                 enablePulumi = true;
-                useDotfiles = true;
-                useSecrets = false;
               };
               argocd = {
                 enable = true;
                 enableAutopilot = true;
-                useDotfiles = true;
-                useSecrets = false;
               };
               nodejs = {
                 enable = true;
@@ -158,52 +136,32 @@ in {
                 packageManager = "pnpm";
                 enableBun = true;
                 enableGlobals = true;
-                useDotfiles = true;
-                useSecrets = false;
               };
               python = {
                 enable = true;
                 package = pkgs.python3;
                 enablePoetry = true;
-                useDotfiles = true;
-                useSecrets = false;
               };
-              golang = {
-                enable = true;
-                useDotfiles = true;
-                useSecrets = false;
-              };
-              rust = {
-                enable = true;
-                useDotfiles = true;
-                useSecrets = false;
-              };
+              golang.enable = true;
+              rust.enable = true;
               java = {
                 enable = true;
                 jdk = pkgs.jdk21;
                 enableMaven = true;
                 enableGradle = true;
-                useDotfiles = true;
-                useSecrets = false;
               };
               ruby = {
                 enable = true;
                 package = pkgs.ruby;
-                useDotfiles = true;
-                useSecrets = false;
               };
               groovy = {
                 enable = true;
                 enableGradle = true;
-                useDotfiles = true;
-                useSecrets = false;
               };
               swift = {
                 enable = true;
                 enableTuist = true;
                 enableFastlane = true;
-                useDotfiles = true;
-                useSecrets = false;
               };
               ios-terminal.enable = true;
             };
