@@ -1,7 +1,0 @@
-# Statix linter configuration
-# https://github.com/nerdypepper/statix
-
-[checks]
-# Disabled: false positives on interpolated attribute paths
-# e.g. `foo = bar."${baz}/path".attr` cannot use `inherit (bar.X) foo`
-manual_inherit_from = false
