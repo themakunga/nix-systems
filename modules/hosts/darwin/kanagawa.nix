@@ -91,6 +91,7 @@ in {
               "zen"
               "ghostty"
               "reminders-menubar"
+              "ferdium"
             ];
 
             masApps = {

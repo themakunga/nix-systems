@@ -107,6 +107,7 @@ in {
               "miniconda"
               "halloy"
               "reminders-menubar"
+              "ferdium"
             ];
 
             masApps = {
