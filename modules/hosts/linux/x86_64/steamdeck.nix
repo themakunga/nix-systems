@@ -47,6 +47,7 @@ in {
         nixosModules = [
           "base-machine"
           "keyboard"
+          "static-ip"
         ];
         userModules = [
           "deck"
@@ -65,6 +66,16 @@ in {
             dotfiles.enable = true;
             hostSecrets.file = "${secrets.outPath}/hosts/steamdeck.yaml";
             keyboard.enable = true;
+
+            # IP estática — x86 192.168.1.3x
+            # SteamDeck: verificar con ip link show (WiFi: wlan0, USB-C Ethernet: enp4s0)
+            network.staticIP = {
+              enable = true;
+              address = "192.168.1.32";
+              gateway = "192.168.1.1";
+              interface = "enp4s0";
+            };
+
             base-machine = {
               enable = true;
               bootMode = "uefi";
