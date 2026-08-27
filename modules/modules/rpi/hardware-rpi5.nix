@@ -15,7 +15,9 @@
     ];
 
     boot = {
-      kernelParams = ["pcie_aspm=off"];
+      # rootwait: espera a que el PCIe/NVMe termine de inicializar antes de
+      # intentar montar root. Sin esto hay race condition → unknown-block(0,0).
+      kernelParams = ["pcie_aspm=off" "rootwait"];
       initrd = {
         includeDefaultModules = false;
         # mkForce necesario: nixos-hardware.raspberry-pi-5 y not-detected.nix añaden
