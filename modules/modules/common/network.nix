@@ -99,6 +99,18 @@
           default = ["1.1.1.1" "9.9.9.9"];
           description = "Servidores DNS";
         };
+
+        extraInterfaces = mkOption {
+          type = types.listOf types.str;
+          default = [];
+          description = ''
+            Darwin: interfaces adicionales donde aplicar la misma IP.
+            Útil cuando el equipo se conecta tanto por Ethernet como por Wi-Fi.
+            Detectar: networksetup -listallnetworkservices
+            Ejemplo: [ "Wi-Fi" ] (si interface = "Ethernet")
+          '';
+          example = ["Wi-Fi"];
+        };
       };
     };
 
@@ -114,15 +126,24 @@
       }
 
       # ── IP estática Darwin — networksetup (activation script) ─────────────
-      # La máscara se calcula en Nix (prefixToMask), no en shell.
+      # Se aplica a interface + extraInterfaces. La máscara y los comandos se
+      # generan en Nix en tiempo de evaluación; no requiere loops en shell.
       # NixOS: implementado en nixosModules.static-ip (networking.interfaces).
       (mkIf (cfg.enable && isDarwin) {
-        system.activationScripts.staticNetwork.text = ''
-          echo "=> IP estática [${cfg.interface}]: ${cfg.address}/${toString cfg.prefixLength} gw ${cfg.gateway}"
-          /usr/sbin/networksetup -setmanual "${cfg.interface}" \
-            "${cfg.address}" "${prefixToMask cfg.prefixLength}" "${cfg.gateway}" 2>&1 || true
-          /usr/sbin/networksetup -setdnsservers "${cfg.interface}" \
-            ${lib.concatStringsSep " " cfg.dns} 2>&1 || true
+        system.activationScripts.staticNetwork.text = let
+          mask = prefixToMask cfg.prefixLength;
+          dnsStr = lib.concatStringsSep " " cfg.dns;
+          allIfaces = [cfg.interface] ++ cfg.extraInterfaces;
+          applyIface = iface: ''
+            echo "  → ${iface}"
+            /usr/sbin/networksetup -setmanual "${iface}" \
+              "${cfg.address}" "${mask}" "${cfg.gateway}" 2>&1 || true
+            /usr/sbin/networksetup -setdnsservers "${iface}" \
+              ${dnsStr} 2>&1 || true
+          '';
+        in ''
+          echo "=> IP estática: ${cfg.address}/${toString cfg.prefixLength} gw ${cfg.gateway}"
+          ${lib.concatMapStrings applyIface allIfaces}
         '';
       })
     ];

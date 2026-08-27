@@ -54,6 +54,7 @@ in {
               address = "192.168.1.10";
               gateway = "192.168.1.1";
               interface = "Ethernet";
+              extraInterfaces = ["Wi-Fi"]; # aplica en ambas conexiones
             };
 
             devices = {
