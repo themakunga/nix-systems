@@ -6,7 +6,7 @@
 TARGET_IP ?= 192.168.1.100
 HOST ?= aperture-science
 
-.PHONY: all test help install-nix bootstrap-darwin switch-outer-heaven switch-kanagawa switch-motherbase switch-msf switch-steamdeck deploy-aperture switch-aperture deploy-black-mesa switch-black-mesa deploy-valve switch-valve deploy-motherbase build-host build-vm build-sd build-bootstrap check fmt sops-common sops-host update clean shell
+.PHONY: all test help install-nix bootstrap-darwin switch-outer-heaven switch-kanagawa switch-motherbase switch-msf switch-steamdeck deploy-aperture switch-aperture deploy-black-mesa switch-black-mesa deploy-valve switch-valve deploy-motherbase build-host build-vm build-sd build-bootstrap build-installer-x86 deploy-x86 check fmt sops-common sops-host update clean shell
 
 all: ## Objetivo por defecto requerido por checkmake
 	@echo "No default 'all' target configured. Please specify a target like 'switch-outer-heaven'."
@@ -85,6 +85,17 @@ switch-aperture: ## [UPDATE] Actualiza aperture-science en ejecución vía nixos
 	  --flake .#aperture-science \
 	  --target-host root@$(TARGET_IP) \
 	  --build-host root@$(TARGET_IP)
+
+build-installer-x86: ## Genera ISO de instalación x86_64 con llaves SSH pre-cargadas. Flashear a USB para bare metal. Uso: make build-installer-x86
+	@echo "=> Generando ISO de instalación x86_64..."
+	git add -A
+	nix build .#nixosConfigurations.linux-bootstrap.config.system.build.isoImage
+	@echo "=> ISO en ./result/iso/ — flashear con: sudo dd if=\$$(ls result/iso/*.iso) of=/dev/sdX bs=4M status=progress"
+
+deploy-x86: ## [SMART] Detecta SO y despliega x86_64. NixOS→nixos-rebuild, Linux→nixos-anywhere+kexec. Uso: make deploy-x86 HOST=motherbase TARGET_IP=x.x.x.x
+	@echo "=> Deploy inteligente de $(HOST) en $(TARGET_IP)..."
+	@chmod +x scripts/deploy-linux.sh
+	@./scripts/deploy-linux.sh $(HOST) $(TARGET_IP)
 
 build-bootstrap: ## Genera la imagen SD de instalación inicial (aperture-bootstrap)
 	@echo "=> Generando imagen de Bootstrap para Raspberry Pi 5..."
