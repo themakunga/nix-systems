@@ -48,7 +48,6 @@ in {
         nixosModules = [
           "base-machine"
           "nix-anywhere" # Fundamental para inyectar llaves SSH durante el despliegue
-          "static-ip"
           "terminal-kiosk"
           "wifi"
         ];
@@ -92,14 +91,6 @@ in {
               };
 
               apps.tailscale-core.enable = true;
-
-              # IP estática — RPi 192.168.1.2x
-              network.staticIP = {
-                enable = true;
-                address = "192.168.1.20";
-                gateway = "192.168.1.1";
-                interface = "end0"; # ip link show
-              };
 
               # Kiosk Wayland: GLaDOS abre foot+zellij a pantalla completa al arrancar
               terminal-kiosk = {

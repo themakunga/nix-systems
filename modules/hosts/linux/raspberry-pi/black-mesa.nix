@@ -46,7 +46,6 @@ in {
         nixosModules = [
           "keyboard"
           "base-machine"
-          "static-ip"
           "wifi"
         ];
         rpiModules = [
@@ -80,16 +79,6 @@ in {
           my = {
             dotfiles.enable = true;
             hostSecrets.file = "${secrets.outPath}/hosts/black-mesa.yaml";
-
-            # IP estática — RPi 192.168.1.2x
-            # RPi Zero 2W no tiene Ethernet — usa wlan0 (WiFi)
-            # Verificar: ip link show
-            network.staticIP = {
-              enable = true;
-              address = "192.168.1.21";
-              gateway = "192.168.1.1";
-              interface = "wlan0";
-            };
 
             pihole.enable = true;
             tofu-dns.enable = true;

@@ -47,7 +47,6 @@ in {
         nixosModules = [
           "base-machine"
           "keyboard"
-          "static-ip"
         ];
         userModules = [
           "media"
@@ -65,15 +64,6 @@ in {
             dotfiles.enable = true;
             hostSecrets.file = "${secrets.outPath}/hosts/msf.yaml";
             keyboard.enable = true;
-
-            # IP estática — x86 192.168.1.3x
-            # Verificar interfaz: ip link show (común: enp3s0, eno1, enp4s0)
-            network.staticIP = {
-              enable = true;
-              address = "192.168.1.31";
-              gateway = "192.168.1.1";
-              interface = "enp3s0";
-            };
 
             base-machine = {
               enable = true;

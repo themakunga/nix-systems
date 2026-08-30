@@ -46,17 +46,6 @@ in {
             dotfiles.enable = true;
             linux-builder.enable = true;
 
-            # IP estática — Darwin 192.168.1.1x
-            # Verificar servicio: networksetup -listallnetworkservices
-            # Opciones comunes: "Ethernet", "Wi-Fi", "Thunderbolt Ethernet", "USB 10/100/1000 LAN"
-            network.staticIP = {
-              enable = true;
-              address = "192.168.1.10";
-              gateway = "192.168.1.1";
-              interface = "Ethernet";
-              extraInterfaces = ["Wi-Fi"]; # aplica en ambas conexiones
-            };
-
             devices = {
               audio.enable = true;
               logitech.enable = true;
@@ -96,6 +85,7 @@ in {
               unstable.nchat
               jdk25
               unstable.cliamp
+              argo-workflows
             ];
 
             casks = [

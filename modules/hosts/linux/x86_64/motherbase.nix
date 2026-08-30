@@ -30,6 +30,7 @@ in {
     modules =
       [
         sops-nix.nixosModules.sops
+        inputs.disko.nixosModules.disko
       ]
       ++ (mkBundle {
         commonModules = [
@@ -47,7 +48,8 @@ in {
         nixosModules = [
           "base-machine"
           "keyboard"
-          "static-ip"
+          "disko-x86"
+          "nix-anywhere"
         ];
         userModules = [
           "nicolas-server"
@@ -61,46 +63,46 @@ in {
           "container-stack"
           "samba-share"
           "traefik"
-          "cloudflare-tunnel"
         ];
       })
       ++ [
         {
-          my = {
-            dotfiles.enable = true;
-            hostSecrets.file = "${secrets.outPath}/hosts/motherbase.yaml";
-            keyboard.enable = true;
+          # Declaramos primaryUser localmente para satisfacer al módulo nix-anywhere
+          options.my.primaryUser.username = nixpkgs.lib.mkOption {
+            type = nixpkgs.lib.types.str;
+            default = "nicolas";
+          };
 
-            # IP estática — x86 192.168.1.3x
-            # Verificar interfaz: ip link show (común: enp3s0, eno1, enp4s0)
-            network.staticIP = {
-              enable = true;
-              address = "192.168.1.30";
-              gateway = "192.168.1.1";
-              interface = "enp3s0";
-            };
+          config = {
+            my = {
+              primaryUser.username = "nicolas";
+              nix-anywhere.enable = true;
 
-            base-machine = {
-              enable = true;
-              bootMode = "uefi";
-              rootDevice = "/dev/nvme0u1p2";
-            };
-            apps = {
-              tailscale-core.enable = true;
-              cloudflare-tunnel.enable = true;
-              podman.enable = true;
-              container-stack.enable = true;
-              traefik.enable = true;
-              samba-share.enable = true; # <--- AÑADIDO AQUÍ
-            };
-            services = {
-              container-stack.portainer.enable = true;
-              samba-share = {
-                user = "admin";
+              dotfiles.enable = true;
+              hostSecrets.file = "${secrets.outPath}/hosts/motherbase.yaml";
+              keyboard.enable = true;
+
+              base-machine = {
+                enable = true;
+                bootMode = "uefi";
+                rootDevice = "/dev/sda3"; # fallback, disko gestiona el mount
               };
-              traefik = {
-                acmeEmail = "tu_correo@ejemplo.com";
-                useCloudflare = true;
+              apps = {
+                tailscale-core.enable = true;
+                podman.enable = true;
+                container-stack.enable = true;
+                traefik.enable = true;
+                samba-share.enable = true;
+              };
+              services = {
+                container-stack.portainer.enable = true;
+                samba-share = {
+                  user = "admin";
+                };
+                traefik = {
+                  acmeEmail = "tu_correo@ejemplo.com";
+                  useCloudflare = true;
+                };
               };
             };
           };

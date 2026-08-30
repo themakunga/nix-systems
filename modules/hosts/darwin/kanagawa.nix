@@ -44,17 +44,6 @@ in {
           my = {
             dotfiles.enable = true;
 
-            # IP estática — Darwin 192.168.1.1x
-            # Verificar servicio: networksetup -listallnetworkservices
-            # Opciones comunes: "Wi-Fi", "Ethernet", "USB 10/100/1000 LAN"
-            network.staticIP = {
-              enable = true;
-              address = "192.168.1.11";
-              gateway = "192.168.1.1";
-              interface = "Wi-Fi";
-              extraInterfaces = ["Ethernet"]; # aplica en ambas conexiones
-            };
-
             devices = {
               audio.enable = true;
               logitech.enable = true;

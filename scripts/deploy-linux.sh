@@ -124,6 +124,7 @@ else
   git add -A
 
   nix run github:nix-community/nixos-anywhere -- \
+    --copy-host-keys \
     --flake "${FLAKE_ATTR}" \
     "root@${TARGET_IP}"
 fi

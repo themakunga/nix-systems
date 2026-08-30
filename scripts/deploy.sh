@@ -36,8 +36,11 @@ git add "$TEMPLATE_DIR/hardware-configuration.nix"
 echo "==> 4. Ejecutando nixos-anywhere hacia $TARGET_IP..."
 # --phases disko,install,reboot: salta la fase kexec.
 # kexec no funciona en RPi5; el bootstrap ya corre NixOS así que no es necesario.
+# --copy-host-keys: copia las claves SSH del bootstrap al sistema instalado,
+# preservando la age key derivada de ssh_host_ed25519_key para SOPS.
 nix run github:nix-community/nixos-anywhere -- \
   --phases disko,install,reboot \
+  --copy-host-keys \
   --flake "$FLAKE_ATTR" \
   "root@$TARGET_IP"
 

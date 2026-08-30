@@ -35,7 +35,6 @@ in {
           "network"
         ];
         nixosModules = [
-          "static-ip"
         ];
         rpiModules = [
           "common"
@@ -53,14 +52,6 @@ in {
             authorizedKeys = {
               enable = true;
               assignTo = ["root"];
-            };
-
-            # IP estática — RPi 192.168.1.2x
-            network.staticIP = {
-              enable = true;
-              address = "192.168.1.22";
-              gateway = "192.168.1.1";
-              interface = "end0"; # ip link show
             };
           };
 
