@@ -46,11 +46,10 @@
 
       users.users.root.openssh.authorizedKeys.keys = allKeys;
 
-      users.users.${targetUser} = {
-        isNormalUser = true;
-        extraGroups = ["wheel" "networkmanager"];
-        openssh.authorizedKeys.keys = allKeys;
-      };
+      # Solo inyectar las SSH keys — no redefinir isNormalUser ni
+      # extraGroups, ya que el usuario puede estar definido por
+      # un userProfile con configuración distinta (e.g., servidor).
+      users.users.${targetUser}.openssh.authorizedKeys.keys = allKeys;
     };
   };
 }
