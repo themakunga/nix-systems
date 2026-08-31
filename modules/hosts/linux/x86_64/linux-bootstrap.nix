@@ -14,9 +14,9 @@
   inherit (inputs) nixpkgs;
   mkBundle = self.lib.mkBundle inputs.nixpkgs.lib self;
 
-  # Lee TODAS las llaves públicas del repo de secretos — cualquier equipo
-  # autorizado puede conectarse al installer sin configuración adicional.
-  pubKeys = builtins.fromJSON (builtins.readFile "${inputs.secrets}/public_keys.json");
+  # Lee TODAS las llaves públicas desde este mismo repo (nix-systems).
+  # public_keys.json vive aquí porque son claves públicas (no secretos).
+  pubKeys = builtins.fromJSON (builtins.readFile "${self}/public_keys.json");
   allKeys = builtins.map (k: k.public_key) (builtins.attrValues pubKeys.ssh);
 in {
   flake.nixosConfigurations.linux-bootstrap = nixpkgs.lib.nixosSystem {
