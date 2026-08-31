@@ -38,8 +38,8 @@ in {
         ];
       })
       ++ [
-        (_: {
-          networking.hostName = "nixos-installer";
+        ({lib, ...}: {
+          networking.hostName = lib.mkForce "nixos-installer";
 
           # SSH habilitado, acceso root sin contraseña (solo llaves)
           services.openssh = {
