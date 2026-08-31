@@ -11,7 +11,6 @@
 {
   self,
   inputs,
-  lib,
   ...
 }: let
   inherit
@@ -49,6 +48,7 @@ in {
         nixosModules = [
           "base-machine"
           "nix-anywhere" # Fundamental para inyectar llaves SSH durante el despliegue
+          "terminal-kiosk"
           "wifi"
         ];
         rpiModules = [
@@ -65,43 +65,76 @@ in {
         ];
       })
       ++ [
-        {
+        ({
+          pkgs,
+          lib,
+          ...
+        }: {
           # Declaramos primaryUser localmente para satisfacer al módulo nix-anywhere
           options.my.primaryUser.username = lib.mkOption {
             type = lib.types.str;
             default = "admin";
           };
 
-          config.my = {
-            # Establece al usuario "admin" como el objetivo para inyectar tus llaves SSH
-            primaryUser.username = "admin";
+          config = {
+            my = {
+              primaryUser.username = "admin";
 
-            nix-anywhere.enable = true;
+              nix-anywhere.enable = true;
 
-            # Si ya configuraste sops para este host, descomenta la siguiente línea:
-            # hostSecrets.file = "${secrets.outPath}/hosts/aperture-science.yaml";
+              # Si ya configuraste sops para este host, descomenta la siguiente línea:
+              # hostSecrets.file = "${secrets.outPath}/hosts/aperture-science.yaml";
 
-            base-machine = {
-              enable = true;
-              bootMode = "rpi";
+              base-machine = {
+                enable = true;
+                bootMode = "rpi";
+              };
+
+              apps.tailscale-core.enable = true;
+
+              # Kiosk Wayland: GLaDOS abre foot+zellij a pantalla completa al arrancar
+              terminal-kiosk = {
+                enable = true;
+                user = "glados";
+                multiplexer = "zellij";
+              };
+
+              # Usuario administrador
+              userProfiles.admin = {
+                username = "admin";
+                fullName = "Aperture Admin";
+                description = "System Administrator";
+                isSystem = false;
+                isAdmin = true;
+                isNetworkManager = true;
+                extraGroups = ["docker"];
+              };
+
+              # SSH keys declaradas directamente — independiente de public_keys.json
+              authorizedKeys = {
+                enable = true;
+                assignTo = ["admin" "root"];
+                keys = [
+                  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHjzdPBqDPXdyApkurnNyFKUQFIw+4/jX68e4nZzvUu3 nmartinezv@icloud.com"
+                  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFfrS5Ps9OxiIKgMJo718RbJ7Lwaijwt3g0lEBb8mhCt nicolas@Nicolass-MacBook-Pro.local"
+                  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE2r+riw/cQSooaLGrva8+2r6MHfji8WFyntj5ftvTiR work@outer-heaven.local"
+                  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINxEzgi1BeML32LyZA4EkIfxJrd44QetW6k5iqibsXzJ admin@aperture-sciece.local"
+                ];
+              };
             };
 
-            apps = {
-              tailscale-core.enable = true;
+            # GLaDOS como usuario kiosk: el módulo glados la define como service account
+            # sin shell interactiva ni grupos gráficos — overrides necesarios para Wayland
+            users.users.glados = {
+              shell = lib.mkForce pkgs.bash;
+              extraGroups = lib.mkForce ["glados" "docker" "video" "input" "render" "audio"];
+              createHome = lib.mkForce true;
             };
 
-            # Creamos al usuario Administrador al vuelo
-            userProfiles.admin = {
-              username = "admin";
-              fullName = "Aperture Admin";
-              description = "System Administrator";
-              isSystem = false;
-              isAdmin = true; # Otorga permisos de sudo/wheel
-              isNetworkManager = true;
-              extraGroups = ["docker"];
-            };
+            # wheel sin contraseña — necesario para nixos-rebuild remoto
+            security.sudo.wheelNeedsPassword = false;
           };
-        }
+        })
       ];
   };
 }

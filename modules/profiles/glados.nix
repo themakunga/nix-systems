@@ -44,21 +44,9 @@
       "profiles/glados/gpg/key_id" = sopsConf;
     };
 
-    # Asignamos las herramientas de IA refactorizadas
-    my.apps.glados-tools = {
-      enable = true;
-      level =
-        if isDarwin
-        then "user"
-        else "system";
-      targetUser =
-        if isDarwin
-        then primaryUserName
-        else "glados";
-      packages = with pkgs; [
-        ollama
-      ];
-    };
+    my.packages = with pkgs; [
+      ollama
+    ];
 
     programs = {
       sops.gpg = {

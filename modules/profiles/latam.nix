@@ -23,17 +23,14 @@
       "profiles/latam/gpg/key_id" = sopsConf;
     };
 
-    my.apps = {
-      github-cli.enable = true;
-      gitlab-cli.enable = true;
-      latam-tools = {
-        enable = true;
-        level = "user";
-        targetUser = "nicolas";
-        casks = mkIf isDarwin [
-          "dbeaver-community"
-          "bruno"
-        ];
+    my = {
+      casks = mkIf isDarwin [
+        "dbeaver-community"
+        "bruno"
+      ];
+      apps = {
+        github-cli.enable = true;
+        gitlab-cli.enable = true;
       };
     };
 

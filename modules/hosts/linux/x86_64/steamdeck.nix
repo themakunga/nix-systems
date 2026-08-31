@@ -65,6 +65,7 @@ in {
             dotfiles.enable = true;
             hostSecrets.file = "${secrets.outPath}/hosts/steamdeck.yaml";
             keyboard.enable = true;
+
             base-machine = {
               enable = true;
               bootMode = "uefi";

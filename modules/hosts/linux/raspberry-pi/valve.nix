@@ -48,9 +48,11 @@ in {
 
           services.openssh.settings.PermitRootLogin = "yes";
 
-          my.authorizedKeys = {
-            enable = true;
-            assignTo = ["root"];
+          my = {
+            authorizedKeys = {
+              enable = true;
+              assignTo = ["root"];
+            };
           };
 
           systemd.services.NetworkManager-wait-online.enable = lib.mkForce false;

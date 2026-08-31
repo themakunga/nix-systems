@@ -12,9 +12,9 @@
   inherit (self.lib) mkAppModule;
 in {
   flake.applicationModules.halloy = mkAppModule "halloy" "Enable Halloy IRC client" {
-    meta = {pkgs, ...}: {
+    meta = {
       level = "system";
-      packages = [pkgs.halloy];
+      casks = ["halloy"];
     };
   };
 }

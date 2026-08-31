@@ -3,16 +3,13 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: disko-nvme.nix
-# Path: ./modules/modules/rpi/disko-nvme.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
+# Disko layout for x86_64 UEFI systems with a single SSD/HDD (/dev/sda).
+# Partitions: 512M EFI boot, 8G swap, rest for root (ext4).
 {
-  flake.rpiModules.disko-nvme = {
+  flake.nixosModules.disko-x86 = _: {
     disko.devices.disk.main = {
       type = "disk";
-      device = "/dev/nvme0n1";
+      device = "/dev/sda";
       content = {
         type = "gpt";
         partitions = {
@@ -23,12 +20,15 @@
             content = {
               type = "filesystem";
               format = "vfat";
-              # Label FIRMWARE: coincide con lo que nixos-hardware.raspberry-pi-5
-              # genera en /etc/fstab (/dev/disk/by-label/FIRMWARE → /boot/firmware).
-              # El bootloader extlinux usa /boot como mountpoint real.
-              extraArgs = ["-n" "FIRMWARE"];
               mountpoint = "/boot";
               mountOptions = ["defaults" "umask=0077"];
+            };
+          };
+          swap = {
+            name = "swap";
+            size = "8G";
+            content = {
+              type = "swap";
             };
           };
           root = {
@@ -37,10 +37,6 @@
             content = {
               type = "filesystem";
               format = "ext4";
-              # Label NIXOS_SD: coincide con lo que nixos-hardware.raspberry-pi-5
-              # genera en /etc/fstab (/dev/disk/by-label/NIXOS_SD → /).
-              # Sin este label el initramfs no encuentra la partición root.
-              extraArgs = ["-L" "NIXOS_SD"];
               mountpoint = "/";
               mountOptions = ["defaults"];
             };

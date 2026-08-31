@@ -79,6 +79,7 @@ in {
           my = {
             dotfiles.enable = true;
             hostSecrets.file = "${secrets.outPath}/hosts/black-mesa.yaml";
+
             pihole.enable = true;
             tofu-dns.enable = true;
             apps.tailscale-core.enable = true;

@@ -1,0 +1,37 @@
+{
+  "ssh": {
+    "personal": {
+      "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHjzdPBqDPXdyApkurnNyFKUQFIw+4/jX68e4nZzvUu3 nmartinezv@icloud.com"
+    },
+    "thoughtworks": {
+      "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMm3BD6jJF3hcTDC7z2vT/u0ws0udgtAm66sR+JqBcRt nicolas.villarroel@thoughtworks.com"
+    },
+    "latam": {
+      "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN6Q7+/in7WAkcqqhZarK84YK/wQpMUH1KwGLWji6cA9 nicolasvillarroel.thoughtworks@latam.com"
+    },
+    "glados": {
+      "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ8JgnJXxahLF74ZDnrIluQ7DrgeeobBMe50l7uETuSy glados@aperture-science.local"
+    },
+    "work": {
+      "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE2r+riw/cQSooaLGrva8+2r6MHfji8WFyntj5ftvTiR work@outer-heaven.local"
+    },
+    "admin": {
+      "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINxEzgi1BeML32LyZA4EkIfxJrd44QetW6k5iqibsXzJ admin@aperture-sciece.local"
+    },
+    "homelab": {
+      "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILaKcjRKBEk09u5sYAhcHmwfZ0USWSC3S6esCecfFVKx homelab@msf.local"
+    },
+    "mediaserver": {
+      "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINzk10Zof+bQ9Gc9/0uxhIWRdFpL/WqdhjAnS9FJZXEG media@msf.local"
+    },
+    "steamdeck": {
+      "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFKjJvgGhvncK/LuFeR5mdOouy1kWLriH0Lzte+eHuxS deck@steamdeck.local"
+    },
+    "motherbase": {
+      "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICzoLymddb7WIqst6D7E30RegQH2XlU0SNm3LYc2gXC3 admin@motherbase.local"
+    },
+    "macbook": {
+      "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFfrS5Ps9OxiIKgMJo718RbJ7Lwaijwt3g0lEBb8mhCt nicolas@Nicolass-MacBook-Pro.local"
+    }
+  }
+}

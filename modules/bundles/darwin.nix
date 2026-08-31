@@ -5,7 +5,7 @@
 # =========================================================
 # Darwin base bundle: common modules shared by all macOS workstations.
 # Extend with extendBundle in each host file — never edit entries here per-host.
-_: {
+{
   flake.bundle.darwin = {
     base = {
       commonModules = [
@@ -19,6 +19,7 @@ _: {
         "home-secrets"
         "git-identity"
         "sops-gpg"
+        "workspace-identity"
         "devenv"
         "wallpaper"
         "weather"

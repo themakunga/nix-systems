@@ -6,7 +6,7 @@
 TARGET_IP ?= 192.168.1.100
 HOST ?= aperture-science
 
-.PHONY: all test help install-nix bootstrap-darwin switch-outer-heaven switch-kanagawa switch-motherbase switch-msf switch-steamdeck deploy-aperture deploy-black-mesa deploy-valve deploy-motherbase build-host build-vm build-sd build-bootstrap check fmt sops-common sops-host update clean shell
+.PHONY: all test help install-nix bootstrap-darwin switch-outer-heaven switch-kanagawa switch-motherbase switch-msf switch-steamdeck deploy-aperture switch-aperture deploy-black-mesa switch-black-mesa deploy-valve switch-valve deploy-motherbase build-host build-vm build-sd build-bootstrap build-installer-x86 deploy-x86 check fmt sops-common sops-host update clean shell
 
 all: ## Objetivo por defecto requerido por checkmake
 	@echo "No default 'all' target configured. Please specify a target like 'switch-outer-heaven'."
@@ -68,26 +68,65 @@ switch-steamdeck: ## Aplica la configuración en steamdeck
 # =========================================================
 # 🍓 DESPLIEGUES REMOTOS (RASPBERRY PI - AARCH64)
 # =========================================================
+# deploy-*  → Instalación inicial desde imagen bootstrap (nixos-anywhere + disko)
+#             Requiere que el Pi esté corriendo el bootstrap SD, NO el sistema final.
+# switch-*  → Actualización de un sistema ya instalado (nixos-rebuild, sin reparticionar)
+#             Usa el propio Pi como builder (--build-host) para evitar cross-compile.
 
-deploy-aperture: ## Instala aperture-science (Pi 5) vía nix-anywhere. Uso: make deploy-aperture TARGET_IP=192.168.x.x
-	@echo "=> Desplegando aperture-science en $(TARGET_IP)..."
+deploy-aperture: ## [INICIAL] Instala aperture-science vía nixos-anywhere (desde bootstrap SD). Uso: make deploy-aperture TARGET_IP=192.168.x.x
+	@echo "=> Instalación inicial de aperture-science en $(TARGET_IP) (bootstrap → NVMe)..."
 	git add -A
 	./scripts/deploy.sh $(TARGET_IP) .#aperture-science
+
+switch-aperture: ## [UPDATE] Actualiza aperture-science en ejecución vía nixos-rebuild. Uso: make switch-aperture TARGET_IP=192.168.x.x
+	@echo "=> Actualizando aperture-science en $(TARGET_IP)..."
+	git add -A
+	nix run nixpkgs#nixos-rebuild -- switch \
+	  --flake .#aperture-science \
+	  --target-host root@$(TARGET_IP) \
+	  --build-host root@$(TARGET_IP)
+
+build-installer-x86: ## Genera ISO de instalación x86_64 con llaves SSH pre-cargadas. Flashear a USB para bare metal. Uso: make build-installer-x86
+	@echo "=> Generando ISO de instalación x86_64..."
+	git add -A
+	nix build .#nixosConfigurations.linux-bootstrap.config.system.build.isoImage
+	@echo "=> ISO en ./result/iso/ — flashear con: sudo dd if=\$$(ls result/iso/*.iso) of=/dev/sdX bs=4M status=progress"
+
+deploy-x86: ## [SMART] Detecta SO y despliega x86_64. NixOS→nixos-rebuild, Linux→nixos-anywhere+kexec. Uso: make deploy-x86 HOST=motherbase TARGET_IP=x.x.x.x
+	@echo "=> Deploy inteligente de $(HOST) en $(TARGET_IP)..."
+	@chmod +x scripts/deploy-linux.sh
+	@./scripts/deploy-linux.sh $(HOST) $(TARGET_IP)
 
 build-bootstrap: ## Genera la imagen SD de instalación inicial (aperture-bootstrap)
 	@echo "=> Generando imagen de Bootstrap para Raspberry Pi 5..."
 	git add -A
 	make build-sd HOST=aperture-bootstrap
 
-deploy-black-mesa: ## Instala black-mesa (Pi Zero/3) vía nix-anywhere. Uso: make deploy-black-mesa TARGET_IP=192.168.x.x
-	@echo "=> Desplegando black-mesa en $(TARGET_IP)..."
+deploy-black-mesa: ## [INICIAL] Instala black-mesa (Pi Zero/3) vía nixos-anywhere. Uso: make deploy-black-mesa TARGET_IP=192.168.x.x
+	@echo "=> Instalación inicial de black-mesa en $(TARGET_IP)..."
 	git add -A
 	./scripts/deploy.sh $(TARGET_IP) .#black-mesa
 
-deploy-valve: ## Instala valve (Pi 5) vía nix-anywhere. Uso: make deploy-valve TARGET_IP=192.168.x.x
-	@echo "=> Desplegando valve en $(TARGET_IP)..."
+switch-black-mesa: ## [UPDATE] Actualiza black-mesa en ejecución vía nixos-rebuild. Uso: make switch-black-mesa TARGET_IP=192.168.x.x
+	@echo "=> Actualizando black-mesa en $(TARGET_IP)..."
+	git add -A
+	nix run nixpkgs#nixos-rebuild -- switch \
+	  --flake .#black-mesa \
+	  --target-host root@$(TARGET_IP) \
+	  --build-host root@$(TARGET_IP)
+
+deploy-valve: ## [INICIAL] Instala valve (Pi 5) vía nixos-anywhere. Uso: make deploy-valve TARGET_IP=192.168.x.x
+	@echo "=> Instalación inicial de valve en $(TARGET_IP)..."
 	git add -A
 	./scripts/deploy.sh $(TARGET_IP) .#valve
+
+switch-valve: ## [UPDATE] Actualiza valve en ejecución vía nixos-rebuild. Uso: make switch-valve TARGET_IP=192.168.x.x
+	@echo "=> Actualizando valve en $(TARGET_IP)..."
+	git add -A
+	nix run nixpkgs#nixos-rebuild -- switch \
+	  --flake .#valve \
+	  --target-host root@$(TARGET_IP) \
+	  --build-host root@$(TARGET_IP)
 
 # ==========================================
 # 🌍 DESPLIEGUE REMOTO X86_64
