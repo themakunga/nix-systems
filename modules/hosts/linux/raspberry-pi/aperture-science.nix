@@ -62,6 +62,7 @@ in {
         ];
         applicationModules = [
           "tailscale.core"
+          "ollama"
         ];
       })
       ++ [
@@ -91,6 +92,10 @@ in {
               };
 
               apps.tailscale-core.enable = true;
+
+              # Ollama: servidor LLM local (CPU-only en RPi5, 8GB RAM)
+              # API REST en :11434 — accesible por Tailscale y red local
+              ollama.enable = true;
 
               # Kiosk Wayland: GLaDOS abre foot+zellij a pantalla completa al arrancar
               terminal-kiosk = {
