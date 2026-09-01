@@ -134,7 +134,16 @@ in {
               shell = lib.mkForce pkgs.bash;
               extraGroups = lib.mkForce ["glados" "docker" "video" "input" "render" "audio"];
               createHome = lib.mkForce true;
+              # zeroclaw: asistente LLM autónomo — solo accesible para glados.
+              # Instalado en /etc/profiles/per-user/glados/ (no en PATH del sistema).
+              packages = [pkgs.unstable.zeroclaw];
             };
+
+            # DNS: deshabilitar accept-dns de Tailscale para usar resolvers del sistema.
+            # El resolver de Tailscale (100.102.172.33) no responde a queries públicas.
+            # Con accept-dns=false, resolvconf usa 1.1.1.1 + 8.8.8.8 + gateway local.
+            services.tailscale.extraUpFlags = ["--accept-dns=false"];
+            networking.nameservers = ["1.1.1.1" "8.8.8.8"];
 
             # wheel sin contraseña — necesario para nixos-rebuild remoto
             security.sudo.wheelNeedsPassword = false;
