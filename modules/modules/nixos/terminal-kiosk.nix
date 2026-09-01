@@ -38,6 +38,13 @@
       # Aceleración gráfica — requerida por Wayland en RPi5
       hardware.graphics.enable = true;
 
+      # seatd: requerido por cage (Wayland) para acceso al seat.
+      # Sin esto, cage falla con "could not connect to /run/seatd.sock".
+      services.seatd.enable = true;
+
+      # El usuario del kiosk necesita pertenecer al grupo "seat"
+      users.users.${cfg.user}.extraGroups = ["seat" "video" "input"];
+
       environment.systemPackages =
         [
           pkgs.cage
