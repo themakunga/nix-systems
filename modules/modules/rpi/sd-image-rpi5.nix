@@ -30,6 +30,9 @@ in {
       kernel=kernel-pi5.img
       initramfs initrd-pi5.img followkernel
       dtparam=pciex1_gen=3
+      # Requerido para el M.2 HAT+ oficial de Raspberry Pi.
+      # Sin este overlay el enlace PCIe queda caído (link down) y el NVMe no aparece.
+      dtoverlay=pciex1-compat-pi5,no-mip
       dtoverlay=vc4-kms-v3d-pi5
 
       [all]

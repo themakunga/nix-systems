@@ -25,9 +25,12 @@
               format = "vfat";
               # Label FIRMWARE: coincide con lo que nixos-hardware.raspberry-pi-5
               # genera en /etc/fstab (/dev/disk/by-label/FIRMWARE → /boot/firmware).
-              # El bootloader extlinux usa /boot como mountpoint real.
+              # IMPORTANTE: el mountpoint DEBE ser /boot/firmware (no /boot).
+              # nixos-hardware.raspberry-pi-5 declara fileSystems."/boot/firmware" → FIRMWARE,
+              # y el bootloader instala los archivos ahí. Si se usa /boot, el EEPROM
+              # no encuentra config.txt en la raíz de la partición FAT32 → error code 7.
               extraArgs = ["-n" "FIRMWARE"];
-              mountpoint = "/boot";
+              mountpoint = "/boot/firmware";
               mountOptions = ["defaults" "umask=0077"];
             };
           };

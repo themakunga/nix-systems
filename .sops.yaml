@@ -7,7 +7,7 @@ keys:
   - &host_lab-42devs
   - &host_steamdeck
   - &host_mediacenter
-  - &host_aperture-science age105f4qjuq0zyawvcgtd542ftz55p5mglpry92mt6dn35c5mwjwepq2uz7cj
+  - &host_aperture-science age1w4pjtup7tyxa8dsqevqf742syunuqm9me6glgdyqyul8fkygtc3q9p5j2s
 creation_rules:
   - path_regex: secrets/agent\.yaml$
     key_groups:

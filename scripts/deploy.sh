@@ -25,10 +25,15 @@ TEMPLATE_DIR="$REPO_ROOT/template"
 echo "==> 1. Creando directorio de plantillas en $TEMPLATE_DIR..."
 mkdir -p "$TEMPLATE_DIR"
 
-echo "==> 2. Generando hardware-configuration.nix desde el host remoto ($TARGET_IP)..."
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "root@$TARGET_IP" \
-  "nixos-generate-config --no-filesystems --root /tmp/target && cat /tmp/target/etc/nixos/hardware-configuration.nix" \
-  > "$TEMPLATE_DIR/hardware-configuration.nix"
+echo "==> 2. Verificando hardware-configuration.nix..."
+if [ -s "$TEMPLATE_DIR/hardware-configuration.nix" ]; then
+  echo "    [OK] Usando template pre-existente (sin nixos-generate-config)."
+else
+  echo "    Generando desde el host remoto ($TARGET_IP)..."
+  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "root@$TARGET_IP" \
+    "nixos-generate-config --no-filesystems --root /tmp/target && cat /tmp/target/etc/nixos/hardware-configuration.nix" \
+    > "$TEMPLATE_DIR/hardware-configuration.nix"
+fi
 
 echo "==> 3. Registrando template/hardware-configuration.nix en el índice de Git..."
 git add "$TEMPLATE_DIR/hardware-configuration.nix"
