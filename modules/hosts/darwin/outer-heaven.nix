@@ -36,7 +36,7 @@ in {
       ++ (mkBundle (extendBundle bundles.darwin.base {
         commonModules = ["cloud-profiles"];
         darwinModules = ["linux-builder" "tiling"];
-        applicationModules = ["google-cloud.gemini"];
+        applicationModules = ["google-cloud.gemini" "ollama"];
         userModules = ["work" "glados"];
         profileModules = ["work" "personal" "latam" "glados" "thoughtworks"];
       }))
@@ -53,9 +53,9 @@ in {
               hyperx.enable = true;
             };
             wallpaper = {
-              path = "${self}/media/wp/wallpaper-outer-heaven.jpg";
+              path = "${self}/media/wp/aperture-science.jpg";
               enable = true;
-              fileName = "wallpaper-outer-heaven.jpg";
+              fileName = "aperture-science.jpg";
             };
             weather = {
               enable = true;
@@ -70,6 +70,16 @@ in {
               ];
             };
             hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
+
+            # Ollama: servidor LLM local con Metal (Apple Silicon, M4 Max 36GB).
+            # qwen2.5-coder:7b — top en código, ~4.5GB RAM, deja ~31GB libres.
+            # API en localhost:11434 (no expuesta en red — solo uso local).
+            ollama = {
+              enable = true;
+              host = "127.0.0.1"; # Solo localhost — no exponer en red
+              openFirewall = false; # No aplica en Darwin, pero explícito
+              models = ["qwen2.5-coder:7b"];
+            };
             primaryUser = {
               enable = true;
               username = "nicolas";
@@ -98,6 +108,7 @@ in {
               "halloy"
               "reminders-menubar"
               "ferdium"
+              "claude-code"
             ];
 
             masApps = {

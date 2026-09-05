@@ -81,6 +81,7 @@ in {
               "ghostty"
               "reminders-menubar"
               "ferdium"
+              "vnc-viewer" # Cliente VNC — conectar a aperture-science:5900
             ];
 
             masApps = {
