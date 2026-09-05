@@ -166,11 +166,17 @@ in {
             # Corre como glados, expone HTTP en :42617 (dashboard + WebSocket).
             # Config: /opt/glados/.zeroclaw/config.toml (desplegada via stow desde agent/).
             # Auth Codex: ver instrucciones al pie de este archivo.
+
+            # linger = true: systemd-logind levanta el user manager de glados al
+            # boot (sin sesión interactiva), creando /run/user/466 y el D-Bus
+            # session bus que zeroclaw necesita para arrancar.
+            users.users.glados.linger = true;
+
             systemd.services.zeroclaw = {
               description = "ZeroClaw AI Agent Gateway";
               documentation = ["https://github.com/zeroclaw-labs/zeroclaw"];
-              after = ["network-online.target"];
-              wants = ["network-online.target"];
+              after = ["network-online.target" "user@466.service"];
+              wants = ["network-online.target" "user@466.service"];
               wantedBy = ["multi-user.target"];
               serviceConfig = {
                 Type = "simple";
@@ -180,6 +186,10 @@ in {
                 Environment = [
                   "HOME=/opt/glados"
                   "XDG_CONFIG_HOME=/opt/glados/.config"
+                  # glados uid=466 — linger=true garantiza que /run/user/466 existe
+                  # y que el D-Bus session bus está activo antes de arrancar zeroclaw.
+                  "XDG_RUNTIME_DIR=/run/user/466"
+                  "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/466/bus"
                 ];
                 ExecStart = "${pkgs.unstable.zeroclaw}/bin/zeroclaw service start";
                 Restart = "on-failure";
