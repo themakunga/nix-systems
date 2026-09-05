@@ -73,7 +73,9 @@
     };
 
     tofu-dns = {
-      url = "git+ssh://git@github.com/TheMakunga/tofu-dns.git";
+      # Usando github: (HTTPS via API) en vez de git+ssh para que el CI
+      # pueda fetchear usando GH_TOKEN_SECRETS sin necesitar SSH key.
+      url = "github:TheMakunga/tofu-dns";
       flake = false;
     };
 
