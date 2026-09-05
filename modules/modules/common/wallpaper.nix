@@ -14,11 +14,17 @@
     config,
     lib,
     pkgs,
+    options,
     ...
   }: let
     inherit (lib) mkOption types mkEnableOption mkIf;
     cfg = config.my.wallpaper;
-    isDarwin = pkgs.stdenv.isDarwin;
+
+    # Detección estática de plataforma — NO depende de pkgs ni config.
+    # nix-darwin declara system.darwinVersion; NixOS no.
+    # lib.optionalAttrs requiere que la condición sea evaluable inmediatamente,
+    # por lo que pkgs.stdenv.isDarwin causaría recursión. Usar options en su lugar.
+    isDarwin = options ? system.darwinVersion;
 
     targetUser = config.my.primaryUser.username or "nicolas";
     userHome =
@@ -87,9 +93,11 @@
       }
 
       # ── Linux / Wayland (Hyprland) ──────────────────────────────────────────
-      # Envuelto en mkIf al nivel del bloque para que 'systemd' no sea evaluado
-      # por el módulo Darwin — nix-darwin no declara esa opción en absoluto.
-      (lib.mkIf (!isDarwin) {
+      # lib.optionalAttrs isLinux es seguro: isLinux no depende de config.
+      # Retorna {} en Darwin, ocultando completamente la ruta de opción 'systemd'
+      # que no existe en nix-darwin. NO usar lib.mkIf aquí — aunque la condición
+      # sea false, el module system igual escanea los atributos del bloque.
+      (lib.optionalAttrs (!isDarwin) {
         environment.systemPackages = [swwwPkg];
 
         # Daemon swww: arranca junto con la sesión gráfica y se mantiene vivo.
