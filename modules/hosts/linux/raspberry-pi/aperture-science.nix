@@ -191,7 +191,10 @@ in {
                   "XDG_RUNTIME_DIR=/run/user/466"
                   "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/466/bus"
                 ];
-                ExecStart = "${pkgs.unstable.zeroclaw}/bin/zeroclaw service start";
+                # 'zeroclaw daemon' lanza el runtime completo (gateway + canales + cron).
+                # NO usar 'zeroclaw service start' — ese comando instala/arranca un user
+                # service vía D-Bus y no puede correr dentro del propio system service.
+                ExecStart = "${pkgs.unstable.zeroclaw}/bin/zeroclaw daemon";
                 Restart = "on-failure";
                 RestartSec = "10s";
                 NoNewPrivileges = true;
