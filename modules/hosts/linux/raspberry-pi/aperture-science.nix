@@ -44,6 +44,8 @@ in {
           "network"
           "settings"
           "userProfiles"
+          "wallpaper"
+          "weather"
         ];
         nixosModules = [
           "base-machine"
@@ -82,7 +84,18 @@ in {
           config = {
             my = {
               primaryUser.username = "nicolas";
-
+              dotfiles.enable = true;
+              wallpaper = {
+                path = "${self}/media/wp/aperture-science.jpg";
+                enable = true;
+                fileName = "aperture-science.jpg";
+              };
+              weather = {
+                enable = true;
+                location = "Quebrada de Macul, Chile";
+                units = "c";
+                forecast = ["d" "w"];
+              };
               nix-anywhere.enable = true;
 
               # Si ya configuraste sops para este host, descomenta la siguiente línea:
@@ -147,6 +160,66 @@ in {
                 addresses = true; # anuncia IP en la red
                 domain = true;
               };
+            };
+
+            # ── ZeroClaw: AI agent gateway ─────────────────────────────────────
+            # Corre como glados, expone HTTP en :42617 (dashboard + WebSocket).
+            # Config: /opt/glados/.zeroclaw/config.toml (desplegada via stow desde agent/).
+            # Auth Codex: ver instrucciones al pie de este archivo.
+            systemd.services.zeroclaw = {
+              description = "ZeroClaw AI Agent Gateway";
+              documentation = ["https://github.com/zeroclaw-labs/zeroclaw"];
+              after = ["network-online.target"];
+              wants = ["network-online.target"];
+              wantedBy = ["multi-user.target"];
+              serviceConfig = {
+                Type = "simple";
+                User = "glados";
+                Group = "glados";
+                WorkingDirectory = "/opt/glados";
+                Environment = [
+                  "HOME=/opt/glados"
+                  "XDG_CONFIG_HOME=/opt/glados/.config"
+                ];
+                ExecStart = "${pkgs.unstable.zeroclaw}/bin/zeroclaw service start";
+                Restart = "on-failure";
+                RestartSec = "10s";
+                NoNewPrivileges = true;
+                PrivateTmp = true;
+              };
+            };
+
+            # ── GLaDOS agent dotfiles: stow agent/ → /opt/glados/.zeroclaw/ ──
+            # Clona public-dotfiles y aplica stow de la carpeta 'agent' al directorio
+            # de configuración de zeroclaw (~/.zeroclaw/ para el usuario glados).
+            system.activationScripts."glados-agent-dotfiles" = {
+              text = ''
+                DOTFILES_DIR="/opt/glados/.public-dotfiles"
+                REPO_URL="https://github.com/themakunga/public-dotfiles.git"
+                ZEROCLAW_DIR="/opt/glados/.zeroclaw"
+
+                echo "=> Sincronizando configuración del agente para GLaDOS..."
+
+                mkdir -p "$ZEROCLAW_DIR"
+                chown glados:glados "$ZEROCLAW_DIR" 2>/dev/null || true
+
+                if [ ! -d "$DOTFILES_DIR/.git" ]; then
+                  echo "Clonando public-dotfiles para glados..."
+                  /run/wrappers/bin/sudo -H -u glados env HOME=/opt/glados \
+                    ${pkgs.git}/bin/git clone "$REPO_URL" "$DOTFILES_DIR" || true
+                else
+                  /run/wrappers/bin/sudo -H -u glados env HOME=/opt/glados \
+                    ${pkgs.git}/bin/git -C "$DOTFILES_DIR" pull origin main 2>/dev/null || true
+                fi
+
+                if [ -d "$DOTFILES_DIR/agent" ]; then
+                  echo "Desplegando configuración agent/ → $ZEROCLAW_DIR..."
+                  /run/wrappers/bin/sudo -H -u glados env HOME=/opt/glados \
+                    ${pkgs.stow}/bin/stow -t "$ZEROCLAW_DIR" -d "$DOTFILES_DIR" --adopt agent
+                else
+                  echo "Advertencia: carpeta 'agent' no encontrada en $DOTFILES_DIR"
+                fi
+              '';
             };
 
             # Firewall: puerto del gateway zeroclaw (42617) accesible desde la red local

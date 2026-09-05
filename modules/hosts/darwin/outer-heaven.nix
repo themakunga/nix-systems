@@ -53,9 +53,9 @@ in {
               hyperx.enable = true;
             };
             wallpaper = {
-              path = "${self}/media/wp/wallpaper-outer-heaven.jpg";
+              path = "${self}/media/wp/aperture-science.jpg";
               enable = true;
-              fileName = "wallpaper-outer-heaven.jpg";
+              fileName = "aperture-science.jpg";
             };
             weather = {
               enable = true;

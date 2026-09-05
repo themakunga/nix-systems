@@ -427,7 +427,7 @@
         environment.systemPackages = with pkgs; [
           foot # terminal (TokyoNight config incluido)
           wofi # launcher
-          waybar # barra de estado (TokyoNight style)
+          unstable.waybar # barra de estado (TokyoNight style)
           wl-clipboard # clipboard
           grim # screenshots
           slurp # selección de área para screenshots

@@ -179,12 +179,21 @@ _: {
               REPO_URL="${cfg.repository}"
               USER_HOME="${userHome}"
               USER="${user}"
-              HOSTNAME=$(hostname)
+              # 'hostname' no está en el PATH mínimo de activación — leer /etc/hostname directamente
+              HOSTNAME=$(cat /etc/hostname 2>/dev/null || echo "nixos")
 
               # Función para ejecutar comandos con el usuario y su HOME real (Versión Linux)
+              # Usa la ruta absoluta del wrapper NixOS — 'sudo' no está en el PATH de activación
               run_as_user() {
-                sudo -H -u "$USER" env HOME="$USER_HOME" "$@"
+                /run/wrappers/bin/sudo -H -u "$USER" env HOME="$USER_HOME" "$@"
               }
+
+              # Garantizar que el home existe y pertenece al usuario antes de cualquier
+              # operación. Puede ser root-owned si otro activation script lo creó primero
+              # (ej: el módulo wallpaper crea /home/$USER/.config/wallpapers como root).
+              mkdir -p "$USER_HOME"
+              chown "$USER" "$USER_HOME" 2>/dev/null || true
+              chmod 755 "$USER_HOME" 2>/dev/null || true
 
               echo "=> Sincronizando repositorio public-dotfiles en $DOTFILES_DIR..."
               if [ ! -d "$DOTFILES_DIR/.git" ]; then
