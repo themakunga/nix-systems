@@ -67,6 +67,8 @@ in {
         applicationModules = [
           "tailscale.core"
           "ollama"
+          "wezterm" # Terminal principal — instala wezterm + stow ~/.wezterm.lua (TokyoNight Storm)
+          "neovim" # Editor — instala neovim 0.12 + stow ~/.config/nvim/ desde public-dotfiles
         ];
       })
       ++ [
@@ -94,7 +96,18 @@ in {
                   {
                     name = "hypr";
                     isConfig = true;
-                  }
+                  } # ~/.config/hypr/ — Hyprland config con TokyoNight Storm
+                  {
+                    name = "bash";
+                  } # ~/.bashrc — bash con oh-my-posh + fastfetch + aliases
+                  {
+                    name = "fastfetch";
+                    isConfig = true;
+                  } # ~/.config/fastfetch/ — incluye logo Aperture Laboratories
+                  {
+                    name = "ohmyposh";
+                    isConfig = true;
+                  } # ~/.config/ohmyposh/config.yaml — prompt compartido bash/zsh
                 ];
               };
               wallpaper = {
@@ -153,6 +166,14 @@ in {
                 ];
               };
             };
+
+            # Paquetes del stack terminal (fastfetch, oh-my-posh, fzf).
+            # wezterm y neovim los instalan sus respectivos applicationModules.
+            environment.systemPackages = with pkgs; [
+              fastfetch # panel de sistema — config en ~/.config/fastfetch/
+              oh-my-posh # prompt para bash (y zsh) — config en ~/.config/ohmyposh/
+              fzf # fuzzy finder — integrado en .bashrc
+            ];
 
             # GLaDOS: service account para IA local (zeroclaw).
             # El módulo glados la define sin shell interactiva — override necesario
