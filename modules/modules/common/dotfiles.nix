@@ -195,6 +195,13 @@ _: {
               chown "$USER" "$USER_HOME" 2>/dev/null || true
               chmod 755 "$USER_HOME" 2>/dev/null || true
 
+              # Garantizar que .config también pertenece al usuario.
+              # Otros activation scripts (wallpaper, hyprland-desktop, etc.) pueden
+              # haberlo creado como root antes de que este script corra.
+              mkdir -p "$USER_HOME/.config"
+              chown "$USER" "$USER_HOME/.config" 2>/dev/null || true
+              chmod 755 "$USER_HOME/.config" 2>/dev/null || true
+
               echo "=> Sincronizando repositorio public-dotfiles en $DOTFILES_DIR..."
               if [ ! -d "$DOTFILES_DIR/.git" ]; then
                 echo "Clonando repositorio..."

@@ -53,9 +53,9 @@ in {
               hyperx.enable = true;
             };
             wallpaper = {
-              path = "${self}/media/wp/aperture-science.jpg";
+              path = "${self}/media/wp/wallpaper-outer-heaven.jpg";
               enable = true;
-              fileName = "aperture-science.jpg";
+              fileName = "wallpaper-outer-heaven.jpg";
             };
             weather = {
               enable = true;
@@ -96,9 +96,11 @@ in {
               jdk25
               unstable.cliamp
               argo-workflows
+              rustc
             ];
 
             casks = [
+              "tigervnc"
               "iterm2"
               "okta-verify"
               "wezterm"

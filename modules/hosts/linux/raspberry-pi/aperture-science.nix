@@ -84,7 +84,19 @@ in {
           config = {
             my = {
               primaryUser.username = "nicolas";
-              dotfiles.enable = true;
+              dotfiles = {
+                enable = true;
+                # hypr/ → stow → ~/.config/hypr/
+                # Gestiona hyprland.conf y conf/*.conf desde los dotfiles públicos.
+                # Edita ~/.config/hypr/conf/*.conf directamente para ajustar la config;
+                # el cambio se sincroniza al repo sin necesidad de nixos-rebuild.
+                packages = [
+                  {
+                    name = "hypr";
+                    isConfig = true;
+                  }
+                ];
+              };
               wallpaper = {
                 path = "${self}/media/wp/aperture-science.jpg";
                 enable = true;
@@ -116,6 +128,9 @@ in {
               hyprland-desktop = {
                 enable = true;
                 user = "wheatley";
+                # Los dotfiles (paquete "hypr") proveen ~/.config/hypr/hyprland.conf
+                # vía stow. El módulo gestiona waybar y foot, pero NO hyprland.conf.
+                manageConfig = false;
                 vnc = {
                   enable = true;
                   # Escucha en todas las interfaces: accesible desde red local y Tailscale.

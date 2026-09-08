@@ -391,6 +391,17 @@
         description = "Usuario que ejecuta la sesión Hyprland";
       };
 
+      manageConfig = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''
+          Si true (por defecto), el módulo crea un symlink de hyprland.conf
+          desde el nix store hacia ~/.config/hypr/hyprland.conf.
+          Establecer en false cuando los dotfiles (stow) gestionan el archivo,
+          p. ej. cuando my.dotfiles.packages incluye { name = "hypr"; isConfig = true; }.
+        '';
+      };
+
       vnc = {
         enable = mkEnableOption "Acceso remoto VNC via wayvnc (wlr-screencopy)";
 
@@ -469,8 +480,15 @@
 
         boot.consoleLogLevel = 3;
 
-        # Configuración de Hyprland, Waybar y foot en el home del usuario
+        # Configuración de Hyprland, Waybar y foot en el home del usuario.
+        #
+        # manageConfig = true  (default): symlink hyprland.conf desde el nix store.
+        # manageConfig = false:           symlink hyprland.conf + conf/ desde los dotfiles
+        #   del primary user. Requiere que stowDotfiles haya clonado el repo primero,
+        #   por eso se declara dep = [ "stowDotfiles" ] en ese caso.
+        #   El path de dotfiles se toma de config.my.dotfiles.path.
         system.activationScripts."hyprland-config-${cfg.user}" = {
+          deps = lib.optionals (!cfg.manageConfig) ["stowDotfiles"];
           text = ''
             USER_HOME="/home/${cfg.user}"
             HYPR_DIR="$USER_HOME/.config/hypr"
@@ -479,10 +497,26 @@
 
             mkdir -p "$HYPR_DIR" "$WAYBAR_DIR" "$FOOT_DIR"
 
-            ln -sf ${hyprlandConf}       "$HYPR_DIR/hyprland.conf"
-            ln -sf ${waybarConfig}       "$WAYBAR_DIR/config"
-            ln -sf ${waybarStyle}        "$WAYBAR_DIR/style.css"
-            ln -sf ${footConf}           "$FOOT_DIR/foot.ini"
+            ${
+              if cfg.manageConfig
+              then ''
+                # Config embebida en el nix store (default)
+                ln -sf ${hyprlandConf}   "$HYPR_DIR/hyprland.conf"
+              ''
+              else ''
+                # Config desde los dotfiles del primary user — editable sin rebuild
+                DOTFILES_HYPR="${config.my.dotfiles.path}/hypr"
+                if [ -d "$DOTFILES_HYPR" ]; then
+                  ln -sf  "$DOTFILES_HYPR/hyprland.conf" "$HYPR_DIR/hyprland.conf" 2>/dev/null || true
+                  ln -sfn "$DOTFILES_HYPR/conf"           "$HYPR_DIR/conf"          2>/dev/null || true
+                else
+                  echo "WARN: hyprland-desktop: $DOTFILES_HYPR no encontrado. ¿Se clonaron los dotfiles?"
+                fi
+              ''
+            }
+            ln -sf ${waybarConfig}     "$WAYBAR_DIR/config"
+            ln -sf ${waybarStyle}      "$WAYBAR_DIR/style.css"
+            ln -sf ${footConf}         "$FOOT_DIR/foot.ini"
 
             chown -R ${cfg.user}:${cfg.user} "$USER_HOME/.config" 2>/dev/null || true
           '';
