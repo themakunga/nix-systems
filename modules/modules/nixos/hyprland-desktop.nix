@@ -504,14 +504,10 @@
                 ln -sf ${hyprlandConf}   "$HYPR_DIR/hyprland.conf"
               ''
               else ''
-                # Config desde los dotfiles del primary user — editable sin rebuild
-                DOTFILES_HYPR="${config.my.dotfiles.path}/hypr"
-                if [ -d "$DOTFILES_HYPR" ]; then
-                  ln -sf  "$DOTFILES_HYPR/hyprland.conf" "$HYPR_DIR/hyprland.conf" 2>/dev/null || true
-                  ln -sfn "$DOTFILES_HYPR/conf"           "$HYPR_DIR/conf"          2>/dev/null || true
-                else
-                  echo "WARN: hyprland-desktop: $DOTFILES_HYPR no encontrado. ¿Se clonaron los dotfiles?"
-                fi
+                # manageConfig=false: hyprland.conf y conf/ los despliega stow
+                # (activation script 'stowDotfiles', que es dep de este script).
+                # No creamos symlinks manuales aquí para evitar conflictos con stow.
+                :
               ''
             }
             ln -sf ${waybarConfig}     "$WAYBAR_DIR/config"

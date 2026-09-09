@@ -26,10 +26,12 @@
     # por lo que pkgs.stdenv.isDarwin causaría recursión. Usar options en su lugar.
     isDarwin = options ? system.darwinVersion;
 
-    targetUser = config.my.primaryUser.username or "nicolas";
+    targetUser = config.my.wallpaper.user or config.my.primaryUser.username or "nicolas";
     userHome =
       if isDarwin
       then "/Users/${targetUser}"
+      else if (config.users.users ? ${targetUser} && config.users.users.${targetUser}.home != "")
+      then config.users.users.${targetUser}.home
       else "/home/${targetUser}";
     wallpaperTargetDir = "${userHome}/.config/wallpapers";
 
@@ -38,6 +40,12 @@
   in {
     options.my.wallpaper = {
       enable = mkEnableOption "Automatic wallpaper management";
+
+      user = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "Usuario dueño del wallpaper. Si es null, usa my.primaryUser.username. El home se resuelve desde users.users.<user>.home.";
+      };
 
       path = mkOption {
         type = types.oneOf [types.path types.str];

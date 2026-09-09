@@ -111,8 +111,9 @@ in {
                 ];
               };
               wallpaper = {
-                path = "${self}/media/wp/aperture-science.jpg";
                 enable = true;
+                user = "wheatley"; # home /opt/wheatley — usuario autologin Hyprland
+                path = "${self}/media/wp/aperture-science.jpg";
                 fileName = "aperture-science.jpg";
               };
               weather = {
