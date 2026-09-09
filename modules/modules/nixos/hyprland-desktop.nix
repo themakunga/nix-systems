@@ -559,22 +559,37 @@
               rm -f "$XDG_RUNTIME_DIR/wayvncctl"
               # Dar tiempo a que Hyprland complete la inicialización
               sleep 2
-              # Crear output HEADLESS-1 si aún no existe.
-              # Con hdmi_force_hotplug=1, el HDMI forzado ya aparece como monitor;
-              # la condición anterior ("si no hay ningún monitor") nunca se cumplía.
-              # Ahora verificamos explícitamente que HEADLESS-1 no exista.
+              # Crear output HEADLESS si no existe ninguno todavía.
+              # Hyprland numera headless secuencialmente (HEADLESS-1, HEADLESS-2, …)
+              # según cuántos se hayan creado en la sesión — el contador no se resetea
+              # al eliminar outputs. Verificamos que exista AL MENOS uno (HEADLESS-*)
+              # en vez de buscar HEADLESS-1 específicamente, para evitar crear duplicados
+              # cuando el contador ya avanzó (ej: HEADLESS-2 en sesiones largas).
               HIS=$(ls -t "$XDG_RUNTIME_DIR/hypr/" 2>/dev/null | head -1)
               if [ -n "$HIS" ]; then
                 export HYPRLAND_INSTANCE_SIGNATURE="$HIS"
-                if ! ${pkgs.hyprland}/bin/hyprctl -j monitors 2>/dev/null | ${pkgs.gnugrep}/bin/grep -q '"HEADLESS-1"'; then
+                if ! ${pkgs.hyprland}/bin/hyprctl -j monitors 2>/dev/null | ${pkgs.gnugrep}/bin/grep -q '"HEADLESS-'; then
                   ${pkgs.hyprland}/bin/hyprctl output create headless || true
                   sleep 1
                 fi
               fi
             '';
-            # --output HEADLESS-1: servir el monitor virtual del iPad (1668×2224)
-            # en vez del HDMI forzado (que tiene resolución arbitraria sin display físico).
-            ExecStart = "${pkgs.wayvnc}/bin/wayvnc --output HEADLESS-1 ${cfg.vnc.address} ${toString cfg.vnc.port}";
+            # Wrapper dinámico: detecta el nombre real del output HEADLESS en esta sesión
+            # (puede ser HEADLESS-1, HEADLESS-2, etc. según el contador de Hyprland).
+            # Usa exec para reemplazar el shell con wayvnc (systemd trackea el PID correcto).
+            ExecStart = pkgs.writeShellScript "wayvnc-start" ''
+              HIS=$(ls -t "$XDG_RUNTIME_DIR/hypr/" 2>/dev/null | head -1)
+              export HYPRLAND_INSTANCE_SIGNATURE="$HIS"
+              # Extraer el primer nombre HEADLESS-N de la lista de monitores JSON
+              HEADLESS=$(${pkgs.hyprland}/bin/hyprctl -j monitors 2>/dev/null | \
+                ${pkgs.gnugrep}/bin/grep -o '"HEADLESS-[0-9]*"' | head -1 | tr -d '"')
+              if [ -z "$HEADLESS" ]; then
+                echo "wayvnc-start: sin output HEADLESS disponible, abortando" >&2
+                exit 1
+              fi
+              echo "wayvnc-start: usando output $HEADLESS"
+              exec ${pkgs.wayvnc}/bin/wayvnc --output "$HEADLESS" ${cfg.vnc.address} ${toString cfg.vnc.port}
+            '';
           };
           environment = {
             WAYLAND_DISPLAY = "wayland-1";
