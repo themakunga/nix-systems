@@ -446,7 +446,8 @@
         # Paquetes del escritorio — TokyoNight stack
         environment.systemPackages = with pkgs; [
           foot # terminal (TokyoNight config incluido)
-          wofi # launcher
+          wofi # launcher alternativo (dmenu style)
+          rofi-wayland # launcher principal (rofi -show drun)
           unstable.waybar # barra de estado (TokyoNight style)
           wl-clipboard # clipboard
           grim # screenshots
@@ -602,10 +603,10 @@
                 exit 1
               fi
               echo "wayvnc-start: usando output $HEADLESS"
-              # Aplicar resolución del iPad Pro portrait (1668×2224) al output detectado.
+              # Aplicar resolución del iPad Pro landscape (2224×1668) al output detectado.
               # Esto garantiza la resolución correcta independientemente del número de HEADLESS
               # (HEADLESS-1, HEADLESS-2, …) que Aquamarine haya asignado en esta sesión.
-              ${pkgs.hyprland}/bin/hyprctl keyword monitor "$HEADLESS,1668x2224@60,0x0,1" 2>/dev/null || true
+              ${pkgs.hyprland}/bin/hyprctl keyword monitor "$HEADLESS,2224x1668@60,0x0,1" 2>/dev/null || true
               sleep 1
               exec ${pkgs.wayvnc}/bin/wayvnc --output "$HEADLESS" ${cfg.vnc.address} ${toString cfg.vnc.port}
             '';
