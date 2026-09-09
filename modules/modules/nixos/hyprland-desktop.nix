@@ -490,7 +490,7 @@
         system.activationScripts."hyprland-config-${cfg.user}" = {
           deps = lib.optionals (!cfg.manageConfig) ["stowDotfiles"];
           text = ''
-            USER_HOME="/home/${cfg.user}"
+            USER_HOME="${config.users.users.${cfg.user}.home}"
             HYPR_DIR="$USER_HOME/.config/hypr"
             WAYBAR_DIR="$USER_HOME/.config/waybar"
             FOOT_DIR="$USER_HOME/.config/foot"
@@ -518,7 +518,7 @@
             ln -sf ${waybarStyle}      "$WAYBAR_DIR/style.css"
             ln -sf ${footConf}         "$FOOT_DIR/foot.ini"
 
-            chown -R ${cfg.user}:${cfg.user} "$USER_HOME/.config" 2>/dev/null || true
+            chown -R ${cfg.user} "$USER_HOME/.config" 2>/dev/null || true
           '';
         };
       }
