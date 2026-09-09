@@ -563,17 +563,22 @@
               rm -f "$XDG_RUNTIME_DIR/wayvncctl"
               # Dar tiempo a que Hyprland complete la inicialización
               sleep 2
-              # Crear output headless si no hay monitor activo
+              # Crear output HEADLESS-1 si aún no existe.
+              # Con hdmi_force_hotplug=1, el HDMI forzado ya aparece como monitor;
+              # la condición anterior ("si no hay ningún monitor") nunca se cumplía.
+              # Ahora verificamos explícitamente que HEADLESS-1 no exista.
               HIS=$(ls -t "$XDG_RUNTIME_DIR/hypr/" 2>/dev/null | head -1)
               if [ -n "$HIS" ]; then
                 export HYPRLAND_INSTANCE_SIGNATURE="$HIS"
-                if ! ${pkgs.hyprland}/bin/hyprctl -j monitors 2>/dev/null | ${pkgs.gnugrep}/bin/grep -q '"name"'; then
+                if ! ${pkgs.hyprland}/bin/hyprctl -j monitors 2>/dev/null | ${pkgs.gnugrep}/bin/grep -q '"HEADLESS-1"'; then
                   ${pkgs.hyprland}/bin/hyprctl output create headless || true
                   sleep 1
                 fi
               fi
             '';
-            ExecStart = "${pkgs.wayvnc}/bin/wayvnc ${cfg.vnc.address} ${toString cfg.vnc.port}";
+            # --output HEADLESS-1: servir el monitor virtual del iPad (1668×2224)
+            # en vez del HDMI forzado (que tiene resolución arbitraria sin display físico).
+            ExecStart = "${pkgs.wayvnc}/bin/wayvnc --output HEADLESS-1 ${cfg.vnc.address} ${toString cfg.vnc.port}";
           };
           environment = {
             WAYLAND_DISPLAY = "wayland-1";
