@@ -12,6 +12,7 @@
   inherit
     (inputs)
     nixpkgs
+    nixos-hardware
     sops-nix
     disko
     secrets
@@ -27,6 +28,7 @@ in {
 
     modules =
       [
+        nixos-hardware.nixosModules.raspberry-pi-3
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
       ]
