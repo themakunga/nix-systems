@@ -88,26 +88,26 @@ in {
               primaryUser.username = "nicolas";
               dotfiles = {
                 enable = true;
-                # hypr/ → stow → ~/.config/hypr/
-                # Gestiona hyprland.conf y conf/*.conf desde los dotfiles públicos.
-                # Edita ~/.config/hypr/conf/*.conf directamente para ajustar la config;
-                # el cambio se sincroniza al repo sin necesidad de nixos-rebuild.
+                # wheatley es el usuario autologin de Hyprland en aperture-science.
+                # Su home está en /opt/wheatley (convención kiosk/service del host).
+                user = "wheatley";
+                home = "/opt/wheatley";
                 packages = [
                   {
                     name = "hypr";
                     isConfig = true;
-                  } # ~/.config/hypr/ — Hyprland config con TokyoNight Storm
+                  } # /opt/wheatley/.config/hypr/ — Hyprland config con TokyoNight Storm
                   {
                     name = "bash";
-                  } # ~/.bashrc — bash con oh-my-posh + fastfetch + aliases
+                  } # /opt/wheatley/.bashrc — bash con oh-my-posh + fastfetch + aliases
                   {
                     name = "fastfetch";
                     isConfig = true;
-                  } # ~/.config/fastfetch/ — incluye logo Aperture Laboratories
+                  } # /opt/wheatley/.config/fastfetch/ — incluye logo Aperture Laboratories
                   {
                     name = "ohmyposh";
                     isConfig = true;
-                  } # ~/.config/ohmyposh/config.yaml — prompt compartido bash/zsh
+                  } # /opt/wheatley/.config/ohmyposh/config.yaml — prompt compartido bash/zsh
                 ];
               };
               wallpaper = {
