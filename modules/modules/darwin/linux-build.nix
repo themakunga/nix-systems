@@ -25,13 +25,13 @@
       nix.linux-builder = {
         enable = true;
         ephemeral = true; # Destruye y recrea la VM limpia en cada reinicio
-        maxJobs = 4;
+        maxJobs = 8; # Compilaciones paralelas (era 4 — M4 Max tiene cores de sobra)
 
         # Usamos notación plana con mkForce para aplastar los valores por defecto
         config = {
           virtualisation = {
-            memorySize = mkForce 8192; # 8 GB de RAM
-            cores = mkForce 4; # 4 Cores de CPU
+            memorySize = mkForce 12288; # 12 GB de RAM (era 8GB)
+            cores = mkForce 8; # 8 Cores de CPU (era 4 — M4 Max tiene 14 performance cores)
             diskSize = mkForce 51200; # 50 GB de disco virtual
           };
         };
