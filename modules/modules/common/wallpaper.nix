@@ -41,8 +41,12 @@
       else "/home/${targetUser}";
     wallpaperTargetDir = "${userHome}/.config/wallpapers";
 
-    # 'swww' fue renombrado a 'awww' en nixpkgs 26.05
+    # 'swww' fue renombrado a 'awww' en nixpkgs 26.05.
+    # Los binarios también se renombraron: swww-daemon → awww-daemon, swww → awww.
     swwwPkg = pkgs.awww;
+    # Nombres de los binarios en la versión awww (nixpkgs 26.05+)
+    daemonBin = "${swwwPkg}/bin/awww-daemon";
+    imgBin = "${swwwPkg}/bin/awww";
   in {
     options.my.wallpaper = {
       enable = mkEnableOption "Automatic wallpaper management";
@@ -124,7 +128,7 @@
             Type = "simple";
             Restart = "on-failure";
             RestartSec = "3s";
-            ExecStart = "${swwwPkg}/bin/swww-daemon";
+            ExecStart = daemonBin;
           };
         };
 
@@ -140,7 +144,7 @@
             RemainAfterExit = true;
             # Dar tiempo al daemon para que inicialice el socket
             ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
-            ExecStart = "${swwwPkg}/bin/swww img ${toString cfg.path} --transition-type none";
+            ExecStart = "${imgBin} img ${toString cfg.path} --transition-type none";
           };
         };
       })
