@@ -36,7 +36,7 @@ in {
       ++ (mkBundle (extendBundle bundles.darwin.base {
         commonModules = ["cloud-profiles"];
         darwinModules = ["linux-builder" "tiling"];
-        applicationModules = ["google-cloud.gemini"];
+        applicationModules = ["google-cloud.gemini" "ollama"];
         userModules = ["work" "glados"];
         profileModules = ["work" "personal" "latam" "glados" "thoughtworks"];
       }))
@@ -45,6 +45,7 @@ in {
           my = {
             dotfiles.enable = true;
             linux-builder.enable = true;
+
             devices = {
               audio.enable = true;
               logitech.enable = true;
@@ -66,16 +67,58 @@ in {
               aws = [
               ];
               gcp = [
-                # "personal"
-                # "latam"
               ];
             };
             hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
+
+            # Ollama: servidor LLM local con Metal (Apple Silicon, M4 Max 36GB).
+            # qwen2.5-coder:7b — top en código, ~4.5GB RAM, deja ~31GB libres.
+            # API en localhost:11434 (no expuesta en red — solo uso local).
+            ollama = {
+              enable = true;
+              host = "127.0.0.1"; # Solo localhost — no exponer en red
+              openFirewall = false; # No aplica en Darwin, pero explícito
+              models = ["qwen2.5-coder:7b"];
+            };
             primaryUser = {
               enable = true;
               username = "nicolas";
             };
             keyboard.enable = true;
+            packages = with pkgs; [
+              stow
+              btop
+              ctop
+              pre-commit
+              terminal-notifier
+              claude-code
+              unstable.nchat
+              jdk25
+              unstable.cliamp
+              argo-workflows
+              rustc
+            ];
+
+            casks = [
+              "tigervnc"
+              "iterm2"
+              "okta-verify"
+              "wezterm"
+              "zen"
+              "ghostty"
+              "miniconda"
+              "halloy"
+              "reminders-menubar"
+              "ferdium"
+              "claude-code"
+            ];
+
+            masApps = {
+              "Amphetamine" = 937984704;
+              "Magnet" = 441258766;
+              "Xcode" = 497799835;
+            };
+
             apps = {
               aws-cli.enable = true;
               tailscale-core.enable = true;
@@ -89,39 +132,6 @@ in {
               halloy.enable = true;
               irssi.enable = true;
               nchat.enable = true;
-
-              outer-heaven = {
-                enable = true;
-                level = "system";
-
-                packages = with pkgs; [
-                  stow
-                  btop
-                  ctop
-                  pre-commit
-                  terminal-notifier
-                  claude-code
-                  unstable.nchat
-                  jdk25
-                  cliamp
-                ];
-
-                casks = [
-                  "iterm2"
-                  "logitech-g-hub"
-                  "okta-verify"
-                  "wezterm"
-                  "zen"
-                  "ghostty"
-                  "miniconda"
-                ];
-
-                masApps = {
-                  "Amphetamine" = 937984704;
-                  "Magnet" = 441258766;
-                  "Xcode" = 497799835;
-                };
-              };
             };
 
             development = {
@@ -130,38 +140,28 @@ in {
                 runtime = "colima";
                 kubernetes = true;
                 argocd = false;
-                useDotfiles = true;
-                useSecrets = false;
+
                 kubeconfigs = [
-                  # "kubernetes/latam_config"
                 ];
               };
               aws = {
                 enable = true;
                 enableSSM = true;
                 enableLocalStack = true;
-                useDotfiles = true;
-                useSecrets = false;
               };
               gcp = {
                 enable = true;
                 enableGkePlugin = true;
-                useDotfiles = false;
-                useSecrets = false;
               };
               iac = {
                 enable = true;
                 enableOpenTofu = true;
                 enableTerraform = false;
                 enablePulumi = true;
-                useDotfiles = true;
-                useSecrets = false;
               };
               argocd = {
                 enable = true;
                 enableAutopilot = true;
-                useDotfiles = true;
-                useSecrets = false;
               };
               nodejs = {
                 enable = true;
@@ -169,52 +169,36 @@ in {
                 packageManager = "pnpm";
                 enableBun = true;
                 enableGlobals = true;
-                useDotfiles = true;
-                useSecrets = false;
               };
               python = {
                 enable = true;
                 package = pkgs.python3;
                 enablePoetry = true;
-                useDotfiles = true;
-                useSecrets = false;
               };
               golang = {
                 enable = true;
-                useDotfiles = true;
-                useSecrets = false;
               };
               rust = {
                 enable = true;
-                useDotfiles = true;
-                useSecrets = false;
               };
               java = {
                 enable = true;
                 jdk = pkgs.jdk21;
                 enableMaven = true;
                 enableGradle = true;
-                useDotfiles = true;
-                useSecrets = false;
               };
               ruby = {
                 enable = true;
                 package = pkgs.ruby;
-                useDotfiles = true;
-                useSecrets = false;
               };
               groovy = {
                 enable = true;
                 enableGradle = true;
-                useDotfiles = true;
-                useSecrets = false;
               };
               swift = {
                 enable = true;
                 enableTuist = true;
                 enableFastlane = true;
-                useDotfiles = true;
-                useSecrets = false;
               };
             };
 

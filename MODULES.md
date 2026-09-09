@@ -263,6 +263,135 @@ string
 
 
 
+## my\.ollama\.enable
+
+
+
+Whether to enable Servidor LLM local con Ollama\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+
+```nix
+false
+```
+
+
+
+*Example:*
+
+```nix
+true
+```
+
+
+
+## my\.ollama\.host
+
+
+
+Dirección de escucha de la API REST\.
+Linux default: 0\.0\.0\.0 (red local + Tailscale)\.
+Darwin: sobreescribir a “127\.0\.0\.1” en el host config\.
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+
+```nix
+"0.0.0.0"
+```
+
+
+
+## my\.ollama\.models
+
+
+
+Modelos a descargar automáticamente tras levantar el servicio\.
+Idempotente: solo hace pull si el modelo no existe\.
+Los modelos persisten en ~/\.ollama/models (macOS) o
+/var/lib/ollama/models (Linux)\.
+
+
+
+*Type:*
+list of string
+
+
+
+*Default:*
+
+```nix
+[ ]
+```
+
+
+
+*Example:*
+
+```nix
+[
+  "qwen2.5-coder:7b"
+  "llama3.2:3b"
+]
+```
+
+
+
+## my\.ollama\.openFirewall
+
+
+
+Abrir el puerto en el firewall (solo NixOS, ignorado en Darwin)\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+
+```nix
+true
+```
+
+
+
+## my\.ollama\.port
+
+
+
+Puerto de la API REST de Ollama\.
+
+
+
+*Type:*
+16 bit unsigned integer; between 0 and 65535 (both inclusive)
+
+
+
+*Default:*
+
+```nix
+11434
+```
+
+
+
 ## my\.openconnect\.enable
 
 

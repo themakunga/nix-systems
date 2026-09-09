@@ -4,11 +4,7 @@
 # Módulo auto-gestionado.
 # =========================================================
 {
-  flake.profileModules.thoughtworks = {
-    config,
-    pkgs,
-    ...
-  }: let
+  flake.profileModules.thoughtworks = {config, ...}: let
     sopsConf = {
       owner = config.my.userProfiles.nicolas-worl.username or "nicolas";
     };
@@ -20,19 +16,14 @@
       "profiles/thoughtworks/gpg/key_id" = sopsConf;
     };
 
-    my.apps = {
-      github-cli.enable = true;
-      gemini-cli.enable = true;
-      thougtworks = {
-        enable = true;
-        level = "user";
-        targetUser = "nicolas";
-        packages = with pkgs; [];
-        casks = [
-          "google-chrome"
-          "zoom"
-        ];
-        masApps = {};
+    my = {
+      casks = [
+        "google-chrome"
+        "zoom"
+      ];
+      apps = {
+        github-cli.enable = true;
+        gemini-cli.enable = true;
       };
     };
     programs = {

@@ -12,7 +12,7 @@
   description = "Flake build rpi installers and multi host systems";
 
   nixConfig = {
-    extra-substitutions = ["https://themakunga.cachix.org"];
+    extra-substituters = ["https://themakunga.cachix.org"];
     extra-trusted-public-keys = [
       "themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0="
     ];
@@ -73,7 +73,9 @@
     };
 
     tofu-dns = {
-      url = "git+ssh://git@github.com/TheMakunga/tofu-dns.git";
+      # Usando github: (HTTPS via API) en vez de git+ssh para que el CI
+      # pueda fetchear usando GH_TOKEN_SECRETS sin necesitar SSH key.
+      url = "github:TheMakunga/tofu-dns";
       flake = false;
     };
 

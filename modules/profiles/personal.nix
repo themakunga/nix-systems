@@ -23,29 +23,24 @@
       "profiles/personal/gpg/key_id" = sopsConf;
     };
 
-    my.apps = {
-      github-cli.enable = true;
-      personal = {
-        enable = true;
-        level = "user";
-        targetUser = "nicolas";
-        casks = mkIf isDarwin [
-          "firefox"
-          "firefox@developer-edition"
-          "zen"
-          "ghostty"
-        ];
-        brews = [
-          "xcode-build-server"
-        ];
-        packages = with pkgs; [
-          lynx
-          unstable.nchat
-          btop
-          ctop
-          glab
-        ];
-      };
+    my = {
+      packages = with pkgs; [
+        lynx
+        unstable.nchat
+        btop
+        ctop
+        glab
+      ];
+      casks = mkIf isDarwin [
+        "firefox"
+        "firefox@developer-edition"
+        "zen"
+        "ghostty"
+      ];
+      brews = [
+        "xcode-build-server"
+      ];
+      apps.github-cli.enable = true;
     };
 
     programs = {

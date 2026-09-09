@@ -20,12 +20,10 @@
       "profiles/42devs/gpg/key_id" = {};
     };
 
-    homebrew = mkIf isDarwin {
-      casks = [
-        "firefox"
-        "firefox@developer-edition"
-      ];
-    };
+    my.casks = mkIf isDarwin [
+      "firefox"
+      "firefox@developer-edition"
+    ];
 
     programs = {
       sops.gpg = {

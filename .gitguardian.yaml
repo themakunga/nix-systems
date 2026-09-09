@@ -1,0 +1,7 @@
+version: 2
+# Ignorar falsos positivos:
+# - public_keys.json contiene claves SSH PÚBLICAS (no privadas)
+# - .sops.yaml contiene claves age PÚBLICAS (no privadas)
+paths-ignore:
+  - "public_keys.json"
+  - ".sops.yaml"

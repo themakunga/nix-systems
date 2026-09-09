@@ -54,6 +54,10 @@ in {
             settings.PermitRootLogin = "yes";
           };
 
+          # Contraseña temporal para acceso local por consola (solo bootstrap).
+          # Eliminar antes de usar en producción.
+          users.users.root.initialPassword = "nixos";
+
           my.authorizedKeys = {
             enable = true;
             assignTo = ["root"];

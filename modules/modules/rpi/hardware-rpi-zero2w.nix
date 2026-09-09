@@ -17,7 +17,10 @@
       enableRedistributableFirmware = true;
       deviceTree = {
         enable = true;
-        filter = lib.mkForce "bcm2710-rpi-zero-2-w.dtb";
+        # En el kernel estándar upstream (linux-6.18+) el DTB usa el nombre
+        # real del SoC (BCM2837), no el nombre de marketing (BCM2710).
+        # El kernel RPi-específico usa bcm2710-*, el estándar usa bcm2837-*.
+        filter = lib.mkForce "bcm2837-rpi-zero-2-w.dtb";
       };
     };
 

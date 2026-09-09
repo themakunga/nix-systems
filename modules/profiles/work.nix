@@ -20,20 +20,15 @@
       "profiles/work/gpg/key_id" = sopsConf;
     };
 
-    my.apps = {
-      work = {
-        enable = true;
-        level = "user";
-        targetUser = "nicolas";
-        casks = [
-          "typora"
-        ];
-        masApps = {
-          "Termius" = 1176074088;
-        };
-        packages = with pkgs; [
-          unstable.nchat
-        ];
+    my = {
+      packages = with pkgs; [
+        unstable.nchat
+      ];
+      casks = [
+        "typora"
+      ];
+      masApps = {
+        "Termius" = 1176074088;
       };
     };
 

@@ -8,11 +8,7 @@
 # Path: ./modules/modules/nixos/nix-anywhere.nix
 # Description: Módulo base para el despliegue desatendido con nix-anywhere
 # =====================
-{
-  self,
-  inputs,
-  ...
-}: {
+{self, ...}: {
   flake.nixosModules.nix-anywhere = {
     config,
     lib,
@@ -21,9 +17,9 @@
     inherit (lib) mkEnableOption mkIf mapAttrsToList;
     cfg = config.my.nix-anywhere;
 
-    # ⚠️ NIX NO LEE YAML NATIVAMENTE, CAMBIADO A JSON
-    # Asegúrate de tener este archivo como JSON en tu repositorio de secretos
-    keysFile = "${inputs.secrets}/public_keys.json";
+    # public_keys.json vive en el mismo repo (nix-systems), no en secrets
+    # ya que son claves públicas y no necesitan cifrado SOPS
+    keysFile = "${self}/public_keys.json";
     templateFile = "${self}/template/hardware-configuration.nix";
 
     publicKeysData =
@@ -50,11 +46,10 @@
 
       users.users.root.openssh.authorizedKeys.keys = allKeys;
 
-      users.users.${targetUser} = {
-        isNormalUser = true;
-        extraGroups = ["wheel" "networkmanager"];
-        openssh.authorizedKeys.keys = allKeys;
-      };
+      # Solo inyectar las SSH keys — no redefinir isNormalUser ni
+      # extraGroups, ya que el usuario puede estar definido por
+      # un userProfile con configuración distinta (e.g., servidor).
+      users.users.${targetUser}.openssh.authorizedKeys.keys = allKeys;
     };
   };
 }
