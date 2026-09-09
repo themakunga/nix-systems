@@ -26,18 +26,36 @@
     # por lo que pkgs.stdenv.isDarwin causaría recursión. Usar options en su lugar.
     isDarwin = options ? system.darwinVersion;
 
-    targetUser = config.my.primaryUser.username or "nicolas";
+    # cfg.user es nullOr str: si es null, cae al primaryUser o al default "nicolas".
+    # NOTA: en Nix, `attrset.attr or default` solo ayuda con atributos AUSENTES;
+    # con null el attr existe y retorna null → no usar 'or' para valores nulos.
+    targetUser =
+      if cfg.user != null
+      then cfg.user
+      else config.my.primaryUser.username or "nicolas";
     userHome =
       if isDarwin
       then "/Users/${targetUser}"
+      else if (config.users.users ? ${targetUser} && config.users.users.${targetUser}.home != "")
+      then config.users.users.${targetUser}.home
       else "/home/${targetUser}";
     wallpaperTargetDir = "${userHome}/.config/wallpapers";
 
-    # 'swww' fue renombrado a 'awww' en nixpkgs 26.05
+    # 'swww' fue renombrado a 'awww' en nixpkgs 26.05.
+    # Los binarios también se renombraron: swww-daemon → awww-daemon, swww → awww.
     swwwPkg = pkgs.awww;
+    # Nombres de los binarios en la versión awww (nixpkgs 26.05+)
+    daemonBin = "${swwwPkg}/bin/awww-daemon";
+    imgBin = "${swwwPkg}/bin/awww";
   in {
     options.my.wallpaper = {
       enable = mkEnableOption "Automatic wallpaper management";
+
+      user = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "Usuario dueño del wallpaper. Si es null, usa my.primaryUser.username. El home se resuelve desde users.users.<user>.home.";
+      };
 
       path = mkOption {
         type = types.oneOf [types.path types.str];
@@ -110,7 +128,7 @@
             Type = "simple";
             Restart = "on-failure";
             RestartSec = "3s";
-            ExecStart = "${swwwPkg}/bin/swww-daemon";
+            ExecStart = daemonBin;
           };
         };
 
@@ -126,7 +144,7 @@
             RemainAfterExit = true;
             # Dar tiempo al daemon para que inicialice el socket
             ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";
-            ExecStart = "${swwwPkg}/bin/swww img ${toString cfg.path} --transition-type none";
+            ExecStart = "${imgBin} img ${toString cfg.path} --transition-type none";
           };
         };
       })

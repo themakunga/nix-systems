@@ -17,15 +17,29 @@ _: {
   }: let
     inherit (lib) mkEnableOption mkOption types mkIf;
     cfg = config.my.dotfiles;
-    user = config.system.primaryUser or "nicolas";
     isDarwin = pkgs.stdenv.isDarwin;
+    # user y userHome se resuelven desde las opciones para permitir override por host.
+    # En Darwin el default de cfg.user es system.primaryUser; en Linux cae a "nicolas".
+    user = cfg.user;
     userHome =
-      if isDarwin
+      if cfg.home != null
+      then cfg.home
+      else if isDarwin
       then "/Users/${user}"
       else "/home/${user}";
   in {
     options.my.dotfiles = {
       enable = mkEnableOption "Habilitar sincronización y despliegue avanzado de dotfiles";
+      user = mkOption {
+        type = types.str;
+        default = config.system.primaryUser or "nicolas";
+        description = "Usuario que recibirá los dotfiles (por defecto: system.primaryUser o 'nicolas')";
+      };
+      home = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "Ruta home del usuario. Si es null se infiere: /Users/<user> en Darwin, /home/<user> en Linux.";
+      };
       repository = mkOption {
         type = types.str;
         default = "https://github.com/themakunga/public-dotfiles.git";
