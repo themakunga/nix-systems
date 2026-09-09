@@ -373,13 +373,22 @@
     # greetd lanza Hyprland sin sesión PAM completa en algunos casos, por lo que
     # XDG_RUNTIME_DIR (/run/user/<uid>) nunca se crea → Hyprland falla con
     # "CRIT: XDG_RUNTIME_DIR is not set!".
-    # La solución: script explícito que crea el directorio y lo exporta antes de exec.
+    #
+    # WLR_RENDER_DRM_DEVICE y WLR_DRM_DEVICES: necesarios en RPi5 para que
+    # Aquamarine (backend de Hyprland ≥0.40) encuentre el render node correcto.
+    # Sin esto, eglQueryDeviceStringEXT falla → "Can't create renderer" →
+    # Hyprland cae a software GBM sin aceleración GPU y genera ERR en el log.
+    # renderD128 es el render node del VC4/V3D (card1 = KMS, renderD128 = render).
     hyprlandSession = pkgs.writeShellScript "hyprland-session" ''
       export XDG_RUNTIME_DIR=/run/user/$(id -u)
       mkdir -p "$XDG_RUNTIME_DIR"
       chmod 0700 "$XDG_RUNTIME_DIR"
       export XDG_SESSION_TYPE=wayland
       export XDG_CURRENT_DESKTOP=Hyprland
+      # Forzar el render node y el DRM device para el VC4/V3D del RPi5.
+      # Aquamarine usa estas variables para seleccionar el dispositivo EGL correcto.
+      export WLR_RENDER_DRM_DEVICE=/dev/dri/renderD128
+      export WLR_DRM_DEVICES=/dev/dri/card1
       exec ${pkgs.dbus}/bin/dbus-run-session ${pkgs.hyprland}/bin/Hyprland
     '';
   in {
