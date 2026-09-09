@@ -19,8 +19,8 @@
     ];
 
     boot.kernel.sysctl = {
-      "wm.swappiness" = 10;
-      "wm.dirty_writeback_centisecs" = 6000;
+      "vm.swappiness" = 10;
+      "vm.dirty_writeback_centisecs" = 6000;
     };
   };
 }
