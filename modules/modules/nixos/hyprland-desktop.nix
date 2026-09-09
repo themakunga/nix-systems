@@ -576,6 +576,11 @@
             '';
             # Wrapper dinámico: detecta el nombre real del output HEADLESS en esta sesión
             # (puede ser HEADLESS-1, HEADLESS-2, etc. según el contador de Hyprland).
+            # Aquamarine (backend de Hyprland) puede crear HEADLESS-1 internamente como
+            # fallback cuando el renderer DRM falla, haciendo que el primer output
+            # visible sea HEADLESS-2. Por eso NO hardcodeamos el nombre ni dependemos
+            # de monitors.conf; en su lugar aplicamos la resolución del iPad vía
+            # 'hyprctl keyword monitor' justo antes de arrancar wayvnc.
             # Usa exec para reemplazar el shell con wayvnc (systemd trackea el PID correcto).
             ExecStart = pkgs.writeShellScript "wayvnc-start" ''
               HIS=$(ls -t "$XDG_RUNTIME_DIR/hypr/" 2>/dev/null | head -1)
@@ -588,6 +593,11 @@
                 exit 1
               fi
               echo "wayvnc-start: usando output $HEADLESS"
+              # Aplicar resolución del iPad Pro portrait (1668×2224) al output detectado.
+              # Esto garantiza la resolución correcta independientemente del número de HEADLESS
+              # (HEADLESS-1, HEADLESS-2, …) que Aquamarine haya asignado en esta sesión.
+              ${pkgs.hyprland}/bin/hyprctl keyword monitor "$HEADLESS,1668x2224@60,0x0,1" 2>/dev/null || true
+              sleep 1
               exec ${pkgs.wayvnc}/bin/wayvnc --output "$HEADLESS" ${cfg.vnc.address} ${toString cfg.vnc.port}
             '';
           };
