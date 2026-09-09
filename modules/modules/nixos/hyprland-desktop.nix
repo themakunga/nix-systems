@@ -447,7 +447,7 @@
         environment.systemPackages = with pkgs; [
           foot # terminal (TokyoNight config incluido)
           wofi # launcher alternativo (dmenu style)
-          rofi-wayland # launcher principal (rofi -show drun)
+          rofi # launcher principal (rofi -show drun); rofi-wayland mergeado en rofi en nixpkgs 26.05
           unstable.waybar # barra de estado (TokyoNight style)
           wl-clipboard # clipboard
           grim # screenshots
