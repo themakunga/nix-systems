@@ -166,6 +166,8 @@
         "spacing":  4,
 
         "modules-left": [
+          "custom/launcher",
+          "custom/sep",
           "hyprland/workspaces",
           "custom/sep",
           "hyprland/window"
@@ -222,6 +224,11 @@
         "custom/sep": {
           "format":   "|",
           "interval": 0
+        },
+        "custom/launcher": {
+          "format":   " ",
+          "tooltip":  false,
+          "on-click": "rofi -show drun"
         }
       }
     '';
@@ -335,6 +342,18 @@
         color:      @fg;
         font-weight: normal;
         font-style:  italic;
+      }
+
+      /* Launcher — botón tap-friendly para VNC/iPad */
+      #custom-launcher {
+        padding:      0 12px;
+        color:        @mag;
+        font-size:    18px;
+        border-bottom: 4px solid @mag;
+      }
+      #custom-launcher:hover {
+        background:   @blk;
+        color:        @white;
       }
     '';
 
