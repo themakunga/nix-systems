@@ -38,7 +38,13 @@
       # Tema: TokyoNight Night — estilo tonybankers
       # =====================================================
 
-      monitor = ,preferred,auto,1
+      # HDMI: monitor principal — origen del espacio de pantallas (0,0)
+      monitor = HDMI-A-1, preferred, 0x0, 1
+      # VNC/iPad (headless): secundario a la IZQUIERDA del HDMI
+      # X negativa = a la izquierda del origen. iPad Pro landscape = 2224×1668.
+      monitor = HEADLESS-1, 2224x1668@60, -2224x0, 1
+      # Fallback para cualquier otra salida desconocida
+      monitor = , preferred, auto, 1
 
       # ── Autostart ──────────────────────────────────────
       exec-once = waybar
@@ -622,11 +628,14 @@
                 exit 1
               fi
               echo "wayvnc-start: usando output $HEADLESS"
-              # Aplicar resolución del iPad Pro landscape (2224×1668) al output detectado.
-              # Esto garantiza la resolución correcta independientemente del número de HEADLESS
-              # (HEADLESS-1, HEADLESS-2, …) que Aquamarine haya asignado en esta sesión.
-              ${pkgs.hyprland}/bin/hyprctl keyword monitor "$HEADLESS,2224x1668@60,0x0,1" 2>/dev/null || true
+              # VNC (secundario): a la IZQUIERDA del HDMI (primario en 0x0).
+              # X = -2224 = ancho del iPad Pro landscape (2224×1668).
+              ${pkgs.hyprland}/bin/hyprctl keyword monitor "$HEADLESS,2224x1668@60,-2224x0,1" 2>/dev/null || true
               sleep 1
+              # Re-aplicar wallpaper a todos los outputs (HDMI + nuevo HEADLESS).
+              # awww-daemon sigue corriendo; sólo hay que pedirle que lo extienda.
+              WALLPAPER=$(find "$HOME/.config/wallpapers/" -type f 2>/dev/null | head -1)
+              [ -n "$WALLPAPER" ] && ${pkgs.awww}/bin/awww img "$WALLPAPER" --transition-type none 2>/dev/null || true
               exec ${pkgs.wayvnc}/bin/wayvnc --output "$HEADLESS" ${cfg.vnc.address} ${toString cfg.vnc.port}
             '';
           };
