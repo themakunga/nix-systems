@@ -19,6 +19,7 @@ _: {
         "apps"
         "git-identity"
         "sops-gpg"
+        "shared-plain"
       ];
 
       nixosModules = [

@@ -51,6 +51,7 @@ _: {
         halloy.enable = true;
         irssi.enable = true;
         nchat.enable = true;
+        wechat.enable = true;
       };
 
       tools.devenv.enable = true;

@@ -23,6 +23,7 @@
         "devenv"
         "wallpaper"
         "weather"
+        "shared-plain"
       ];
 
       darwinModules = [
