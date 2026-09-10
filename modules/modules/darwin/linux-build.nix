@@ -3,11 +3,7 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# =========================================================
-# Archivo de Configuración de NixOS / Nix-Darwin
-# Repositorio: TheMakunga Infrastructure
 # Módulo: darwinModules.linux-builder
-# =========================================================
 {
   flake.darwinModules.linux-builder = {
     config,
@@ -27,20 +23,15 @@
         ephemeral = true; # Destruye y recrea la VM limpia en cada reinicio
         maxJobs = 8; # Compilaciones paralelas (era 4 — M4 Max tiene cores de sobra)
 
-        # Usamos notación plana con mkForce para aplastar los valores por defecto
         config = {
           virtualisation = {
             memorySize = mkForce 12288; # 12 GB de RAM (era 8GB)
             cores = mkForce 8; # 8 Cores de CPU (era 4 — M4 Max tiene 14 performance cores)
             diskSize = mkForce 51200; # 50 GB de disco virtual
           };
-
-          # NTP explícito: el reloj del guest QEMU puede desincronizarse del host.
-          # Sin esto, los certificados SSL fallan con "certificate not yet valid".
-          services.timesyncd = {
-            enable = mkForce true; # qemu-vm sets this false by default
-            servers = ["time.cloudflare.com" "pool.ntp.org"];
-          };
+          # ponytail: clock drift fix — restart launchd service to re-sync VM clock.
+          # services.timesyncd cannot be set here: CI builds aarch64 VM on x86_64,
+          # any VM-level NixOS change produces uncacheable aarch64 derivations.
         };
       };
 
