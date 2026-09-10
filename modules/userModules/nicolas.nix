@@ -14,6 +14,15 @@
     config,
     ...
   }: {
+    # Password hash almacenado en SOPS — no queda en texto plano en el Nix store.
+    # sops-nix descifra el archivo en /run/secrets/nicolas-password en cada activación.
+    sops.secrets."nicolas-password" = {
+      sopsFile = "${inputs.secrets.outPath}/users/nicolas.yaml";
+      format = "yaml";
+      key = "password";
+      neededForUsers = true; # disponible antes de que se creen los usuarios
+    };
+
     my.userProfiles.nicolas = {
       username = "nicolas";
       fullName = "Nicolas Villarroel";
@@ -24,20 +33,12 @@
       createHome = false; # sin home directory
       shell = pkgs.bashInteractive;
       extraGroups = ["docker"];
+      # Propagar vía userProfiles para no conflictuar con el default null
+      hashedPasswordFile = config.sops.secrets."nicolas-password".path;
     };
 
     # Sin home directory: redirigir a /var/empty (convención UNIX)
     users.users.nicolas.home = lib.mkForce "/var/empty";
-
-    # Password hash almacenado en SOPS — no queda en texto plano en el Nix store.
-    # sops-nix descifra el archivo en /run/secrets/nicolas-password en cada activación.
-    sops.secrets."nicolas-password" = {
-      sopsFile = "${inputs.secrets.outPath}/users/nicolas.yaml";
-      format = "yaml";
-      key = "password";
-      neededForUsers = true; # disponible antes de que se creen los usuarios
-    };
-    users.users.nicolas.hashedPasswordFile = config.sops.secrets."nicolas-password".path;
 
     # Expirar la contraseña inmediatamente para forzar cambio en el primer
     # login interactivo (consola o SSH con PasswordAuthentication).
