@@ -38,7 +38,7 @@
           # NTP explícito: el reloj del guest QEMU puede desincronizarse del host.
           # Sin esto, los certificados SSL fallan con "certificate not yet valid".
           services.timesyncd = {
-            enable = true;
+            enable = mkForce true; # qemu-vm sets this false by default
             servers = ["time.cloudflare.com" "pool.ntp.org"];
           };
         };
