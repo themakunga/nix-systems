@@ -3,11 +3,6 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# =========================================================
-# Archivo de Configuración de NixOS / Nix-Darwin
-# Repositorio: TheMakunga Infrastructure
-# Módulo auto-gestionado.
-# =========================================================
 # === DOCUMENTATION ===
 # File: janitor.nix
 # Path: ./modules/modules/darwin/janitor.nix

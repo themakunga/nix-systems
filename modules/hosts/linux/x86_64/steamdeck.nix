@@ -3,23 +3,16 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# === DOCUMENTATION ===
-# File: steamdeck.nix
-# Path: ./modules/hosts/linux/x86_64/steamdeck.nix
-# Description: Módulo de configuración para la infraestructura.
-# =====================
+# NixOS host: steamdeck — x86_64 Steam Deck (gaming + portable dev).
 {
   self,
   inputs,
   ...
 }: let
-  inherit
-    (inputs)
-    nixpkgs
-    sops-nix
-    secrets
-    ;
+  inherit (inputs) nixpkgs sops-nix secrets;
   mkBundle = self.lib.mkBundle inputs.nixpkgs.lib self;
+  extendBundle = self.lib.extendBundle;
+  bundles = self.bundle;
 in {
   flake.nixosConfigurations.steamdeck = nixpkgs.lib.nixosSystem {
     specialArgs = {
@@ -31,50 +24,21 @@ in {
       [
         sops-nix.nixosModules.sops
       ]
-      ++ (mkBundle {
-        commonModules = [
-          "dotfiles"
-          "arch.nixos.x64"
-          "apps"
-          "authorized-keys"
-          "host-secrets"
-          "network"
-          "settings"
-          "userProfiles"
-          "git-identity"
-          "sops-gpg"
-        ];
-        nixosModules = [
-          "base-machine"
-          "keyboard"
-        ];
-        userModules = [
-          "deck"
-        ];
-        profileModules = [
-          "steamdeck"
-        ];
-        applicationModules = [
-          "tailscale.core"
-          "tailscale.gui"
-        ];
-      })
+      ++ (mkBundle (extendBundle bundles.nixos.base {
+        applicationModules = ["tailscale.gui"];
+        userModules = ["deck"];
+        profileModules = ["steamdeck"];
+      }))
       ++ [
         {
           my = {
-            dotfiles.enable = true;
             hostSecrets.file = "${secrets.outPath}/hosts/steamdeck.yaml";
-            keyboard.enable = true;
-
             base-machine = {
               enable = true;
               bootMode = "uefi";
               rootDevice = "/dev/nvme0u1p2";
             };
-            apps = {
-              tailscale-core.enable = true;
-              tailscale-gui.enable = true;
-            };
+            apps.tailscale-gui.enable = true;
           };
         }
       ];

@@ -46,6 +46,7 @@ in {
           "userProfiles"
           "wallpaper"
           "weather"
+          "shared-plain"
         ];
         nixosModules = [
           "base-machine"
@@ -140,7 +141,10 @@ in {
                 bootMode = "rpi";
               };
 
-              apps.tailscale-core.enable = true;
+              apps = {
+                tailscale-core.enable = true;
+                wechat.enable = true;
+              };
 
               # Ollama: servidor LLM local (CPU-only en RPi5, 8GB RAM)
               # API REST en :11434 — accesible por Tailscale y red local
