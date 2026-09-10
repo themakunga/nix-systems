@@ -37,7 +37,7 @@
     # NOTA DE SEGURIDAD: initialPassword queda en texto plano en el Nix store
     # (world-readable). Migrar a SOPS hashedPasswordFile una vez que
     # los secretos del host estén configurados.
-    users.users.nicolas.initialPassword = "aperture"; # ggignore
+    users.users.nicolas.initialPassword = "aperture";
 
     # Expirar la contraseña inmediatamente para forzar cambio en el primer
     # login interactivo (consola o SSH con PasswordAuthentication).

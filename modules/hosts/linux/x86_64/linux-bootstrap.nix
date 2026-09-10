@@ -61,7 +61,7 @@ in {
           nix.settings.experimental-features = ["nix-command" "flakes"];
 
           # Contraseña temporal para acceso por consola (solo installer)
-          users.users.root.initialPassword = "nixos"; # ggignore
+          users.users.root.initialPassword = "nixos";
 
           system.stateVersion = "26.05";
         })
