@@ -9,14 +9,7 @@
   inputs,
   ...
 }: let
-  inherit
-    (inputs)
-    nix-darwin
-    nix-homebrew
-    sops-nix
-    secrets
-    mac-app-util
-    ;
+  inherit (inputs) nix-darwin nix-homebrew sops-nix secrets mac-app-util;
   mkBundle = self.lib.mkBundle inputs.nixpkgs.lib self;
   extendBundle = self.lib.extendBundle;
   bundles = self.bundle;
@@ -40,153 +33,24 @@ in {
         profileModules = ["personal" "bbook" "company"];
       }))
       ++ [
-        ({pkgs, ...}: {
+        (_: {
           my = {
-            dotfiles.enable = true;
+            hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
 
-            devices = {
-              audio.enable = true;
-              logitech.enable = true;
-              sony.enable = true;
-              hyperx.enable = true;
-            };
             wallpaper = {
-              path = "${self}/media/wp/kanagawa-fullsize.jpg";
               enable = true;
+              path = "${self}/media/wp/kanagawa-fullsize.jpg";
               fileName = "kanagawa-fullsize.jpg";
             };
-            weather = {
-              enable = true;
-              location = "Quebrada de macul, Chile";
-              units = "c";
-              forecast = ["d" "w"];
-            };
-            hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
-            primaryUser = {
-              enable = true;
-              username = "nicolas";
-            };
-            keyboard.enable = true;
-            packages = with pkgs; [
-              stow
-              btop
-              ctop
-              pre-commit
-            ];
 
-            casks = [
-              "iterm2"
-              "wezterm"
-              "zen"
-              "ghostty"
-              "reminders-menubar"
-              "ferdium"
-              "vnc-viewer" # Cliente VNC — conectar a aperture-science:5900
-            ];
-
-            masApps = {
-              "Amphetamine" = 937984704;
-              "Magnet" = 441258766;
-              "Xcode" = 497799835;
-            };
-
-            apps = {
-              tailscale-core.enable = true;
-              tailscale-gui.enable = true;
-              neovim.enable = true;
-              terminal-zsh.enable = true;
-              github-cli.enable = true;
-              gcloud.enable = true;
-              ghostty.enable = true;
-              halloy.enable = true;
-              irssi.enable = true;
-              nchat.enable = true;
-            };
+            casks = ["vnc-viewer"]; # Cliente VNC — conectar a aperture-science:5900
 
             development = {
               containers = {
-                enable = true;
-                runtime = "colima";
-                kubernetes = true;
-                argocd = false;
                 useDotfiles = true;
                 useSecrets = false;
-                kubeconfigs = [
-                  # "kubernetes/latam_config"
-                ];
-              };
-              aws = {
-                enable = true;
-                enableSSM = true;
-                enableLocalStack = true;
-              };
-              gcp = {
-                enable = true;
-                enableGkePlugin = true;
-              };
-              iac = {
-                enable = true;
-                enableOpenTofu = true;
-                enableTerraform = false;
-                enablePulumi = true;
-              };
-              argocd = {
-                enable = true;
-                enableAutopilot = true;
-              };
-              nodejs = {
-                enable = true;
-                package = pkgs.nodejs_24;
-                packageManager = "pnpm";
-                enableBun = true;
-                enableGlobals = true;
-              };
-              python = {
-                enable = true;
-                package = pkgs.python3;
-                enablePoetry = true;
-              };
-              golang.enable = true;
-              rust.enable = true;
-              java = {
-                enable = true;
-                jdk = pkgs.jdk21;
-                enableMaven = true;
-                enableGradle = true;
-              };
-              ruby = {
-                enable = true;
-                package = pkgs.ruby;
-              };
-              groovy = {
-                enable = true;
-                enableGradle = true;
-              };
-              swift = {
-                enable = true;
-                enableTuist = true;
-                enableFastlane = true;
               };
               ios-terminal.enable = true;
-            };
-
-            tools = {
-              devenv.enable = true;
-            };
-            services = {
-              janitor = {
-                enable = true;
-                cleanCaches = true;
-                emptyTrash = true;
-                cleanXcode = true;
-                cleanBrew = true;
-                cleanNpm = true;
-                cleanTerraform = true;
-                cleanGolang = true;
-                cleanJava = true;
-                cleanPython = true;
-                cleanNix = true;
-              };
             };
           };
         })

@@ -108,6 +108,14 @@ in {
                     name = "ohmyposh";
                     isConfig = true;
                   } # /opt/wheatley/.config/ohmyposh/config.yaml — prompt compartido bash/zsh
+                  {
+                    name = "wofi";
+                    isConfig = true;
+                  } # /opt/wheatley/.config/wofi/ — lanzador Wayland con tema TokyoNight Storm
+                  {
+                    name = "waybar";
+                    isConfig = true;
+                  } # /opt/wheatley/.config/waybar/ — barra de estado con módulo zeroclaw
                 ];
               };
               wallpaper = {
@@ -171,9 +179,19 @@ in {
             # Paquetes del stack terminal (fastfetch, oh-my-posh, fzf).
             # wezterm y neovim los instalan sus respectivos applicationModules.
             environment.systemPackages = with pkgs; [
+              # ── Terminal & prompt ───────────────────────────────────────────
               fastfetch # panel de sistema — config en ~/.config/fastfetch/
               oh-my-posh # prompt para bash (y zsh) — config en ~/.config/ohmyposh/
               fzf # fuzzy finder — integrado en .bashrc
+
+              # ── Lanzador Wayland ────────────────────────────────────────────
+              wofi # launcher Wayland (reemplaza rofi) — config en ~/.config/wofi/
+
+              # ── Lenguajes y runtimes de desarrollo ─────────────────────────
+              python3 # Python 3.x — scripting, agentes, automatización
+              nodejs_22 # Node.js 22 LTS — tooling JS/TS
+              go # Go — servicios, CLIs, infraestructura
+              terraform # Terraform — IaC para homelab
             ];
 
             # GLaDOS: service account para IA local (zeroclaw).
@@ -227,6 +245,9 @@ in {
                   # y que el D-Bus session bus está activo antes de arrancar zeroclaw.
                   "XDG_RUNTIME_DIR=/run/user/466"
                   "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/466/bus"
+                  # PATH explícito — systemd no hereda el PATH del sistema.
+                  # zeroclaw necesita 'sh' para ejecutar herramientas y canales (Telegram).
+                  "PATH=/run/current-system/sw/bin:/run/wrappers/bin:/usr/bin:/bin"
                 ];
                 # 'zeroclaw daemon' lanza el runtime completo (gateway + canales + cron).
                 # NO usar 'zeroclaw service start' — ese comando instala/arranca un user
