@@ -5,8 +5,14 @@
 # =========================================================
 # WeChat — copies plain config from secrets/shared-conf/wechat/ via activation script.
 # macOS: installed via cask. Linux x86_64: wechat-uos. aarch64: config only.
-{self, ...}: let
+{
+  self,
+  inputs,
+  ...
+}: let
   inherit (self.lib) mkAppModule;
+  # Capture secrets path at flake-parts level — not available as NixOS module arg
+  secretsPath = inputs.secrets.outPath;
 in {
   flake.applicationModules.wechat = mkAppModule "wechat" "Enable WeChat" {
     meta = {
@@ -19,11 +25,7 @@ in {
       packages = lib.optionals (pkgs.stdenv.isLinux && pkgs.stdenv.isx86_64) [pkgs.wechat-uos];
     };
 
-    sysConfig = {
-      inputs,
-      pkgs,
-      ...
-    }: let
+    sysConfig = {pkgs, ...}: let
       isDarwin = pkgs.stdenv.isDarwin;
       user = "nicolas";
       userHome =
@@ -34,7 +36,7 @@ in {
         if isDarwin
         then "${userHome}/Library/Application Support/WeChat"
         else "${userHome}/.config/wechat";
-      srcDir = "${inputs.secrets.outPath}/shared-conf/wechat";
+      srcDir = "${secretsPath}/shared-conf/wechat";
       script = ''
         if [ -d "${srcDir}" ]; then
           mkdir -p "${destDir}"
