@@ -3,11 +3,6 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# =========================================================
-# Archivo de Configuración de NixOS / Nix-Darwin
-# Repositorio: TheMakunga Infrastructure
-# Módulo auto-gestionado.
-# =========================================================
 # === DOCUMENTATION ===
 # File: weather.nix
 # Path: ./modules/applications/weather.nix
