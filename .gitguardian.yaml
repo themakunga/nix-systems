@@ -2,6 +2,10 @@ version: 2
 # Ignorar falsos positivos:
 # - public_keys.json contiene claves SSH PÚBLICAS (no privadas)
 # - .sops.yaml contiene claves age PÚBLICAS (no privadas)
+# - bootstrap modules usan initialPassword intencionalmente público
+#   (mismo valor que la imagen oficial de NixOS — no es un secreto real)
 paths-ignore:
   - "public_keys.json"
   - ".sops.yaml"
+  - "modules/hosts/linux/raspberry-pi/aperture-science-bootstrap.nix"
+  - "modules/hosts/linux/x86_64/linux-bootstrap.nix"
