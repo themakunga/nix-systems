@@ -13,9 +13,10 @@
     config,
     ...
   } @ args: let
+    childArgs = args // {pkgs = args.pkgs or config._module.args.pkgs;};
     eval = x:
       if builtins.isFunction x
-      then x args
+      then x childArgs
       else x;
   in
     lib.mkMerge [
