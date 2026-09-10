@@ -34,6 +34,13 @@
             cores = mkForce 8; # 8 Cores de CPU (era 4 — M4 Max tiene 14 performance cores)
             diskSize = mkForce 51200; # 50 GB de disco virtual
           };
+
+          # NTP explícito: el reloj del guest QEMU puede desincronizarse del host.
+          # Sin esto, los certificados SSL fallan con "certificate not yet valid".
+          services.timesyncd = {
+            enable = true;
+            servers = ["time.cloudflare.com" "pool.ntp.org"];
+          };
         };
       };
 
