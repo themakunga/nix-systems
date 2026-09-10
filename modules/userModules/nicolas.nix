@@ -3,19 +3,15 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# =========================================================
-# Archivo de Configuración de NixOS / Home Manager
-# Repositorio: TheMakunga Infrastructure
 # Módulo: userModules/nicolas
 # Description: Usuario administrador Nicolas — acceso SSH con llave,
 #              sudo vía wheel, sin home directory.
-#              Password bloqueado hasta que el usuario lo configure
-#              manualmente en el primer login via SSH.
-# =========================================================
-{
+#              Password hash almacenado en SOPS (secrets/users/nicolas.yaml).
+{inputs, ...}: {
   flake.userModules.nicolas = {
     lib,
     pkgs,
+    config,
     ...
   }: {
     my.userProfiles.nicolas = {
@@ -33,11 +29,15 @@
     # Sin home directory: redirigir a /var/empty (convención UNIX)
     users.users.nicolas.home = lib.mkForce "/var/empty";
 
-    # Contraseña de bootstrap — DEBE cambiarse en el primer acceso.
-    # NOTA DE SEGURIDAD: initialPassword queda en texto plano en el Nix store
-    # (world-readable). Migrar a SOPS hashedPasswordFile una vez que
-    # los secretos del host estén configurados.
-    users.users.nicolas.initialPassword = "aperture";
+    # Password hash almacenado en SOPS — no queda en texto plano en el Nix store.
+    # sops-nix descifra el archivo en /run/secrets/nicolas-password en cada activación.
+    sops.secrets."nicolas-password" = {
+      sopsFile = "${inputs.secrets.outPath}/users/nicolas.yaml";
+      format = "yaml";
+      key = "password";
+      neededForUsers = true; # disponible antes de que se creen los usuarios
+    };
+    users.users.nicolas.hashedPasswordFile = config.sops.secrets."nicolas-password".path;
 
     # Expirar la contraseña inmediatamente para forzar cambio en el primer
     # login interactivo (consola o SSH con PasswordAuthentication).

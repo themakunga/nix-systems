@@ -9,4 +9,3 @@ paths-ignore:
   - ".sops.yaml"
   - "modules/hosts/linux/raspberry-pi/aperture-science-bootstrap.nix"
   - "modules/hosts/linux/x86_64/linux-bootstrap.nix"
-  - "modules/userModules/nicolas.nix"
