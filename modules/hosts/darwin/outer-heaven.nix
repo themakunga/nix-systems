@@ -9,14 +9,7 @@
   inputs,
   ...
 }: let
-  inherit
-    (inputs)
-    nix-darwin
-    nix-homebrew
-    sops-nix
-    secrets
-    mac-app-util
-    ;
+  inherit (inputs) nix-darwin nix-homebrew sops-nix secrets mac-app-util;
   mkBundle = self.lib.mkBundle inputs.nixpkgs.lib self;
   extendBundle = self.lib.extendBundle;
   bundles = self.bundle;
@@ -43,183 +36,37 @@ in {
       ++ [
         ({pkgs, ...}: {
           my = {
-            dotfiles.enable = true;
             linux-builder.enable = true;
-
-            devices = {
-              audio.enable = true;
-              logitech.enable = true;
-              sony.enable = true;
-              hyperx.enable = true;
-            };
-            wallpaper = {
-              path = "${self}/media/wp/wallpaper-outer-heaven.jpg";
-              enable = true;
-              fileName = "wallpaper-outer-heaven.jpg";
-            };
-            weather = {
-              enable = true;
-              location = "Quebrada de Macul, Chile";
-              units = "c";
-              forecast = ["d" "w"];
-            };
-            cloudProfiles = {
-              aws = [
-              ];
-              gcp = [
-              ];
-            };
             hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
 
-            # Ollama: servidor LLM local con Metal (Apple Silicon, M4 Max 36GB).
-            # qwen2.5-coder:7b — top en código, ~4.5GB RAM, deja ~31GB libres.
-            # API en localhost:11434 (no expuesta en red — solo uso local).
+            wallpaper = {
+              enable = true;
+              path = "${self}/media/wp/wallpaper-outer-heaven.jpg";
+              fileName = "wallpaper-outer-heaven.jpg";
+            };
+
             ollama = {
               enable = true;
-              host = "127.0.0.1"; # Solo localhost — no exponer en red
-              openFirewall = false; # No aplica en Darwin, pero explícito
+              host = "127.0.0.1";
+              openFirewall = false;
               models = ["qwen2.5-coder:7b"];
             };
-            primaryUser = {
-              enable = true;
-              username = "nicolas";
-            };
-            keyboard.enable = true;
+
+            # work-only packages (stow/pre-commit/btop/ctop come from darwin-mac/personal profiles)
             packages = with pkgs; [
-              stow
-              btop
-              ctop
-              pre-commit
               terminal-notifier
               claude-code
-              unstable.nchat
-              jdk25
               unstable.cliamp
+              jdk25
               argo-workflows
               rustc
             ];
 
-            casks = [
-              "tigervnc"
-              "iterm2"
-              "okta-verify"
-              "wezterm"
-              "zen"
-              "ghostty"
-              "miniconda"
-              "halloy"
-              "reminders-menubar"
-              "ferdium"
-              "claude-code"
-            ];
-
-            masApps = {
-              "Amphetamine" = 937984704;
-              "Magnet" = 441258766;
-              "Xcode" = 497799835;
-            };
+            casks = ["tigervnc" "okta-verify" "halloy" "miniconda" "claude-code"];
 
             apps = {
               aws-cli.enable = true;
-              tailscale-core.enable = true;
-              tailscale-gui.enable = true;
-              neovim.enable = true;
-              terminal-zsh.enable = true;
-              github-cli.enable = true;
               gemini-cli.enable = true;
-              gcloud.enable = true;
-              ghostty.enable = true;
-              halloy.enable = true;
-              irssi.enable = true;
-              nchat.enable = true;
-            };
-
-            development = {
-              containers = {
-                enable = true;
-                runtime = "colima";
-                kubernetes = true;
-                argocd = false;
-
-                kubeconfigs = [
-                ];
-              };
-              aws = {
-                enable = true;
-                enableSSM = true;
-                enableLocalStack = true;
-              };
-              gcp = {
-                enable = true;
-                enableGkePlugin = true;
-              };
-              iac = {
-                enable = true;
-                enableOpenTofu = true;
-                enableTerraform = false;
-                enablePulumi = true;
-              };
-              argocd = {
-                enable = true;
-                enableAutopilot = true;
-              };
-              nodejs = {
-                enable = true;
-                package = pkgs.nodejs_24;
-                packageManager = "pnpm";
-                enableBun = true;
-                enableGlobals = true;
-              };
-              python = {
-                enable = true;
-                package = pkgs.python3;
-                enablePoetry = true;
-              };
-              golang = {
-                enable = true;
-              };
-              rust = {
-                enable = true;
-              };
-              java = {
-                enable = true;
-                jdk = pkgs.jdk21;
-                enableMaven = true;
-                enableGradle = true;
-              };
-              ruby = {
-                enable = true;
-                package = pkgs.ruby;
-              };
-              groovy = {
-                enable = true;
-                enableGradle = true;
-              };
-              swift = {
-                enable = true;
-                enableTuist = true;
-                enableFastlane = true;
-              };
-            };
-
-            tools = {
-              devenv.enable = true;
-            };
-            services = {
-              tiling.enable = false;
-              janitor = {
-                enable = true;
-                cleanCaches = true;
-                emptyTrash = true;
-                cleanXcode = true;
-                cleanBrew = true;
-                cleanNpm = true;
-                cleanTerraform = true;
-                cleanGolang = true;
-                cleanJava = true;
-                cleanPython = true;
-                cleanNix = true;
-              };
             };
           };
         })

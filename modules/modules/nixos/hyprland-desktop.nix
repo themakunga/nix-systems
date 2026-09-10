@@ -166,6 +166,8 @@
         "spacing":  4,
 
         "modules-left": [
+          "custom/launcher",
+          "custom/sep",
           "hyprland/workspaces",
           "custom/sep",
           "hyprland/window"
@@ -222,6 +224,11 @@
         "custom/sep": {
           "format":   "|",
           "interval": 0
+        },
+        "custom/launcher": {
+          "format":   " ",
+          "tooltip":  false,
+          "on-click": "rofi -show drun"
         }
       }
     '';
@@ -336,6 +343,18 @@
         font-weight: normal;
         font-style:  italic;
       }
+
+      /* Launcher — botón tap-friendly para VNC/iPad */
+      #custom-launcher {
+        padding:      0 12px;
+        color:        @mag;
+        font-size:    18px;
+        border-bottom: 4px solid @mag;
+      }
+      #custom-launcher:hover {
+        background:   @blk;
+        color:        @white;
+      }
     '';
 
     # ── foot — TokyoNight Night (basado en tonybanters/hyprlua-btw/foot/foot.ini)
@@ -373,13 +392,22 @@
     # greetd lanza Hyprland sin sesión PAM completa en algunos casos, por lo que
     # XDG_RUNTIME_DIR (/run/user/<uid>) nunca se crea → Hyprland falla con
     # "CRIT: XDG_RUNTIME_DIR is not set!".
-    # La solución: script explícito que crea el directorio y lo exporta antes de exec.
+    #
+    # WLR_RENDER_DRM_DEVICE y WLR_DRM_DEVICES: necesarios en RPi5 para que
+    # Aquamarine (backend de Hyprland ≥0.40) encuentre el render node correcto.
+    # Sin esto, eglQueryDeviceStringEXT falla → "Can't create renderer" →
+    # Hyprland cae a software GBM sin aceleración GPU y genera ERR en el log.
+    # renderD128 es el render node del VC4/V3D (card1 = KMS, renderD128 = render).
     hyprlandSession = pkgs.writeShellScript "hyprland-session" ''
       export XDG_RUNTIME_DIR=/run/user/$(id -u)
       mkdir -p "$XDG_RUNTIME_DIR"
       chmod 0700 "$XDG_RUNTIME_DIR"
       export XDG_SESSION_TYPE=wayland
       export XDG_CURRENT_DESKTOP=Hyprland
+      # Forzar el render node y el DRM device para el VC4/V3D del RPi5.
+      # Aquamarine usa estas variables para seleccionar el dispositivo EGL correcto.
+      export WLR_RENDER_DRM_DEVICE=/dev/dri/renderD128
+      export WLR_DRM_DEVICES=/dev/dri/card1
       exec ${pkgs.dbus}/bin/dbus-run-session ${pkgs.hyprland}/bin/Hyprland
     '';
   in {
@@ -437,7 +465,8 @@
         # Paquetes del escritorio — TokyoNight stack
         environment.systemPackages = with pkgs; [
           foot # terminal (TokyoNight config incluido)
-          wofi # launcher
+          wofi # launcher alternativo (dmenu style)
+          rofi # launcher principal (rofi -show drun); rofi-wayland mergeado en rofi en nixpkgs 26.05
           unstable.waybar # barra de estado (TokyoNight style)
           wl-clipboard # clipboard
           grim # screenshots
@@ -593,10 +622,10 @@
                 exit 1
               fi
               echo "wayvnc-start: usando output $HEADLESS"
-              # Aplicar resolución del iPad Pro portrait (1668×2224) al output detectado.
+              # Aplicar resolución del iPad Pro landscape (2224×1668) al output detectado.
               # Esto garantiza la resolución correcta independientemente del número de HEADLESS
               # (HEADLESS-1, HEADLESS-2, …) que Aquamarine haya asignado en esta sesión.
-              ${pkgs.hyprland}/bin/hyprctl keyword monitor "$HEADLESS,1668x2224@60,0x0,1" 2>/dev/null || true
+              ${pkgs.hyprland}/bin/hyprctl keyword monitor "$HEADLESS,2224x1668@60,0x0,1" 2>/dev/null || true
               sleep 1
               exec ${pkgs.wayvnc}/bin/wayvnc --output "$HEADLESS" ${cfg.vnc.address} ${toString cfg.vnc.port}
             '';
