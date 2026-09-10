@@ -55,7 +55,7 @@ in {
           };
 
           # Contraseña temporal para acceso local por consola (solo bootstrap).
-          # Eliminar antes de usar en producción.
+          # Igual a la imagen oficial NixOS — no es un secreto real.
           users.users.root.initialPassword = "nixos";
 
           my.authorizedKeys = {
