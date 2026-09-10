@@ -42,83 +42,9 @@ jobs:
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: make check
-  build-darwin:
-    name: 'Darwin: ${{ matrix.host }}'
-    runs-on: macos-14
-    strategy:
-      fail-fast: false
-      matrix:
-        host: [kanagawa, outer-heaven]
-    steps:
-      - uses: actions/checkout@v7
-      - name: Decode SSH Key
-        run: |
-          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/raw_ssh_key
-          EOF_DELIMITER=$(openssl rand -hex 8)
-          {
-            echo "DECODED_KEY<<$EOF_DELIMITER"
-            cat /tmp/raw_ssh_key
-            echo ""
-            echo "$EOF_DELIMITER"
-          } >> "$GITHUB_ENV"
-          rm /tmp/raw_ssh_key
-      - uses: webfactory/ssh-agent@v0.10.0
-        with:
-          ssh-private-key: ${{ env.DECODED_KEY }}
-      - uses: cachix/install-nix-action@v31
-        with:
-          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
-          extra_nix_config: |
-            experimental-features = nix-command flakes
-      - uses: cachix/cachix-action@v17
-        with:
-          name: themakunga
-          authToken: ${{ secrets.CACHIX_TOKEN }}
-      - env:
-          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
-        run: nix build .#darwinConfigurations.${{matrix.host}}.system --accept-flake-config
-  build-linux-x86_64:
-    name: 'Linux x86: ${{ matrix.host }}'
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        host: [msf, motherbase, steamdeck]
-    steps:
-      - uses: actions/checkout@v7
-      - name: Decode SSH Key
-        run: |
-          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/raw_ssh_key
-          EOF_DELIMITER=$(openssl rand -hex 8)
-          {
-            echo "DECODED_KEY<<$EOF_DELIMITER"
-            cat /tmp/raw_ssh_key
-            echo ""
-            echo "$EOF_DELIMITER"
-          } >> "$GITHUB_ENV"
-          rm /tmp/raw_ssh_key
-      - uses: webfactory/ssh-agent@v0.10.0
-        with:
-          ssh-private-key: ${{ env.DECODED_KEY }}
-      - uses: cachix/install-nix-action@v31
-        with:
-          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
-          extra_nix_config: |
-            experimental-features = nix-command flakes
-      - uses: cachix/cachix-action@v17
-        with:
-          name: themakunga
-          authToken: ${{ secrets.CACHIX_TOKEN }}
-      - env:
-          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
-        run: make build-host HOST=${{matrix.host}}
-  build-linux-arm64:
-    name: 'Linux ARM: ${{ matrix.host }}'
+  build-rpi-bootstrap:
+    name: 'Build: RPi5 Bootstrap SD Image'
     runs-on: ubuntu-24.04-arm
-    strategy:
-      fail-fast: false
-      matrix:
-        host: [aperture-science, black-mesa, valve, aperture-bootstrap]
     steps:
       - uses: actions/checkout@v7
       - name: Decode SSH Key
@@ -147,35 +73,71 @@ jobs:
         with:
           name: themakunga
           authToken: ${{ secrets.CACHIX_TOKEN }}
-      - env:
+      - name: Build aperture-bootstrap SD image
+        env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: |
-          export NIX_SSHOPTS="-o StrictHostKeyChecking=no"
-          if [[ "${{ matrix.host }}" == "black-mesa" || "${{ matrix.host }}" == "valve" || "${{ matrix.host }}" == "aperture-bootstrap" ]]; then
-            mkdir -p output
-            make build-sd HOST=${{ matrix.host }}
-            for file in result/sd-image/*; do
-              if [ -f "$file" ]; then
-                filename=$(basename "$file")
-                cp -L "$file" "output/${{ matrix.host }}-$filename"
-              fi
-            done
-          else
-            make build-host HOST=${{ matrix.host }}
-          fi
-      - name: Upload Artifact
-        if: ${{ matrix.host == 'black-mesa' || matrix.host == 'valve' || matrix.host == 'aperture-bootstrap' }}
-        uses: actions/upload-artifact@v7
+          mkdir -p output
+          make build-sd HOST=aperture-bootstrap
+          for file in result/sd-image/*; do
+            [ -f "$file" ] && cp -L "$file" "output/aperture-bootstrap-$(basename "$file")"
+          done
+      - uses: actions/upload-artifact@v7
         with:
-          name: image-${{ matrix.host }}
+          name: image-aperture-bootstrap
+          path: output/*
+          retention-days: 1
+  build-linux-installer:
+    name: 'Build: Linux x86_64 Installer ISO'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Decode SSH Key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/raw_ssh_key
+          EOF_DELIMITER=$(openssl rand -hex 8)
+          {
+            echo "DECODED_KEY<<$EOF_DELIMITER"
+            cat /tmp/raw_ssh_key
+            echo ""
+            echo "$EOF_DELIMITER"
+          } >> "$GITHUB_ENV"
+          rm /tmp/raw_ssh_key
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ env.DECODED_KEY }}
+      - uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - uses: cachix/cachix-action@v17
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_TOKEN }}
+      - name: Build linux-bootstrap ISO
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
+        run: |
+          mkdir -p output
+          make build-installer-x86
+          for file in result/iso/*; do
+            [ -f "$file" ] && cp -L "$file" "output/linux-bootstrap-$(basename "$file")"
+          done
+      - uses: actions/upload-artifact@v7
+        with:
+          name: image-linux-bootstrap
           path: output/*
           retention-days: 1
   publish-and-pr:
     name: 'Publish Release & Create PR'
-    needs: [pre-commit-checks, build-darwin, build-linux-x86_64, build-linux-arm64]
+    needs: [pre-commit-checks, build-rpi-bootstrap, build-linux-installer]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
       - name: Setup Git Identity
         run: |
           git config user.name "github-actions[bot]"
@@ -186,17 +148,23 @@ jobs:
           path: output
           pattern: image-*
           merge-multiple: true
-      - name: Create Release and PR
+      - name: Publish Release & Create PR
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
-          # Extract version from branch name (e.g. release/v0.8.1 -> v0.8.1)
           VERSION="${GITHUB_REF#refs/heads/release/}"
 
           echo "Publishing GitHub Release $VERSION..."
-          gh release create "$VERSION" output/* --title "Release $VERSION" --generate-notes
+          if gh release view "$VERSION" &>/dev/null; then
+            echo "Release $VERSION already exists — updating artifacts (re-run idempotency)..."
+            gh release upload "$VERSION" output/* --clobber
+          else
+            gh release create "$VERSION" output/* \
+              --title "Release $VERSION" \
+              --generate-notes
+          fi
 
-          echo "Creating Pull Request to main..."
+          echo "Ensuring Pull Request to main..."
           PR_EXISTS=$(gh pr list --head "release/$VERSION" --base main --json id --jq 'length')
           if [ "$PR_EXISTS" -eq "0" ]; then
             gh pr create \
