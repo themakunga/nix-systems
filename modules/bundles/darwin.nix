@@ -66,6 +66,8 @@
         "rust"
         "swift"
       ];
+
+      profileModules = ["darwin-mac"];
     };
   };
 }

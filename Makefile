@@ -71,7 +71,8 @@ switch-steamdeck: ## Aplica la configuración en steamdeck
 # deploy-*  → Instalación inicial desde imagen bootstrap (nixos-anywhere + disko)
 #             Requiere que el Pi esté corriendo el bootstrap SD, NO el sistema final.
 # switch-*  → Actualización de un sistema ya instalado (nixos-rebuild, sin reparticionar)
-#             Usa el propio Pi como builder (--build-host) para evitar cross-compile.
+#             Build en linux-builder (aarch64-linux nativo en outer-heaven, 4c/8GB).
+#             El resultado compilado se copia al Pi vía SSH — sin cross-compile.
 
 deploy-aperture: ## [INICIAL] Instala aperture-science vía nixos-anywhere (desde bootstrap SD). Uso: make deploy-aperture TARGET_IP=192.168.x.x
 	@echo "=> Instalación inicial de aperture-science en $(TARGET_IP) (bootstrap → NVMe)..."
@@ -84,7 +85,7 @@ switch-aperture: ## [UPDATE] Actualiza aperture-science en ejecución vía nixos
 	nix run nixpkgs#nixos-rebuild -- switch \
 	  --flake .#aperture-science \
 	  --target-host root@$(TARGET_IP) \
-	  --build-host root@$(TARGET_IP)
+	  --build-host ssh-ng://builder@linux-builder
 
 build-installer-x86: ## Genera ISO de instalación x86_64 con llaves SSH pre-cargadas. Flashear a USB para bare metal. Uso: make build-installer-x86
 	@echo "=> Generando ISO de instalación x86_64..."
@@ -113,7 +114,7 @@ switch-black-mesa: ## [UPDATE] Actualiza black-mesa en ejecución vía nixos-reb
 	nix run nixpkgs#nixos-rebuild -- switch \
 	  --flake .#black-mesa \
 	  --target-host root@$(TARGET_IP) \
-	  --build-host root@$(TARGET_IP)
+	  --build-host ssh-ng://builder@linux-builder
 
 deploy-valve: ## [INICIAL] Instala valve (Pi 5) vía nixos-anywhere. Uso: make deploy-valve TARGET_IP=192.168.x.x
 	@echo "=> Instalación inicial de valve en $(TARGET_IP)..."
@@ -126,7 +127,7 @@ switch-valve: ## [UPDATE] Actualiza valve en ejecución vía nixos-rebuild. Uso:
 	nix run nixpkgs#nixos-rebuild -- switch \
 	  --flake .#valve \
 	  --target-host root@$(TARGET_IP) \
-	  --build-host root@$(TARGET_IP)
+	  --build-host ssh-ng://builder@linux-builder
 
 # ==========================================
 # 🌍 DESPLIEGUE REMOTO X86_64

@@ -46,18 +46,11 @@ in {
           isConfig = true;
         }
         {
-          name = "wezterm";
-        }
-        {
           name = "fastfetch";
           isConfig = true;
         }
         {
           name = "lazygit";
-          isConfig = true;
-        }
-        {
-          name = "ohmyposh";
           isConfig = true;
         }
         {

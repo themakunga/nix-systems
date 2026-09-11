@@ -38,7 +38,13 @@
       # Tema: TokyoNight Night — estilo tonybankers
       # =====================================================
 
-      monitor = ,preferred,auto,1
+      # HDMI: monitor principal — origen del espacio de pantallas (0,0)
+      monitor = HDMI-A-1, preferred, 0x0, 1
+      # VNC/iPad (headless): secundario a la IZQUIERDA del HDMI
+      # X negativa = a la izquierda del origen. iPad Pro landscape = 2224×1668.
+      monitor = HEADLESS-1, 2224x1668@60, -2224x0, 1
+      # Fallback para cualquier otra salida desconocida
+      monitor = , preferred, auto, 1
 
       # ── Autostart ──────────────────────────────────────
       exec-once = waybar
@@ -166,6 +172,8 @@
         "spacing":  4,
 
         "modules-left": [
+          "custom/launcher",
+          "custom/sep",
           "hyprland/workspaces",
           "custom/sep",
           "hyprland/window"
@@ -222,6 +230,11 @@
         "custom/sep": {
           "format":   "|",
           "interval": 0
+        },
+        "custom/launcher": {
+          "format":   " ",
+          "tooltip":  false,
+          "on-click": "rofi -show drun"
         }
       }
     '';
@@ -336,6 +349,18 @@
         font-weight: normal;
         font-style:  italic;
       }
+
+      /* Launcher — botón tap-friendly para VNC/iPad */
+      #custom-launcher {
+        padding:      0 12px;
+        color:        @mag;
+        font-size:    18px;
+        border-bottom: 4px solid @mag;
+      }
+      #custom-launcher:hover {
+        background:   @blk;
+        color:        @white;
+      }
     '';
 
     # ── foot — TokyoNight Night (basado en tonybanters/hyprlua-btw/foot/foot.ini)
@@ -373,13 +398,22 @@
     # greetd lanza Hyprland sin sesión PAM completa en algunos casos, por lo que
     # XDG_RUNTIME_DIR (/run/user/<uid>) nunca se crea → Hyprland falla con
     # "CRIT: XDG_RUNTIME_DIR is not set!".
-    # La solución: script explícito que crea el directorio y lo exporta antes de exec.
+    #
+    # WLR_RENDER_DRM_DEVICE y WLR_DRM_DEVICES: necesarios en RPi5 para que
+    # Aquamarine (backend de Hyprland ≥0.40) encuentre el render node correcto.
+    # Sin esto, eglQueryDeviceStringEXT falla → "Can't create renderer" →
+    # Hyprland cae a software GBM sin aceleración GPU y genera ERR en el log.
+    # renderD128 es el render node del VC4/V3D (card1 = KMS, renderD128 = render).
     hyprlandSession = pkgs.writeShellScript "hyprland-session" ''
       export XDG_RUNTIME_DIR=/run/user/$(id -u)
       mkdir -p "$XDG_RUNTIME_DIR"
       chmod 0700 "$XDG_RUNTIME_DIR"
       export XDG_SESSION_TYPE=wayland
       export XDG_CURRENT_DESKTOP=Hyprland
+      # Forzar el render node y el DRM device para el VC4/V3D del RPi5.
+      # Aquamarine usa estas variables para seleccionar el dispositivo EGL correcto.
+      export WLR_RENDER_DRM_DEVICE=/dev/dri/renderD128
+      export WLR_DRM_DEVICES=/dev/dri/card1
       exec ${pkgs.dbus}/bin/dbus-run-session ${pkgs.hyprland}/bin/Hyprland
     '';
   in {
@@ -389,6 +423,17 @@
       user = mkOption {
         type = types.str;
         description = "Usuario que ejecuta la sesión Hyprland";
+      };
+
+      manageConfig = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''
+          Si true (por defecto), el módulo crea un symlink de hyprland.conf
+          desde el nix store hacia ~/.config/hypr/hyprland.conf.
+          Establecer en false cuando los dotfiles (stow) gestionan el archivo,
+          p. ej. cuando my.dotfiles.packages incluye { name = "hypr"; isConfig = true; }.
+        '';
       };
 
       vnc = {
@@ -426,7 +471,8 @@
         # Paquetes del escritorio — TokyoNight stack
         environment.systemPackages = with pkgs; [
           foot # terminal (TokyoNight config incluido)
-          wofi # launcher
+          wofi # launcher alternativo (dmenu style)
+          rofi # launcher principal (rofi -show drun); rofi-wayland mergeado en rofi en nixpkgs 26.05
           unstable.waybar # barra de estado (TokyoNight style)
           wl-clipboard # clipboard
           grim # screenshots
@@ -469,22 +515,49 @@
 
         boot.consoleLogLevel = 3;
 
-        # Configuración de Hyprland, Waybar y foot en el home del usuario
+        # Configuración de Hyprland, Waybar y foot en el home del usuario.
+        #
+        # manageConfig = true  (default): symlink hyprland.conf desde el nix store.
+        # manageConfig = false:           symlink hyprland.conf + conf/ desde los dotfiles
+        #   del primary user. Requiere que stowDotfiles haya clonado el repo primero,
+        #   por eso se declara dep = [ "stowDotfiles" ] en ese caso.
+        #   El path de dotfiles se toma de config.my.dotfiles.path.
         system.activationScripts."hyprland-config-${cfg.user}" = {
+          deps = lib.optionals (!cfg.manageConfig) ["stowDotfiles"];
           text = ''
-            USER_HOME="/home/${cfg.user}"
+            USER_HOME="${config.users.users.${cfg.user}.home}"
             HYPR_DIR="$USER_HOME/.config/hypr"
             WAYBAR_DIR="$USER_HOME/.config/waybar"
             FOOT_DIR="$USER_HOME/.config/foot"
 
             mkdir -p "$HYPR_DIR" "$WAYBAR_DIR" "$FOOT_DIR"
 
-            ln -sf ${hyprlandConf}       "$HYPR_DIR/hyprland.conf"
-            ln -sf ${waybarConfig}       "$WAYBAR_DIR/config"
-            ln -sf ${waybarStyle}        "$WAYBAR_DIR/style.css"
-            ln -sf ${footConf}           "$FOOT_DIR/foot.ini"
+            ${
+              if cfg.manageConfig
+              then ''
+                # Config embebida en el nix store (default)
+                ln -sf ${hyprlandConf}   "$HYPR_DIR/hyprland.conf"
+              ''
+              else ''
+                # manageConfig=false: hyprland.conf y conf/ los despliega stow
+                # (activation script 'stowDotfiles', que es dep de este script).
+                # No creamos symlinks manuales aquí para evitar conflictos con stow.
+                :
+              ''
+            }
+            ln -sf ${waybarConfig}     "$WAYBAR_DIR/config"
+            ln -sf ${waybarStyle}      "$WAYBAR_DIR/style.css"
+            ln -sf ${footConf}         "$FOOT_DIR/foot.ini"
 
-            chown -R ${cfg.user}:${cfg.user} "$USER_HOME/.config" 2>/dev/null || true
+            # Hyprland ≥0.46 carga hyprland.lua antes que hyprland.conf.
+            # Si existe el autogenerado (autogenerated = true), lo elimina para que
+            # Hyprland use hyprland.conf del dotfiles.
+            if [ -f "$HYPR_DIR/hyprland.lua" ] && grep -q 'autogenerated = true' "$HYPR_DIR/hyprland.lua" 2>/dev/null; then
+              echo "hyprland-desktop: eliminando hyprland.lua autogenerado..."
+              rm -f "$HYPR_DIR/hyprland.lua"
+            fi
+
+            chown -R ${cfg.user} "$USER_HOME/.config" 2>/dev/null || true
           '';
         };
       }
@@ -521,17 +594,50 @@
               rm -f "$XDG_RUNTIME_DIR/wayvncctl"
               # Dar tiempo a que Hyprland complete la inicialización
               sleep 2
-              # Crear output headless si no hay monitor activo
+              # Crear output HEADLESS si no existe ninguno todavía.
+              # Hyprland numera headless secuencialmente (HEADLESS-1, HEADLESS-2, …)
+              # según cuántos se hayan creado en la sesión — el contador no se resetea
+              # al eliminar outputs. Verificamos que exista AL MENOS uno (HEADLESS-*)
+              # en vez de buscar HEADLESS-1 específicamente, para evitar crear duplicados
+              # cuando el contador ya avanzó (ej: HEADLESS-2 en sesiones largas).
               HIS=$(ls -t "$XDG_RUNTIME_DIR/hypr/" 2>/dev/null | head -1)
               if [ -n "$HIS" ]; then
                 export HYPRLAND_INSTANCE_SIGNATURE="$HIS"
-                if ! ${pkgs.hyprland}/bin/hyprctl -j monitors 2>/dev/null | ${pkgs.gnugrep}/bin/grep -q '"name"'; then
+                if ! ${pkgs.hyprland}/bin/hyprctl -j monitors 2>/dev/null | ${pkgs.gnugrep}/bin/grep -q '"HEADLESS-'; then
                   ${pkgs.hyprland}/bin/hyprctl output create headless || true
                   sleep 1
                 fi
               fi
             '';
-            ExecStart = "${pkgs.wayvnc}/bin/wayvnc ${cfg.vnc.address} ${toString cfg.vnc.port}";
+            # Wrapper dinámico: detecta el nombre real del output HEADLESS en esta sesión
+            # (puede ser HEADLESS-1, HEADLESS-2, etc. según el contador de Hyprland).
+            # Aquamarine (backend de Hyprland) puede crear HEADLESS-1 internamente como
+            # fallback cuando el renderer DRM falla, haciendo que el primer output
+            # visible sea HEADLESS-2. Por eso NO hardcodeamos el nombre ni dependemos
+            # de monitors.conf; en su lugar aplicamos la resolución del iPad vía
+            # 'hyprctl keyword monitor' justo antes de arrancar wayvnc.
+            # Usa exec para reemplazar el shell con wayvnc (systemd trackea el PID correcto).
+            ExecStart = pkgs.writeShellScript "wayvnc-start" ''
+              HIS=$(ls -t "$XDG_RUNTIME_DIR/hypr/" 2>/dev/null | head -1)
+              export HYPRLAND_INSTANCE_SIGNATURE="$HIS"
+              # Extraer el primer nombre HEADLESS-N de la lista de monitores JSON
+              HEADLESS=$(${pkgs.hyprland}/bin/hyprctl -j monitors 2>/dev/null | \
+                ${pkgs.gnugrep}/bin/grep -o '"HEADLESS-[0-9]*"' | head -1 | tr -d '"')
+              if [ -z "$HEADLESS" ]; then
+                echo "wayvnc-start: sin output HEADLESS disponible, abortando" >&2
+                exit 1
+              fi
+              echo "wayvnc-start: usando output $HEADLESS"
+              # VNC (secundario): a la IZQUIERDA del HDMI (primario en 0x0).
+              # X = -2224 = ancho del iPad Pro landscape (2224×1668).
+              ${pkgs.hyprland}/bin/hyprctl keyword monitor "$HEADLESS,2224x1668@60,-2224x0,1" 2>/dev/null || true
+              sleep 1
+              # Re-aplicar wallpaper a todos los outputs (HDMI + nuevo HEADLESS).
+              # awww-daemon sigue corriendo; sólo hay que pedirle que lo extienda.
+              WALLPAPER=$(find "$HOME/.config/wallpapers/" -type f 2>/dev/null | head -1)
+              [ -n "$WALLPAPER" ] && ${pkgs.awww}/bin/awww img "$WALLPAPER" --transition-type none 2>/dev/null || true
+              exec ${pkgs.wayvnc}/bin/wayvnc --output "$HEADLESS" ${cfg.vnc.address} ${toString cfg.vnc.port}
+            '';
           };
           environment = {
             WAYLAND_DISPLAY = "wayland-1";

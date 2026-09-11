@@ -46,6 +46,7 @@ in {
           "userProfiles"
           "wallpaper"
           "weather"
+          "shared-plain"
         ];
         nixosModules = [
           "base-machine"
@@ -67,6 +68,8 @@ in {
         applicationModules = [
           "tailscale.core"
           "ollama"
+          "wezterm" # Terminal principal — instala wezterm + stow ~/.wezterm.lua (TokyoNight Storm)
+          "neovim" # Editor — instala neovim 0.12 + stow ~/.config/nvim/ desde public-dotfiles
         ];
       })
       ++ [
@@ -84,10 +87,42 @@ in {
           config = {
             my = {
               primaryUser.username = "nicolas";
-              dotfiles.enable = true;
-              wallpaper = {
-                path = "${self}/media/wp/aperture-science.jpg";
+              dotfiles = {
                 enable = true;
+                # wheatley es el usuario autologin de Hyprland en aperture-science.
+                # Su home está en /opt/wheatley (convención kiosk/service del host).
+                user = "wheatley";
+                home = "/opt/wheatley";
+                packages = [
+                  {
+                    name = "hypr";
+                    isConfig = true;
+                  } # /opt/wheatley/.config/hypr/ — Hyprland config con TokyoNight Storm
+                  {
+                    name = "bash";
+                  } # /opt/wheatley/.bashrc — bash con oh-my-posh + fastfetch + aliases
+                  {
+                    name = "fastfetch";
+                    isConfig = true;
+                  } # /opt/wheatley/.config/fastfetch/ — incluye logo Aperture Laboratories
+                  {
+                    name = "ohmyposh";
+                    isConfig = true;
+                  } # /opt/wheatley/.config/ohmyposh/config.yaml — prompt compartido bash/zsh
+                  {
+                    name = "wofi";
+                    isConfig = true;
+                  } # /opt/wheatley/.config/wofi/ — lanzador Wayland con tema TokyoNight Storm
+                  {
+                    name = "waybar";
+                    isConfig = true;
+                  } # /opt/wheatley/.config/waybar/ — barra de estado con módulo zeroclaw
+                ];
+              };
+              wallpaper = {
+                enable = true;
+                user = "wheatley"; # home /opt/wheatley — usuario autologin Hyprland
+                path = "${self}/media/wp/aperture-science.jpg";
                 fileName = "aperture-science.jpg";
               };
               weather = {
@@ -106,7 +141,10 @@ in {
                 bootMode = "rpi";
               };
 
-              apps.tailscale-core.enable = true;
+              apps = {
+                tailscale-core.enable = true;
+                wechat.enable = true;
+              };
 
               # Ollama: servidor LLM local (CPU-only en RPi5, 8GB RAM)
               # API REST en :11434 — accesible por Tailscale y red local
@@ -116,6 +154,9 @@ in {
               hyprland-desktop = {
                 enable = true;
                 user = "wheatley";
+                # Los dotfiles (paquete "hypr") proveen ~/.config/hypr/hyprland.conf
+                # vía stow. El módulo gestiona waybar y foot, pero NO hyprland.conf.
+                manageConfig = false;
                 vnc = {
                   enable = true;
                   # Escucha en todas las interfaces: accesible desde red local y Tailscale.
@@ -138,6 +179,27 @@ in {
                 ];
               };
             };
+
+            # Paquetes del stack terminal (fastfetch, oh-my-posh, fzf).
+            # wezterm y neovim los instalan sus respectivos applicationModules.
+            environment.systemPackages = with pkgs; [
+              # ── Terminal & prompt ───────────────────────────────────────────
+              fastfetch # panel de sistema — config en ~/.config/fastfetch/
+              oh-my-posh # prompt para bash (y zsh) — config en ~/.config/ohmyposh/
+              fzf # fuzzy finder — integrado en .bashrc
+
+              # ── Lanzador Wayland ────────────────────────────────────────────
+              wofi # launcher Wayland (reemplaza rofi) — config en ~/.config/wofi/
+
+              # ── Lenguajes y runtimes de desarrollo ─────────────────────────
+              python3 # Python 3.x — scripting, agentes, automatización
+              nodejs_22 # Node.js 22 LTS — tooling JS/TS
+              go # Go — servicios, CLIs, infraestructura
+              terraform # Terraform — IaC para homelab
+
+              # ── IA / asistente de código ────────────────────────────────────
+              unstable.codex # OpenAI Codex CLI — agentic coding assistant
+            ];
 
             # GLaDOS: service account para IA local (zeroclaw).
             # El módulo glados la define sin shell interactiva — override necesario
@@ -166,11 +228,17 @@ in {
             # Corre como glados, expone HTTP en :42617 (dashboard + WebSocket).
             # Config: /opt/glados/.zeroclaw/config.toml (desplegada via stow desde agent/).
             # Auth Codex: ver instrucciones al pie de este archivo.
+
+            # linger = true: systemd-logind levanta el user manager de glados al
+            # boot (sin sesión interactiva), creando /run/user/466 y el D-Bus
+            # session bus que zeroclaw necesita para arrancar.
+            users.users.glados.linger = true;
+
             systemd.services.zeroclaw = {
               description = "ZeroClaw AI Agent Gateway";
               documentation = ["https://github.com/zeroclaw-labs/zeroclaw"];
-              after = ["network-online.target"];
-              wants = ["network-online.target"];
+              after = ["network-online.target" "user@466.service"];
+              wants = ["network-online.target" "user@466.service"];
               wantedBy = ["multi-user.target"];
               serviceConfig = {
                 Type = "simple";
@@ -180,8 +248,18 @@ in {
                 Environment = [
                   "HOME=/opt/glados"
                   "XDG_CONFIG_HOME=/opt/glados/.config"
+                  # glados uid=466 — linger=true garantiza que /run/user/466 existe
+                  # y que el D-Bus session bus está activo antes de arrancar zeroclaw.
+                  "XDG_RUNTIME_DIR=/run/user/466"
+                  "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/466/bus"
+                  # PATH explícito — systemd no hereda el PATH del sistema.
+                  # zeroclaw necesita 'sh' para ejecutar herramientas y canales (Telegram).
+                  "PATH=/run/current-system/sw/bin:/run/wrappers/bin:/usr/bin:/bin"
                 ];
-                ExecStart = "${pkgs.unstable.zeroclaw}/bin/zeroclaw service start";
+                # 'zeroclaw daemon' lanza el runtime completo (gateway + canales + cron).
+                # NO usar 'zeroclaw service start' — ese comando instala/arranca un user
+                # service vía D-Bus y no puede correr dentro del propio system service.
+                ExecStart = "${pkgs.unstable.zeroclaw}/bin/zeroclaw daemon";
                 Restart = "on-failure";
                 RestartSec = "10s";
                 NoNewPrivileges = true;

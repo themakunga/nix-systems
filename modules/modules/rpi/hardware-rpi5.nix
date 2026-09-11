@@ -82,6 +82,12 @@
             # Overlays para M.2 HAT+ oficial y GPU VC4 Wayland.
             # pciex1-compat-pi5,no-mip: mantiene el enlace PCIe activo tras reinit.
             dtoverlay = ["pciex1-compat-pi5,no-mip" "vc4-kms-v3d-pi5"];
+            # Sin monitor físico, el firmware no inicializa los CRTCs del VC4/KMS.
+            # Hyprland (vía aquamarine) falla con "No CRTC found" y no puede arrancar.
+            # hdmi_force_hotplug=1 hace que el firmware siempre reporte HDMI conectado
+            # → VC4 crea los CRTCs incluso headless → Hyprland arranca normalmente.
+            # Requerido para operación VNC sin monitor (aperture-science).
+            hdmi_force_hotplug = 1;
           };
         };
       };
