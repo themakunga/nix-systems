@@ -48,11 +48,7 @@
         systemPackages = with pkgs;
           [
             # Runtime base
-            cfg.package
-
-            # Herramientas del Ecosistema
-            python3Packages.pip
-            python3Packages.virtualenv
+            (lib.hiPrio (cfg.package.withPackages (ps: [ps.pip ps.virtualenv])))
           ]
           ++ optional cfg.enablePoetry poetry
           ++ [

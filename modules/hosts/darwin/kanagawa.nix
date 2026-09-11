@@ -42,7 +42,8 @@ in {
       ++ [
         ({pkgs, ...}: {
           my = {
-            dotfiles.enable = true;
+            packages = [pkgs.claude-code];
+            hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
 
             devices = {
               audio.enable = true;
@@ -74,34 +75,7 @@ in {
               pre-commit
             ];
 
-            casks = [
-              "iterm2"
-              "wezterm"
-              "zen"
-              "ghostty"
-              "reminders-menubar"
-              "ferdium"
-              "vnc-viewer" # Cliente VNC — conectar a aperture-science:5900
-            ];
-
-            masApps = {
-              "Amphetamine" = 937984704;
-              "Magnet" = 441258766;
-              "Xcode" = 497799835;
-            };
-
-            apps = {
-              tailscale-core.enable = true;
-              tailscale-gui.enable = true;
-              neovim.enable = true;
-              terminal-zsh.enable = true;
-              github-cli.enable = true;
-              gcloud.enable = true;
-              ghostty.enable = true;
-              halloy.enable = true;
-              irssi.enable = true;
-              nchat.enable = true;
-            };
+            casks = []; # Cliente VNC — conectar a aperture-science:5900
 
             development = {
               containers = {

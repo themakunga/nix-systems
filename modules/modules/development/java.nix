@@ -71,7 +71,7 @@
 
         # Setup de la variable JAVA_HOME
         variables = {
-          JAVA_HOME = "${cfg.jdk}/lib/openjdk";
+          JAVA_HOME = "${cfg.jdk.home}";
         };
 
         interactiveShellInit = mkIf cfg.useSecrets ''
