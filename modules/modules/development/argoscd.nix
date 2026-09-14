@@ -29,7 +29,7 @@
 
       useDotfiles = mkOption {
         type = types.bool;
-        default = true;
+        default = false;
         description = "Mapear configuración (ej. ~/.config/argocd) desde public-dotfiles";
       };
 

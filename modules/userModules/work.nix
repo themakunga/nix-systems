@@ -11,13 +11,17 @@
 {self, ...}: let
   inherit (self) commonModules;
 in {
-  flake.userModules.work = {config, ...}: {
+  flake.userModules.work = {
+    config,
+    pkgs,
+    ...
+  }: {
     imports = [
       commonModules.home-secrets
     ];
 
     sops.secrets."passwords/nicolas/hashed" = {
-      neededForUsers = true;
+      neededForUsers = pkgs.stdenv.isLinux;
     };
 
     my.userProfiles.work = {

@@ -38,7 +38,7 @@
 
       useDotfiles = mkOption {
         type = types.bool;
-        default = true;
+        default = false;
         description = "Mapear configuraciones públicas (ej. formatter styles)";
       };
 

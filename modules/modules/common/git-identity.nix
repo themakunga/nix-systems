@@ -88,6 +88,8 @@
 
           cat << 'EOF' > "$GIT_NIX_CONF"
           # Archivo autogenerado por Nix. NO EDITAR DIRECTAMENTE.
+          [pull]
+            rebase = false
           EOF
 
           ${optionalString cfg.global.enable ''
@@ -118,7 +120,7 @@
                 # MAGIA: gitdir/i: hace que la ruta sea insensible a mayúsculas/minúsculas
                 cat << 'EOF' >> "$GIT_NIX_CONF"
               [includeIf "gitdir/i:${ws.directory}/"]
-                path = $WORKSPACES_DIR/${name}
+                path = .gitconfig.workspaces/${name}
               EOF
 
                 cat << 'EOF' > "$WORKSPACES_DIR/${name}"
@@ -150,10 +152,12 @@
           chown ${user} "$GIT_NIX_CONF"
           chown -R ${user} "$WORKSPACES_DIR"
 
-          # MAGIA 2: Escribimos directo en ~/.gitconfig (que NO está manejado por Stow)
-          # Esto evita bloqueos de 'git config' y salta la limitación de macOS con /etc/gitconfig
+          # ~/.gitconfig puede ser un enlace de Stow: no duplicar el include existente.
           touch "${userHome}/.gitconfig"
-          if ! grep -q "path = $GIT_NIX_CONF" "${userHome}/.gitconfig"; then
+          # Git devuelve el include sin expandir ~; comparar también ese valor literal.
+          # shellcheck disable=SC2088
+          if ! ${pkgs.git}/bin/git config --file "${userHome}/.gitconfig" --get-all include.path |
+            grep -Fxq -e "$GIT_NIX_CONF" -e '~/.gitconfig.nix-managed'; then
             cat << EOF >> "${userHome}/.gitconfig"
 
           [include]

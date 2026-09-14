@@ -14,13 +14,6 @@ in {
       ];
     };
     sysConfig = {config, ...}: {
-      my.dotfiles.packages = [
-        {
-          name = "glab";
-          isConfig = true;
-        }
-      ];
-
       sops.secrets."applications/glab/token" = {};
 
       environment.interactiveShellInit = ''

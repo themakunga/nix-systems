@@ -43,7 +43,7 @@
 
       useDotfiles = mkOption {
         type = types.bool;
-        default = true;
+        default = false;
         description = "Mapear configuraciones públicas (ej. ~/.kube/config base) desde public-dotfiles";
       };
 
@@ -70,6 +70,7 @@
           ++ optionals (cfg.runtime == "docker") [docker-client docker-compose docker-credential-helpers]
           ++ optionals (cfg.runtime == "colima") [colima docker-client docker-compose docker-credential-helpers]
           ++ optionals (cfg.runtime == "podman") [podman podman-compose]
+          ++ optionals (isDarwin && cfg.runtime == "podman") [docker-client docker-compose docker-credential-helpers]
           ++ optionals cfg.kubernetes [
             kubectl
             kubernetes-helm
@@ -131,8 +132,40 @@
           ++ optional (cfg.runtime == "rancher") "rancher"
           ++ optional cfg.kubernetes "openlens";
 
-        environment.variables = mkIf (cfg.runtime == "colima") {
-          DOCKER_HOST = "unix:///Users/${user}/.colima/default/docker.sock";
+        environment.variables = mkMerge [
+          (mkIf (cfg.runtime == "colima") {
+            DOCKER_HOST = "unix:///Users/${user}/.colima/default/docker.sock";
+          })
+          (mkIf (cfg.runtime == "podman") {
+            DOCKER_HOST = "unix:///Users/${user}/.local/share/containers/podman/docker.sock";
+          })
+        ];
+
+        launchd.user.agents.podman = mkIf (cfg.runtime == "podman") {
+          serviceConfig = {
+            ProgramArguments = [
+              (toString (pkgs.writeShellScript "podman-start" ''
+                set -eu
+                export PATH="${lib.makeBinPath [pkgs.podman pkgs.coreutils]}:/usr/bin:/bin:/usr/sbin:/sbin"
+                if ! podman machine inspect podman-machine-default >/dev/null 2>&1; then
+                  podman machine init --cpus=4 --memory=8192 podman-machine-default
+                fi
+                if [ "$(podman machine inspect --format '{{.State}}' podman-machine-default)" != running ]; then
+                  podman machine start podman-machine-default
+                fi
+                podman_socket=$(podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}' podman-machine-default)
+                mkdir -p "$HOME/.local/share/containers/podman"
+                ln -sfn "$podman_socket" "$HOME/.local/share/containers/podman/docker.sock"
+              ''))
+            ];
+            RunAtLoad = true;
+            # La VM debe seguir viva cuando termine el comando de arranque.
+            AbandonProcessGroup = true;
+            KeepAlive.SuccessfulExit = false;
+            ThrottleInterval = 60;
+            StandardErrorPath = "/tmp/podman.err";
+            StandardOutPath = "/tmp/podman.out";
+          };
         };
 
         launchd.user.agents.colima = mkIf (cfg.runtime == "colima") {

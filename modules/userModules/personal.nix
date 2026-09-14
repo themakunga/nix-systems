@@ -6,7 +6,11 @@
 {self, ...}: let
   inherit (self) commonModules;
 in {
-  flake.userModules.personal = {config, ...}: {
+  flake.userModules.personal = {
+    config,
+    pkgs,
+    ...
+  }: {
     imports = [
       commonModules.shared-secrets
       commonModules.shared-plain
@@ -17,7 +21,7 @@ in {
     my.secretDotfiles.enable = true;
 
     sops.secrets."passwords/nicolas/hashed" = {
-      neededForUsers = true;
+      neededForUsers = pkgs.stdenv.isLinux;
     };
 
     my.userProfiles.personal = {

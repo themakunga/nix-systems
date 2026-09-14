@@ -62,6 +62,9 @@ in {
 
           # Contraseña temporal para acceso por consola (solo installer)
           users.users.root.initialPassword = "nixos";
+          users.users.root.initialHashedPassword = lib.mkForce null;
+
+          boot.zfs.forceImportRoot = false;
 
           system.stateVersion = "26.05";
         })

@@ -33,7 +33,7 @@ in {
         profileModules = ["personal" "bbook" "company"];
       }))
       ++ [
-        (_: {
+        ({pkgs, ...}: {
           my = {
             packages = [pkgs.claude-code];
             hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
@@ -48,7 +48,6 @@ in {
 
             development = {
               containers = {
-                useDotfiles = true;
                 useSecrets = false;
               };
               ios-terminal.enable = true;
