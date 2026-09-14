@@ -36,6 +36,8 @@
       ];
 
       applicationModules = [
+        "yazi"
+        "zoxide"
         "github-cli"
         "neovim"
         "openconnect"
@@ -67,7 +69,7 @@
         "swift"
       ];
 
-      profileModules = ["darwin-mac"];
+      profileModules = ["terminal-tools" "darwin-mac"];
     };
   };
 }

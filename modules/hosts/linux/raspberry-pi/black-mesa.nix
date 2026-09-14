@@ -60,9 +60,12 @@ in {
           "nicolas-pihole"
         ];
         profileModules = [
+          "terminal-tools"
           "pihole"
         ];
         applicationModules = [
+          "yazi"
+          "zoxide"
           "pihole"
           "tailscale.core"
           "tofu-dns"
