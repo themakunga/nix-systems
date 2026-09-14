@@ -3,13 +3,17 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-{self, ...}: let
-  inherit (self.lib) mkAppModule;
-in {
-  flake.applicationModules.nchat = mkAppModule "nchat" "Enable nchat terminal messaging client" {
+{self, ...}: {
+  flake.applicationModules.yazi = self.lib.mkAppModule "yazi" "Yazi file manager" {
     meta = {pkgs, ...}: {
       level = "system";
-      packages = [pkgs.nchat];
+      packages = [pkgs.yazi];
     };
+    sysConfig.my.dotfiles.packages = [
+      {
+        name = "yazi";
+        isConfig = true;
+      }
+    ];
   };
 }

@@ -135,6 +135,44 @@ any changes, you can manually run the formatting and linting hooks using:
 pre-commit run --all-files
 ```
 
+### Comprobar advertencias y dotfiles
+
+En macOS, Docker y Docker Compose usan la API de Podman. Al iniciar sesión,
+el agente `org.nixos.podman` crea la VM si falta (4 CPU, 8 GiB), la arranca y
+enlaza su socket. Después de aplicar cambios con `darwin-rebuild switch`, abre
+una terminal nueva para cargar `DOCKER_HOST`. Los datos existentes de Colima
+se conservan; sus imágenes y volúmenes no se migran automáticamente.
+
+```bash
+nix eval --offline --impure --json --file scripts/check-containers.nix
+podman machine list
+docker info
+docker compose version
+```
+
+Los errores de arranque quedan en `/tmp/podman.err`. Si detienes la VM
+manualmente, puedes volver a iniciarla con `podman machine start`.
+
+```bash
+python3 scripts/check-dotfiles.py ~/.public-dotfiles
+nix flake check --no-build --all-systems --no-write-lock-file
+```
+
+La primera comprobación evalúa todos los hosts sin activarlos y falla si hay
+carpetas de dotfiles ausentes o advertencias de configuración. Los módulos de
+desarrollo no enlazan dotfiles por defecto: activa `useDotfiles` únicamente
+cuando exista la carpeta correspondiente en el repositorio público.
+
+Pendiente: `aperture-bootstrap` y `valve` conservan el initrd clásico por el fallo
+de arranque documentado en `sd-image-rpi5.nix`. Su migración a systemd requiere
+una prueba de arranque en Raspberry Pi 5; la comprobación mantiene visible esa
+advertencia y devuelve un estado de fallo mientras siga pendiente.
+
+Los mensajes de Git sobre cambios sin commit y los de Nix sobre outputs propios
+(`applicationModules`, `bundle`, etc.) son informativos. La advertencia de
+`extra-substituters` indica que Nix no ha autorizado la caché declarada por el
+flake; no se habilita confianza global ni se ocultan estas advertencias.
+
 ---
 
 ## Español

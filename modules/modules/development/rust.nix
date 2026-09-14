@@ -22,7 +22,7 @@
       enable = mkEnableOption "Rust development toolkit (Cargo, rustc, rust-analyzer)";
       useDotfiles = mkOption {
         type = types.bool;
-        default = true;
+        default = false;
       };
       useSecrets = mkOption {
         type = types.bool;

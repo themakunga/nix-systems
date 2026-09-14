@@ -73,7 +73,7 @@ _: {
       development = {
         containers = {
           enable = true;
-          runtime = "colima";
+          runtime = "podman";
           kubernetes = true;
           argocd = false;
         };

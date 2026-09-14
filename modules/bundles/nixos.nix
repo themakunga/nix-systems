@@ -27,9 +27,9 @@ _: {
         "keyboard"
       ];
 
-      applicationModules = ["tailscale.core"];
+      applicationModules = ["yazi" "zoxide" "tailscale.core"];
 
-      profileModules = ["nixos-x64"];
+      profileModules = ["terminal-tools" "nixos-x64"];
     };
   };
 }

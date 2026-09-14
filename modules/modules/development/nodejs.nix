@@ -53,7 +53,7 @@
 
       useDotfiles = mkOption {
         type = types.bool;
-        default = true;
+        default = false;
         description = "Mapear configuraciones (ej. .npmrc público, .prettierrc) desde public-dotfiles";
       };
 

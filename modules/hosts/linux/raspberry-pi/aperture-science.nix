@@ -65,7 +65,10 @@ in {
           "wheatley" # Autologin Hyprland, home /opt/wheatley
           "nicolas" # Administrador SSH — sudo, sin home, password expirado al primer login
         ];
+        profileModules = ["terminal-tools"];
         applicationModules = [
+          "yazi"
+          "zoxide"
           "tailscale.core"
           "ollama"
           "wezterm" # Terminal principal — instala wezterm + stow ~/.wezterm.lua (TokyoNight Storm)

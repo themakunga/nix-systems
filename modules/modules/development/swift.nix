@@ -36,7 +36,7 @@
 
       useDotfiles = mkOption {
         type = types.bool;
-        default = true;
+        default = false;
       };
 
       useSecrets = mkOption {

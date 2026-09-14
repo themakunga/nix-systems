@@ -27,7 +27,10 @@ in {
         nixos-hardware.nixosModules.raspberry-pi-5
       ]
       ++ (mkBundle {
+        applicationModules = ["yazi" "zoxide"];
+        profileModules = ["terminal-tools"];
         commonModules = [
+          "apps"
           "dotfiles"
           "arch.nixos.rpi"
           "settings"
@@ -49,6 +52,10 @@ in {
           services.openssh.settings.PermitRootLogin = "yes";
 
           my = {
+            dotfiles = {
+              user = "root";
+              home = "/root";
+            };
             authorizedKeys = {
               enable = true;
               assignTo = ["root"];

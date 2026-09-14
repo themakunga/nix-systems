@@ -33,8 +33,9 @@ in {
         profileModules = ["personal" "bbook" "company"];
       }))
       ++ [
-        (_: {
+        ({pkgs, ...}: {
           my = {
+            packages = [pkgs.claude-code];
             hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
 
             wallpaper = {
@@ -43,11 +44,10 @@ in {
               fileName = "kanagawa-fullsize.jpg";
             };
 
-            casks = ["vnc-viewer"]; # Cliente VNC — conectar a aperture-science:5900
+            casks = []; # Cliente VNC — conectar a aperture-science:5900
 
             development = {
               containers = {
-                useDotfiles = true;
                 useSecrets = false;
               };
               ios-terminal.enable = true;

@@ -22,6 +22,8 @@
       then "/Users/${user}"
       else "/home/${user}";
   in {
+    options.sops.age.sshKeyPaths = mkOption {apply = lib.unique;};
+
     options.my.hostSecrets = {
       file = mkOption {
         type = types.str;
