@@ -27,7 +27,7 @@ in {
         nixos-hardware.nixosModules.raspberry-pi-5
       ]
       ++ (mkBundle {
-        applicationModules = ["yazi" "zoxide"];
+        applicationModules = ["bat" "yazi" "zoxide"];
         profileModules = ["terminal-tools"];
         commonModules = [
           "apps"

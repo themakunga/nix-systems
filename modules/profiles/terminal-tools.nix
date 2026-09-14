@@ -8,6 +8,7 @@
     my = {
       dotfiles.enable = true;
       apps = {
+        bat.enable = true;
         yazi.enable = true;
         zoxide.enable = true;
       };

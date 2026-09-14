@@ -18,20 +18,23 @@
       };
     };
     dock = {
+      config,
+      lib,
+      ...
+    }: {
       system.defaults.dock = {
         autohide = true;
         minimize-to-application = true;
         show-recents = false;
-        persistent-apps = [
+        persistent-apps = lib.mkBefore [
           "/System/Applications/Apps.app"
           "/System/Applications/Mail.app"
           "/System/Applications/Calendar.app"
-          "/Applications/Safari.app"
           "/System/Applications/Notes.app"
-          "/System/Applications/Phone.app"
-          {
-            spacer.small = true;
-          }
+        ];
+        # macOS provides the divider and the Trash after this section.
+        persistent-others = [
+          {folder = "${config.users.users.${config.system.primaryUser}.home}/Downloads";}
         ];
       };
     };

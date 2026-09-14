@@ -27,6 +27,7 @@
 
       darwinModules = [
         "extras"
+        "dock"
         "finder"
         "homebrew"
         "keyboard"
@@ -36,6 +37,7 @@
       ];
 
       applicationModules = [
+        "bat"
         "yazi"
         "zoxide"
         "github-cli"
