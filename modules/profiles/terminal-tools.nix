@@ -4,9 +4,10 @@
 # Módulo auto-gestionado.
 # =========================================================
 {
-  flake.profileModules.terminal-tools = {
+  flake.profileModules.terminal-tools = {pkgs, ...}: {
     my = {
       dotfiles.enable = true;
+      packages = [pkgs.unstable.tuxedo];
       apps = {
         bat.enable = true;
         yazi.enable = true;
