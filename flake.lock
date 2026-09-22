@@ -212,11 +212,11 @@
     "homebrew-cask": {
       "flake": false,
       "locked": {
-        "lastModified": 1790071898,
-        "narHash": "sha256-UBfQ7RHvvY/+vHVU3gNa+ewoxT/cYMhB8kZIzAm6D4c=",
+        "lastModified": 1790077082,
+        "narHash": "sha256-n8tMh4erd8E4SH0U20dtxpJ4qhWv9LiLOQJfB+UJnN0=",
         "owner": "homebrew",
         "repo": "homebrew-cask",
-        "rev": "da0821d185d0953f3107d6ea48dffd56c27602f8",
+        "rev": "d1ab94324f90589db826815daa7c28f4dd84e920",
         "type": "github"
       },
       "original": {
@@ -228,16 +228,32 @@
     "homebrew-core": {
       "flake": false,
       "locked": {
-        "lastModified": 1790073892,
-        "narHash": "sha256-4kSD2KmPkgv3mOdDRwnFNs5MxMZc/hl7OjyC+EIMmAM=",
+        "lastModified": 1790080291,
+        "narHash": "sha256-6BPLZ2b88O2ZbIuIUj+X8dVsVR6tEq3DmzyJPpsLatw=",
         "owner": "homebrew",
         "repo": "homebrew-core",
-        "rev": "d26ff643d6dfad8204c7c14b559f85411893144f",
+        "rev": "45c572adcd59f0ec5b1cf6052833fa1be48dfd65",
         "type": "github"
       },
       "original": {
         "owner": "homebrew",
         "repo": "homebrew-core",
+        "type": "github"
+      }
+    },
+    "homebrew-sonybridge": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786700430,
+        "narHash": "sha256-hvwewJsxjcXAj9kzXfSHJNwCi3+tJZiJkdGmz+JOPt8=",
+        "owner": "AmitRajput-Dev",
+        "repo": "homebrew-tap",
+        "rev": "45cdb9910e11be76fce9172b88ee0d03ce679b16",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AmitRajput-Dev",
+        "repo": "homebrew-tap",
         "type": "github"
       }
     },
@@ -406,11 +422,11 @@
     },
     "nixpkgs-unstable": {
       "locked": {
-        "lastModified": 1789960332,
-        "narHash": "sha256-MQ5my6vvo0z2iVQcKqrysutFWvsNw3/ynNxzjJon4yc=",
+        "lastModified": 1789994327,
+        "narHash": "sha256-2EAysR68bR+V5O63LuZWFvhK55sYGLzXWi4uEiEHjKw=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "35e212742ceab4ae1dcfbfd9039a39215c816e8e",
+        "rev": "3396d0584677afd0e6ce20ac2474eab0adf0fb2b",
         "type": "github"
       },
       "original": {
@@ -521,6 +537,7 @@
         "homebrew-bundle": "homebrew-bundle",
         "homebrew-cask": "homebrew-cask",
         "homebrew-core": "homebrew-core",
+        "homebrew-sonybridge": "homebrew-sonybridge",
         "import-tree": "import-tree",
         "mac-app-util": "mac-app-util",
         "nix-darwin": "nix-darwin",
