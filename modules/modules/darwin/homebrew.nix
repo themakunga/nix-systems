@@ -37,6 +37,7 @@
         autoUpdate = true;
         upgrade = true;
         cleanup = "zap";
+        extraFlags = ["--quiet"];
       };
 
       brews = [
