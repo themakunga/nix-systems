@@ -7,12 +7,14 @@
   inherit (self.lib) mkAppModule;
 in {
   flake.applicationModules.ghostty = mkAppModule "ghostty" "Enable Ghostty terminal emulator" {
-    meta = {pkgs, ...}: {
+    meta = {
+      pkgs,
+      lib,
+      ...
+    }: {
       level = "system";
-      packages = [
-        pkgs.ghostty
-      ];
-      casks = ["ghostty"];
+      packages = lib.optionals pkgs.stdenv.hostPlatform.isLinux [pkgs.ghostty];
+      casks = lib.optionals pkgs.stdenv.hostPlatform.isDarwin ["ghostty"];
     };
     sysConfig = {
       my.dotfiles.packages = [
