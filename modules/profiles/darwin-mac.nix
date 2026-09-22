@@ -48,6 +48,7 @@ _: {
         terminal-zsh.enable = true;
         gcloud.enable = true;
         ghostty.enable = true;
+        wezterm.enable = true;
         halloy.enable = true;
         irssi.enable = true;
         nchat.enable = true;

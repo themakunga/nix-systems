@@ -43,12 +43,14 @@
         "yazi"
         "zoxide"
         "github-cli"
+        "ghostty"
         "halloy"
         "neovim"
         "openconnect"
         "tailscale.core"
         "tailscale.gui"
         "terminal-zsh"
+        "wezterm"
       ];
 
       deviceModules = [
