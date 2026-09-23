@@ -49,12 +49,8 @@ in {
       supportedFilesystems = lib.mkForce ["ext4" "vfat"];
 
       initrd = {
-        # Usar stage-1 (shell) en lugar de systemd initrd.
-        # sd-image-aarch64.nix habilita systemd initrd en nixpkgs reciente, lo que
-        # genera la unidad sysroot-run.mount que falla en RPi5 si el root device
-        # no está listo a tiempo. El stage-1 clásico maneja el montaje directamente
-        # sin depender de unidades systemd, eliminando ese error por completo.
-        systemd.enable = lib.mkForce false;
+        # El initrd basado en shell desaparece en NixOS 26.11.
+        systemd.enable = true;
 
         includeDefaultModules = false;
         # mkForce necesario aquí: sd-image-aarch64.nix (que importamos) añade módulos
@@ -89,6 +85,9 @@ in {
     fileSystems."/" = {
       device = lib.mkForce "/dev/disk/by-label/NIXOS_SD";
       fsType = "ext4";
+      # Equivalente de rootwait para systemd: esperar a que aparezca la SD.
+      # Conserva la espera del arranque anterior sin un timeout fijo de hardware.
+      options = ["x-systemd.device-timeout=infinity"];
     };
 
     sdImage = {

@@ -35,6 +35,11 @@ in {
       }))
       ++ [
         ({pkgs, ...}: {
+          system.defaults.dock.persistent-apps = [
+            "/Applications/Firefox.app"
+            "/Applications/WezTerm.app"
+            "/Applications/Bruno.app"
+          ];
           my = {
             linux-builder.enable = true;
             hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
@@ -62,7 +67,7 @@ in {
               rustc
             ];
 
-            casks = ["tigervnc" "okta-verify" "halloy" "miniconda" "claude-code"];
+            casks = ["tigervnc" "okta-verify" "miniconda" "claude-code"];
 
             apps = {
               aws-cli.enable = true;

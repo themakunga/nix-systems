@@ -11,6 +11,7 @@
 {
   flake.deviceModules.sony = {
     config,
+    inputs,
     lib,
     pkgs,
     ...
@@ -25,7 +26,9 @@
 
     config = mkIf cfg.enable (mkMerge [
       (mkIf isDarwin {
+        nix-homebrew.taps."amitrajput-dev/homebrew-tap" = inputs.homebrew-sonybridge;
         homebrew.casks = [
+          "amitrajput-dev/tap/sonybridge"
           "eqmac"
         ];
         environment.systemPackages = with pkgs; [

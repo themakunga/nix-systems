@@ -51,6 +51,11 @@
       flake = false;
     };
 
+    homebrew-sonybridge = {
+      url = "github:AmitRajput-Dev/homebrew-tap";
+      flake = false;
+    };
+
     mac-app-util = {
       url = "github:hraban/mac-app-util";
     };

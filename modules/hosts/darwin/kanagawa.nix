@@ -27,6 +27,7 @@ in {
         mac-app-util.darwinModules.default
       ]
       ++ (mkBundle (extendBundle bundles.darwin.base {
+        darwinModules = ["tiling"];
         applicationModules = ["google-cloud.gcloud"];
         developmentModules = ["ios-terminal"];
         userModules = ["personal"];
@@ -34,7 +35,13 @@ in {
       }))
       ++ [
         ({pkgs, ...}: {
+          system.defaults.dock.persistent-apps = [
+            "/Applications/WezTerm.app"
+            "/Applications/Typora.app"
+            "/Applications/Zen.app"
+          ];
           my = {
+            services.tiling.enable = true;
             packages = [pkgs.claude-code];
             hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
 
@@ -44,7 +51,7 @@ in {
               fileName = "kanagawa-fullsize.jpg";
             };
 
-            casks = []; # Cliente VNC — conectar a aperture-science:5900
+            casks = ["typora"];
 
             development = {
               containers = {

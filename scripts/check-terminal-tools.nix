@@ -15,13 +15,18 @@ let
   in
     if bootstrap
     then
+      assert !(cfg.my.apps.bat.enable or false);
       assert !(cfg.my.apps.yazi.enable or false);
       assert !(cfg.my.apps.zoxide.enable or false); true
     else
+      assert cfg.my.apps.bat.enable;
       assert cfg.my.apps.yazi.enable && cfg.my.apps.zoxide.enable;
       assert cfg.my.dotfiles.enable;
-      assert builtins.all (p: builtins.elem p packages) ["yazi" "zoxide" "fzf"];
-      assert builtins.all (p: builtins.elem p dotfiles) ["yazi" "zoxide"];
+      assert lib.hasInfix "/bat/init.sh" cfg.environment.interactiveShellInit;
+      assert (cfg.services.yabai.enable or false) == (name == "kanagawa");
+      assert (cfg.services.skhd.enable or false) == (name == "kanagawa");
+      assert builtins.all (p: builtins.elem p packages) ["bat" "yazi" "zoxide" "fzf"];
+      assert builtins.all (p: builtins.elem p dotfiles) ["bat" "yazi" "zoxide"];
       assert lib.hasInfix "/zoxide/init.sh" cfg.environment.interactiveShellInit; true;
 in
   builtins.mapAttrs check (flake.darwinConfigurations // flake.nixosConfigurations)

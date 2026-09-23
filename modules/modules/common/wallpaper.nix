@@ -90,6 +90,8 @@
                 cp -f "$SRC_PATH" "$TARGET_FILE"
                 chmod 644 "$TARGET_FILE"
                 chown "${targetUser}" "$TARGET_FILE" 2>/dev/null || true
+                # Ruta estable para los terminales, independiente del host.
+                ln -sfn "$TARGET_FILE" "${wallpaperTargetDir}/current"
 
                 ${lib.optionalString isDarwin ''
                 echo "=> Applying wallpaper from $TARGET_FILE..."

@@ -67,6 +67,7 @@ in {
         ];
         profileModules = ["terminal-tools"];
         applicationModules = [
+          "bat"
           "yazi"
           "zoxide"
           "tailscale.core"

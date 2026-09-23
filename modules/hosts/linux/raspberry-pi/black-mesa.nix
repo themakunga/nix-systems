@@ -64,6 +64,7 @@ in {
           "pihole"
         ];
         applicationModules = [
+          "bat"
           "yazi"
           "zoxide"
           "pihole"

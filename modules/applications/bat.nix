@@ -3,26 +3,24 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-{self, ...}: let
-  inherit (self.lib) mkAppModule;
-in {
-  flake.applicationModules.ghostty = mkAppModule "ghostty" "Enable Ghostty terminal emulator" {
-    meta = {
-      pkgs,
-      lib,
-      ...
-    }: {
+{self, ...}: {
+  flake.applicationModules.bat = self.lib.mkAppModule "bat" "Bat syntax-highlighted cat" {
+    meta = {pkgs, ...}: {
       level = "system";
-      packages = lib.optionals pkgs.stdenv.hostPlatform.isLinux [pkgs.ghostty];
-      casks = lib.optionals pkgs.stdenv.hostPlatform.isDarwin ["ghostty"];
+      packages = [pkgs.bat];
     };
     sysConfig = {
       my.dotfiles.packages = [
         {
-          name = "ghostty";
+          name = "bat";
           isConfig = true;
         }
       ];
+      environment.interactiveShellInit = ''
+        if [ -r "''${XDG_CONFIG_HOME:-$HOME/.config}/bat/init.sh" ]; then
+          . "''${XDG_CONFIG_HOME:-$HOME/.config}/bat/init.sh"
+        fi
+      '';
     };
   };
 }

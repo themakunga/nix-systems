@@ -27,7 +27,9 @@
 
       darwinModules = [
         "extras"
+        "dock"
         "finder"
+        "mail"
         "homebrew"
         "keyboard"
         "primaryUser"
@@ -36,14 +38,19 @@
       ];
 
       applicationModules = [
+        "glados-tts"
+        "bat"
         "yazi"
         "zoxide"
         "github-cli"
+        "ghostty"
+        "halloy"
         "neovim"
         "openconnect"
         "tailscale.core"
         "tailscale.gui"
         "terminal-zsh"
+        "wezterm"
       ];
 
       deviceModules = [

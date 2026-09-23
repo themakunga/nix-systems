@@ -5,6 +5,8 @@
 # --- VARIABLES DE ENTORNO ---
 TARGET_IP ?= 192.168.1.100
 HOST ?= aperture-science
+# BUILD_HOST=builder@linux-builder para compilar en la VM de outer-heaven.
+BUILD_HOST ?=
 
 .PHONY: all test help install-nix bootstrap-darwin switch-outer-heaven switch-kanagawa switch-motherbase switch-msf switch-steamdeck deploy-aperture switch-aperture deploy-black-mesa switch-black-mesa deploy-valve switch-valve deploy-motherbase build-host build-vm build-sd build-bootstrap build-installer-x86 deploy-x86 check fmt sops-common sops-host update clean shell
 
@@ -71,8 +73,8 @@ switch-steamdeck: ## Aplica la configuración en steamdeck
 # deploy-*  → Instalación inicial desde imagen bootstrap (nixos-anywhere + disko)
 #             Requiere que el Pi esté corriendo el bootstrap SD, NO el sistema final.
 # switch-*  → Actualización de un sistema ya instalado (nixos-rebuild, sin reparticionar)
-#             Build en linux-builder (aarch64-linux nativo en outer-heaven, 4c/8GB).
-#             El resultado compilado se copia al Pi vía SSH — sin cross-compile.
+#             Build en el destino por defecto — sin cross-compile.
+#             En outer-heaven: BUILD_HOST=builder@linux-builder para usar la VM.
 
 deploy-aperture: ## [INICIAL] Instala aperture-science vía nixos-anywhere (desde bootstrap SD). Uso: make deploy-aperture TARGET_IP=192.168.x.x
 	@echo "=> Instalación inicial de aperture-science en $(TARGET_IP) (bootstrap → NVMe)..."
@@ -85,7 +87,7 @@ switch-aperture: ## [UPDATE] Actualiza aperture-science en ejecución vía nixos
 	nix run nixpkgs#nixos-rebuild -- switch \
 	  --flake .#aperture-science \
 	  --target-host root@$(TARGET_IP) \
-	  --build-host ssh-ng://builder@linux-builder
+	  --build-host $(or $(BUILD_HOST),root@$(TARGET_IP))
 
 build-installer-x86: ## Genera ISO de instalación x86_64 con llaves SSH pre-cargadas. Flashear a USB para bare metal. Uso: make build-installer-x86
 	@echo "=> Generando ISO de instalación x86_64..."
@@ -114,7 +116,7 @@ switch-black-mesa: ## [UPDATE] Actualiza black-mesa en ejecución vía nixos-reb
 	nix run nixpkgs#nixos-rebuild -- switch \
 	  --flake .#black-mesa \
 	  --target-host root@$(TARGET_IP) \
-	  --build-host ssh-ng://builder@linux-builder
+	  --build-host $(or $(BUILD_HOST),root@$(TARGET_IP))
 
 deploy-valve: ## [INICIAL] Instala valve (Pi 5) vía nixos-anywhere. Uso: make deploy-valve TARGET_IP=192.168.x.x
 	@echo "=> Instalación inicial de valve en $(TARGET_IP)..."
@@ -127,16 +129,16 @@ switch-valve: ## [UPDATE] Actualiza valve en ejecución vía nixos-rebuild. Uso:
 	nix run nixpkgs#nixos-rebuild -- switch \
 	  --flake .#valve \
 	  --target-host root@$(TARGET_IP) \
-	  --build-host ssh-ng://builder@linux-builder
+	  --build-host $(or $(BUILD_HOST),root@$(TARGET_IP))
 
 # ==========================================
 # 🌍 DESPLIEGUE REMOTO X86_64
 # ==========================================
 
-deploy-motherbase: ## Despliega motherbase remoto usando linux-builder local
+deploy-motherbase: ## Despliega motherbase remoto compilando en el destino
 	@echo "=> Desplegando configuración en motherbase.local..."
 	git add -A
-	nix run nixpkgs#nixos-rebuild -- switch --flake .#motherbase --target-host root@192.168.5.153 --build-host ssh-ng://builder@linux-builder --fast
+	nix run nixpkgs#nixos-rebuild -- switch --flake .#motherbase --target-host root@192.168.5.153 --build-host $(or $(BUILD_HOST),root@192.168.5.153) --fast
 
 # =========================================================
 # 🧪 PRUEBAS Y CONSTRUCCIÓN (TESTING)
