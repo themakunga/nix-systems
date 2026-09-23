@@ -30,7 +30,7 @@
         btop
         ctop
         glab
-        typescript_7 # tsc LSP (TypeScript Go) requires TS 7 on PATH
+        unstable.typescript # tsc LSP (TypeScript 7 Go rewrite) requires TS 7 on PATH
       ];
       casks = mkIf isDarwin [
         "firefox"
