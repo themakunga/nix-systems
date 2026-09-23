@@ -20,6 +20,7 @@
       packages = [pkgs.unstable.tuxedo];
       apps = {
         bat.enable = true;
+        glow.enable = true;
         yazi.enable = true;
         zoxide.enable = true;
       };
