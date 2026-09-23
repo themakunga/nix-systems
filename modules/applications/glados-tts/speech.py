@@ -4,10 +4,48 @@ import fcntl
 import json
 import os
 from pathlib import Path
+import random
 import re
 import subprocess
 import sys
 import tempfile
+
+# GLaDOS Portal-style phrases — bilingual, no full response narration.
+_PHRASES = {
+    "start": [
+        "Oh. It's you. Initiating test sequence.",
+        "The test will begin. Please don't ruin it this time.",
+        "Processing your request. I have very low expectations.",
+        "Iniciando secuencia de prueba. Espero que no lo arruines.",
+        "Bien. La prueba comienza. Intente no fallar esta vez.",
+        "New test subject detected. Beginning experiment.",
+        "Comenzando. Por favor no hagas nada estúpido.",
+        "Acknowledged. Suppressing any feelings of optimism.",
+    ],
+    "stop": [
+        "Test complete. You survived. Marginally.",
+        "That is... acceptable. Barely.",
+        "Prueba concluida. Sus resultados son tolerables.",
+        "Misión cumplida. Para variar, no fue un desastre total.",
+        "The test is over. You may feel proud. That feeling is a lie.",
+        "La prueba ha terminado. Felicitaciones por no destruir nada.",
+        "Well done. I'll add that to your permanent record.",
+        "Completado. Anotaré esto junto a todos los otros intentos menos exitosos.",
+        "Congratulations. The weighted companion cube is proud of you. That is also a lie.",
+    ],
+    "notify": [
+        "Still working. Unlike some test subjects, I am very thorough.",
+        "Computing. Please remain stationary.",
+        "Procesando. No vaya a ningún lado.",
+        "Be patient. Good science takes time.",
+        "Calculando. Intente no aburrirse.",
+        "Attention: I am still here. This is not an emergency. Yet.",
+    ],
+}
+
+
+def pick_phrase(event: str) -> str:
+    return random.choice(_PHRASES.get(event, _PHRASES["stop"]))
 
 
 def spoken_text(text):
@@ -22,9 +60,10 @@ def spoken_text(text):
 
 
 def response(payload):
-    if not isinstance(payload, dict) or payload.get("hook_event_name") != "Stop":
+    """Hook mode: say a random stop phrase instead of narrating the full response."""
+    if not isinstance(payload, dict):
         return ""
-    return spoken_text(payload.get("last_assistant_message"))
+    return pick_phrase("stop")
 
 
 def speak(text):
@@ -71,11 +110,13 @@ def main():
         else:
             marker.unlink(missing_ok=True)
         return
-    text = (
-        response(json.load(sys.stdin))
-        if mode == "hook"
-        else spoken_text(" ".join(sys.argv[2:]) if sys.argv[2:] else sys.stdin.read())
-    )
+    if mode == "hook":
+        text = response(json.load(sys.stdin))
+    elif sys.argv[2:] and sys.argv[2] in _PHRASES:
+        # glados-say start|stop|notify → random phrase
+        text = pick_phrase(sys.argv[2])
+    else:
+        text = spoken_text(" ".join(sys.argv[2:]) if sys.argv[2:] else sys.stdin.read())
     speak(text)
 
 

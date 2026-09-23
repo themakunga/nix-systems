@@ -67,7 +67,7 @@ in {
               rustc
             ];
 
-            casks = ["tigervnc" "okta-verify" "miniconda" "claude-code"];
+            casks = ["tigervnc" "miniconda" "claude-code"];
 
             apps = {
               aws-cli.enable = true;

@@ -39,6 +39,7 @@
       ];
       brews = [
         "xcode-build-server"
+        "espeak-ng" # GLaDOS TTS phonemizer dependency
       ];
       apps.github-cli.enable = true;
     };
