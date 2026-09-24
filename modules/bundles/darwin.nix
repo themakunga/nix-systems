@@ -40,6 +40,7 @@
       applicationModules = [
         "glados-tts"
         "bat"
+        "glow"
         "yazi"
         "zoxide"
         "github-cli"

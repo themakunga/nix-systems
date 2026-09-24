@@ -241,22 +241,6 @@
         "type": "github"
       }
     },
-    "homebrew-sonybridge": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1786700430,
-        "narHash": "sha256-hvwewJsxjcXAj9kzXfSHJNwCi3+tJZiJkdGmz+JOPt8=",
-        "owner": "AmitRajput-Dev",
-        "repo": "homebrew-tap",
-        "rev": "45cdb9910e11be76fce9172b88ee0d03ce679b16",
-        "type": "github"
-      },
-      "original": {
-        "owner": "AmitRajput-Dev",
-        "repo": "homebrew-tap",
-        "type": "github"
-      }
-    },
     "import-tree": {
       "locked": {
         "lastModified": 1788467110,
@@ -537,7 +521,6 @@
         "homebrew-bundle": "homebrew-bundle",
         "homebrew-cask": "homebrew-cask",
         "homebrew-core": "homebrew-core",
-        "homebrew-sonybridge": "homebrew-sonybridge",
         "import-tree": "import-tree",
         "mac-app-util": "mac-app-util",
         "nix-darwin": "nix-darwin",

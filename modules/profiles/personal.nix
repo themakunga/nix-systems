@@ -30,6 +30,7 @@
         btop
         ctop
         glab
+        unstable.typescript # tsc LSP (TypeScript 7 Go rewrite) requires TS 7 on PATH
       ];
       casks = mkIf isDarwin [
         "firefox"
@@ -39,6 +40,7 @@
       ];
       brews = [
         "xcode-build-server"
+        "espeak-ng" # GLaDOS TTS phonemizer dependency
       ];
       apps.github-cli.enable = true;
     };

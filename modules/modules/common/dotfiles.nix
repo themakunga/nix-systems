@@ -52,11 +52,14 @@ _: {
           TARGET_DIR="$TARGET_DIR/$PKG_NAME"
         fi
         if [ -d "$DOTFILES_DIR/$PKG_NAME" ]; then
-          echo "Aplicando stow para $PKG_NAME hacia $TARGET_DIR..."
           run_as_user mkdir -p "$TARGET_DIR"
+          CONFLICTS=$(run_as_user ${pkgs.stow}/bin/stow -n -t "$TARGET_DIR" -d "$DOTFILES_DIR" "$PKG_NAME" 2>&1 | grep "existing target is" | awk '{print $NF}' || true)
+          if [ -n "$CONFLICTS" ]; then
+            for f in $CONFLICTS; do
+              run_as_user rm -rf "$TARGET_DIR/$f"
+            done
+          fi
           run_as_user ${pkgs.stow}/bin/stow -t "$TARGET_DIR" -d "$DOTFILES_DIR" --adopt "$PKG_NAME"
-        else
-          echo "Advertencia: El paquete $PKG_NAME no existe en $DOTFILES_DIR."
         fi
       '')
       cfg.packages);
@@ -99,8 +102,9 @@ _: {
           echo "Dotfiles actualizados."
         fi
       fi
-      echo "=> Evaluando despliegue de paquetes con Stow..."
+      echo "=> Desplegando dotfiles con Stow..."
       ${stowLoop}
+      echo "=> Dotfiles desplegados correctamente."
     '';
 
     darwinScript = ''
