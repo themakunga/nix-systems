@@ -11,15 +11,9 @@ NixOS con Hyprland, sin transmitir la pantalla.
 
 ## Conexión inicial
 
-1. Obtén la IP local del host:
+1. Abre Safari en el iPad y accede a:
    ```
-   ip addr show | grep 'inet ' | grep -v '127\.' | awk '{print $2}'
-   ```
-   o usa `aperture-science.local` si mDNS funciona en tu red.
-
-2. Abre Safari en el iPad y accede a:
-   ```
-   http://<IP-DEL-HOST>:9100
+   http://aperture-science.local:9100
    ```
    La página muestra un código QR con la URL de acceso autenticada.
 
@@ -101,25 +95,26 @@ systemctl --user restart remote-touchpad
 
 ### Página inaccesible (Safari no carga)
 
-1. Verifica que el host está encendido y con sesión activa
-2. Comprueba la IP:
-   ```bash
-   ip addr show
-   ```
-3. Verifica que el servicio está activo:
+1. Verifica que el host está encendido y con sesión activa.
+2. Verifica que el servicio está activo:
    ```bash
    systemctl --user is-active remote-touchpad
    ```
-4. Verifica que el puerto 9100 está a la escucha:
+3. Verifica que el puerto 9100 está a la escucha:
    ```bash
    ss -tlnp | grep 9100
    ```
-5. Verifica el firewall:
+4. Verifica el firewall:
    ```bash
    sudo nft list ruleset | grep 9100
    ```
-6. Comprueba que el iPad y el host están en la **misma subred** —
+5. Comprueba que el iPad y el host están en la **misma subred** —
    las redes de invitados aíslan dispositivos entre sí.
+6. **mDNS entre WiFi y Ethernet**: si el iPad usa WiFi y el host cable,
+   algunos routers no reenvían multicast entre interfaces. En ese caso
+   `aperture-science.local` no resolverá desde el iPad. Solución: habilitar
+   "mDNS repeater" o "multicast bridging" en el router, o instalar Tailscale
+   en el iPad y usar la IP de Tailscale (`100.x.x.x`).
 
 ### Página abre pero no controla el host
 
