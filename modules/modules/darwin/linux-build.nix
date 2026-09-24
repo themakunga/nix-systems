@@ -29,6 +29,14 @@
             cores = mkForce 8; # 8 Cores de CPU (era 4 — M4 Max tiene 14 performance cores)
             diskSize = mkForce 51200; # 50 GB de disco virtual
           };
+          # Gestión de espacio dentro de la VM (el store crece con ephemeral=false).
+          # min-free/max-free los provee nix-builder-vm.nix — no redefinir.
+          nix.gc = {
+            automatic = true;
+            dates = "daily";
+            options = "--delete-older-than 3d";
+          };
+          nix.settings.auto-optimise-store = true;
           # ponytail: clock drift fix — restart launchd service to re-sync VM clock.
           # services.timesyncd cannot be set here: CI builds aarch64 VM on x86_64,
           # any VM-level NixOS change produces uncacheable aarch64 derivations.

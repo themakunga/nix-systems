@@ -309,14 +309,27 @@ in {
               '';
             };
 
-            # Firewall: puerto del gateway zeroclaw (42617) accesible desde la red local
-            networking.firewall.allowedTCPPorts = [42617];
-
-            # DNS: deshabilitar accept-dns de Tailscale para usar resolvers del sistema.
-            # El resolver de Tailscale (100.102.172.33) no responde a queries públicas.
-            # Con accept-dns=false, resolvconf usa 1.1.1.1 + 8.8.8.8 + gateway local.
+            networking = {
+              # Firewall: puerto del gateway zeroclaw (42617) accesible desde la red local
+              firewall.allowedTCPPorts = [42617];
+              # DNS: deshabilitar accept-dns de Tailscale para usar resolvers del sistema.
+              # El resolver de Tailscale (100.102.172.33) no responde a queries públicas.
+              # Con accept-dns=false, resolvconf usa 1.1.1.1 + 8.8.8.8 + gateway local.
+              nameservers = ["1.1.1.1" "8.8.8.8"];
+              # IP estática en end0 — evita que DHCP cambie la IP y permite usar
+              # aperture-science.local o la IP fija (192.168.5.85) desde el iPad/Mac.
+              interfaces.end0 = {
+                useDHCP = false;
+                ipv4.addresses = [
+                  {
+                    address = "192.168.5.85";
+                    prefixLength = 22;
+                  }
+                ];
+              };
+              defaultGateway = "192.168.4.1";
+            };
             services.tailscale.extraUpFlags = ["--accept-dns=false"];
-            networking.nameservers = ["1.1.1.1" "8.8.8.8"];
 
             # wheel sin contraseña — necesario para nixos-rebuild remoto
             security.sudo.wheelNeedsPassword = false;

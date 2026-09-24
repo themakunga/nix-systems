@@ -20,6 +20,18 @@
 
         time.timeZone = "America/Santiago";
         i18n.defaultLocale = "en_US.UTF-8";
+
+        # Gestión automática de espacio en el Nix store
+        nix.gc = {
+          automatic = true;
+          dates = "weekly";
+          options = "--delete-older-than 14d";
+        };
+        nix.settings = {
+          auto-optimise-store = true; # deduplicar store con hardlinks tras cada build
+          min-free = 5368709120; # 5 GB — lanzar GC si hay menos espacio libre
+          max-free = 10737418240; # 10 GB — liberar hasta 10 GB en cada GC automático
+        };
       };
     };
   };

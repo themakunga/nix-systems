@@ -64,7 +64,25 @@
       '';
     };
     extras = {
-      nix.enable = true;
+      nix = {
+        enable = true;
+        # Gestión automática de espacio en el Nix store (macOS / nix-darwin)
+        gc = {
+          automatic = true;
+          # launchd: domingos a las 03:00
+          interval = {
+            Weekday = 0;
+            Hour = 3;
+            Minute = 0;
+          };
+          options = "--delete-older-than 14d";
+        };
+        settings = {
+          auto-optimise-store = true;
+          min-free = 5368709120; # 5 GB
+          max-free = 10737418240; # 10 GB
+        };
+      };
 
       system.defaults.NSGlobalDomain = {
         AppleShowAllExtensions = true;
