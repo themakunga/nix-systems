@@ -147,12 +147,12 @@
         ${pkgs.coreutils}/bin/cp "$SYSTEM/initrd" "$FIRMWARE/nixos-initrd.img.tmp"
         ${pkgs.coreutils}/bin/mv "$FIRMWARE/nixos-initrd.img.tmp" "$FIRMWARE/nixos-initrd.img"
 
-        # 3. Regenerar cmdline.txt.
-        #    root=UUID evita ambigüedad si hay SD y NVMe con el mismo label.
-        ROOT_UUID=$(${pkgs.util-linux}/bin/findmnt -n -o UUID /)
+        # Preserve NixOS kernel parameters, including root=fstab for systemd initrd.
+        # An explicit root=UUID would generate a second sysroot.mount alongside fstab.
+        KERNEL_PARAMS=$(${pkgs.coreutils}/bin/cat "$SYSTEM/kernel-params")
         INIT=$(${pkgs.coreutils}/bin/readlink -f "$SYSTEM/init")
         ${pkgs.coreutils}/bin/printf '%s\n' \
-          "init=$INIT pcie_aspm=off rootwait root=UUID=$ROOT_UUID loglevel=4 lsm=landlock,yama,bpf" \
+          "init=$INIT $KERNEL_PARAMS" \
           > "$FIRMWARE/cmdline.txt"
 
         echo "nvme-direct-boot: OK — $INIT"
