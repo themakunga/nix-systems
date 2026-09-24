@@ -74,6 +74,7 @@ in {
           "ollama"
           "wezterm" # Terminal principal — instala wezterm + stow ~/.wezterm.lua (TokyoNight Storm)
           "neovim" # Editor — instala neovim 0.12 + stow ~/.config/nvim/ desde public-dotfiles
+          "hermes" # Hermes AI Agent con Obsidian oficial en Podman rootless (/opt/hermes)
         ];
       })
       ++ [
@@ -148,6 +149,7 @@ in {
               apps = {
                 tailscale-core.enable = true;
                 wechat.enable = true;
+                hermes.enable = true; # Hermes AI Agent — solo en aperture-science
               };
 
               # Ollama: servidor LLM local (CPU-only en RPi5, 8GB RAM)
@@ -200,9 +202,6 @@ in {
               nodejs_22 # Node.js 22 LTS — tooling JS/TS
               go # Go — servicios, CLIs, infraestructura
               terraform # Terraform — IaC para homelab
-
-              # ── IA / asistente de código ────────────────────────────────────
-              unstable.codex # OpenAI Codex CLI — agentic coding assistant
             ];
 
             # GLaDOS: service account para IA local (zeroclaw).

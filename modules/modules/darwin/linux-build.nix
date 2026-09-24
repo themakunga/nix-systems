@@ -20,7 +20,7 @@
     config = mkIf cfg.enable {
       nix.linux-builder = {
         enable = true;
-        ephemeral = true; # Destruye y recrea la VM limpia en cada reinicio
+        ephemeral = false; # Conserva la VM y su Nix store entre reinicios
         maxJobs = 8; # Compilaciones paralelas (era 4 — M4 Max tiene cores de sobra)
 
         config = {
@@ -36,7 +36,22 @@
       };
 
       # Da permisos al constructor para inyectar binarios en tu Mac
-      nix.settings.trusted-users = ["@admin"];
+      nix.settings = {
+        trusted-users = ["@admin"];
+        # builders-use-substitutes: el builder VM descarga sustitutos directamente
+        # en lugar de recibirlos del daemon Darwin — necesario para ARM64 builds.
+        builders-use-substitutes = true;
+        extra-substituters = [
+          "https://nixos-hardware.cachix.org"
+          "https://themakunga.cachix.org"
+        ];
+        extra-trusted-public-keys = [
+          # Clave verificada en https://nixos-hardware.cachix.org
+          "nixos-hardware.cachix.org-1:OqV48MwUzN0rmApeP5Dp/4hQv+8Uz7x1qPtd+6BaLgc="
+          # Clave verificada en https://app.cachix.org/cache/themakunga (flake.nix)
+          "themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0="
+        ];
+      };
     };
   };
 }

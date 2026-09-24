@@ -80,3 +80,52 @@ jobs:
           body: |
             🚀 **Automated Nightly / Pre-Release**
             Generated automatically from develop branch.
+  build-aperture-system:
+    name: Build aperture-science system toplevel
+    runs-on: ubuntu-24.04-arm
+    # Solo construir cuando cambian módulos, hosts o el lockfile
+    if: |
+      contains(toJson(github.event.commits.*.modified), 'modules/') ||
+      contains(toJson(github.event.commits.*.modified), 'flake.lock') ||
+      contains(toJson(github.event.commits.*.added), 'modules/')
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
+      - name: Decode SSH Key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/raw_ssh_key
+          EOF_DELIMITER=$(openssl rand -hex 8)
+          {
+            echo "DECODED_KEY<<$EOF_DELIMITER"
+            cat /tmp/raw_ssh_key
+            echo ""
+            echo "$EOF_DELIMITER"
+          } >> "$GITHUB_ENV"
+          rm /tmp/raw_ssh_key
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ env.DECODED_KEY }}
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            extra-platforms = aarch64-linux
+            extra-substituters = https://nixos-hardware.cachix.org https://themakunga.cachix.org
+            extra-trusted-public-keys = nixos-hardware.cachix.org-1:OqV48MwUzN0rmApeP5Dp/4hQv+8Uz7x1qPtd+6BaLgc= themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0=
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v17
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_TOKEN }}
+      - name: Build aperture-science system
+        run: |
+          nix build .#nixosConfigurations.aperture-science.config.system.build.toplevel \
+            --out-link result-aperture -L
+      - name: Push closure to Cachix
+        run: cachix push themakunga result-aperture
