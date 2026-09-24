@@ -29,9 +29,10 @@
         # y se detiene cuando la sesión termina (PartOf= garantiza esto).
         systemd.user.services.remote-touchpad = {
           description = "Remote Touchpad — iPad input server (uinput backend)";
-          partOf = ["graphical-session.target"];
-          wantedBy = ["graphical-session.target"];
-          after = ["graphical-session.target"];
+          # default.target: arranca con la sesión de usuario (no requiere graphical-session,
+          # que greetd+Hyprland no activa correctamente en esta configuración).
+          wantedBy = ["default.target"];
+          after = ["default.target"];
 
           # kbd: necesario si remote-touchpad llama loadkeys para el mapa de teclado.
           path = [pkgs.openssl pkgs.coreutils pkgs.kbd];
