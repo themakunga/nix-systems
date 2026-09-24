@@ -66,38 +66,54 @@ _: {
 
     # Git sync body — shared between Darwin and Linux.
     # Caller must define: DOTFILES_DIR, REPO_URL, USER_HOME, USER, HOSTNAME, run_as_user().
+    # Estrategia: los cambios pendientes se commitean en `develop`; si no existe PR
+    # de develop → main, se crea automáticamente. Nunca se crea un branch temporal.
     gitSync = ''
       echo "=> Sincronizando repositorio public-dotfiles en $DOTFILES_DIR..."
       if [ ! -d "$DOTFILES_DIR/.git" ]; then
         echo "Clonando repositorio..."
         run_as_user ${pkgs.git}/bin/git clone "$REPO_URL" "$DOTFILES_DIR"
-      else
-        cd "$DOTFILES_DIR"
-        run_as_user ${pkgs.git}/bin/git fetch origin main
-        LOCAL_DIFF=$(run_as_user ${pkgs.git}/bin/git status --porcelain)
-        AHEAD=$(run_as_user ${pkgs.git}/bin/git rev-list --count origin/main..HEAD 2>/dev/null || echo "0")
-        BEHIND=$(run_as_user ${pkgs.git}/bin/git rev-list --count HEAD..origin/main 2>/dev/null || echo "0")
-        if [ -n "$LOCAL_DIFF" ] || [ "$AHEAD" -gt 0 ]; then
-          echo "Cambios locales detectados. Generando sincronización automática..."
-          DATE_STR=$(date +%Y%m%d%H%M%S)
-          BRANCH_NAME="chore/sync-$DATE_STR"
-          run_as_user ${pkgs.git}/bin/git checkout -b "$BRANCH_NAME"
-          run_as_user ${pkgs.git}/bin/git add .
-          run_as_user ${pkgs.git}/bin/git \
-            -c user.name="Nix Auto Sync" \
-            -c user.email="$USER@$HOSTNAME" \
-            commit -m "chore: sync local dotfiles changes from host" || true
-          run_as_user env GIT_TERMINAL_PROMPT=0 ${pkgs.git}/bin/git push -u origin "$BRANCH_NAME" || true
-          if command -v ${pkgs.gh}/bin/gh >/dev/null 2>&1; then
-            PR_EXISTS=$(run_as_user ${pkgs.gh}/bin/gh pr list --head "$BRANCH_NAME" --json id --jq 'length' 2>/dev/null || echo "0")
-            if [ "$PR_EXISTS" -eq "0" ]; then
-              run_as_user ${pkgs.gh}/bin/gh pr create --base develop --head "$BRANCH_NAME" --title "chore: sync dotfiles from host" --body "Automated PR syncing local dotfiles changes." || echo "Fallo al crear PR (requiere autenticación)."
-            fi
+      fi
+      cd "$DOTFILES_DIR"
+      run_as_user ${pkgs.git}/bin/git fetch origin
+
+      # Llevar cambios sin commitear a develop antes de cambiar de rama
+      run_as_user ${pkgs.git}/bin/git add . 2>/dev/null || true
+      CURRENT_BRANCH=$(run_as_user ${pkgs.git}/bin/git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
+      if [ "$CURRENT_BRANCH" != "develop" ]; then
+        if run_as_user ${pkgs.git}/bin/git show-ref --verify --quiet refs/remotes/origin/develop; then
+          run_as_user ${pkgs.git}/bin/git checkout develop 2>/dev/null \
+            || run_as_user ${pkgs.git}/bin/git checkout -b develop --track origin/develop
+        else
+          run_as_user ${pkgs.git}/bin/git checkout -b develop
+        fi
+      fi
+
+      LOCAL_DIFF=$(run_as_user ${pkgs.git}/bin/git status --porcelain)
+      AHEAD=$(run_as_user ${pkgs.git}/bin/git rev-list --count origin/develop..HEAD 2>/dev/null || echo "0")
+      if [ -n "$LOCAL_DIFF" ] || [ "$AHEAD" -gt 0 ]; then
+        echo "Cambios pendientes detectados. Commiteando en develop..."
+        run_as_user ${pkgs.git}/bin/git add .
+        run_as_user ${pkgs.git}/bin/git \
+          -c user.name="Nix Auto Sync" \
+          -c user.email="$USER@$HOSTNAME" \
+          commit -m "chore: sync local dotfiles changes from $HOSTNAME" || true
+        run_as_user env GIT_TERMINAL_PROMPT=0 ${pkgs.git}/bin/git push -u origin develop || true
+        if command -v ${pkgs.gh}/bin/gh >/dev/null 2>&1; then
+          PR_EXISTS=$(run_as_user ${pkgs.gh}/bin/gh pr list --base main --head develop --json id --jq 'length' 2>/dev/null || echo "0")
+          if [ "$PR_EXISTS" -eq "0" ]; then
+            run_as_user ${pkgs.gh}/bin/gh pr create \
+              --base main --head develop \
+              --title "chore: sync dotfiles from $HOSTNAME" \
+              --body "PR automático: cambios locales de dotfiles commiteados desde $HOSTNAME." \
+              || echo "Fallo al crear PR (requiere autenticación gh)."
           fi
-          run_as_user ${pkgs.git}/bin/git checkout main
-        elif [ "$BEHIND" -gt 0 ]; then
-          echo "Actualizando cambios desde origin/main..."
-          run_as_user ${pkgs.git}/bin/git pull origin main
+        fi
+      else
+        BEHIND=$(run_as_user ${pkgs.git}/bin/git rev-list --count HEAD..origin/develop 2>/dev/null || echo "0")
+        if [ "$BEHIND" -gt 0 ]; then
+          echo "Actualizando desde origin/develop..."
+          run_as_user ${pkgs.git}/bin/git pull origin develop
         else
           echo "Dotfiles actualizados."
         fi
