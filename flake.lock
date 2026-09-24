@@ -212,11 +212,11 @@
     "homebrew-cask": {
       "flake": false,
       "locked": {
-        "lastModified": 1790077082,
-        "narHash": "sha256-n8tMh4erd8E4SH0U20dtxpJ4qhWv9LiLOQJfB+UJnN0=",
+        "lastModified": 1790258428,
+        "narHash": "sha256-BOABxVZ1BJ0E21tiYdKgsgJPmNIe1Ah9JvDCPv0FaZw=",
         "owner": "homebrew",
         "repo": "homebrew-cask",
-        "rev": "d1ab94324f90589db826815daa7c28f4dd84e920",
+        "rev": "907b4ab40a9883849002965e8553783c3f27a867",
         "type": "github"
       },
       "original": {
@@ -228,11 +228,11 @@
     "homebrew-core": {
       "flake": false,
       "locked": {
-        "lastModified": 1790080291,
-        "narHash": "sha256-6BPLZ2b88O2ZbIuIUj+X8dVsVR6tEq3DmzyJPpsLatw=",
+        "lastModified": 1790253680,
+        "narHash": "sha256-vTdnYbBxeDRJX5bcVlaHgsbtYTIVAvCOicXsTOL+QAU=",
         "owner": "homebrew",
         "repo": "homebrew-core",
-        "rev": "45c572adcd59f0ec5b1cf6052833fa1be48dfd65",
+        "rev": "d14875ccfc9cd26ebe373646a6cea619afe37860",
         "type": "github"
       },
       "original": {
@@ -406,11 +406,11 @@
     },
     "nixpkgs-unstable": {
       "locked": {
-        "lastModified": 1789994327,
-        "narHash": "sha256-2EAysR68bR+V5O63LuZWFvhK55sYGLzXWi4uEiEHjKw=",
+        "lastModified": 1790178388,
+        "narHash": "sha256-kK3t7gwoz4Nx8RF46cs1Xz/skKNcK7y3KYP+gGqX6W8=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "3396d0584677afd0e6ce20ac2474eab0adf0fb2b",
+        "rev": "00455b0a3690d3f5dc61e9aef4277dc86235b73f",
         "type": "github"
       },
       "original": {
@@ -499,11 +499,11 @@
     },
     "nixpkgs_7": {
       "locked": {
-        "lastModified": 1789998861,
-        "narHash": "sha256-62XMQD4WLdMAfdT0/8gJmPH2dKeTw908ryNloAplTr8=",
+        "lastModified": 1790218706,
+        "narHash": "sha256-6e4Na3z008XpdVyOXgfasXIn1aN+z8AXFG+jXdQSyuI=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "1e8bc658fc985ef27ccd66d107d767b32bb7ef98",
+        "rev": "c508844df6c28fa6dabc1b6af70f3ccbd65c5201",
         "type": "github"
       },
       "original": {
@@ -574,11 +574,11 @@
     "secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1789083065,
-        "narHash": "sha256-Gp9hAD63y9L3opDBr5PH3UnXDi6X8P/uTMVCWN1eYeM=",
+        "lastModified": 1790255216,
+        "narHash": "sha256-WslKW1y1m3xEtkZUjO2eV0A13TJ6GtCNBNQKtmd1huA=",
         "ref": "refs/heads/main",
-        "rev": "b786ad20fb1abf8ae1f5b39b54213696f438a816",
-        "revCount": 146,
+        "rev": "948d63fdfeffdf83788a241a354ac6dc27ac5667",
+        "revCount": 147,
         "type": "git",
         "url": "ssh://git@github.com/TheMakunga/.secrets.git"
       },
@@ -594,11 +594,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789890976,
-        "narHash": "sha256-GKwH3zpy7tartuJMG0Rv/xUsdetG1QLmTVv8UKgJLmA=",
+        "lastModified": 1790247521,
+        "narHash": "sha256-TNfgoHsqsYYvaJImlWctfRkh4PseTagzegU1Dgdbehw=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "7214124c20c1542c90deb54af50e2f53ae02711f",
+        "rev": "2bd00bd9bb35fe6d114888c8f1c2e946c541dd8f",
         "type": "github"
       },
       "original": {

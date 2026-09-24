@@ -53,7 +53,7 @@ _: {
         fi
         if [ -d "$DOTFILES_DIR/$PKG_NAME" ]; then
           run_as_user mkdir -p "$TARGET_DIR"
-          CONFLICTS=$(run_as_user ${pkgs.stow}/bin/stow -n -t "$TARGET_DIR" -d "$DOTFILES_DIR" "$PKG_NAME" 2>&1 | grep "existing target is" | awk '{print $NF}' || true)
+          CONFLICTS=$(run_as_user ${pkgs.stow}/bin/stow -n -t "$TARGET_DIR" -d "$DOTFILES_DIR" "$PKG_NAME" 2>&1 | grep "existing target is" | ${pkgs.gawk}/bin/awk '{print $NF}' || true)
           if [ -n "$CONFLICTS" ]; then
             for f in $CONFLICTS; do
               run_as_user rm -rf "$TARGET_DIR/$f"
