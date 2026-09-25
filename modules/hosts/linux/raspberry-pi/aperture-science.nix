@@ -95,34 +95,67 @@ in {
               primaryUser.username = "nicolas";
               dotfiles = {
                 enable = true;
-                # wheatley es el usuario autologin de Hyprland en aperture-science.
-                # Su home está en /opt/wheatley (convención kiosk/service del host).
+                # wheatley: usuario autologin de Hyprland.
+                # Home en /opt/wheatley (convención kiosk/service).
                 user = "wheatley";
                 home = "/opt/wheatley";
                 packages = [
                   {
                     name = "hypr";
                     isConfig = true;
-                  } # /opt/wheatley/.config/hypr/ — Hyprland config con TokyoNight Storm
-                  {
-                    name = "bash";
-                  } # /opt/wheatley/.bashrc — bash con oh-my-posh + fastfetch + aliases
+                  } # ~/.config/hypr/ — Hyprland TokyoNight Storm
+                  {name = "bash";} # ~/.bashrc — oh-my-posh + fastfetch + aliases
                   {
                     name = "fastfetch";
                     isConfig = true;
-                  } # /opt/wheatley/.config/fastfetch/ — incluye logo Aperture Laboratories
+                  } # ~/.config/fastfetch/ — logo Aperture
                   {
                     name = "ohmyposh";
                     isConfig = true;
-                  } # /opt/wheatley/.config/ohmyposh/config.yaml — prompt compartido bash/zsh
+                  } # ~/.config/ohmyposh/config.yaml
                   {
                     name = "wofi";
                     isConfig = true;
-                  } # /opt/wheatley/.config/wofi/ — lanzador Wayland con tema TokyoNight Storm
+                  } # ~/.config/wofi/
                   {
                     name = "waybar";
                     isConfig = true;
-                  } # /opt/wheatley/.config/waybar/ — barra de estado con módulo zeroclaw
+                  } # ~/.config/waybar/
+                ];
+                # nicolas: administrador con escritorio Hyprland independiente.
+                # Recibe tooling dev + config de terminal y editor.
+                additionalUsers = [
+                  {
+                    user = "nicolas";
+                    home = "/home/nicolas";
+                    packages = [
+                      {
+                        name = "nvim";
+                        isConfig = true;
+                      } # ~/.config/nvim/
+                      {name = "wezterm";} # ~/.wezterm.lua
+                      {name = "bash";} # ~/.bashrc
+                      {name = "git";} # ~/.gitconfig
+                      {
+                        name = "fastfetch";
+                        isConfig = true;
+                      } # ~/.config/fastfetch/
+                      {
+                        name = "ohmyposh";
+                        isConfig = true;
+                      } # ~/.config/ohmyposh/
+                      {name = "tmux";} # ~/.tmux.conf
+                      {name = "zoxide";} # ~/.config/zoxide/
+                      {
+                        name = "bat";
+                        isConfig = true;
+                      } # ~/.config/bat/
+                      {
+                        name = "yazi";
+                        isConfig = true;
+                      } # ~/.config/yazi/
+                    ];
+                  }
                 ];
               };
               wallpaper = {
@@ -139,8 +172,10 @@ in {
               };
               nix-anywhere.enable = true;
 
-              # Si ya configuraste sops para este host, descomenta la siguiente línea:
+              # SOPS: descomentar cuando exista hosts/aperture-science.yaml en el repo .secrets.
+              # Contiene: wheatley/password (hashedPassword para tuigreet).
               # hostSecrets.file = "${secrets.outPath}/hosts/aperture-science.yaml";
+              # hostSecrets.userSecrets = [{ name = "wheatley/password"; owner = "wheatley"; }];
 
               base-machine = {
                 enable = true;
@@ -152,19 +187,24 @@ in {
                 wechat.enable = true;
                 hermes.enable = true; # Hermes AI Agent — solo en aperture-science
                 remote-touchpad.enable = true; # iPad como teclado/touchpad — solo en aperture-science
+                wezterm.enable = true; # Terminal principal con config TokyoNight Storm
+                neovim.enable = true; # Editor con LSP, treesitter, toolchain completo
               };
 
               # Ollama: servidor LLM local (CPU-only en RPi5, 8GB RAM)
               # API REST en :11434 — accesible por Tailscale y red local
               ollama.enable = true;
 
-              # Escritorio Wayland liviano: Hyprland con autologin como wheatley
+              # Escritorio Wayland: Hyprland multi-usuario con tuigreet.
+              # NOTA: multiUser requiere contraseña en wheatley vía SOPS.
+              # Mientras no esté el secrets file, dejar multiUser = false (autologin).
               hyprland-desktop = {
                 enable = true;
-                user = "wheatley";
+                user = "wheatley"; # usuario default / autologin cuando multiUser=false
                 # Los dotfiles (paquete "hypr") proveen ~/.config/hypr/hyprland.conf
                 # vía stow. El módulo gestiona waybar y foot, pero NO hyprland.conf.
                 manageConfig = false;
+                multiUser = false; # cambiar a true tras configurar SOPS para wheatley
                 vnc = {
                   enable = true;
                   # Escucha en todas las interfaces: accesible desde red local y Tailscale.

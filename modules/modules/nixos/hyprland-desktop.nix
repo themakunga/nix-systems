@@ -428,6 +428,8 @@
         '';
       };
 
+      multiUser = mkEnableOption "Login multi-usuario con tuigreet (reemplaza autologin)";
+
       vnc = {
         enable = mkEnableOption "Acceso remoto VNC via wayvnc (wlr-screencopy)";
 
@@ -462,31 +464,43 @@
         programs.hyprland.enable = true;
 
         # Paquetes del escritorio — TokyoNight stack
-        environment.systemPackages = with pkgs; [
-          foot # terminal (TokyoNight config incluido)
-          wofi # launcher alternativo (dmenu style)
-          rofi # launcher principal (rofi -show drun); rofi-wayland mergeado en rofi en nixpkgs 26.05
-          unstable.waybar # barra de estado (TokyoNight style)
-          wl-clipboard # clipboard
-          grim # screenshots
-          slurp # selección de área para screenshots
-          # Fuente Nerd Font para waybar e íconos
-          nerd-fonts.jetbrains-mono
-        ];
+        environment.systemPackages = with pkgs;
+          [
+            foot # terminal (TokyoNight config incluido)
+            wofi # launcher alternativo (dmenu style)
+            rofi # launcher principal (rofi -show drun); rofi-wayland mergeado en rofi en nixpkgs 26.05
+            unstable.waybar # barra de estado (TokyoNight style)
+            wl-clipboard # clipboard
+            grim # screenshots
+            slurp # selección de área para screenshots
+            # Fuente Nerd Font para waybar e íconos
+            nerd-fonts.jetbrains-mono
+          ]
+          ++ lib.optionals cfg.multiUser [pkgs.greetd.tuigreet];
 
-        # greetd: autologin directo a Hyprland
         services.greetd = {
           enable = true;
-          settings = {
-            default_session = {
-              command = "${hyprlandSession}";
-              user = cfg.user;
+          settings =
+            if cfg.multiUser
+            then {
+              # tuigreet: selección de usuario con sesión recordada.
+              # Requiere contraseña en todos los usuarios que inicien sesión.
+              default_session = {
+                command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --remember --cmd ${hyprlandSession}";
+                user = "greeter";
+              };
+            }
+            else {
+              # Autologin directo — comportamiento original
+              default_session = {
+                command = "${hyprlandSession}";
+                user = cfg.user;
+              };
+              initial_session = {
+                command = "${hyprlandSession}";
+                user = cfg.user;
+              };
             };
-            initial_session = {
-              command = "${hyprlandSession}";
-              user = cfg.user;
-            };
-          };
         };
 
         # Grupos necesarios para Wayland/seatd/audio

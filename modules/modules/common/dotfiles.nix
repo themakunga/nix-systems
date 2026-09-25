@@ -13,145 +13,151 @@ _: {
     inherit (lib) mkEnableOption mkOption types mkIf;
     cfg = config.my.dotfiles;
     isDarwin = pkgs.stdenv.isDarwin;
-    user = cfg.user;
     userHome =
       if cfg.home != null
       then cfg.home
       else if isDarwin
-      then "/Users/${user}"
-      else "/home/${user}";
+      then "/Users/${cfg.user}"
+      else "/home/${cfg.user}";
 
-    # Stow loop — shared between Darwin and Linux.
-    stowLoop = builtins.concatStringsSep "\n" (builtins.map (pkg: let
-        isConfigStr =
-          if pkg.isConfig
-          then "1"
-          else "0";
-        outNameStr =
-          if pkg.output-name != null
-          then pkg.output-name
-          else "";
-        outPathStr =
-          if pkg.output-path != null
-          then pkg.output-path
-          else "";
-      in ''
-        PKG_NAME="${pkg.name}"
-        IS_CONFIG="${isConfigStr}"
-        OUT_NAME="${outNameStr}"
-        OUT_PATH="${outPathStr}"
-        TARGET_DIR="$USER_HOME"
-        if [ -n "$OUT_PATH" ]; then
-          TARGET_DIR="$OUT_PATH"
-        elif [ "$IS_CONFIG" = "1" ]; then
-          TARGET_DIR="$USER_HOME/.config"
-        fi
-        if [ -n "$OUT_NAME" ]; then
-          TARGET_DIR="$TARGET_DIR/$OUT_NAME"
-        elif [ "$IS_CONFIG" = "1" ] || [ -n "$OUT_PATH" ]; then
-          TARGET_DIR="$TARGET_DIR/$PKG_NAME"
-        fi
-        if [ -d "$DOTFILES_DIR/$PKG_NAME" ]; then
-          run_as_user mkdir -p "$TARGET_DIR"
-          CONFLICTS=$(run_as_user ${pkgs.stow}/bin/stow -n -t "$TARGET_DIR" -d "$DOTFILES_DIR" "$PKG_NAME" 2>&1 | grep "existing target is" | ${pkgs.gawk}/bin/awk '{print $NF}' || true)
-          if [ -n "$CONFLICTS" ]; then
-            for f in $CONFLICTS; do
-              run_as_user rm -rf "$TARGET_DIR/$f"
-            done
+    # Submodule type for stow package entries — reused for primary and additionalUsers.
+    packageSubmodule = types.submodule {
+      options = {
+        name = mkOption {
+          type = types.str;
+          description = "Nombre del paquete (carpeta) dentro de public-dotfiles.";
+        };
+        isConfig = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Si true, stow hacia ~/.config/<name>.";
+        };
+        output-name = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = "Re-escribe el nombre de la carpeta destino.";
+        };
+        output-path = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = "Fuerza el stow hacia una ruta absoluta específica.";
+        };
+      };
+    };
+
+    # Generate stow commands for a list of packages.
+    # Requires shell vars in scope: $USER_HOME, $DOTFILES_DIR, run_as_user()
+    mkStowLoop = packages:
+      builtins.concatStringsSep "\n" (builtins.map (pkg: let
+          isConfigStr =
+            if pkg.isConfig
+            then "1"
+            else "0";
+          outNameStr =
+            if pkg.output-name != null
+            then pkg.output-name
+            else "";
+          outPathStr =
+            if pkg.output-path != null
+            then pkg.output-path
+            else "";
+        in ''
+          PKG_NAME="${pkg.name}"
+          IS_CONFIG="${isConfigStr}"
+          OUT_NAME="${outNameStr}"
+          OUT_PATH="${outPathStr}"
+          TARGET_DIR="$USER_HOME"
+          if [ -n "$OUT_PATH" ]; then
+            TARGET_DIR="$OUT_PATH"
+          elif [ "$IS_CONFIG" = "1" ]; then
+            TARGET_DIR="$USER_HOME/.config"
           fi
-          run_as_user ${pkgs.stow}/bin/stow -t "$TARGET_DIR" -d "$DOTFILES_DIR" --adopt "$PKG_NAME"
-        fi
-      '')
-      cfg.packages);
+          if [ -n "$OUT_NAME" ]; then
+            TARGET_DIR="$TARGET_DIR/$OUT_NAME"
+          elif [ "$IS_CONFIG" = "1" ] || [ -n "$OUT_PATH" ]; then
+            TARGET_DIR="$TARGET_DIR/$PKG_NAME"
+          fi
+          if [ -d "$DOTFILES_DIR/$PKG_NAME" ]; then
+            run_as_user mkdir -p "$TARGET_DIR"
+            CONFLICTS=$(run_as_user ${pkgs.stow}/bin/stow -n -t "$TARGET_DIR" -d "$DOTFILES_DIR" "$PKG_NAME" 2>&1 | grep "existing target is" | ${pkgs.gawk}/bin/awk '{print $NF}' || true)
+            if [ -n "$CONFLICTS" ]; then
+              for f in $CONFLICTS; do
+                run_as_user rm -rf "$TARGET_DIR/$f"
+              done
+            fi
+            run_as_user ${pkgs.stow}/bin/stow -t "$TARGET_DIR" -d "$DOTFILES_DIR" --adopt "$PKG_NAME"
+          fi
+        '')
+        packages);
 
-    # Git sync body — shared between Darwin and Linux.
-    # Caller must define: DOTFILES_DIR, REPO_URL, USER_HOME, USER, HOSTNAME, run_as_user().
-    # Estrategia: los cambios pendientes se commitean en `develop`; si no existe PR
-    # de develop → main, se crea automáticamente. Nunca se crea un branch temporal.
-    gitSync = ''
-      echo "=> Sincronizando repositorio public-dotfiles en $DOTFILES_DIR..."
+    # Generate a full deployment script for a single user.
+    # Clones the repo if missing, fetches from origin, stows packages.
+    # No auto-commit/push: dotfiles are managed via PRs, not activation scripts.
+    mkUserScript = {
+      user,
+      home,
+      repoPath,
+      packages,
+    }: let
+      stowLoop = mkStowLoop packages;
+    in ''
+      USER_HOME="${home}"
+      DOTFILES_DIR="${repoPath}"
+      REPO_URL="${cfg.repository}"
+      ${
+        if isDarwin
+        then ''run_as_user() { sudo -H -u "${user}" env HOME="$USER_HOME" "$@"; }''
+        else ''
+          run_as_user() { /run/wrappers/bin/sudo -H -u "${user}" env HOME="$USER_HOME" "$@"; }
+          mkdir -p "$USER_HOME" "$USER_HOME/.config"
+          chown "${user}" "$USER_HOME" "$USER_HOME/.config" 2>/dev/null || true
+          chmod 755 "$USER_HOME" "$USER_HOME/.config" 2>/dev/null || true
+        ''
+      }
       if [ ! -d "$DOTFILES_DIR/.git" ]; then
-        echo "Clonando repositorio..."
+        echo "=> Clonando dotfiles para ${user}..."
         run_as_user ${pkgs.git}/bin/git clone "$REPO_URL" "$DOTFILES_DIR"
       fi
-      cd "$DOTFILES_DIR"
-      run_as_user ${pkgs.git}/bin/git fetch origin
-
-      # Llevar cambios sin commitear a develop antes de cambiar de rama
-      run_as_user ${pkgs.git}/bin/git add . 2>/dev/null || true
-      CURRENT_BRANCH=$(run_as_user ${pkgs.git}/bin/git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
-      if [ "$CURRENT_BRANCH" != "develop" ]; then
-        if run_as_user ${pkgs.git}/bin/git show-ref --verify --quiet refs/remotes/origin/develop; then
-          run_as_user ${pkgs.git}/bin/git checkout develop 2>/dev/null \
-            || run_as_user ${pkgs.git}/bin/git checkout -b develop --track origin/develop
-        else
-          run_as_user ${pkgs.git}/bin/git checkout -b develop
-        fi
-      fi
-
-      LOCAL_DIFF=$(run_as_user ${pkgs.git}/bin/git status --porcelain)
-      AHEAD=$(run_as_user ${pkgs.git}/bin/git rev-list --count origin/develop..HEAD 2>/dev/null || echo "0")
-      if [ -n "$LOCAL_DIFF" ] || [ "$AHEAD" -gt 0 ]; then
-        echo "Cambios pendientes detectados. Commiteando en develop..."
-        run_as_user ${pkgs.git}/bin/git add .
-        run_as_user ${pkgs.git}/bin/git \
-          -c user.name="Nix Auto Sync" \
-          -c user.email="$USER@$HOSTNAME" \
-          commit -m "chore: sync local dotfiles changes from $HOSTNAME" || true
-        run_as_user env GIT_TERMINAL_PROMPT=0 ${pkgs.git}/bin/git push -u origin develop || true
-        if command -v ${pkgs.gh}/bin/gh >/dev/null 2>&1; then
-          PR_EXISTS=$(run_as_user ${pkgs.gh}/bin/gh pr list --base main --head develop --json id --jq 'length' 2>/dev/null || echo "0")
-          if [ "$PR_EXISTS" -eq "0" ]; then
-            run_as_user ${pkgs.gh}/bin/gh pr create \
-              --base main --head develop \
-              --title "chore: sync dotfiles from $HOSTNAME" \
-              --body "PR automático: cambios locales de dotfiles commiteados desde $HOSTNAME." \
-              || echo "Fallo al crear PR (requiere autenticación gh)."
-          fi
-        fi
-      else
-        BEHIND=$(run_as_user ${pkgs.git}/bin/git rev-list --count HEAD..origin/develop 2>/dev/null || echo "0")
-        if [ "$BEHIND" -gt 0 ]; then
-          echo "Actualizando desde origin/develop..."
-          run_as_user ${pkgs.git}/bin/git pull origin develop
-        else
-          echo "Dotfiles actualizados."
-        fi
-      fi
-      echo "=> Desplegando dotfiles con Stow..."
+      run_as_user ${pkgs.git}/bin/git -C "$DOTFILES_DIR" fetch origin 2>/dev/null || true
+      echo "=> Desplegando dotfiles para ${user}..."
       ${stowLoop}
-      echo "=> Dotfiles desplegados correctamente."
+      echo "=> Dotfiles para ${user} desplegados."
     '';
 
-    darwinScript = ''
-      DOTFILES_DIR="${cfg.path}"
-      REPO_URL="${cfg.repository}"
-      USER_HOME="${userHome}"
-      USER="${user}"
-      HOSTNAME=$(hostname)
-      run_as_user() { sudo -H -u "$USER" env HOME="$USER_HOME" "$@"; }
-      ${gitSync}
-    '';
+    primaryScript = mkUserScript {
+      user = cfg.user;
+      home = userHome;
+      repoPath = cfg.path;
+      packages = cfg.packages;
+    };
 
-    linuxScript = ''
-      DOTFILES_DIR="${cfg.path}"
-      REPO_URL="${cfg.repository}"
-      USER_HOME="${userHome}"
-      USER="${user}"
-      HOSTNAME=$(cat /etc/hostname 2>/dev/null || echo "nixos")
-      run_as_user() { /run/wrappers/bin/sudo -H -u "$USER" env HOME="$USER_HOME" "$@"; }
-      mkdir -p "$USER_HOME" "$USER_HOME/.config"
-      chown "$USER" "$USER_HOME" "$USER_HOME/.config" 2>/dev/null || true
-      chmod 755 "$USER_HOME" "$USER_HOME/.config" 2>/dev/null || true
-      ${gitSync}
-    '';
+    # Activation scripts for additional users — each gets a stowDotfiles-<user> script
+    # that depends on the primary stowDotfiles and users being set up first.
+    additionalUserScripts = builtins.listToAttrs (builtins.map (u: let
+        uHome =
+          if u.home != null
+          then u.home
+          else "/home/${u.user}";
+      in {
+        name = "stowDotfiles-${u.user}";
+        value = {
+          deps = ["stowDotfiles" "users"];
+          text = mkUserScript {
+            user = u.user;
+            home = uHome;
+            repoPath = "${uHome}/.public-dotfiles";
+            packages = u.packages;
+          };
+        };
+      })
+      cfg.additionalUsers);
   in {
     options.my.dotfiles = {
       enable = mkEnableOption "Habilitar sincronización y despliegue avanzado de dotfiles";
       user = mkOption {
         type = types.str;
         default = config.system.primaryUser or "nicolas";
-        description = "Usuario que recibirá los dotfiles";
+        description = "Usuario principal que recibirá los dotfiles";
       };
       home = mkOption {
         type = types.nullOr types.str;
@@ -169,41 +175,41 @@ _: {
         description = "Ruta local donde residirá el repositorio";
       };
       packages = mkOption {
+        type = types.listOf packageSubmodule;
+        default = [];
+        description = "Lista de paquetes a desplegar usando GNU Stow.";
+      };
+      additionalUsers = mkOption {
         type = types.listOf (types.submodule {
           options = {
-            name = mkOption {
+            user = mkOption {
               type = types.str;
-              description = "Nombre del paquete (carpeta) dentro de public-dotfiles.";
+              description = "Nombre del usuario adicional.";
             };
-            isConfig = mkOption {
-              type = types.bool;
-              default = false;
-              description = "Si true, stow hacia ~/.config/<name>.";
-            };
-            output-name = mkOption {
+            home = mkOption {
               type = types.nullOr types.str;
               default = null;
-              description = "Re-escribe el nombre de la carpeta destino.";
+              description = "Ruta home. null → /home/<user>.";
             };
-            output-path = mkOption {
-              type = types.nullOr types.str;
-              default = null;
-              description = "Fuerza el stow hacia una ruta absoluta específica.";
+            packages = mkOption {
+              type = types.listOf packageSubmodule;
+              default = [];
+              description = "Paquetes de dotfiles para este usuario.";
             };
           };
         });
         default = [];
-        description = "Lista de paquetes a desplegar usando GNU Stow.";
+        description = "Usuarios adicionales que recibirán dotfiles del mismo repositorio.";
       };
     };
 
     config = mkIf cfg.enable {
-      environment.systemPackages = [pkgs.stow pkgs.git pkgs.gh];
+      environment.systemPackages = [pkgs.stow pkgs.git pkgs.gawk];
 
       system.activationScripts =
         if isDarwin
-        then {postActivation.text = darwinScript;}
-        else {stowDotfiles.text = linuxScript;};
+        then {postActivation.text = primaryScript;}
+        else {stowDotfiles.text = primaryScript;} // additionalUserScripts;
     };
   };
 }
