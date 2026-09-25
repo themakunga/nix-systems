@@ -35,16 +35,5 @@
       # Propagar vía userProfiles para no conflictuar con el default null
       hashedPasswordFile = config.sops.secrets."nicolas-password".path;
     };
-
-    # Expirar la contraseña solo si aún no tiene una establecida (NP = No Password).
-    # Corrige el bug anterior donde chage -d 0 corría en cada nixos-rebuild,
-    # forzando cambio de contraseña en cada deploy.
-    system.activationScripts.nicolas-expire-password.text = ''
-      if id nicolas &>/dev/null && [ -f /etc/shadow ]; then
-        if passwd -S nicolas 2>/dev/null | grep -q '^nicolas NP'; then
-          chage -d 0 nicolas 2>/dev/null || true
-        fi
-      fi
-    '';
   };
 }
