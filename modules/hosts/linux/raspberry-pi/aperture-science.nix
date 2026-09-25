@@ -82,6 +82,7 @@ in {
         ({
           pkgs,
           lib,
+          config,
           ...
         }: {
           # Declaramos primaryUser localmente para satisfacer al módulo nix-anywhere
@@ -172,10 +173,19 @@ in {
               };
               nix-anywhere.enable = true;
 
-              # SOPS: descomentar cuando exista hosts/aperture-science.yaml en el repo .secrets.
-              # Contiene: wheatley/password (hashedPassword para tuigreet).
-              # hostSecrets.file = "${secrets.outPath}/hosts/aperture-science.yaml";
-              # hostSecrets.userSecrets = [{ name = "wheatley/password"; owner = "wheatley"; }];
+              # SOPS: hosts/aperture-science.yaml contiene wheatley/password (SHA-512).
+              hostSecrets.file = "${inputs.secrets.outPath}/hosts/aperture-science.yaml";
+              hostSecrets.userSecrets = {
+                "wheatley-password" = {
+                  key = "wheatley/password";
+                  owner = "root"; # hashedPasswordFile debe ser legible por systemd-userdbd
+                  neededForUsers = true;
+                };
+              };
+
+              # Contraseña de wheatley vía SOPS — necesaria para login con tuigreet.
+              # Override del null default del userModule.
+              userProfiles.wheatley.hashedPasswordFile = config.sops.secrets."wheatley-password".path;
 
               base-machine = {
                 enable = true;
@@ -200,11 +210,11 @@ in {
               # Mientras no esté el secrets file, dejar multiUser = false (autologin).
               hyprland-desktop = {
                 enable = true;
-                user = "wheatley"; # usuario default / autologin cuando multiUser=false
+                user = "wheatley";
                 # Los dotfiles (paquete "hypr") proveen ~/.config/hypr/hyprland.conf
                 # vía stow. El módulo gestiona waybar y foot, pero NO hyprland.conf.
                 manageConfig = false;
-                multiUser = false; # cambiar a true tras configurar SOPS para wheatley
+                multiUser = true; # tuigreet — wheatley y nicolas se autentican con contraseña
                 vnc = {
                   enable = true;
                   # Escucha en todas las interfaces: accesible desde red local y Tailscale.
@@ -262,8 +272,6 @@ in {
                 # session bus que zeroclaw necesita para arrancar.
                 linger = true;
               };
-              # wheatley necesita el grupo uinput para escribir en /dev/uinput
-              # (regla udev creada por hardware.uinput.enable en remote-touchpad.nix)
               wheatley.extraGroups = ["uinput"];
             };
 

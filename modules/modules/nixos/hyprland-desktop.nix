@@ -476,7 +476,7 @@
             # Fuente Nerd Font para waybar e íconos
             nerd-fonts.jetbrains-mono
           ]
-          ++ lib.optionals cfg.multiUser [pkgs.greetd.tuigreet];
+          ++ lib.optionals cfg.multiUser [pkgs.tuigreet];
 
         services.greetd = {
           enable = true;
@@ -486,7 +486,7 @@
               # tuigreet: selección de usuario con sesión recordada.
               # Requiere contraseña en todos los usuarios que inicien sesión.
               default_session = {
-                command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --remember --cmd ${hyprlandSession}";
+                command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd ${hyprlandSession}";
                 user = "greeter";
               };
             }
