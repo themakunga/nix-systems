@@ -75,6 +75,7 @@ in {
           "wezterm" # Terminal principal — instala wezterm + stow ~/.wezterm.lua (TokyoNight Storm)
           "neovim" # Editor — instala neovim 0.12 + stow ~/.config/nvim/ desde public-dotfiles
           "hermes" # Hermes AI Agent con Obsidian oficial en Podman rootless (/opt/hermes)
+          "remote-touchpad" # iPad como teclado/touchpad via uinput — Safari en :9100
         ];
       })
       ++ [
@@ -150,6 +151,7 @@ in {
                 tailscale-core.enable = true;
                 wechat.enable = true;
                 hermes.enable = true; # Hermes AI Agent — solo en aperture-science
+                remote-touchpad.enable = true; # iPad como teclado/touchpad — solo en aperture-science
               };
 
               # Ollama: servidor LLM local (CPU-only en RPi5, 8GB RAM)
@@ -204,16 +206,25 @@ in {
               terraform # Terraform — IaC para homelab
             ];
 
-            # GLaDOS: service account para IA local (zeroclaw).
-            # El módulo glados la define sin shell interactiva — override necesario
-            # para que zeroclaw pueda ejecutar subprocesos de shell correctamente.
-            users.users.glados = {
-              shell = lib.mkForce pkgs.bash;
-              extraGroups = lib.mkForce ["glados" "docker"];
-              createHome = lib.mkForce true;
-              # zeroclaw: asistente LLM autónomo — solo accesible para glados.
-              # Instalado en /etc/profiles/per-user/glados/ (no en PATH del sistema).
-              packages = [pkgs.unstable.zeroclaw];
+            users.users = {
+              # GLaDOS: service account para IA local (zeroclaw).
+              # El módulo glados la define sin shell interactiva — override necesario
+              # para que zeroclaw pueda ejecutar subprocesos de shell correctamente.
+              glados = {
+                shell = lib.mkForce pkgs.bash;
+                extraGroups = lib.mkForce ["glados" "docker"];
+                createHome = lib.mkForce true;
+                # zeroclaw: asistente LLM autónomo — solo accesible para glados.
+                # Instalado en /etc/profiles/per-user/glados/ (no en PATH del sistema).
+                packages = [pkgs.unstable.zeroclaw];
+                # linger = true: systemd-logind levanta el user manager de glados al
+                # boot (sin sesión interactiva), creando /run/user/466 y el D-Bus
+                # session bus que zeroclaw necesita para arrancar.
+                linger = true;
+              };
+              # wheatley necesita el grupo uinput para escribir en /dev/uinput
+              # (regla udev creada por hardware.uinput.enable en remote-touchpad.nix)
+              wheatley.extraGroups = ["uinput"];
             };
 
             # mDNS: Avahi permite resolver aperture-science.local en la red local.
@@ -231,11 +242,6 @@ in {
             # Corre como glados, expone HTTP en :42617 (dashboard + WebSocket).
             # Config: /opt/glados/.zeroclaw/config.toml (desplegada via stow desde agent/).
             # Auth Codex: ver instrucciones al pie de este archivo.
-
-            # linger = true: systemd-logind levanta el user manager de glados al
-            # boot (sin sesión interactiva), creando /run/user/466 y el D-Bus
-            # session bus que zeroclaw necesita para arrancar.
-            users.users.glados.linger = true;
 
             systemd.services.zeroclaw = {
               description = "ZeroClaw AI Agent Gateway";
@@ -303,14 +309,27 @@ in {
               '';
             };
 
-            # Firewall: puerto del gateway zeroclaw (42617) accesible desde la red local
-            networking.firewall.allowedTCPPorts = [42617];
-
-            # DNS: deshabilitar accept-dns de Tailscale para usar resolvers del sistema.
-            # El resolver de Tailscale (100.102.172.33) no responde a queries públicas.
-            # Con accept-dns=false, resolvconf usa 1.1.1.1 + 8.8.8.8 + gateway local.
+            networking = {
+              # Firewall: puerto del gateway zeroclaw (42617) accesible desde la red local
+              firewall.allowedTCPPorts = [42617];
+              # DNS: deshabilitar accept-dns de Tailscale para usar resolvers del sistema.
+              # El resolver de Tailscale (100.102.172.33) no responde a queries públicas.
+              # Con accept-dns=false, resolvconf usa 1.1.1.1 + 8.8.8.8 + gateway local.
+              nameservers = ["1.1.1.1" "8.8.8.8"];
+              # IP estática en end0 — evita que DHCP cambie la IP y permite usar
+              # aperture-science.local o la IP fija (192.168.5.85) desde el iPad/Mac.
+              interfaces.end0 = {
+                useDHCP = false;
+                ipv4.addresses = [
+                  {
+                    address = "192.168.5.85";
+                    prefixLength = 22;
+                  }
+                ];
+              };
+              defaultGateway = "192.168.4.1";
+            };
             services.tailscale.extraUpFlags = ["--accept-dns=false"];
-            networking.nameservers = ["1.1.1.1" "8.8.8.8"];
 
             # wheel sin contraseña — necesario para nixos-rebuild remoto
             security.sudo.wheelNeedsPassword = false;
