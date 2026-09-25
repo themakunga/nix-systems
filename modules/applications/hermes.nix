@@ -56,7 +56,20 @@
         install -d -m 700 -o hermes -g hermes /opt/hermes/.config/hermes
         install -d -m 700 -o hermes -g hermes /opt/hermes/.config/obsidian
         install -d -m 700 -o hermes -g hermes /opt/hermes/.config/containers/systemd
-        install -d -m 700 -o hermes -g hermes /opt/hermes/vault
+
+        # agent-wiki: clonar o actualizar el vault compartido
+        # El vault es el mismo repo que usan los demás agentes (ZeroClaw, Claude, Codex).
+        WIKI_DIR="/opt/hermes/vault"
+        WIKI_REPO="git@github.com:themakunga/agent-wiki.git"
+        if [ ! -d "$WIKI_DIR/.git" ]; then
+          echo "=> Clonando agent-wiki para hermes..."
+          /run/wrappers/bin/sudo -H -u hermes env HOME=/opt/hermes \
+            ${pkgs.git}/bin/git clone "$WIKI_REPO" "$WIKI_DIR" 2>/dev/null || \
+            install -d -m 700 -o hermes -g hermes "$WIKI_DIR"
+        else
+          /run/wrappers/bin/sudo -H -u hermes env HOME=/opt/hermes \
+            ${pkgs.git}/bin/git -C "$WIKI_DIR" pull origin main 2>/dev/null || true
+        fi
       '';
     };
   };

@@ -324,35 +324,42 @@ in {
               };
             };
 
-            # ── GLaDOS agent dotfiles: stow agent/ → /opt/glados/.zeroclaw/ ──
-            # Clona public-dotfiles y aplica stow de la carpeta 'agent' al directorio
-            # de configuración de zeroclaw (~/.zeroclaw/ para el usuario glados).
+            # ── GLaDOS: clonar agent-wiki (vault) + stow scripts de agent/ ──
+            # agent-wiki es la fuente única de conocimiento (SOUL.md, IDENTITY.md, etc.)
+            # Los scripts bash (glados-say, glados-tts-setup) siguen en public-dotfiles/agent/.
             system.activationScripts."glados-agent-dotfiles" = {
               text = ''
                 DOTFILES_DIR="/opt/glados/.public-dotfiles"
-                REPO_URL="https://github.com/themakunga/public-dotfiles.git"
+                WIKI_DIR="/opt/glados/agent-wiki"
                 ZEROCLAW_DIR="/opt/glados/.zeroclaw"
 
-                echo "=> Sincronizando configuración del agente para GLaDOS..."
+                echo "=> Sincronizando agent-wiki y configuración de GLaDOS..."
 
-                mkdir -p "$ZEROCLAW_DIR"
-                chown glados:glados "$ZEROCLAW_DIR" 2>/dev/null || true
-
+                # 1. Clonar/actualizar public-dotfiles (para scripts bash de agent/)
                 if [ ! -d "$DOTFILES_DIR/.git" ]; then
-                  echo "Clonando public-dotfiles para glados..."
                   /run/wrappers/bin/sudo -H -u glados env HOME=/opt/glados \
-                    ${pkgs.git}/bin/git clone "$REPO_URL" "$DOTFILES_DIR" || true
+                    ${pkgs.git}/bin/git clone "https://github.com/themakunga/public-dotfiles.git" "$DOTFILES_DIR" 2>/dev/null || true
                 else
                   /run/wrappers/bin/sudo -H -u glados env HOME=/opt/glados \
                     ${pkgs.git}/bin/git -C "$DOTFILES_DIR" pull origin main 2>/dev/null || true
                 fi
 
+                # 2. Clonar/actualizar agent-wiki (vault — fuente de SOUL.md y demás)
+                if [ ! -d "$WIKI_DIR/.git" ]; then
+                  echo "Clonando agent-wiki para glados..."
+                  /run/wrappers/bin/sudo -H -u glados env HOME=/opt/glados \
+                    ${pkgs.git}/bin/git clone "git@github.com:themakunga/agent-wiki.git" "$WIKI_DIR" 2>/dev/null || true
+                else
+                  /run/wrappers/bin/sudo -H -u glados env HOME=/opt/glados \
+                    ${pkgs.git}/bin/git -C "$WIKI_DIR" pull origin main 2>/dev/null || true
+                fi
+
+                # 3. Stow scripts bash de agent/ → ~/.zeroclaw/
+                mkdir -p "$ZEROCLAW_DIR"
+                chown glados:glados "$ZEROCLAW_DIR" 2>/dev/null || true
                 if [ -d "$DOTFILES_DIR/agent" ]; then
-                  echo "Desplegando configuración agent/ → $ZEROCLAW_DIR..."
                   /run/wrappers/bin/sudo -H -u glados env HOME=/opt/glados \
                     ${pkgs.stow}/bin/stow -t "$ZEROCLAW_DIR" -d "$DOTFILES_DIR" --adopt agent
-                else
-                  echo "Advertencia: carpeta 'agent' no encontrada en $DOTFILES_DIR"
                 fi
               '';
             };
