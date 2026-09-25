@@ -16,6 +16,10 @@
           name = "claude";
           output-name = ".claude";
         }
+        {
+          name = "scripts";
+          output-name = "scripts"; # ~/scripts/ — jira-start y otros scripts ejecutables
+        }
       ];
       packages = [pkgs.unstable.tuxedo];
       apps = {
