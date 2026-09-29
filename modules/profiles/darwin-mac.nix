@@ -29,7 +29,7 @@ _: {
         forecast = ["d" "w"];
       };
 
-      packages = with pkgs; [stow pre-commit unstable.codex];
+      packages = with pkgs; [stow pre-commit weechat unstable.codex];
 
       # zen + ghostty already come from the personal profile
       casks = ["iterm2" "wezterm" "ferdium" "reminders-menubar" "chatgpt" "claude" "okta-verify"];
@@ -45,12 +45,14 @@ _: {
         tailscale-core.enable = true;
         tailscale-gui.enable = true;
         neovim.enable = true;
+        obsidian.enable = true;
         terminal-zsh.enable = true;
         gcloud.enable = true;
         ghostty.enable = true;
         wezterm.enable = true;
         halloy.enable = true;
         irssi.enable = true;
+        weechat.enable = true;
         nchat.enable = true;
         wechat.enable = true;
       };

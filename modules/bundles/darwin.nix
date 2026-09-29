@@ -47,6 +47,7 @@
         "ghostty"
         "halloy"
         "neovim"
+        "obsidian"
         "openconnect"
         "tailscale.core"
         "tailscale.gui"
