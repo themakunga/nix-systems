@@ -49,7 +49,8 @@ in {
           # Sustituye HOME_PLACEHOLDER por el home real del usuario
           ${pkgs.gnused}/bin/sed "s|HOME_PLACEHOLDER|${userHome}|g" \
             "$DOTFILES_SRC" > "$OBSIDIAN_JSON"
-          chown ${user} "$OBSIDIAN_JSON"
+          # El directorio se creó como root; Obsidian necesita escribir en él
+          chown -R ${user} "$OBSIDIAN_DIR"
           chmod 644 "$OBSIDIAN_JSON"
         fi
       '';
