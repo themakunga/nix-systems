@@ -29,7 +29,7 @@ _: {
         forecast = ["d" "w"];
       };
 
-      packages = with pkgs; [stow pre-commit weechat unstable.codex];
+      packages = with pkgs; [stow pre-commit unstable.codex];
 
       # zen + ghostty already come from the personal profile
       casks = ["iterm2" "wezterm" "ferdium" "reminders-menubar" "chatgpt" "claude" "okta-verify"];

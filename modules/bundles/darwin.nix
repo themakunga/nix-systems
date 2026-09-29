@@ -10,6 +10,7 @@
     base = {
       commonModules = [
         "dotfiles"
+        "shared-plain"
         "apps"
         "arch.darwin.silicon"
         "host-secrets"
@@ -46,6 +47,7 @@
         "github-cli"
         "ghostty"
         "halloy"
+        "weechat"
         "neovim"
         "obsidian"
         "openconnect"

@@ -3,47 +3,48 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# WeeChat — terminal IRC client.
-# Config (irc.conf + weechat.conf) copied from secrets/shared-conf/weechat/ at activation.
+# WeeChat: public UI, connections shared with Halloy's private configuration.
 {
   self,
   inputs,
   ...
 }: let
   inherit (self.lib) mkAppModule;
-  secretsPath = inputs.secrets.outPath;
 in {
   flake.applicationModules.weechat = mkAppModule "weechat" "Enable WeeChat IRC client" {
     meta = {pkgs, ...}: {
       level = "system";
       packages = [pkgs.weechat];
     };
-
     sysConfig = {
+      config,
       pkgs,
       lib,
       ...
     }: let
-      user = "nicolas";
+      user = config.system.primaryUser or "nicolas";
       userHome =
         if pkgs.stdenv.isDarwin
         then "/Users/${user}"
         else "/home/${user}";
+      dotfiles = "${userHome}/.public-dotfiles/weechat";
       destDir = "${userHome}/.config/weechat";
-      srcDir = "${secretsPath}/shared-conf/weechat";
-      script = lib.stringAfter ["users"] ''
-        if [ -d "${srcDir}" ]; then
-          mkdir -p "${destDir}/themes"
-          cp -f "${srcDir}/irc.conf" "${destDir}/irc.conf"
-          cp -f "${srcDir}/weechat.conf" "${destDir}/weechat.conf"
-          cp -f "${srcDir}/themes/nesthib-tokyonight.theme" "${destDir}/themes/nesthib-tokyonight.theme"
+      script = ''
+        if [ -f "${dotfiles}/sync-halloy.py" ]; then
+          SECRETS_DIR="${inputs.secrets.outPath}" \
+          WEECHAT_HOME="${destDir}" \
+          PYTHON="${pkgs.python3}/bin/python3" \
+            ${pkgs.bash}/bin/bash "${dotfiles}/deploy.sh"
           chown -R ${user} "${destDir}"
-          chmod 600 "${destDir}/irc.conf"
-          chmod 600 "${destDir}/weechat.conf"
+        else
+          echo "WeeChat: public-dotfiles/weechat is missing; configuration not deployed" >&2
         fi
       '';
     in {
-      system.activationScripts.weechat-config = script;
+      system.activationScripts =
+        if pkgs.stdenv.isDarwin
+        then {postActivation.text = lib.mkAfter script;}
+        else {weechat-config = lib.stringAfter ["users" "stowDotfiles"] script;};
     };
   };
 }
