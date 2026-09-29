@@ -1,0 +1,36 @@
+name: demo
+# =============================================================================
+# Stack de ejemplo: demo-web
+#
+# Redes:
+#   backend     — internal; app ↔ BD y servicios privados.
+#   main_ingress — external (creada por main); Traefik llega hasta aquí.
+#
+# Traefik descubre la ruta desde los labels — sin editar routes.yaml.
+# Cambia "demo.example.com" por el subdominio real en Cloudflare.
+#
+# Para añadir un proyecto nuevo: copiar este compose, cambiar el nombre del
+# stack, los labels (router/service únicos) y el hostname. Conectarlo a
+# main_ingress. No se necesita tocar ningún archivo central.
+# =============================================================================
+networks:
+  backend:
+    internal: true
+  main_ingress:
+    external: true
+    name: main_ingress
+services:
+  demo-web:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    networks:
+      backend: {}
+      main_ingress:
+        aliases: [demo-web]
+    labels:
+      - "traefik.enable=true"
+      # Router único por servicio (cambiar "demo" por nombre del proyecto)
+      - "traefik.http.routers.demo.rule=Host(`demo.example.com`)"
+      - "traefik.http.routers.demo.entrypoints=web"
+      - "traefik.http.services.demo.loadbalancer.server.port=80"
+    # Sin ports: Traefik enruta desde main_ingress leyendo los labels anteriores
