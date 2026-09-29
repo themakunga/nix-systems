@@ -73,6 +73,24 @@ in {
               aws-cli.enable = true;
               gemini-cli.enable = true;
             };
+
+            my.cloudProfiles.aws = [
+              {
+                name = "nicolas";
+                region = "us-east-1";
+                output = "yaml";
+              }
+              {
+                name = "default";
+                region = "us-east-1";
+                output = "yaml";
+              }
+              {
+                name = "bbook";
+                region = "us-east-1";
+                output = "yaml";
+              }
+            ];
           };
         })
       ];
