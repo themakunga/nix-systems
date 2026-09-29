@@ -43,14 +43,16 @@ in {
         OBSIDIAN_DIR="${userHome}/Library/Application Support/obsidian"
         OBSIDIAN_JSON="$OBSIDIAN_DIR/obsidian.json"
 
+        # Siempre garantiza que el directorio existe y le pertenece al usuario.
+        # (Los activation scripts corren como root; Obsidian necesita escribir aquí.)
+        mkdir -p "$OBSIDIAN_DIR"
+        chown ${user} "$OBSIDIAN_DIR"
+
         if [ -f "$DOTFILES_SRC" ] && [ ! -f "$OBSIDIAN_JSON" ]; then
           echo "=> Inicializando config de Obsidian..."
-          mkdir -p "$OBSIDIAN_DIR"
-          # Sustituye HOME_PLACEHOLDER por el home real del usuario
           ${pkgs.gnused}/bin/sed "s|HOME_PLACEHOLDER|${userHome}|g" \
             "$DOTFILES_SRC" > "$OBSIDIAN_JSON"
-          # El directorio se creó como root; Obsidian necesita escribir en él
-          chown -R ${user} "$OBSIDIAN_DIR"
+          chown ${user} "$OBSIDIAN_JSON"
           chmod 644 "$OBSIDIAN_JSON"
         fi
       '';
