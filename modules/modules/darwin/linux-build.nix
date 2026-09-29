@@ -22,8 +22,12 @@
         enable = true;
         ephemeral = false; # Conserva la VM y su Nix store entre reinicios
         maxJobs = 8; # Compilaciones paralelas (era 4 — M4 Max tiene cores de sobra)
+        # Permite compilar x86_64-linux vía QEMU dentro de la VM aarch64.
+        # ponytail: emulación QEMU, 3-5× más lento que nativo; añadir builder x86_64 real si la frecuencia aumenta.
+        systems = ["aarch64-linux" "x86_64-linux"];
 
         config = {
+          boot.binfmt.emulatedSystems = ["x86_64-linux"];
           virtualisation = {
             memorySize = mkForce 12288; # 12 GB de RAM (era 8GB)
             cores = mkForce 8; # 8 Cores de CPU (era 4 — M4 Max tiene 14 performance cores)
