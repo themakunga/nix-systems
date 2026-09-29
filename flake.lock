@@ -228,11 +228,11 @@
     "homebrew-core": {
       "flake": false,
       "locked": {
-        "lastModified": 1790700250,
-        "narHash": "sha256-u8JfM+RkkE8w/nxyWP37f4iQgieXxBy7a3+7h38r01s=",
+        "lastModified": 1790705068,
+        "narHash": "sha256-cvu/lT6o29YNg80Fyy24gZUCI6s3nblEButyLg8AMBg=",
         "owner": "homebrew",
         "repo": "homebrew-core",
-        "rev": "159bbd32516ad552aa5ffd14555bcd55ef5ef4ff",
+        "rev": "e9b2b6575dba5d881240a797b3e9fba0faae51e4",
         "type": "github"
       },
       "original": {
@@ -574,11 +574,11 @@
     "secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1790697338,
-        "narHash": "sha256-oFP8uOcJPdOwLFlnlwxMhyQrWNsdqIG3FBs34gC9NbY=",
+        "lastModified": 1790708087,
+        "narHash": "sha256-6LaAdSFBLXsQ/A9LizwZ1C2PIab5+P97jLKLT8Vbjm4=",
         "ref": "refs/heads/main",
-        "rev": "f62866492fd4e31f78a4ed306e6f178004c0db73",
-        "revCount": 153,
+        "rev": "4c97d6b87130eb5d4cea65a817f1f8f0572ed2c2",
+        "revCount": 154,
         "type": "git",
         "url": "ssh://git@github.com/TheMakunga/.secrets.git"
       },
