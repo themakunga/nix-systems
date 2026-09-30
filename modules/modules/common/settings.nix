@@ -46,6 +46,7 @@ in {
     nixpkgs = {
       config = {
         allowUnfree = true;
+        problems.handlers.pynput.broken = "ignore";
       };
       overlays = [
         overlays.unstable
