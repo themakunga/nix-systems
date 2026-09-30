@@ -68,7 +68,7 @@
           output-name = "scripts";
         }
       ];
-      packages = [pkgs.unstable.tuxedo gws-tui pkgs.python3Packages.pynput];
+      packages = [pkgs.unstable.tuxedo gws-tui];
       apps = {
         bat.enable = true;
         glow.enable = true;
