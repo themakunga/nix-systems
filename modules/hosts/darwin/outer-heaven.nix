@@ -27,7 +27,7 @@ in {
         mac-app-util.darwinModules.default
       ]
       ++ (mkBundle (extendBundle bundles.darwin.base {
-        commonModules = ["cloud-profiles"];
+        commonModules = ["cloud-profiles" "secret-dotfiles"];
         darwinModules = ["linux-builder" "tiling"];
         applicationModules = ["google-cloud.gemini" "ollama"];
         userModules = ["work" "glados"];
@@ -41,6 +41,7 @@ in {
             "/Applications/Bruno.app"
           ];
           my = {
+            secretDotfiles.enable = true;
             linux-builder.enable = true;
             hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
 
@@ -67,14 +68,15 @@ in {
               rustc
             ];
 
-            casks = ["tigervnc" "miniconda" "claude-code"];
+            casks = ["tigervnc" "miniconda" "claude-code" "qmk-toolbox"];
+            brews = ["googleworkspace-cli"];
 
             apps = {
               aws-cli.enable = true;
               gemini-cli.enable = true;
             };
 
-            my.cloudProfiles.aws = [
+            cloudProfiles.aws = [
               {
                 name = "nicolas";
                 region = "us-east-1";

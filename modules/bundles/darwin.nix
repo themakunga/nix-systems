@@ -41,6 +41,7 @@
       applicationModules = [
         "glados-tts"
         "bat"
+        "qmk"
         "glow"
         "yazi"
         "zoxide"

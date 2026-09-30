@@ -3,14 +3,15 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
+# gws-tui — Terminal UI for Google Workspace (not in nixpkgs)
+# Patches in a "tokyonight-storm" palette (upstream only ships Night: #1a1b26).
 {
-  flake.profileModules.terminal-tools = {pkgs, ...}: let
-    # gws-tui — not in nixpkgs; patches in tokyonight-storm palette
-    gws-tui = pkgs.buildGoModule rec {
+  flake.overlays.gws-tui = final: _prev: {
+    gws-tui = final.buildGoModule rec {
       pname = "gws-tui";
       version = "0.1.0";
 
-      src = pkgs.fetchFromGitHub {
+      src = final.fetchFromGitHub {
         owner = "fabhiansan";
         repo = pname;
         rev = "v${version}";
@@ -44,36 +45,11 @@
         "tokyonight": {'
       '';
 
-      meta = with pkgs.lib; {
+      meta = with final.lib; {
         description = "Terminal UI for Google Workspace";
         homepage = "https://github.com/fabhiansan/gws-tui";
         license = licenses.mit;
         platforms = platforms.unix;
-      };
-    };
-  in {
-    my = {
-      dotfiles.enable = true;
-      dotfiles.packages = [
-        {
-          name = "codex";
-          output-name = ".codex";
-        }
-        {
-          name = "claude";
-          output-name = ".claude";
-        }
-        {
-          name = "scripts";
-          output-name = "scripts";
-        }
-      ];
-      packages = [pkgs.unstable.tuxedo gws-tui pkgs.python3Packages.pynput];
-      apps = {
-        bat.enable = true;
-        glow.enable = true;
-        yazi.enable = true;
-        zoxide.enable = true;
       };
     };
   };
