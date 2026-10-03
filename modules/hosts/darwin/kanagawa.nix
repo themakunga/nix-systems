@@ -28,10 +28,10 @@ in {
       ]
       ++ (mkBundle (extendBundle bundles.darwin.base {
         darwinModules = ["tiling"];
-        applicationModules = ["google-cloud.gcloud"];
+        applicationModules = ["google-cloud.gcloud" "nlm"];
         developmentModules = ["ios-terminal"];
         userModules = ["personal"];
-        profileModules = ["personal" "bbook" "company"];
+        profileModules = ["personal" "bbook" "company" "terminal-tools"];
       }))
       ++ [
         ({pkgs, ...}: {
@@ -41,6 +41,7 @@ in {
             "/Applications/Zen.app"
           ];
           my = {
+            apps.nlm.enable = true;
             services.tiling.enable = true;
             packages = [pkgs.claude-code];
             hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";

@@ -28,11 +28,17 @@ in {
         else "/home/${user}";
 
       # Credentials: sensible → sops placeholders
-      awsCredentialsContent = builtins.concatStringsSep "\n" (builtins.map (p: ''
-          [${p.name}]
-          aws_access_key_id = ''${config.sops.placeholder."aws/credentials/${p.name}/access_key_id"}
-          aws_secret_access_key = ''${config.sops.placeholder."aws/credentials/${p.name}/secret_access_key"}
-        '')
+      # Note: use string concatenation to avoid ''${} escaping the interpolation
+      awsCredentialsContent = builtins.concatStringsSep "\n" (builtins.map (
+          p:
+            "[${p.name}]\n"
+            + "aws_access_key_id = "
+            + config.sops.placeholder."aws/credentials/${p.name}/access_key_id"
+            + "\n"
+            + "aws_secret_access_key = "
+            + config.sops.placeholder."aws/credentials/${p.name}/secret_access_key"
+            + "\n"
+        )
         cfg.aws);
 
       # Config: region y output no son sensibles → van directo desde Nix

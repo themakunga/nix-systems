@@ -31,7 +31,7 @@ in {
         darwinModules = ["linux-builder" "tiling"];
         applicationModules = ["google-cloud.gemini" "ollama"];
         userModules = ["work" "glados"];
-        profileModules = ["work" "personal" "latam" "glados" "thoughtworks"];
+        profileModules = ["work" "personal" "latam" "glados" "thoughtworks" "terminal-tools"];
       }))
       ++ [
         ({pkgs, ...}: {
@@ -74,6 +74,8 @@ in {
             apps = {
               aws-cli.enable = true;
               gemini-cli.enable = true;
+              qmk.enable = true;
+              # nlm.enable = true; # disabled — hash mismatch, re-enable when fixed
             };
 
             cloudProfiles.aws = [
