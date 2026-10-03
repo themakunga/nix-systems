@@ -11,7 +11,11 @@
   inherit (self.lib) mkAppModule;
 in {
   flake.applicationModules.nlm = mkAppModule "nlm" "Enable NotebookLM CLI (tmc/nlm)" {
-    meta = {pkgs, ...}: {
+    meta = {
+      pkgs,
+      lib,
+      ...
+    }: {
       level = "system";
       packages = [
         (pkgs.buildGoModule {
