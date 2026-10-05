@@ -37,6 +37,7 @@ in {
       ++ (mkBundle {
         commonModules = [
           "dotfiles"
+          "agent-wiki"
           "apps"
           "arch.nixos.rpi"
           "authorized-keys"

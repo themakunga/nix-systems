@@ -10,6 +10,7 @@
     base = {
       commonModules = [
         "dotfiles"
+        "agent-wiki"
         "shared-plain"
         "apps"
         "arch.darwin.silicon"
