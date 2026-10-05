@@ -10,6 +10,7 @@ _: {
     base = {
       commonModules = [
         "dotfiles"
+        "agent-wiki"
         "arch.nixos.x64"
         "authorized-keys"
         "host-secrets"

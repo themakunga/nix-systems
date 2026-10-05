@@ -32,6 +32,7 @@ in {
         commonModules = [
           "apps"
           "dotfiles"
+          "agent-wiki"
           "arch.nixos.rpi"
           "settings"
           "authorized-keys"
