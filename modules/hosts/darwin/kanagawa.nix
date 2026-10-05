@@ -34,7 +34,7 @@ in {
         profileModules = ["personal" "bbook" "company" "terminal-tools"];
       }))
       ++ [
-        ({pkgs, ...}: {
+        {
           system.defaults.dock.persistent-apps = [
             "/Applications/WezTerm.app"
             "/Applications/Typora.app"
@@ -43,7 +43,7 @@ in {
           my = {
             apps.nlm.enable = true;
             services.tiling.enable = true;
-            packages = [pkgs.claude-code];
+            packages = [];
             hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
 
             wallpaper = {
@@ -61,7 +61,7 @@ in {
               ios-terminal.enable = true;
             };
           };
-        })
+        }
       ];
   };
 }

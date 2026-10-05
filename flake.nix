@@ -80,7 +80,7 @@
     };
 
     token-counter = {
-      url = "github:TheMakunga/token-counter";
+      url = "github:TheMakunga/token-counter/c8616fb88cd5cedbd5599587ab391ba3ccbd7ff0";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 

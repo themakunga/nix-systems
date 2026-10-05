@@ -53,6 +53,7 @@
     };
   in {
     my = {
+      agentWiki.enable = true;
       dotfiles.enable = true;
       dotfiles.packages = [
         {
