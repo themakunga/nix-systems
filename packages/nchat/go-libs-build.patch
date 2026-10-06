@@ -29,20 +29,27 @@ diff --git c/lib/wmchat/CMakeLists.txt i/lib/wmchat/CMakeLists.txt
 index 84a42ef9..556df050 100644
 --- c/lib/wmchat/CMakeLists.txt
 +++ i/lib/wmchat/CMakeLists.txt
-@@ -20,8 +20,8 @@ install(TARGETS wmchat DESTINATION ${CMAKE_INSTALL_LIBDIR})
+@@ -20,14 +20,7 @@ install(TARGETS wmchat DESTINATION ${CMAKE_INSTALL_LIBDIR})
  target_common_config(wmchat)
 
  # Dependency libraries
--add_subdirectory(go)
--add_dependencies(wmchat ref-cgowm)
+-if(HAS_COMBINED_GOLIB)
+-  # Combined WhatsApp+Signal c-archive built in lib/gostat; the per-protocol Go
+-  # library is not built in this configuration.
+-  set(WMCHAT_GOLIB ref-cgogostat)
+-else()
+-  add_subdirectory(go)
+-  set(WMCHAT_GOLIB ref-cgowm)
+-endif()
+-add_dependencies(wmchat ${WMCHAT_GOLIB})
 +set(GO_LIBRARIES @libcgowm@/libcgowm.a)
 +target_include_directories(wmchat PRIVATE @libcgowm@)
 
  # Platform specifics
  if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-@@ -44,4 +44,4 @@ set_target_properties(wmchat PROPERTIES COMPILE_FLAGS
+@@ -57,4 +50,4 @@ set_target_properties(wmchat PROPERTIES COMPILE_FLAGS
 
  # Linking
  message(STATUS "Go libraries: ${GO_LIBRARIES}")
--target_link_libraries(wmchat PUBLIC ref-cgowm ncutil ${GO_LIBRARIES})
+-target_link_libraries(wmchat PUBLIC ${WMCHAT_GOLIB} ncutil ${GO_LIBRARIES})
 +target_link_libraries(wmchat PUBLIC @libcgowm@/libcgowm.a ncutil ${GO_LIBRARIES})
