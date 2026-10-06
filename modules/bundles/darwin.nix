@@ -50,6 +50,7 @@
         "github-cli"
         "ghostty"
         "halloy"
+        "nchat"
         "weechat"
         "neovim"
         "obsidian"
