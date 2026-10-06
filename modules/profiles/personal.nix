@@ -26,7 +26,6 @@
     my = {
       packages = with pkgs; [
         lynx
-        unstable.nchat
         btop
         ctop
         glab

@@ -22,7 +22,6 @@
 
     my = {
       packages = with pkgs; [
-        unstable.nchat
       ];
       casks = [
         "typora"
