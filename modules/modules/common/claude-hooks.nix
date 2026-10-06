@@ -26,7 +26,6 @@ _: {
     script = ''
             USER_HOME="${userHome}"
             SETTINGS="$USER_HOME/.claude/settings.json"
-            HOOK_SCRIPT="$USER_HOME/.claude/scripts/save-session.py"
 
             ${
         if isDarwin
