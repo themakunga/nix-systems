@@ -54,6 +54,7 @@
   in {
     my = {
       agentWiki.enable = true;
+      claudeHooks.enable = true;
       dotfiles.enable = true;
       dotfiles.packages = [
         {

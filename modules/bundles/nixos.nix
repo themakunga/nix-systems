@@ -11,6 +11,7 @@ _: {
       commonModules = [
         "dotfiles"
         "agent-wiki"
+        "claude-hooks"
         "arch.nixos.x64"
         "authorized-keys"
         "host-secrets"

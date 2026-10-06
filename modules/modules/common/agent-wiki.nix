@@ -25,7 +25,7 @@ _: {
 
     script = ''
       USER_HOME="${userHome}"
-      WIKI_DIR="$USER_HOME/.valuls/agent-wiki"
+      WIKI_DIR="$USER_HOME/.vaults/agent-wiki"
       WIKI_REPO="git@github.com:themakunga/agent-wiki.git"
       SOUL_LINK="$USER_HOME/.public-dotfiles/agent/SOUL.md"
       ${

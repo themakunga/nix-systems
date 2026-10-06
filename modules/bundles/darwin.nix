@@ -11,6 +11,7 @@
       commonModules = [
         "dotfiles"
         "agent-wiki"
+        "claude-hooks"
         "shared-plain"
         "apps"
         "arch.darwin.silicon"

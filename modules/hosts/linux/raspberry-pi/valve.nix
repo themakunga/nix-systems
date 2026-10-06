@@ -33,6 +33,7 @@ in {
           "apps"
           "dotfiles"
           "agent-wiki"
+          "claude-hooks"
           "arch.nixos.rpi"
           "settings"
           "authorized-keys"
