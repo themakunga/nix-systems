@@ -27,6 +27,7 @@
       packages = with pkgs; [
         lynx
         btop
+        htop
         ctop
         glab
         unstable.typescript # tsc LSP (TypeScript 7 Go rewrite) requires TS 7 on PATH
