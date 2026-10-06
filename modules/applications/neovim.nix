@@ -37,6 +37,8 @@ in {
           gh
           pandoc
           texliveSmall
+          imagemagick # snacks.image: convert/magick para rendering
+          ghostscript # snacks.image: gs para PDFs
           lua-language-server
           stylua
           nixd
