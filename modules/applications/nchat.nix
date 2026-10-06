@@ -10,7 +10,7 @@ in {
     meta = {pkgs, ...}: {
       level = "system";
       packages = [
-        (pkgs.callPackage ./nchat/package.nix {})
+        (pkgs.callPackage "${self}/packages/nchat/package.nix" {})
       ];
     };
   };
