@@ -100,26 +100,27 @@ _: {
       }
 
       # ── macOS: launchd user agent ──────────────────────────────────────
-      (lib.mkIf (cfg.autoSync.enable && isDarwin) {
-        launchd.user.agents.agent-wiki-sync = {
-          serviceConfig = {
-            ProgramArguments = ["/bin/bash" "${syncScript}"];
-            # /usr/bin/ssh usa macOS Keychain (UseKeychain yes en ~/.ssh/config)
-            # → no requiere ssh-agent en background
-            EnvironmentVariables = {
-              HOME = userHome;
-              # Key explícita: bypasea SSH config (sobreescrita por secret-dotfiles en rebuild)
-              # UseKeychain yes carga el passphrase desde macOS Keychain sin agente
-              GIT_SSH_COMMAND = "/usr/bin/ssh -i ${userHome}/.ssh/id_ed25519 -o UseKeychain=yes -o AddKeysToAgent=yes -o StrictHostKeyChecking=accept-new";
-              PATH = "/run/current-system/sw/bin:/usr/bin:/bin";
+      # Usamos lib.optionalAttrs en lugar de mkIf para evitar que NixOS (Linux)
+      # evalúe la opción `launchd` que no existe en ese módulo.
+      (lib.mkIf cfg.autoSync.enable (
+        lib.optionalAttrs isDarwin {
+          launchd.user.agents.agent-wiki-sync = {
+            serviceConfig = {
+              ProgramArguments = ["/bin/bash" "${syncScript}"];
+              EnvironmentVariables = {
+                HOME = userHome;
+                # Key explícita: bypasea SSH config (sobreescrita por secret-dotfiles en rebuild)
+                GIT_SSH_COMMAND = "/usr/bin/ssh -i ${userHome}/.ssh/id_ed25519 -o UseKeychain=yes -o AddKeysToAgent=yes -o StrictHostKeyChecking=accept-new";
+                PATH = "/run/current-system/sw/bin:/usr/bin:/bin";
+              };
+              StartInterval = cfg.autoSync.interval;
+              RunAtLoad = true;
+              StandardOutPath = "/tmp/agent-wiki-sync.log";
+              StandardErrorPath = "/tmp/agent-wiki-sync-error.log";
             };
-            StartInterval = cfg.autoSync.interval;
-            RunAtLoad = true;
-            StandardOutPath = "/tmp/agent-wiki-sync.log";
-            StandardErrorPath = "/tmp/agent-wiki-sync-error.log";
           };
-        };
-      })
+        }
+      ))
     ]);
   };
 }
