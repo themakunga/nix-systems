@@ -12,11 +12,14 @@ _: {
     config,
     lib,
     pkgs,
+    options,
     ...
   }: let
     inherit (lib) mkEnableOption mkOption mkIf types;
     cfg = config.my.agentWiki;
-    isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
+    # options ? launchd es verdadero solo en nix-darwin (nunca en NixOS),
+    # sin depender de pkgs ni cruzar compilación Darwin→Linux.
+    isDarwin = options ? launchd;
     user = config.system.primaryUser or "nicolas";
     userHome =
       if isDarwin

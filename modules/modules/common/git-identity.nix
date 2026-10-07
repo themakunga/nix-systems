@@ -35,16 +35,14 @@
     # Expande ~ al home del usuario (Nix eval-time, no runtime)
     resolveTilde = s: builtins.replaceStrings ["~/"] ["${userHome}/"] s;
 
-    # Genera bash que resuelve keyId en $_val:
-    #   si empieza con "/" → lee el archivo (path de SOPS runtime)
-    #   si no              → usa el valor literal (fingerprint hardcodeado)
-    resolveKeyIdSh = val: ''
-      if [[ "${val}" == /* ]]; then
-        _key_id=$(cat "${val}" 2>/dev/null || true)
-      else
-        _key_id="${val}"
-      fi
-    '';
+    # Genera bash que resuelve keyId en $_key_id.
+    # La decisión se toma en Nix eval-time para evitar SC2193:
+    #   path absoluto ("/run/secrets/...") → lee el archivo en runtime
+    #   fingerprint literal                → asigna directo
+    resolveKeyIdSh = val:
+      if lib.hasPrefix "/" val
+      then ''_key_id=$(cat "${val}" 2>/dev/null || true)''
+      else ''_key_id="${val}"'';
 
     # Bloque [user]+[gpg]+[commit] para un keyId dado
     gpgBlockSh = keyId: dest: ''
@@ -224,7 +222,7 @@
           # (puede ser un symlink de Stow — no duplicar el include)
           touch "${userHome}/.gitconfig"
           if ! ${pkgs.git}/bin/git config --file "${userHome}/.gitconfig" --get-all include.path |
-            grep -Fxq -e "$GIT_NIX_CONF" -e '~/.gitconfig.nix-managed'; then
+            grep -Fxq -e "$GIT_NIX_CONF" -e "$HOME/.gitconfig.nix-managed"; then
             printf '\n[include]\n  path = %s\n' "$GIT_NIX_CONF" >> "${userHome}/.gitconfig"
           fi
           chown ${user} "${userHome}/.gitconfig"
