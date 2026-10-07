@@ -108,7 +108,9 @@ _: {
             # → no requiere ssh-agent en background
             EnvironmentVariables = {
               HOME = userHome;
-              GIT_SSH_COMMAND = "/usr/bin/ssh";
+              # Key explícita: bypasea SSH config (sobreescrita por secret-dotfiles en rebuild)
+              # UseKeychain yes carga el passphrase desde macOS Keychain sin agente
+              GIT_SSH_COMMAND = "/usr/bin/ssh -i ${userHome}/.ssh/id_ed25519 -o UseKeychain=yes -o AddKeysToAgent=yes -o StrictHostKeyChecking=accept-new";
               PATH = "/run/current-system/sw/bin:/usr/bin:/bin";
             };
             StartInterval = cfg.autoSync.interval;
