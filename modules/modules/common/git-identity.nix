@@ -26,8 +26,9 @@
     cfg = config.programs.git-identity;
 
     user = config.system.primaryUser or "nicolas";
+    isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
     userHome =
-      if pkgs.stdenv.isDarwin
+      if isDarwin
       then "/Users/${user}"
       else "/home/${user}";
 
@@ -229,7 +230,7 @@
           chown ${user} "${userHome}/.gitconfig"
         '';
       in
-        if pkgs.stdenv.isDarwin
+        if isDarwin
         then {postActivation.text = scriptContent;}
         else {gitIdentitySetup.text = scriptContent;};
     };

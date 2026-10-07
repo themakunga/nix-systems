@@ -685,8 +685,8 @@
       },
       "original": {
         "owner": "TheMakunga",
+        "ref": "v0.3.1",
         "repo": "token-counter",
-        "rev": "c8616fb88cd5cedbd5599587ab391ba3ccbd7ff0",
         "type": "github"
       }
     },
