@@ -4,32 +4,11 @@
 # Módulo auto-gestionado.
 # =========================================================
 {
-  flake.profileModules.grainger = {config, ...}: let
-    sopsConf = {
-      owner = config.my.userProfiles.nicolas-work.username or "nicolas";
-    };
-  in {
-    sops.secrets = {
-      "profiles/grainger/ssh/private_key" = sopsConf;
-      "profiles/grainger/gpg/private_key" = sopsConf;
-      "profiles/grainger/gpg/public_key" = sopsConf;
-      "profiles/grainger/gpg/key_id" = sopsConf;
-    };
-
-    programs = {
-      sops.gpg = {
-        enable = true;
-        keys = [
-          {
-            name = "grainger-key";
-            publicKey = config.sops.secrets."profiles/grainger/gpg/public_key".path;
-            privateKey = config.sops.secrets."profiles/grainger/gpg/private_key".path;
-          }
-        ];
-      };
-
-      # workspace declarado en el archivo de identidades del host
-      git-identity.enable = true;
-    };
+  flake.profileModules.grainger = _: {
+    # PENDIENTE: agregar profiles/grainger/{gpg,ssh} a outer-heaven.yaml
+    # cuando las llaves GPG estén disponibles para importar.
+    # SSH: ~/.ssh/id_ed25519_grangier gestionado por secret-dotfiles.
+    # GPG fingerprint: literal en outer-heaven-workspaces.nix.
+    programs.git-identity.enable = true;
   };
 }
