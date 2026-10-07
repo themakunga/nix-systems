@@ -53,7 +53,10 @@
     };
   in {
     my = {
-      agentWiki.enable = true;
+      agentWiki = {
+        enable = true;
+        autoSync.enable = true; # launchd agent: sync cada 5 min en background
+      };
       claudeHooks.enable = true;
       dotfiles.enable = true;
       dotfiles.packages = [

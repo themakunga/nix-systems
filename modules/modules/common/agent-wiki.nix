@@ -14,7 +14,7 @@ _: {
     pkgs,
     ...
   }: let
-    inherit (lib) mkEnableOption mkIf;
+    inherit (lib) mkEnableOption mkOption mkIf types;
     cfg = config.my.agentWiki;
     isDarwin = pkgs.stdenv.isDarwin;
     user = config.system.primaryUser or "nicolas";
@@ -48,27 +48,76 @@ _: {
         run_as_user ln -sf "$WIKI_DIR/agents/SOUL.md" "$SOUL_LINK"
       fi
     '';
+
+    syncScript = pkgs.writeShellScript "agent-wiki-sync" ''
+      set -euo pipefail
+      WIKI_DIR="${userHome}/.vaults/agent-wiki"
+
+      [ -d "$WIKI_DIR/.git" ] || exit 0   # vault no clonado aún
+
+      cd "$WIKI_DIR"
+
+      # Pull (rebase para evitar merge commits automáticos)
+      ${pkgs.git}/bin/git pull --rebase origin main 2>/dev/null || true
+
+      # Commit si hay cambios sin commitear
+      if ! ${pkgs.git}/bin/git diff --quiet HEAD 2>/dev/null || \
+         [ -n "$(${pkgs.git}/bin/git ls-files --others --exclude-standard)" ]; then
+        ${pkgs.git}/bin/git add -A
+        ${pkgs.git}/bin/git commit -m "vault: auto-sync $(date '+%Y-%m-%d %H:%M:%S')" || true
+      fi
+
+      # Push si hay commits locales no enviados
+      AHEAD=$(${pkgs.git}/bin/git rev-list --count origin/main..HEAD 2>/dev/null || echo 0)
+      [ "$AHEAD" -gt 0 ] && ${pkgs.git}/bin/git push origin main 2>/dev/null || true
+    '';
   in {
     options.my.agentWiki = {
       enable = mkEnableOption "Sincronizar vault agent-wiki y cablear SOUL.md para agentes IA";
+      autoSync = {
+        enable = mkEnableOption "Sync periódico en background via launchd (macOS) / systemd (Linux)";
+        interval = mkOption {
+          type = types.int;
+          default = 300;
+          description = "Intervalo de sync en segundos (default: 5 min)";
+        };
+      };
     };
 
-    config = mkIf cfg.enable {
-      environment.systemPackages = [pkgs.git];
+    config = mkIf cfg.enable (lib.mkMerge [
+      {
+        environment.systemPackages = [pkgs.git];
 
-      system.activationScripts =
-        if isDarwin
-        then {
-          # Se agrega al final de postActivation para correr después del stow de dotfiles.
-          postActivation.text = lib.mkAfter script;
-        }
-        else {
-          # En NixOS, depende de stowDotfiles (que crea ~/.public-dotfiles primero).
-          agent-wiki-setup = {
-            deps = ["stowDotfiles"];
-            text = script;
+        system.activationScripts =
+          if isDarwin
+          then {postActivation.text = lib.mkAfter script;}
+          else {
+            agent-wiki-setup = {
+              deps = ["stowDotfiles"];
+              text = script;
+            };
+          };
+      }
+
+      # ── macOS: launchd user agent ──────────────────────────────────────
+      (lib.mkIf (cfg.autoSync.enable && isDarwin) {
+        launchd.user.agents.agent-wiki-sync = {
+          serviceConfig = {
+            ProgramArguments = ["/bin/bash" "${syncScript}"];
+            # /usr/bin/ssh usa macOS Keychain (UseKeychain yes en ~/.ssh/config)
+            # → no requiere ssh-agent en background
+            EnvironmentVariables = {
+              HOME = userHome;
+              GIT_SSH_COMMAND = "/usr/bin/ssh";
+              PATH = "/run/current-system/sw/bin:/usr/bin:/bin";
+            };
+            StartInterval = cfg.autoSync.interval;
+            RunAtLoad = true;
+            StandardOutPath = "/tmp/agent-wiki-sync.log";
+            StandardErrorPath = "/tmp/agent-wiki-sync-error.log";
           };
         };
-    };
+      })
+    ]);
   };
 }
