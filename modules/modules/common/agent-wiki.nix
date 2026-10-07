@@ -17,9 +17,9 @@ _: {
   }: let
     inherit (lib) mkEnableOption mkOption mkIf types;
     cfg = config.my.agentWiki;
-    # options ? launchd es verdadero solo en nix-darwin (nunca en NixOS),
-    # sin depender de pkgs ni cruzar compilación Darwin→Linux.
-    isDarwin = options ? launchd;
+    # NixOS siempre declara options.systemd; nix-darwin nunca.
+    # Más confiable que options?launchd bajo cross-compilation.
+    isDarwin = !(options ? systemd);
     user = config.system.primaryUser or "nicolas";
     userHome =
       if isDarwin
