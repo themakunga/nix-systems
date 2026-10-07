@@ -38,6 +38,7 @@
         "primaryUser"
         "security"
         "janitor"
+        "agent-wiki-sync"
       ];
 
       applicationModules = [
