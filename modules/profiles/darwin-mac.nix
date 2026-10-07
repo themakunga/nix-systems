@@ -51,6 +51,7 @@ _: {
         ghostty.enable = true;
         wezterm.enable = true;
         halloy.enable = true;
+        beeptui.enable = true;
         irssi.enable = true;
         weechat.enable = true;
         nchat.enable = true;

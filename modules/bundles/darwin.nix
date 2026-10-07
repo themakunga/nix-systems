@@ -51,6 +51,7 @@
         "ghostty"
         "halloy"
         "nchat"
+        "beeptui"
         "weechat"
         "neovim"
         "obsidian"
