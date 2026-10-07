@@ -31,7 +31,7 @@ in {
         darwinModules = ["linux-builder" "tiling"];
         applicationModules = ["google-cloud.gemini" "ollama"];
         userModules = ["work" "glados"];
-        profileModules = ["work" "personal" "latam" "glados" "thoughtworks" "terminal-tools"];
+        profileModules = ["work" "personal" "latam" "glados" "thoughtworks" "grainger" "company" "outer-heaven-workspaces" "terminal-tools"];
       }))
       ++ [
         ({pkgs, ...}: {

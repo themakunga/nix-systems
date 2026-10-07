@@ -3,9 +3,17 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# =========================================================
 # File: git-identity.nix
-# Description: Gestor avanzado de múltiples identidades Git y firmas.
+# Description: Gestor de múltiples identidades Git y firmas por directorio.
+#
+# Modos de workspace (opción projectRoot):
+#   null   → configs en ~/.gitconfig.workspaces/<name>   (modo clásico)
+#   "path" → configs en <path>/<name>/.gitconfig         (modo per-project)
+#            + <path>/<name>/.ssh/config
+#
+# Tipos aceptados:
+#   privateKey → PATH a la llave (~/… o /run/secrets/…) — NUNCA contenido
+#   keyId      → fingerprint literal O ruta a archivo con fingerprint
 # =========================================================
 {
   flake.commonModules.git-identity = {
@@ -22,9 +30,58 @@
       if pkgs.stdenv.isDarwin
       then "/Users/${user}"
       else "/home/${user}";
+
+    # Expande ~ al home del usuario (Nix eval-time, no runtime)
+    resolveTilde = s: builtins.replaceStrings ["~/"] ["${userHome}/"] s;
+
+    # Genera bash que resuelve keyId en $_val:
+    #   si empieza con "/" → lee el archivo (path de SOPS runtime)
+    #   si no              → usa el valor literal (fingerprint hardcodeado)
+    resolveKeyIdSh = val: ''
+      if [[ "${val}" == /* ]]; then
+        _key_id=$(cat "${val}" 2>/dev/null || true)
+      else
+        _key_id="${val}"
+      fi
+    '';
+
+    # Bloque [user]+[gpg]+[commit] para un keyId dado
+    gpgBlockSh = keyId: dest: ''
+      ${resolveKeyIdSh keyId}
+      if [ -n "$_key_id" ]; then
+        printf '[user]\n  signingkey = %s\n[gpg]\n  format = openpgp\n[commit]\n  gpgsign = true\n' \
+          "$_key_id" >> "${dest}"
+      fi
+    '';
+
+    # Bloque [core] sshCommand usando ruta directa al key
+    sshBlockSh = keyPath: dest: ''
+      printf '[core]\n  sshCommand = ssh -i %s -o IdentitiesOnly=yes -o AddKeysToAgent=yes -o UseKeychain=yes\n' \
+        "${resolveTilde keyPath}" >> "${dest}"
+    '';
+
+    # Ruta del projectRoot expandida (Nix eval-time)
+    projRoot =
+      if cfg.projectRoot != null
+      then resolveTilde cfg.projectRoot
+      else null;
   in {
     options.programs.git-identity = {
       enable = mkEnableOption "Gestor de identidad de Git parametrizado";
+
+      projectRoot = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        example = "~/Projects";
+        description = ''
+          Cuando está definido, cada workspace escribe su configuración en
+          <projectRoot>/<name>/.gitconfig  y  <projectRoot>/<name>/.ssh/config
+          en lugar de ~/.gitconfig.workspaces/<name>.
+          El nombre del workspace debe coincidir con el nombre del directorio
+          de primer nivel bajo projectRoot.
+        '';
+      };
+
       global = {
         enable = mkEnableOption "Identidad global por defecto";
         realName = mkOption {
@@ -36,10 +93,11 @@
           default = "";
         };
         gpg = {
-          enable = mkEnableOption "Firmado global con GPG";
+          enable = mkEnableOption "Firmado GPG global";
           keyId = mkOption {
             type = types.nullOr types.str;
             default = null;
+            description = "Fingerprint GPG literal o ruta a archivo con el fingerprint.";
           };
         };
         ssh = {
@@ -47,34 +105,37 @@
           privateKey = mkOption {
             type = types.nullOr types.str;
             default = null;
+            description = "PATH a la llave privada (~/… o /run/secrets/…).";
           };
         };
       };
+
       workspaces = mkOption {
         default = {};
-        type = types.attrsOf (
-          types.submodule {
-            options = {
-              directory = mkOption {type = types.str;};
-              realName = mkOption {type = types.str;};
-              email = mkOption {type = types.str;};
-              gpg = {
-                enable = mkEnableOption "Firmado GPG para este workspace";
-                keyId = mkOption {
-                  type = types.nullOr types.str;
-                  default = null;
-                };
-              };
-              ssh = {
-                enable = mkEnableOption "Auth SSH para este workspace";
-                privateKey = mkOption {
-                  type = types.nullOr types.str;
-                  default = null;
-                };
+        description = "Identidades Git por directorio de trabajo.";
+        type = types.attrsOf (types.submodule {
+          options = {
+            directory = mkOption {type = types.str;};
+            realName = mkOption {type = types.str;};
+            email = mkOption {type = types.str;};
+            gpg = {
+              enable = mkEnableOption "Firmado GPG para este workspace";
+              keyId = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = "Fingerprint GPG literal o ruta a archivo con el fingerprint.";
               };
             };
-          }
-        );
+            ssh = {
+              enable = mkEnableOption "Auth SSH para este workspace";
+              privateKey = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = "PATH a la llave privada (~/… o /run/secrets/…).";
+              };
+            };
+          };
+        });
       };
     };
 
@@ -86,83 +147,84 @@
 
           mkdir -p "$WORKSPACES_DIR"
 
-          cat << 'EOF' > "$GIT_NIX_CONF"
+          # ── Cabecera del config global gestionado por Nix ──────────────
+          cat > "$GIT_NIX_CONF" << 'NIXEOF'
           # Archivo autogenerado por Nix. NO EDITAR DIRECTAMENTE.
           [pull]
             rebase = false
-          EOF
+          NIXEOF
 
+          # ── Identidad global (default para repos sin match específico) ──
           ${optionalString cfg.global.enable ''
-              cat << 'EOF' >> "$GIT_NIX_CONF"
-            [user]
-              name = ${cfg.global.realName}
-              email = ${cfg.global.email}
-            EOF
-              ${optionalString cfg.global.gpg.enable ''
-                  GPG_KEY_ID=$(cat ${cfg.global.gpg.keyId} 2>/dev/null || echo "")
-                  if [ -n "$GPG_KEY_ID" ]; then
-                    cat << EOF >> "$GIT_NIX_CONF"
-                signingkey = $GPG_KEY_ID
-              [commit]
-                gpgsign = true
-              EOF
-                  fi
-            ''}
-              ${optionalString cfg.global.ssh.enable ''
-                  cat << EOF >> "$GIT_NIX_CONF"
-              [core]
-                sshCommand = ssh -i ${cfg.global.ssh.privateKey} -o IdentitiesOnly=yes
-              EOF
-            ''}
+            printf '[user]\n  name = %s\n  email = %s\n' \
+              "${cfg.global.realName}" "${cfg.global.email}" >> "$GIT_NIX_CONF"
+
+            ${optionalString (cfg.global.gpg.enable && cfg.global.gpg.keyId != null)
+              (gpgBlockSh cfg.global.gpg.keyId "$GIT_NIX_CONF")}
+
+            ${optionalString (cfg.global.ssh.enable && cfg.global.ssh.privateKey != null)
+              (sshBlockSh cfg.global.ssh.privateKey "$GIT_NIX_CONF")}
           ''}
 
-          ${concatStringsSep "\n" (mapAttrsToList (name: ws: ''
-                # MAGIA: gitdir/i: hace que la ruta sea insensible a mayúsculas/minúsculas
-                cat << 'EOF' >> "$GIT_NIX_CONF"
-              [includeIf "gitdir/i:${ws.directory}/"]
-                path = .gitconfig.workspaces/${name}
-              EOF
+          # ── Workspaces ─────────────────────────────────────────────────
+          ${concatStringsSep "\n" (mapAttrsToList (name: ws:
+            if projRoot != null
+            then let
+              wsDir = "${projRoot}/${name}";
+              wsGit = "${wsDir}/.gitconfig";
+              wsSsh = "${wsDir}/.ssh/config";
+            in ''
+              # [workspace: ${name}] → ${wsDir}/
+              mkdir -p "${wsDir}/.ssh"
 
-                cat << 'EOF' > "$WORKSPACES_DIR/${name}"
-              [user]
-                name = ${ws.realName}
-                email = ${ws.email}
-              EOF
+              printf '[user]\n  name = %s\n  email = %s\n' \
+                "${ws.realName}" "${ws.email}" > "${wsGit}"
 
-                ${optionalString ws.gpg.enable ''
-                    GPG_KEY_ID=$(cat ${ws.gpg.keyId} 2>/dev/null || echo "")
-                    if [ -n "$GPG_KEY_ID" ]; then
-                      cat << EOF >> "$WORKSPACES_DIR/${name}"
-                  signingkey = $GPG_KEY_ID
-                [commit]
-                  gpgsign = true
-                EOF
-                    fi
+              ${optionalString (ws.gpg.enable && ws.gpg.keyId != null)
+                (gpgBlockSh ws.gpg.keyId wsGit)}
+
+              ${optionalString (ws.ssh.enable && ws.ssh.privateKey != null) ''
+                # .ssh/config con la llave específica de este cliente
+                cat > "${wsSsh}" << 'SSHEOF'
+                Host *
+                  IdentityFile ${resolveTilde ws.ssh.privateKey}
+                  AddKeysToAgent yes
+                  UseKeychain yes
+                  StrictHostKeyChecking accept-new
+                SSHEOF
+                printf '[core]\n  sshCommand = ssh -F %s\n' "${wsSsh}" >> "${wsGit}"
               ''}
 
-                ${optionalString ws.ssh.enable ''
-                    cat << EOF >> "$WORKSPACES_DIR/${name}"
-                [core]
-                  sshCommand = ssh -i ${ws.ssh.privateKey} -o IdentitiesOnly=yes
-                EOF
-              ''}
+              printf '[includeIf "gitdir/i:%s/**"]\n  path = %s\n' \
+                "${wsDir}" "${wsGit}" >> "$GIT_NIX_CONF"
+
+              chown -R ${user} "${wsDir}" 2>/dev/null || true
+            ''
+            else ''
+              # [workspace: ${name}] → ~/.gitconfig.workspaces/ (modo clásico)
+              printf '[user]\n  name = %s\n  email = %s\n' \
+                "${ws.realName}" "${ws.email}" > "$WORKSPACES_DIR/${name}"
+
+              ${optionalString (ws.gpg.enable && ws.gpg.keyId != null)
+                (gpgBlockSh ws.gpg.keyId "$WORKSPACES_DIR/${name}")}
+
+              ${optionalString (ws.ssh.enable && ws.ssh.privateKey != null)
+                (sshBlockSh ws.ssh.privateKey "$WORKSPACES_DIR/${name}")}
+
+              printf '[includeIf "gitdir/i:%s/"]\n  path = .gitconfig.workspaces/%s\n' \
+                "${ws.directory}" "${name}" >> "$GIT_NIX_CONF"
             '')
-            cfg.workspaces)}
+          cfg.workspaces)}
 
           chown ${user} "$GIT_NIX_CONF"
           chown -R ${user} "$WORKSPACES_DIR"
 
-          # ~/.gitconfig puede ser un enlace de Stow: no duplicar el include existente.
+          # ── Asegurar que ~/.gitconfig incluye el config gestionado ─────
+          # (puede ser un symlink de Stow — no duplicar el include)
           touch "${userHome}/.gitconfig"
-          # Git devuelve el include sin expandir ~; comparar también ese valor literal.
-          # shellcheck disable=SC2088
           if ! ${pkgs.git}/bin/git config --file "${userHome}/.gitconfig" --get-all include.path |
             grep -Fxq -e "$GIT_NIX_CONF" -e '~/.gitconfig.nix-managed'; then
-            cat << EOF >> "${userHome}/.gitconfig"
-
-          [include]
-            path = $GIT_NIX_CONF
-          EOF
+            printf '\n[include]\n  path = %s\n' "$GIT_NIX_CONF" >> "${userHome}/.gitconfig"
           fi
           chown ${user} "${userHome}/.gitconfig"
         '';

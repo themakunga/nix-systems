@@ -43,22 +43,8 @@
         ];
       };
 
-      git-identity = {
-        enable = true;
-        workspaces.work = {
-          directory = "~/Projects";
-          realName = "Nicolas Villarroel Martinez.";
-          email = "nmartinezv@icloud.com";
-          gpg = {
-            enable = true;
-            keyId = config.sops.secrets."profiles/work/gpg/key_id".path;
-          };
-          ssh = {
-            enable = true;
-            privateKey = config.sops.secrets."profiles/work/ssh/private_key".path;
-          };
-        };
-      };
+      # workspace declarado en el archivo de identidades del host
+      git-identity.enable = true;
     };
   };
 }

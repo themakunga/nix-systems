@@ -46,22 +46,9 @@
         ];
       };
 
-      git-identity = {
-        enable = true;
-        workspaces.latam = {
-          directory = "~/Projects/latam/**";
-          realName = "Villarroel, Nicolas";
-          email = "nicolasvillarroel.thoughtworks@latam.com";
-          gpg = {
-            enable = true;
-            keyId = config.sops.secrets."profiles/latam/gpg/key_id".path;
-          };
-          ssh = {
-            enable = true;
-            privateKey = config.sops.secrets."profiles/latam/ssh/private_key".path;
-          };
-        };
-      };
+      # workspace declarado en el archivo de identidades del host
+      # (outer-heaven-workspaces.nix o equivalente por host)
+      git-identity.enable = true;
     };
   };
 }

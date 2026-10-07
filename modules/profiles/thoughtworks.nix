@@ -39,22 +39,8 @@
           }
         ];
       };
-      git-identity = {
-        enable = true;
-        workspaces.thoughtworks = {
-          directory = "~/Projects/Thoughtworks/**";
-          realName = "Nicolas Villarroel";
-          email = "nicolas.villarroel@thoughtworks.com";
-          gpg = {
-            enable = true;
-            keyId = config.sops.secrets."profiles/thoughtworks/gpg/key_id".path;
-          };
-          ssh = {
-            enable = true;
-            privateKey = config.sops.secrets."profiles/thoughtworks/ssh/private_key".path;
-          };
-        };
-      };
+      # workspace e identidad global declarados en el archivo de identidades del host
+      git-identity.enable = true;
     };
   };
 }

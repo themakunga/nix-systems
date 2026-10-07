@@ -57,36 +57,8 @@
         ];
       };
 
-      git-identity = {
-        enable = true;
-        workspaces.personal = {
-          directory = "~/Projects/personal/**";
-          realName = "Nicolas Villarroel Martinez.";
-          email = "nmartinezv@icloud.com";
-          gpg = {
-            enable = true;
-            keyId = config.sops.secrets."profiles/personal/gpg/key_id".path;
-          };
-          ssh = {
-            enable = true;
-            privateKey = config.sops.secrets."profiles/personal/ssh/private_key".path;
-          };
-        };
-        # Vault (second brain) — misma identidad personal, path distinto
-        workspaces.vaults = {
-          directory = "~/.valuls/**";
-          realName = "Nicolas Villarroel Martinez.";
-          email = "nmartinezv@icloud.com";
-          gpg = {
-            enable = true;
-            keyId = config.sops.secrets."profiles/personal/gpg/key_id".path;
-          };
-          ssh = {
-            enable = true;
-            privateKey = config.sops.secrets."profiles/personal/ssh/private_key".path;
-          };
-        };
-      };
+      # workspaces declarados en el archivo de identidades del host
+      git-identity.enable = true;
     };
   };
 }

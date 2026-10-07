@@ -37,22 +37,8 @@
         ];
       };
 
-      git-identity = {
-        enable = true;
-        workspaces.company = {
-          directory = "~/Projects/42Devs";
-          realName = "Nicolas Villarroel Martinez.";
-          email = "nicolas@42devs.cl";
-          gpg = {
-            enable = true;
-            keyId = config.sops.secrets."profiles/42devs/gpg/key_id".path;
-          };
-          ssh = {
-            enable = true;
-            privateKey = config.sops.secrets."profiles/42devs/ssh/private_key".path;
-          };
-        };
-      };
+      # workspace declarado en el archivo de identidades del host
+      git-identity.enable = true;
     };
   };
 }
