@@ -12,6 +12,7 @@ in {
       packages = [
         (pkgs.callPackage "${self}/packages/beeptui/package.nix" {})
       ];
+      casks = ["beeper"];
     };
   };
 }
