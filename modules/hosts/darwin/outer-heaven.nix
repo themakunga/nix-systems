@@ -71,6 +71,8 @@ in {
             casks = ["tigervnc" "miniconda" "claude-code" "qmk-toolbox"];
             brews = ["googleworkspace-cli"];
 
+            services.tiling.enable = true;
+
             apps = {
               aws-cli.enable = true;
               gemini-cli.enable = true;

@@ -29,7 +29,7 @@ _: {
         "keyboard"
       ];
 
-      applicationModules = ["bat" "yazi" "zoxide" "tailscale.core"];
+      applicationModules = ["bat" "feedr" "yazi" "zoxide" "tailscale.core"];
 
       profileModules = ["terminal-tools" "nixos-x64"];
     };

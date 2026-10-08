@@ -60,6 +60,7 @@
         "tailscale.core"
         "tailscale.gui"
         "terminal-zsh"
+        "feedr"
         "token-counter"
         "wezterm"
       ];
