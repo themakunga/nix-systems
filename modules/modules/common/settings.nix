@@ -50,6 +50,11 @@ in {
       };
       overlays = [
         overlays.unstable
+        # poetry 2.4.1 tiene un test flaky (test_call_does_not_block_on_full_pipe)
+        # que falla en build local cuando el cache binario no lo tiene.
+        (_: prev: {
+          poetry = prev.poetry.overridePythonAttrs (_: {doCheck = false;});
+        })
       ];
     };
   };
