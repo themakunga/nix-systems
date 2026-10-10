@@ -4,6 +4,7 @@
 # Módulo auto-gestionado.
 # =========================================================
 # Tiling window manager module for macOS using AeroSpace.
+# AeroSpace manages its own startup via start-at-login in aerospace.toml.
 {
   flake.darwinModules.tiling = {
     config,
@@ -22,10 +23,7 @@
           }
         ];
       };
-      services.aerospace = {
-        enable = true;
-        package = pkgs.aerospace;
-      };
+      environment.systemPackages = [pkgs.aerospace];
     };
   };
 }

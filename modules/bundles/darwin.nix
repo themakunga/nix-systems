@@ -30,6 +30,7 @@
 
       darwinModules = [
         "extras"
+        "locale"
         "dock"
         "finder"
         "mail"
