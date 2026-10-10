@@ -76,7 +76,7 @@
       packages = [pkgs.unstable.tuxedo gws-tui];
       apps = {
         bat.enable = true;
-        feedr.enable = true;
+        newsboat.enable = true;
         glow.enable = true;
         token-counter.enable = true;
         yazi.enable = true;

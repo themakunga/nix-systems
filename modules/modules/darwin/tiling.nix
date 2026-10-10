@@ -3,11 +3,12 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# Tiling window manager module for macOS using yabai (BSP layout) and skhd.
+# Tiling window manager module for macOS using AeroSpace.
 {
   flake.darwinModules.tiling = {
     config,
     lib,
+    pkgs,
     ...
   }: {
     options.my.services.tiling.enable = lib.mkEnableOption "Tiling window manager";
@@ -16,24 +17,14 @@
         enable = true;
         packages = [
           {
-            name = "yabai";
-            isConfig = true;
-          }
-          {
-            name = "skhd";
+            name = "aerospace";
             isConfig = true;
           }
         ];
       };
-      services = {
-        yabai = {
-          enable = true;
-          enableScriptingAddition = false;
-          extraConfig = ''
-            . "$HOME/.config/yabai/yabairc"
-          '';
-        };
-        skhd.enable = true;
+      services.aerospace = {
+        enable = true;
+        package = pkgs.aerospace;
       };
     };
   };

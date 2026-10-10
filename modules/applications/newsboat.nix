@@ -4,15 +4,15 @@
 # Módulo auto-gestionado.
 # =========================================================
 {self, ...}: {
-  flake.applicationModules.feedr = self.lib.mkAppModule "feedr" "Feedr terminal RSS/Atom reader" {
+  flake.applicationModules.newsboat = self.lib.mkAppModule "newsboat" "Newsboat terminal RSS/Atom reader" {
     meta = {pkgs, ...}: {
       level = "system";
-      packages = [pkgs.feedr];
+      packages = [pkgs.newsboat];
     };
     sysConfig = {
       my.dotfiles.packages = [
         {
-          name = "feedr";
+          name = "newsboat";
           isConfig = true;
         }
       ];

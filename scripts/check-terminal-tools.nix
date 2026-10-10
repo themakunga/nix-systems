@@ -23,8 +23,6 @@ let
       assert cfg.my.apps.yazi.enable && cfg.my.apps.zoxide.enable;
       assert cfg.my.dotfiles.enable;
       assert lib.hasInfix "/bat/init.sh" cfg.environment.interactiveShellInit;
-      assert (cfg.services.yabai.enable or false) == (name == "kanagawa");
-      assert (cfg.services.skhd.enable or false) == (name == "kanagawa");
       assert builtins.all (p: builtins.elem p packages) ["bat" "yazi" "zoxide" "fzf"];
       assert builtins.all (p: builtins.elem p dotfiles) ["bat" "yazi" "zoxide"];
       assert lib.hasInfix "/zoxide/init.sh" cfg.environment.interactiveShellInit; true;
