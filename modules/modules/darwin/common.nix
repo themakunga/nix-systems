@@ -63,7 +63,15 @@
         fi
       '';
     };
-    extras = {lib, ...}: {
+    extras = {
+      lib,
+      pkgs,
+      ...
+    }: {
+      # pinentry-mac como "pinentry" en PATH para el GPG agent SSH support
+      environment.systemPackages = [
+        (pkgs.writeShellScriptBin "pinentry" ''exec ${pkgs.pinentry_mac}/bin/pinentry-mac "$@"'')
+      ];
       nix = {
         enable = true;
         # Gestión automática de espacio en el Nix store (macOS / nix-darwin)
