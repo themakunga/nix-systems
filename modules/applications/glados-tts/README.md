@@ -1,43 +1,44 @@
-# GLaDOS para Codex y Claude Code
+# Avisos GLaDOS para Codex y Claude Code
 
-Activado para `kanagawa` y `outer-heaven` mediante `my.apps.glados-tts.enable`.
-Piper genera la voz localmente con el modelo
-[GLaDOS de DavesArmoury](https://huggingface.co/DavesArmoury/GLaDOS_TTS)
-(CC BY 4.0, versión fijada en Nix). No requiere API ni envía las respuestas a
-un servicio TTS. El modelo está entrenado en inglés: el español tendrá acento
-y pronunciación menos natural. No cambia el idioma de las respuestas del agente.
+Piper genera la voz localmente con el modelo [GLaDOS de DavesArmoury](https://huggingface.co/DavesArmoury/GLaDOS_TTS) (CC BY 4.0, versión fijada en Nix). No requiere una API TTS. El modelo está entrenado en inglés; los avisos solicitados están en español y su pronunciación puede resultar extraña.
 
-## Uso
+## Comportamiento
 
-`darwin-rebuild switch` instala el motor y agrega un hook `Stop` a
-`~/.codex/hooks.json` y `~/.claude/settings.json`, conservando los ajustes
-existentes y una copia `.before-glados` de los archivos modificados.
-Reinicia las sesiones de Codex y Claude Code después de instalar.
+- `UserPromptSubmit`: frase breve al comenzar.
+- `PreToolUse`: aviso de trabajo como máximo cada 45 segundos por sesión; no suena inmediatamente después del inicio.
+- `Stop`: frase de finalización; nunca lee el contenido de la respuesta.
+- `PermissionRequest` y herramientas de preguntas reconocidas: frase solicitando una decisión. Claude también utiliza `Notification` para solicitudes de permisos e información.
 
-En Codex, abre `/hooks` y revisa/autoriza el comando
-`"$HOME/.local/bin/glados-hook"`: los hooks nuevos no se ejecutan hasta que
-los apruebas. Es una protección de Codex, descrita en su
-[documentación oficial](https://developers.openai.com/codex/hooks).
+Las frases son casuales, sarcásticas y breves. Se descartan eventos no reconocidos, paradas de subagentes y continuaciones de Stop. Los hooks no aprueban ni rechazan operaciones. El audio se reproduce en segundo plano y sus errores no bloquean el agente. La cola de audio es compartida por usuario.
 
-Lee la respuesta final al terminar cada turno, en segundo plano. Omite bloques
-de código y URLs, y conserva el texto de los enlaces. Las respuestas de varias
-sesiones se reproducen una a la vez. No hay narración durante el streaming.
-Los errores del audio no bloquean al agente.
+## Instalación declarativa
 
-Funciona con sesiones locales que ejecuten hooks. Claude Code comparte los hooks
-entre [terminal y escritorio](https://code.claude.com/docs/en/desktop#shared-configuration).
-Las sesiones remotas ejecutan el hook en el equipo remoto; no reproducen audio
-en este Mac. Esto no configura el chat normal de Claude.
+`my.apps.glados-tts.enable` en Nix instala motor, modelo y comandos. La activación macOS combina los hooks con los ajustes existentes, conservando una copia `.before-glados`. No reemplaza otros hooks ni el `notify` de Codex.
+
+Para aplicar sólo los hooks cuando los comandos ya están instalados:
 
 ```sh
-~/.local/bin/glados-say "The cake is a lie."
-~/.local/bin/glados-say --mute
-~/.local/bin/glados-say --unmute
+python3 modules/applications/glados-tts/install-hooks.py /run/current-system/sw/bin
 ```
 
-Silenciar evita nuevas reproducciones y las que esperan en la cola; un audio
-que ya empezó termina de reproducirse. Para desinstalar la integración, quita
-el grupo que llama a `glados-hook` de ambos archivos y deshabilita la app en Nix.
+Reiniciar las sesiones para cargar los cambios. En Codex, abrir `/hooks` y revisar/confiar en los hooks que ejecutan `"$HOME/.local/bin/glados-hook"`; [Codex exige revisar la definición exacta](https://learn.chatgpt.com/docs/hooks#review-and-trust-hooks). No se modifica el registro de confianza automáticamente.
+
+Funciona en terminal y aplicaciones locales que ejecuten hooks. No instrumenta cada cambio visual del indicador de pensamiento. Una pregunta que no genere evento de hook no produce un aviso automático. Los hooks de sesiones remotas reproducen audio en el host remoto.
+
+```sh
+glados-say start
+glados-say notify
+glados-say decision
+glados-say stop
+glados-say --mute
+glados-say --unmute
+```
+
+## Hermes y Telegram
+
+Hermes necesita un runtime y bot configurados. Usar la voz local mediante `tts.piper.voice` con la ruta absoluta del modelo, o un proveedor `tts.providers.glados` de tipo `command` que produzca audio. La conversión a Opus/OGG requiere ffmpeg. [Referencia TTS de Hermes](https://hermes-agent.nousresearch.com/docs/user-guide/features/tts).
+
+En el chat del bot, `/voice tts` activa respuestas de audio para todos los mensajes y persiste entre reinicios; `/voice off` las desactiva. [Referencia de mensajes de voz](https://hermes-agent.nousresearch.com/docs/user-guide/features/voice-mode). Esta opción corresponde a respuestas conversacionales, no a los avisos cortos de los agentes de código.
 
 ## Validación
 
@@ -45,5 +46,4 @@ el grupo que llama a `glados-hook` de ambos archivos y deshabilita la app en Nix
 python3 scripts/check-glados-tts.py
 ```
 
-Prueba los eventos, la limpieza del texto, el silencio, la invocación segura del
-motor, la limpieza de temporales y la instalación idempotente sin perder ajustes.
+Comprueba clasificación de eventos, supresión de contenido privado, límites de frecuencia, instalación repetida, conservación de otros ajustes, silencio e invocación segura del motor.
