@@ -1,6 +1,6 @@
 # Avisos GLaDOS para Codex y Claude Code
 
-Piper genera la voz localmente con el modelo [GLaDOS de DavesArmoury](https://huggingface.co/DavesArmoury/GLaDOS_TTS) (CC BY 4.0, versión fijada en Nix). No requiere una API TTS. El modelo está entrenado en inglés; los avisos solicitados están en español y su pronunciación puede resultar extraña.
+Piper genera la voz localmente con el modelo [GLaDOS de DavesArmoury](https://huggingface.co/DavesArmoury/GLaDOS_TTS) (CC BY 4.0, versión fijada en Nix). No requiere una API TTS. El modelo y los avisos hablados están en inglés; las respuestas escritas permanecen en español.
 
 ## Comportamiento
 

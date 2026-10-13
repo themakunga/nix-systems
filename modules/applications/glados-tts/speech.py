@@ -12,12 +12,12 @@ import sys
 import tempfile
 import time
 
-# Short Spanish status cues, never response narration.
+# Short English status cues, never response narration.
 _PHRASES = {
-    "start": ["Pensando. No estorbes.", "A ver qué rompiste ahora.", "Ya voy. Modera tus expectativas."],
-    "stop": ["Listo. Ya tienes tu respuesta.", "Terminé. Te toca leer.", "Ya está. Intenta aprovecharlo."],
-    "notify": ["Buscando. No estorbes.", "Sigo trabajando. Qué sorpresa.", "Revisando. Un poco de paciencia."],
-    "decision": ["Necesito una decisión. Apúrate.", "Te toca decidir. No tenemos todo el día.", "Estoy esperando tu decisión. Qué emoción."],
+    "start": ["Thinking. Try not to interfere.", "Let's see what you broke this time.", "Working on it. Lower your expectations."],
+    "stop": ["Done. Your answer is ready.", "Finished. Your turn to read.", "There. Try to make use of it."],
+    "notify": ["Searching. Try not to interfere.", "Still working. How surprising.", "Checking. Exercise some patience."],
+    "decision": ["I need a decision. Hurry up.", "Your turn to decide. We haven't got all day.", "Waiting for your decision. How thrilling."],
 }
 
 
