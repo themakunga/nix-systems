@@ -25,9 +25,9 @@ in {
             owner = "tmc";
             repo = "nlm";
             rev = "7a173b4de23d50221fbc5895df3f201880ccb9d1";
-            hash = "sha256-8Eoa7A9koJL+PvmyBolhTcFC0iA80NkEj+2HDsdSNJA=";
+            hash = "sha256-T4l5EX/K/VQt7xidTAAcj9Xc0Q0SZHvbgqO1wrP0i40=";
           };
-          vendorHash = lib.fakeHash;
+          vendorHash = "sha256-Fl8XLzO1Xrtc8PZWDqLkcqj0NghkLuzVEnWBsDq/U+A=";
           doCheck = false;
           subPackages = ["cmd/nlm"];
           meta = {
