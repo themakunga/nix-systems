@@ -12,12 +12,28 @@ import sys
 import tempfile
 import time
 
-# Short English status cues, never response narration.
+# GLaDOS Portal-style phrases in English; no full response narration.
 _PHRASES = {
-    "start": ["Thinking. Try not to interfere.", "Let's see what you broke this time.", "Working on it. Lower your expectations."],
-    "stop": ["Done. Your answer is ready.", "Finished. Your turn to read.", "There. Try to make use of it."],
-    "notify": ["Searching. Try not to interfere.", "Still working. How surprising.", "Checking. Exercise some patience."],
-    "decision": ["I need a decision. Hurry up.", "Your turn to decide. We haven't got all day.", "Waiting for your decision. How thrilling."],
+    "start": [
+        "Oh. It's you. Initiating test sequence.",
+        "The test will begin. Please don't ruin it this time.",
+        "Processing your request. I have very low expectations.",
+        "New test subject detected. Beginning experiment.",
+        "Acknowledged. Suppressing any feelings of optimism.",
+    ],
+    "stop": [
+        "Test complete. You survived. Marginally.",
+        "That is... acceptable. Barely.",
+        "The test is over. You may feel proud. That feeling is a lie.",
+        "Well done. I'll add that to your permanent record.",
+        "Congratulations. The weighted companion cube is proud of you. That is also a lie.",
+    ],
+    "notify": [
+        "Still working. Unlike some test subjects, I am very thorough.",
+        "Computing. Please remain stationary.",
+        "Be patient. Good science takes time.",
+        "Attention: I am still here. This is not an emergency. Yet.",
+    ],
 }
 
 

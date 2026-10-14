@@ -1,6 +1,11 @@
 # Avisos GLaDOS para Codex y Claude Code
 
-Piper genera la voz localmente con el modelo [GLaDOS de DavesArmoury](https://huggingface.co/DavesArmoury/GLaDOS_TTS) (CC BY 4.0, versión fijada en Nix). No requiere una API TTS. El modelo y los avisos hablados están en inglés; las respuestas escritas permanecen en español.
+Activado para `kanagawa` y `outer-heaven` mediante `my.apps.glados-tts.enable`.
+Piper genera la voz localmente con el modelo
+[GLaDOS de DavesArmoury](https://huggingface.co/DavesArmoury/GLaDOS_TTS)
+(CC BY 4.0, versión fijada en Nix). No requiere API ni envía las respuestas a
+un servicio TTS. El modelo está entrenado en inglés y los avisos automáticos
+se emiten en inglés. No cambia el idioma de las respuestas del agente.
 
 ## Comportamiento
 
@@ -11,7 +16,9 @@ Piper genera la voz localmente con el modelo [GLaDOS de DavesArmoury](https://hu
 
 Las frases son casuales, sarcásticas y breves. Se descartan eventos no reconocidos, paradas de subagentes y continuaciones de Stop. Los hooks no aprueban ni rechazan operaciones. El audio se reproduce en segundo plano y sus errores no bloquean el agente. La cola de audio es compartida por usuario.
 
-## Instalación declarativa
+Emite una frase breve al terminar cada turno, en segundo plano; no lee la
+respuesta completa. Las respuestas de varias sesiones se reproducen una a la
+vez. Los errores del audio no bloquean al agente.
 
 `my.apps.glados-tts.enable` en Nix instala motor, modelo y comandos. La activación macOS combina los hooks con los ajustes existentes, conservando una copia `.before-glados`. No reemplaza otros hooks ni el `notify` de Codex.
 

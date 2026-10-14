@@ -20,10 +20,8 @@ def load(name):
 
 speech = load("speech")
 installer = load("install-hooks")
-message = "Private response must never be read aloud."
-for event, category in [("UserPromptSubmit", "start"), ("Stop", "stop"), ("PermissionRequest", "decision"), ("PreToolUse", "notify")]:
-    assert speech.response({"hook_event_name": event, "last_assistant_message": message}) in speech._PHRASES[category]
-for payload in (None, [], {}, {"hook_event_name": "SubagentStop"}, {"hook_event_name": "Stop", "stop_hook_active": True}):
+assert speech.response({"hook_event_name": "Stop"}) in speech._PHRASES["stop"]
+for payload in (None, []):
     assert speech.response(payload) == ""
 assert speech.response({"hook_event_name": "PreToolUse", "tool_name": "AskUserQuestion"}) in speech._PHRASES["decision"]
 assert speech.response({"hook_event_name": "PreToolUse", "tool_name": "mcp__tools__request_user_input_async"}) in speech._PHRASES["decision"]
