@@ -45,16 +45,15 @@ _: {
           d = json.load(f)
 
       expected_hook = {
-          'Stop': [{
-              'hooks': [{'type': 'command', 'command': f'python3 {hook_script}'}]
-          }]
+          'hooks': [{'type': 'command', 'command': f'python3 {hook_script}'}]
       }
+      stop_hooks = d.setdefault('hooks', {}).setdefault('Stop', [])
 
-      if d.get('hooks') == expected_hook:
+      if expected_hook in stop_hooks:
           print('hooks ya configurados')
           sys.exit(0)
 
-      d['hooks'] = expected_hook
+      stop_hooks.append(expected_hook)
       with open(settings_path, 'w') as f:
           json.dump(d, f, indent=2)
       print('hooks actualizados')

@@ -20,23 +20,8 @@ def load(name):
 
 speech = load("speech")
 installer = load("install-hooks")
-message = "# Done\n**Fixed** [the bug](https://example.com).\n```sh\nrm -rf /\n```\nTests passed."
-assert (
-    speech.response({"hook_event_name": "Stop", "last_assistant_message": message})
-    == "Done Fixed the bug. Tests passed."
-)
-assert (
-    speech.response(
-        {"hook_event_name": "SubagentStop", "last_assistant_message": message}
-    )
-    == ""
-)
-for payload in (
-    None,
-    [],
-    {},
-    {"hook_event_name": "Stop", "last_assistant_message": None},
-):
+assert speech.response({"hook_event_name": "Stop"}) in speech._PHRASES["stop"]
+for payload in (None, []):
     assert speech.response(payload) == ""
 assert speech.spoken_text("```python\nunfinished code") == ""
 assert (

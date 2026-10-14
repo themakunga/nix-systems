@@ -41,6 +41,7 @@ in {
             "/Applications/Zen.app"
           ];
           my = {
+            apps.glados-tts.enable = true;
             apps.nlm.enable = true;
             services.tiling.enable = true;
             packages = [];
@@ -59,6 +60,20 @@ in {
                 useSecrets = false;
               };
               ios-terminal.enable = true;
+            };
+          };
+
+          programs.git-identity.workspaces.personal = {
+            directory = "~/Projects/Personal";
+            realName = "Nicolas Villarroel Martinez";
+            email = "nmartinezv@icloud.com";
+            gpg = {
+              enable = true;
+              keyId = "/run/secrets/profiles/personal/gpg/key_id";
+            };
+            ssh = {
+              enable = true;
+              privateKey = "/run/secrets/profiles/personal/ssh/private_key";
             };
           };
         }

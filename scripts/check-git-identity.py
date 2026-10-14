@@ -20,6 +20,7 @@ let
         system.primaryUser = "git-identity-test";
         programs.git-identity = {
           enable = true;
+          projectRoot = null;
           global.enable = false;
           workspaces.demo = {
             directory = "git-test-project";
@@ -46,6 +47,7 @@ with tempfile.TemporaryDirectory() as directory:
     project = root / "git-test-project"
     project.mkdir()
     env = dict(os.environ, GIT_CONFIG_GLOBAL=str(root / ".gitconfig"), GIT_CONFIG_NOSYSTEM="1")
+    env["HOME"] = directory
     subprocess.run(["git", "init", "-q", str(project)], check=True, env=env)
     for _ in range(2):
         subprocess.run(["bash", "-eu", "-c", script], check=True, env=env)

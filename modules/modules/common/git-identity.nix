@@ -211,7 +211,7 @@
                 (sshBlockSh ws.ssh.privateKey "$WORKSPACES_DIR/${name}")}
 
               printf '[includeIf "gitdir/i:%s/"]\n  path = .gitconfig.workspaces/%s\n' \
-                "${ws.directory}" "${name}" >> "$GIT_NIX_CONF"
+                "${resolveTilde ws.directory}" "${name}" >> "$GIT_NIX_CONF"
             '')
           cfg.workspaces)}
 
@@ -221,8 +221,8 @@
           # ── Asegurar que ~/.gitconfig incluye el config gestionado ─────
           # (puede ser un symlink de Stow — no duplicar el include)
           touch "${userHome}/.gitconfig"
-          if ! ${pkgs.git}/bin/git config --file "${userHome}/.gitconfig" --get-all include.path |
-            grep -Fxq -e "$GIT_NIX_CONF" -e "$HOME/.gitconfig.nix-managed"; then
+          if ! ${pkgs.git}/bin/git config --path --file "${userHome}/.gitconfig" --get-all include.path |
+            grep -Fxq "$GIT_NIX_CONF"; then
             printf '\n[include]\n  path = %s\n' "$GIT_NIX_CONF" >> "${userHome}/.gitconfig"
           fi
           chown ${user} "${userHome}/.gitconfig"
