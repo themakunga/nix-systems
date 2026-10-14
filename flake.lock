@@ -212,11 +212,11 @@
     "homebrew-cask": {
       "flake": false,
       "locked": {
-        "lastModified": 1791944948,
-        "narHash": "sha256-Fl0tjLzdx41FJTjcqlbYe//9Xn2HluLY1qRHbk+7KJg=",
+        "lastModified": 1791993512,
+        "narHash": "sha256-GoClO/GrYkP9GOhy7xgFNH1BDHtSjqTWEy9MfndJujI=",
         "owner": "homebrew",
         "repo": "homebrew-cask",
-        "rev": "1377c23234f6f1b68e1bcb3852b2c8a2a1bea845",
+        "rev": "52273e6f54fc595f5244c44a77b1de42e8042349",
         "type": "github"
       },
       "original": {
@@ -228,11 +228,11 @@
     "homebrew-core": {
       "flake": false,
       "locked": {
-        "lastModified": 1791945603,
-        "narHash": "sha256-+UWlsz6WLS6OCiGQJyz4J9LB16hbsDwszdiTxDhfxSM=",
+        "lastModified": 1791993566,
+        "narHash": "sha256-yZdjq6T/f3JlU4VRpau9Rp+Mki3qrfTbOPqMcyumK1c=",
         "owner": "homebrew",
         "repo": "homebrew-core",
-        "rev": "4bc4a789e441b724e7be00bbf62cb0e9508ae28a",
+        "rev": "c274a9774ef48f5100a08066f090aaa279e5604a",
         "type": "github"
       },
       "original": {
@@ -499,11 +499,11 @@
     },
     "nixpkgs_7": {
       "locked": {
-        "lastModified": 1791765022,
-        "narHash": "sha256-ZGq3ptZzA+oO0N/Wi/F+GbuTijLkYExD01LvpNFAvr0=",
+        "lastModified": 1791883866,
+        "narHash": "sha256-yvkDdToRZ4IgPc9tSBzzCYJvTLf8n5eE3rgUkpCuD5A=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "7993f34ee47e28a3d607a525aadc6c94b73be728",
+        "rev": "a033e66ab94a6bedf2c3d58d93a36319d3cbbbaf",
         "type": "github"
       },
       "original": {
@@ -575,11 +575,11 @@
     "secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1791932943,
-        "narHash": "sha256-gXPV/JYzQ4QNfwybdEtHdz5NG1FDKTkvKcStvX6pLGg=",
+        "lastModified": 1791982701,
+        "narHash": "sha256-WN29wBCnfbGNcrN9UDFitvdP9Gts7Z5kInHSfA8hs3Q=",
         "ref": "refs/heads/main",
-        "rev": "f9c779322a8d8934df20ffaec6648cfec5aa4244",
-        "revCount": 168,
+        "rev": "8e3e297d7498c7b31951ccb7e768bdb3bd83c2b1",
+        "revCount": 169,
         "type": "git",
         "url": "ssh://git@github.com/TheMakunga/.secrets.git"
       },
