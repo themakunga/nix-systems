@@ -41,12 +41,16 @@ bootstrap-darwin: ## Primera instalación de Nix-Darwin en un Mac virgen. Uso: m
 switch-outer-heaven: ## Aplica la configuración en outer-heaven (Mac Principal)
 	@echo "=> Aplicando Nix-Darwin en outer-heaven..."
 	git add -A
-	sudo darwin-rebuild switch --flake .#outer-heaven
+	darwin-rebuild build --flake .#outer-heaven
+	sudo nix-env -p /nix/var/nix/profiles/system --set ./result
+	sudo ./result/sw/bin/darwin-rebuild activate
 
 switch-kanagawa: ## Aplica la configuración en kanagawa
 	@echo "=> Aplicando Nix-Darwin en kanagawa..."
 	git add -A
-	sudo darwin-rebuild switch --flake .#kanagawa
+	darwin-rebuild build --flake .#kanagawa
+	sudo nix-env -p /nix/var/nix/profiles/system --set ./result
+	sudo ./result/sw/bin/darwin-rebuild activate
 
 # =========================================================
 # 🐧 DESPLIEGUES NIXOS LOCALES (X86_64)
