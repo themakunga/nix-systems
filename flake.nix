@@ -85,6 +85,8 @@
     };
 
     globalprotect-openconnect.url = "github:yuezk/GlobalProtect-openconnect";
+
+    lazyjira.url = "github:textfuel/lazyjira";
   };
 
   outputs = inputs: let

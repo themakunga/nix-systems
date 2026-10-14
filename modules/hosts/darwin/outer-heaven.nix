@@ -29,7 +29,7 @@ in {
       ++ (mkBundle (extendBundle bundles.darwin.base {
         commonModules = ["cloud-profiles" "secret-dotfiles"];
         darwinModules = ["linux-builder" "tiling"];
-        applicationModules = ["google-cloud.gemini" "ollama"];
+        applicationModules = ["google-cloud.gemini" "jira" "ollama"];
         userModules = ["work" "glados"];
         profileModules = ["work" "personal" "latam" "glados" "thoughtworks" "grainger" "company" "outer-heaven-workspaces" "terminal-tools"];
       }))
@@ -41,6 +41,7 @@ in {
             "/Applications/Bruno.app"
           ];
           my = {
+            apps.jira.enable = true;
             secretDotfiles.enable = true;
             linux-builder.enable = true;
             hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
