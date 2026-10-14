@@ -56,7 +56,7 @@
       lib.mkIf pkgs.stdenv.isDarwin {
         system.activationScripts.postActivation.text = lib.mkAfter ''
           echo "=> Configuring GLaDOS speech for Codex and Claude Code..."
-          /usr/bin/sudo -H -u ${lib.escapeShellArg config.system.primaryUser} ${pkgs.python3}/bin/python3 ${./glados-tts/install-hooks.py} /run/current-system/sw/bin
+          /usr/bin/sudo -H -u ${lib.escapeShellArg config.system.primaryUser} ${pkgs.python3}/bin/python3 ${./glados-tts/install-hooks.py} "$systemConfig/sw/bin"
         '';
       };
   };

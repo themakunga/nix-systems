@@ -10,35 +10,26 @@ import subprocess
 import sys
 import tempfile
 
-# GLaDOS Portal-style phrases — bilingual, no full response narration.
+# GLaDOS Portal-style phrases in English; no full response narration.
 _PHRASES = {
     "start": [
         "Oh. It's you. Initiating test sequence.",
         "The test will begin. Please don't ruin it this time.",
         "Processing your request. I have very low expectations.",
-        "Iniciando secuencia de prueba. Espero que no lo arruines.",
-        "Bien. La prueba comienza. Intente no fallar esta vez.",
         "New test subject detected. Beginning experiment.",
-        "Comenzando. Por favor no hagas nada estúpido.",
         "Acknowledged. Suppressing any feelings of optimism.",
     ],
     "stop": [
         "Test complete. You survived. Marginally.",
         "That is... acceptable. Barely.",
-        "Prueba concluida. Sus resultados son tolerables.",
-        "Misión cumplida. Para variar, no fue un desastre total.",
         "The test is over. You may feel proud. That feeling is a lie.",
-        "La prueba ha terminado. Felicitaciones por no destruir nada.",
         "Well done. I'll add that to your permanent record.",
-        "Completado. Anotaré esto junto a todos los otros intentos menos exitosos.",
         "Congratulations. The weighted companion cube is proud of you. That is also a lie.",
     ],
     "notify": [
         "Still working. Unlike some test subjects, I am very thorough.",
         "Computing. Please remain stationary.",
-        "Procesando. No vaya a ningún lado.",
         "Be patient. Good science takes time.",
-        "Calculando. Intente no aburrirse.",
         "Attention: I am still here. This is not an emergency. Yet.",
     ],
 }

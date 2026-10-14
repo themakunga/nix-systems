@@ -4,8 +4,8 @@ Activado para `kanagawa` y `outer-heaven` mediante `my.apps.glados-tts.enable`.
 Piper genera la voz localmente con el modelo
 [GLaDOS de DavesArmoury](https://huggingface.co/DavesArmoury/GLaDOS_TTS)
 (CC BY 4.0, versión fijada en Nix). No requiere API ni envía las respuestas a
-un servicio TTS. El modelo está entrenado en inglés: el español tendrá acento
-y pronunciación menos natural. No cambia el idioma de las respuestas del agente.
+un servicio TTS. El modelo está entrenado en inglés y los avisos automáticos
+se emiten en inglés. No cambia el idioma de las respuestas del agente.
 
 ## Uso
 
@@ -19,10 +19,9 @@ En Codex, abre `/hooks` y revisa/autoriza el comando
 los apruebas. Es una protección de Codex, descrita en su
 [documentación oficial](https://developers.openai.com/codex/hooks).
 
-Lee la respuesta final al terminar cada turno, en segundo plano. Omite bloques
-de código y URLs, y conserva el texto de los enlaces. Las respuestas de varias
-sesiones se reproducen una a la vez. No hay narración durante el streaming.
-Los errores del audio no bloquean al agente.
+Emite una frase breve al terminar cada turno, en segundo plano; no lee la
+respuesta completa. Las respuestas de varias sesiones se reproducen una a la
+vez. Los errores del audio no bloquean al agente.
 
 Funciona con sesiones locales que ejecuten hooks. Claude Code comparte los hooks
 entre [terminal y escritorio](https://code.claude.com/docs/en/desktop#shared-configuration).
