@@ -30,11 +30,15 @@ _: {
       # Pull (rebase para evitar merge commits automáticos)
       ${pkgs.git}/bin/git pull --rebase origin main 2>/dev/null || true
 
-      # Commit si hay cambios sin commitear
-      if ! ${pkgs.git}/bin/git diff --quiet HEAD 2>/dev/null || \
-         [ -n "$(${pkgs.git}/bin/git ls-files --others --exclude-standard)" ]; then
-        ${pkgs.git}/bin/git add -A
-        ${pkgs.git}/bin/git commit -m "vault: auto-sync $(date '+%Y-%m-%d %H:%M:%S')" || true
+      # Auto-commit solo si hay cambios en journal/ (staged o untracked)
+      JOURNAL_DIRTY=$(${pkgs.git}/bin/git status --porcelain journal/ 2>/dev/null || true)
+      if [ -n "$JOURNAL_DIRTY" ]; then
+        HOSTNAME=$(hostname -s)
+        ${pkgs.git}/bin/git add journal/
+        ${pkgs.git}/bin/git \
+          -c user.name="GLaDOS" \
+          -c user.email="GLaDOS@${HOSTNAME}" \
+          commit -m "journal: auto-save $(date '+%Y-%m-%d %H:%M:%S')" || true
       fi
 
       # Push si hay commits locales no enviados
