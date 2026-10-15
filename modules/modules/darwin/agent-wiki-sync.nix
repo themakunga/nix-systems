@@ -37,7 +37,7 @@ _: {
         ${pkgs.git}/bin/git add journal/
         ${pkgs.git}/bin/git \
           -c user.name="GLaDOS" \
-          -c user.email="GLaDOS@${HOSTNAME}" \
+          -c user.email="GLaDOS@''${HOSTNAME}" \
           commit -m "journal: auto-save $(date '+%Y-%m-%d %H:%M:%S')" || true
       fi
 
