@@ -55,7 +55,7 @@
         # ── LATAM Airlines ────────────────────────────────────────────
         latam = {
           directory = "~/Projects/latam/**";
-          realName = "Villarroel, Nicolas";
+          realName = "Nicolas Villarroel";
           email = "nicolasvillarroel.thoughtworks@latam.com";
           gpg = {
             enable = true;
