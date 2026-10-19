@@ -195,8 +195,12 @@ fmt: ## Fuerza el formateo de todo el código Nix usando Alejandra
 	nix fmt
 
 update: ## Actualiza las dependencias en flake.lock (nixpkgs, home-manager, etc.)
+	git add -A
+	@git diff --cached --quiet || git commit -m "chore: auto - $$(date '+%Y-%m-%d %H:%M:%S') - save changes"
 	@echo "=> Actualizando Flake Inputs..."
 	nix flake update
+	git add flake.lock
+	@git diff --cached --quiet || git commit -m "chore: auto - $$(date '+%Y-%m-%d %H:%M:%S') - update packages"
 
 clean: ## Recolecta basura y optimiza el Nix Store
 	@echo "=> Vaciando papelera de Nix..."
