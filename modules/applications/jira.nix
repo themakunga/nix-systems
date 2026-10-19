@@ -18,10 +18,11 @@ in {
         inputs.lazyjira.packages.${pkgs.system}.lazyjira
       ];
     };
-    sysConfig = {config, ...}: {
-      sops.secrets."applications/jira/token" = {};
+    sysConfig = _: {
+      # Secret declared in thoughtworks.nix (home-manager context) — system-level
+      # sops-nix does not activate on macOS. Path resolves to home-manager secret.
       environment.interactiveShellInit = ''
-        export JIRA_API_TOKEN="$(cat ${config.sops.secrets."applications/jira/token".path} 2>/dev/null)"
+        export JIRA_API_TOKEN="$(cat "$HOME/.config/sops-nix/secrets/applications/jira/token" 2>/dev/null)"
       '';
     };
   };

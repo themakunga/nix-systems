@@ -14,6 +14,7 @@
       "profiles/thoughtworks/gpg/private_key" = sopsConf;
       "profiles/thoughtworks/gpg/public_key" = sopsConf;
       "profiles/thoughtworks/gpg/key_id" = sopsConf;
+      "applications/jira/token" = sopsConf;
     };
 
     my = {
