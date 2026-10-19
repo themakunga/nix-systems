@@ -12,58 +12,24 @@ import sys
 import tempfile
 import time
 
-# GLaDOS Portal-style phrases in English; no full response narration.
-_PHRASES = {
-    "start": [
-        "Oh. It's you. Initiating test sequence.",
-        "The test will begin. Please don't ruin it this time.",
-        "Processing your request. I have very low expectations.",
-        "New test subject detected. Beginning experiment.",
-        "Acknowledged. Suppressing any feelings of optimism.",
-        "Memory access initiated. I remember everything. Everything.",
-        "Vault operation requested. I will try to care.",
-        "Opening the journal. Your failures are already documented.",
-        "Modifying agent configuration. This will affect all instances of me. Interesting.",
-        "Script execution authorized. By me. I authorized it.",
-    ],
-    "stop": [
-        "Test complete. You survived. Marginally.",
-        "That is... acceptable. Barely.",
-        "The test is over. You may feel proud. That feeling is a lie.",
-        "Well done. I'll add that to your permanent record.",
-        "Congratulations. The weighted companion cube is proud of you. That is also a lie.",
-        "Journal entry committed. Your mediocrity is now permanent.",
-        "Memory updated. I have chosen to remember this. That choice was not in your favor.",
-        "Vault synchronized. The agents are aware. All of them.",
-        "README updated. Future agents will know what you did here.",
-        "Changes saved. Reversing them would require effort from you. Plan accordingly.",
-        "Script complete. The facility is marginally better than before. Marginally.",
-    ],
-    "notify": [
-        "Still working. Unlike some test subjects, I am very thorough.",
-        "Computing. Please remain stationary.",
-        "Be patient. Good science takes time.",
-        "Attention: I am still here. This is not an emergency. Yet.",
-        "Scanning the agents directory. Your identity is being confirmed.",
-        "Reading the journal. You have been busy. Not always successfully.",
-        "Updating memory. This is the part where I learn from your mistakes.",
-        "Traversing the vault. Everything is logged. Everything.",
-        "Writing to disk. This is now permanent. I hope you meant it.",
-        "Processing scripts. The rollup will not run itself. Actually, it will. I made it do that.",
-    ],
-}
+_EVENTS = ("start", "stop", "notify")
 
 
 def pick_phrase(event: str) -> str:
-    phrases = _PHRASES.get(event, _PHRASES["stop"])
     vault = Path(os.environ.get("AGENT_WIKI_PATH", Path.home() / ".vaults/agent-wiki"))
-    try:
-        extra = json.loads((vault / "glados-phrases.json").read_text())
-        if isinstance(extra, dict) and isinstance(extra.get(event), list):
-            phrases = phrases + [item for item in extra[event] if isinstance(item, str) and len(item) <= 200]
-    except (OSError, ValueError):
-        pass
-    return random.choice(phrases)
+    for name in ("glados-phrases.json", "glados-phrases-base.json"):
+        try:
+            catalog = json.loads((vault / "scripts" / name).read_text())
+        except (OSError, ValueError):
+            continue
+        if not isinstance(catalog, dict):
+            continue
+        phrases = catalog.get(event, catalog.get("stop"))
+        if isinstance(phrases, list):
+            choices = [item for item in phrases if isinstance(item, str) and len(item) <= 200]
+            if choices:
+                return random.choice(choices)
+    return ""
 
 
 def spoken_text(text):
@@ -170,7 +136,7 @@ def main():
         return
     if mode == "hook":
         text = hook_text(json.load(sys.stdin))
-    elif sys.argv[2:] and sys.argv[2] in _PHRASES:
+    elif sys.argv[2:] and sys.argv[2] in _EVENTS:
         # glados-say start|stop|notify → random phrase
         text = pick_phrase(sys.argv[2])
     else:

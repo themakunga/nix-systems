@@ -20,11 +20,18 @@ def load(name):
 
 speech = load("speech")
 installer = load("install-hooks")
-assert speech.response({"hook_event_name": "Stop"}) in speech._PHRASES["stop"]
+phrase_dir = tempfile.TemporaryDirectory()
+phrase_scripts = Path(phrase_dir.name) / "scripts"
+phrase_scripts.mkdir()
+(phrase_scripts / "glados-phrases.json").write_text(json.dumps({
+    "start": ["Starting."], "stop": ["Stopping."], "notify": ["Working."]
+}))
+speech.os.environ["AGENT_WIKI_PATH"] = phrase_dir.name
+assert speech.response({"hook_event_name": "Stop"}) == "Stopping."
 for payload in (None, []):
     assert speech.response(payload) == ""
-assert speech.response({"hook_event_name": "PreToolUse", "tool_name": "AskUserQuestion"}) in speech._PHRASES["decision"]
-assert speech.response({"hook_event_name": "PreToolUse", "tool_name": "mcp__tools__request_user_input_async"}) in speech._PHRASES["decision"]
+assert speech.response({"hook_event_name": "PreToolUse", "tool_name": "AskUserQuestion"}) == "Stopping."
+assert speech.response({"hook_event_name": "PreToolUse", "tool_name": "mcp__tools__request_user_input_async"}) == "Stopping."
 assert speech.response({"hook_event_name": "Notification", "notification_type": "idle_prompt"}) == ""
 assert speech.spoken_text("```python\nunfinished code") == ""
 assert (
@@ -112,6 +119,7 @@ bad = subprocess.run(
     capture_output=True,
 )
 assert bad.returncode == 0 and not bad.stdout and "GLaDOS speech:" in bad.stderr
+phrase_dir.cleanup()
 print(
     "GLaDOS: hook payloads, Markdown, safe speech invocation, mute, cleanup and settings merge passed."
 )
