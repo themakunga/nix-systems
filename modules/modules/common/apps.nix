@@ -28,7 +28,7 @@ _: {
     options,
     ...
   }: let
-    inherit (lib) mkOption types filterAttrs mapAttrsToList flatten optionalAttrs;
+    inherit (lib) mkOption types filterAttrs mapAttrsToList flatten optionalAttrs concatStringsSep;
     cfg = config.my.apps;
 
     # Comprobamos de forma pura si la opción homebrew existe (solo en Darwin)
@@ -44,6 +44,14 @@ _: {
     appsBrews = flatten (mapAttrsToList (_: g: g.brews) activeApps);
     appsCasks = flatten (mapAttrsToList (_: g: g.casks) activeApps);
     appsMasApps = builtins.foldl' (acc: g: acc // g.masApps) {} (builtins.attrValues activeApps);
+
+    # Todas las mas apps combinadas — se instalan vía script para que fallen sin romper la activación
+    allMasApps = appsMasApps // config.my.masApps;
+    masInstallScript = concatStringsSep "\n" (mapAttrsToList (name: id: ''
+        echo "  -> ${name} (${toString id})"
+        /opt/homebrew/bin/mas install ${toString id} 2>&1 || echo "  WARNING: ${name} (${toString id}) omitida"
+      '')
+      allMasApps);
   in {
     options.my = {
       # ------------------------------------------------------------------
@@ -135,8 +143,14 @@ _: {
         homebrew = {
           brews = appsBrews ++ config.my.brews;
           casks = appsCasks ++ config.my.casks;
-          masApps = appsMasApps // config.my.masApps;
+          # masApps se instalan vía activationScript para que fallen sin bloquear el rebuild
         };
+
+        # ponytail: mas en postActivation para fallos no fatales; subir a brew bundle si mas gana --no-fail upstream
+        system.activationScripts.postActivation.text = lib.mkAfter (lib.optionalString (allMasApps != {}) ''
+          echo "=> Instalando apps de Mac App Store (los errores no son fatales)..."
+          ${masInstallScript}
+        '');
       });
   };
 }

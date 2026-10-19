@@ -56,6 +56,7 @@ _: {
         weechat.enable = true;
         nchat.enable = true;
         wechat.enable = true;
+        cspell.enable = true;
       };
 
       tools.devenv.enable = true;

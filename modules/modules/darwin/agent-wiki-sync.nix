@@ -30,6 +30,9 @@ _: {
       # Pull (rebase para evitar merge commits automáticos)
       ${pkgs.git}/bin/git pull --rebase origin main 2>/dev/null || true
 
+      # Rollup: crea el archivo de hoy, mueve viejos a su semana, crea summaries
+      ${pkgs.python3}/bin/python3 "$WIKI_DIR/scripts/journal_rollup.py" --run 2>/dev/null || true
+
       # Auto-commit solo si hay cambios en journal/ (staged o untracked)
       JOURNAL_DIRTY=$(${pkgs.git}/bin/git status --porcelain journal/ 2>/dev/null || true)
       if [ -n "$JOURNAL_DIRTY" ]; then
