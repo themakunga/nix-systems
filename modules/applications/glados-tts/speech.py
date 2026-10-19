@@ -55,7 +55,15 @@ _PHRASES = {
 
 
 def pick_phrase(event: str) -> str:
-    return random.choice(_PHRASES.get(event, _PHRASES["stop"]))
+    phrases = _PHRASES.get(event, _PHRASES["stop"])
+    vault = Path(os.environ.get("AGENT_WIKI_PATH", Path.home() / ".vaults/agent-wiki"))
+    try:
+        extra = json.loads((vault / "glados-phrases.json").read_text())
+        if isinstance(extra, dict) and isinstance(extra.get(event), list):
+            phrases = phrases + [item for item in extra[event] if isinstance(item, str) and len(item) <= 200]
+    except (OSError, ValueError):
+        pass
+    return random.choice(phrases)
 
 
 def spoken_text(text):
