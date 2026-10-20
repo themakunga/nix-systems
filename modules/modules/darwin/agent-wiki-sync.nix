@@ -26,27 +26,30 @@ _: {
       [ -d "$WIKI_DIR/.git" ] || exit 0   # vault no clonado aún
 
       cd "$WIKI_DIR"
+      [ "$(${pkgs.git}/bin/git symbolic-ref --quiet --short HEAD)" = main ] || exit 1
 
       # Pull (rebase para evitar merge commits automáticos)
-      ${pkgs.git}/bin/git pull --rebase origin main 2>/dev/null || true
+      ${pkgs.git}/bin/git pull --rebase origin main
 
       # Rollup: crea el archivo de hoy, mueve viejos a su semana, crea summaries
-      ${pkgs.python3}/bin/python3 "$WIKI_DIR/scripts/journal_rollup.py" --run 2>/dev/null || true
+      ${pkgs.python3}/bin/python3 "$WIKI_DIR/scripts/journal_rollup.py" --run
 
       # Auto-commit solo si hay cambios en journal/ (staged o untracked)
-      JOURNAL_DIRTY=$(${pkgs.git}/bin/git status --porcelain journal/ 2>/dev/null || true)
+      JOURNAL_DIRTY=$(${pkgs.git}/bin/git status --porcelain journal/)
       if [ -n "$JOURNAL_DIRTY" ]; then
         HOSTNAME=$(hostname -s)
         ${pkgs.git}/bin/git add journal/
-        ${pkgs.git}/bin/git \
-          -c user.name="GLaDOS" \
-          -c user.email="GLaDOS@''${HOSTNAME}" \
-          commit -m "journal: auto-save $(date '+%Y-%m-%d %H:%M:%S')" || true
+        if ! ${pkgs.git}/bin/git diff --cached --quiet -- journal/; then
+          ${pkgs.git}/bin/git \
+            -c user.name="GLaDOS" \
+            -c user.email="GLaDOS@''${HOSTNAME}" \
+            commit --only -m "journal: auto-save $(date '+%Y-%m-%d %H:%M:%S')" -- journal/
+        fi
       fi
 
       # Push si hay commits locales no enviados
-      AHEAD=$(${pkgs.git}/bin/git rev-list --count origin/main..HEAD 2>/dev/null || echo 0)
-      [ "$AHEAD" -gt 0 ] && ${pkgs.git}/bin/git push origin main 2>/dev/null || true
+      AHEAD=$(${pkgs.git}/bin/git rev-list --count origin/main..HEAD)
+      [ "$AHEAD" -eq 0 ] || ${pkgs.git}/bin/git push origin main
     '';
   in
     mkIf (cfg.enable && cfg.autoSync.enable) {
