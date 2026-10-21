@@ -87,6 +87,11 @@
     globalprotect-openconnect.url = "github:yuezk/GlobalProtect-openconnect";
 
     lazyjira.url = "github:textfuel/lazyjira";
+
+    hermes-agent = {
+      url = "github:NousResearch/hermes-agent";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
   };
 
   outputs = inputs: let

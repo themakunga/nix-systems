@@ -4,14 +4,17 @@
 # Módulo auto-gestionado.
 # =========================================================
 # Tiling window manager module for macOS using AeroSpace.
-# AeroSpace manages its own startup via start-at-login in aerospace.toml.
+# AeroSpace manages subsequent startups via start-at-login in aerospace.toml.
 {
   flake.darwinModules.tiling = {
     config,
     lib,
     pkgs,
     ...
-  }: {
+  }: let
+    user = config.system.primaryUser;
+    userHome = "/Users/${user}";
+  in {
     options.my.services.tiling.enable = lib.mkEnableOption "Tiling window manager";
     config = lib.mkIf config.my.services.tiling.enable {
       my.dotfiles = {
@@ -19,11 +22,19 @@
         packages = [
           {
             name = "aerospace";
-            isConfig = true;
           }
         ];
       };
       environment.systemPackages = [pkgs.aerospace];
+
+      system.activationScripts.postActivation.text = lib.mkAfter ''
+        # Remove the path created by the old nested Stow target.
+        [ -L "${userHome}/.config/aerospace/.config" ] && rm -f "${userHome}/.config/aerospace/.config"
+
+        if ! ${pkgs.aerospace}/bin/aerospace list-workspaces --all >/dev/null 2>&1; then
+          sudo -H -u ${user} /usr/bin/open -a AeroSpace
+        fi
+      '';
     };
   };
 }

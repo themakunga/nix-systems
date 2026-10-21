@@ -33,15 +33,19 @@ _: {
       # Rollup: crea el archivo de hoy, mueve viejos a su semana, crea summaries
       ${pkgs.python3}/bin/python3 "$WIKI_DIR/scripts/journal_rollup.py" --run 2>/dev/null || true
 
-      # Auto-commit solo si hay cambios en journal/ (staged o untracked)
-      JOURNAL_DIRTY=$(${pkgs.git}/bin/git status --porcelain journal/ 2>/dev/null || true)
-      if [ -n "$JOURNAL_DIRTY" ]; then
+      # Todos los vaults usan los plugins versionados por agent-wiki.
+      "$WIKI_DIR/scripts/link-obsidian-plugins.sh" || true
+
+      # Auto-commit del journal y los plugins compartidos (staged o untracked)
+      SYNC_PATHS=(journal/ .obsidian/community-plugins.json .obsidian/plugins/)
+      SYNC_DIRTY=$(${pkgs.git}/bin/git status --porcelain -- "''${SYNC_PATHS[@]}" 2>/dev/null || true)
+      if [ -n "$SYNC_DIRTY" ]; then
         HOSTNAME=$(hostname -s)
-        ${pkgs.git}/bin/git add journal/
+        ${pkgs.git}/bin/git add -- "''${SYNC_PATHS[@]}"
         ${pkgs.git}/bin/git \
           -c user.name="GLaDOS" \
           -c user.email="GLaDOS@''${HOSTNAME}" \
-          commit -m "journal: auto-save $(date '+%Y-%m-%d %H:%M:%S')" || true
+          commit -m "vault: auto-sync $(date '+%Y-%m-%d %H:%M:%S')" || true
       fi
 
       # Push si hay commits locales no enviados

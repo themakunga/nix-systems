@@ -28,7 +28,7 @@ in {
       ]
       ++ (mkBundle (extendBundle bundles.darwin.base {
         darwinModules = ["tiling"];
-        applicationModules = ["google-cloud.gcloud" "nlm"];
+        applicationModules = ["google-cloud.gcloud" "hermes" "nlm"];
         developmentModules = ["ios-terminal"];
         userModules = ["personal"];
         profileModules = ["personal" "bbook" "company" "terminal-tools"];
@@ -41,8 +41,11 @@ in {
             "/Applications/Zen.app"
           ];
           my = {
-            apps.glados-tts.enable = true;
-            apps.nlm.enable = true;
+            apps = {
+              glados-tts.enable = true;
+              hermes.enable = true;
+              nlm.enable = true;
+            };
             services.tiling.enable = true;
             packages = [];
             hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
