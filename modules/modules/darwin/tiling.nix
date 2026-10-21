@@ -31,7 +31,7 @@
         # Remove the path created by the old nested Stow target.
         [ -L "${userHome}/.config/aerospace/.config" ] && rm -f "${userHome}/.config/aerospace/.config"
 
-        if ! ${pkgs.aerospace}/bin/aerospace list-workspaces --all >/dev/null 2>&1; then
+        if ! pgrep -xq AeroSpace; then
           sudo -H -u ${user} /usr/bin/open -a AeroSpace
         fi
       '';
