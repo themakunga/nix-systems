@@ -26,12 +26,13 @@ _: {
       [ -d "$WIKI_DIR/.git" ] || exit 0   # vault no clonado aún
 
       cd "$WIKI_DIR"
+      [ "$(${pkgs.git}/bin/git symbolic-ref --quiet --short HEAD)" = main ] || exit 1
 
       # Pull (rebase para evitar merge commits automáticos)
-      ${pkgs.git}/bin/git pull --rebase origin main 2>/dev/null || true
+      ${pkgs.git}/bin/git pull --rebase origin main
 
       # Rollup: crea el archivo de hoy, mueve viejos a su semana, crea summaries
-      ${pkgs.python3}/bin/python3 "$WIKI_DIR/scripts/journal_rollup.py" --run 2>/dev/null || true
+      ${pkgs.python3}/bin/python3 "$WIKI_DIR/scripts/journal_rollup.py" --run
 
       # Todos los vaults usan los plugins versionados por agent-wiki.
       "$WIKI_DIR/scripts/link-obsidian-plugins.sh" || true
@@ -49,8 +50,8 @@ _: {
       fi
 
       # Push si hay commits locales no enviados
-      AHEAD=$(${pkgs.git}/bin/git rev-list --count origin/main..HEAD 2>/dev/null || echo 0)
-      [ "$AHEAD" -gt 0 ] && ${pkgs.git}/bin/git push origin main 2>/dev/null || true
+      AHEAD=$(${pkgs.git}/bin/git rev-list --count origin/main..HEAD)
+      [ "$AHEAD" -eq 0 ] || ${pkgs.git}/bin/git push origin main
     '';
   in
     mkIf (cfg.enable && cfg.autoSync.enable) {
