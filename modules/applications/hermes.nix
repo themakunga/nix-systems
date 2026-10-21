@@ -34,15 +34,17 @@
       then let
         user = config.system.primaryUser;
         userHome = "/Users/${user}";
+        geminiSecret = "agents/gemini-personal/api_key";
       in {
-        sops.secrets."applications/gemini/api-key" = {
+        sops.secrets.${geminiSecret} = {
           owner = user;
+          sopsFile = "${inputs.secrets.outPath}/common.yaml";
         };
         sops.templates."hermes-env" = {
           owner = user;
           mode = "0600";
           content = ''
-            GEMINI_API_KEY=${config.sops.placeholder."applications/gemini/api-key"}
+            GEMINI_API_KEY=${config.sops.placeholder.${geminiSecret}}
           '';
         };
 
