@@ -15,8 +15,17 @@ import time
 _EVENTS = ("start", "stop", "notify")
 
 
-def pick_phrase(event: str) -> str:
+def _project_context(cwd: str = "") -> str:
+    """Return the lowercase project directory name for phrase selection."""
+    path = cwd or os.environ.get("CLAUDE_PROJECT_DIR") or ""
+    return Path(path).name.lower() if path else ""
+
+
+def pick_phrase(event: str, context: str = "") -> str:
     vault = Path(os.environ.get("AGENT_WIKI_PATH", Path.home() / ".vaults/agent-wiki"))
+    pool: list[str] = []
+
+    # Base phrase pool (first file that loads wins)
     for name in ("glados-phrases.json", "glados-phrases-base.json"):
         try:
             catalog = json.loads((vault / "scripts" / name).read_text())
@@ -26,10 +35,22 @@ def pick_phrase(event: str) -> str:
             continue
         phrases = catalog.get(event, catalog.get("stop"))
         if isinstance(phrases, list):
-            choices = [item for item in phrases if isinstance(item, str) and len(item) <= 200]
-            if choices:
-                return random.choice(choices)
-    return ""
+            pool = [p for p in phrases if isinstance(p, str) and len(p) <= 200]
+            break
+
+    # Context-specific phrases: weighted 3:1 over base
+    if context:
+        try:
+            ctx = json.loads((vault / "scripts" / "glados-phrases-context.json").read_text())
+            for pattern, buckets in ctx.get("patterns", {}).items():
+                if pattern in context:
+                    ctx_phrases = [p for p in buckets.get(event, []) if isinstance(p, str) and len(p) <= 200]
+                    pool += ctx_phrases * 3
+                    break
+        except (OSError, ValueError):
+            pass
+
+    return random.choice(pool) if pool else ""
 
 
 def spoken_text(text):
@@ -65,7 +86,9 @@ def event_for(payload):
 
 def response(payload):
     event = event_for(payload)
-    return pick_phrase(event) if event else ""
+    if not event:
+        return ""
+    return pick_phrase(event, _project_context(payload.get("cwd", "")))
 
 
 def hook_text(payload):
@@ -90,7 +113,7 @@ def hook_text(payload):
         file.seek(0)
         file.truncate()
         json.dump(timings, file)
-    return pick_phrase(event)
+    return pick_phrase(event, _project_context(payload.get("cwd", "")))
 
 
 def render(text, wav):
