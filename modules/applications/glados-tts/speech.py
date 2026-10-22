@@ -17,7 +17,7 @@ _EVENTS = ("start", "stop", "notify")
 
 def _project_context(cwd: str = "") -> str:
     """Return the lowercase project directory name for phrase selection."""
-    path = cwd or os.environ.get("CLAUDE_PROJECT_DIR") or ""
+    path = cwd or os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()
     return Path(path).name.lower() if path else ""
 
 
@@ -161,7 +161,7 @@ def main():
         text = hook_text(json.load(sys.stdin))
     elif sys.argv[2:] and sys.argv[2] in _EVENTS:
         # glados-say start|stop|notify → random phrase
-        text = pick_phrase(sys.argv[2])
+        text = pick_phrase(sys.argv[2], _project_context())
     else:
         text = spoken_text(" ".join(sys.argv[2:]) if sys.argv[2:] else sys.stdin.read())
     speak(text)
