@@ -97,6 +97,21 @@
           };
         };
 
+        # ── Bbook (Boolean Bootcamp) ──────────────────────────────────
+        Bbook = {
+          directory = "~/Projects/Bbook/**";
+          realName = "Nicolas Villarroel Martinez";
+          email = "nmartinez@bbook.cl";
+          gpg = {
+            enable = true;
+            keyId = "D0B68A4CE88F70C6"; # Nicolas Villarroel Martinez <nmartinez@bbook.cl>
+          };
+          ssh = {
+            enable = true;
+            privateKey = "~/.ssh/id_ed25519_bbook";
+          };
+        };
+
         # ── outcast_sur hereda el default ThoughtWorks ────────────────
         # (no entry needed — ~/Projects/outcast_sur/** uses global identity)
       };
