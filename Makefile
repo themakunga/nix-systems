@@ -5,7 +5,10 @@
 # --- VARIABLES DE ENTORNO ---
 TARGET_IP ?= 192.168.1.100
 HOST ?= aperture-science
+# IPs fijas de hosts RPi
+APERTURE_IP ?= 192.168.5.85
 # BUILD_HOST=builder@linux-builder para compilar en la VM de outer-heaven.
+# Por defecto vacío → cada switch-* buildea en el propio destino (sin cross-compile).
 BUILD_HOST ?=
 
 .PHONY: all test help install-nix bootstrap-darwin switch-outer-heaven switch-kanagawa switch-motherbase switch-msf switch-steamdeck deploy-aperture switch-aperture deploy-black-mesa switch-black-mesa deploy-valve switch-valve deploy-motherbase build-host build-vm build-sd build-bootstrap build-installer-x86 deploy-x86 check fmt sops-common sops-host update clean shell
@@ -80,18 +83,18 @@ switch-steamdeck: ## Aplica la configuración en steamdeck
 #             Build en el destino por defecto — sin cross-compile.
 #             En outer-heaven: BUILD_HOST=builder@linux-builder para usar la VM.
 
-deploy-aperture: ## [INICIAL] Instala aperture-science vía nixos-anywhere (desde bootstrap SD). Uso: make deploy-aperture TARGET_IP=192.168.x.x
-	@echo "=> Instalación inicial de aperture-science en $(TARGET_IP) (bootstrap → NVMe)..."
+deploy-aperture: ## [INICIAL] Instala aperture-science vía nixos-anywhere (desde bootstrap SD). Uso: make deploy-aperture [TARGET_IP=192.168.x.x]
+	@echo "=> Instalación inicial de aperture-science en $(or $(TARGET_IP),$(APERTURE_IP)) (bootstrap → NVMe)..."
 	git add -A
-	./scripts/deploy.sh $(TARGET_IP) .#aperture-science
+	./scripts/deploy.sh $(or $(TARGET_IP),$(APERTURE_IP)) .#aperture-science
 
-switch-aperture: ## [UPDATE] Actualiza aperture-science en ejecución vía nixos-rebuild. Uso: make switch-aperture TARGET_IP=192.168.x.x
-	@echo "=> Actualizando aperture-science en $(TARGET_IP)..."
+switch-aperture: ## [UPDATE] Actualiza aperture-science — buildea en el propio Pi (sin cross-compile). Uso: make switch-aperture
+	@echo "=> Actualizando aperture-science en $(APERTURE_IP) (build en destino)..."
 	git add -A
 	nix run nixpkgs#nixos-rebuild -- switch \
 	  --flake .#aperture-science \
-	  --target-host root@$(TARGET_IP) \
-	  --build-host $(or $(BUILD_HOST),root@$(TARGET_IP))
+	  --target-host root@$(APERTURE_IP) \
+	  --build-host $(or $(BUILD_HOST),root@$(APERTURE_IP))
 
 build-installer-x86: ## Genera ISO de instalación x86_64 con llaves SSH pre-cargadas. Flashear a USB para bare metal. Uso: make build-installer-x86
 	@echo "=> Generando ISO de instalación x86_64..."
