@@ -31,6 +31,14 @@
           auto-optimise-store = true; # deduplicar store con hardlinks tras cada build
           min-free = 5368709120; # 5 GB — lanzar GC si hay menos espacio libre
           max-free = 10737418240; # 10 GB — liberar hasta 10 GB en cada GC automático
+          substituters = [
+            "https://cache.nixos.org"
+            "https://themakunga.cachix.org"
+          ];
+          trusted-public-keys = [
+            "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+            "themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0="
+          ];
         };
       };
     };
