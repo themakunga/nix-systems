@@ -256,6 +256,7 @@ in {
               nodejs_22 # Node.js 22 LTS — tooling JS/TS
               go # Go — servicios, CLIs, infraestructura
               terraform # Terraform — IaC para homelab
+              cachix # Nix binary cache CLI — push builds a themakunga.cachix.org
             ];
 
             users.users = {
