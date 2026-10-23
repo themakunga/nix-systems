@@ -29,7 +29,7 @@ in {
       ++ (mkBundle (extendBundle bundles.darwin.base {
         commonModules = ["cloud-profiles" "secret-dotfiles"];
         darwinModules = ["linux-builder" "tiling"];
-        applicationModules = ["google-cloud.gemini" "jira" "ollama" "cliamp"];
+        applicationModules = ["google-cloud.gemini" "jira" "ollama" "cliamp" "tuifeed"];
         userModules = ["work" "glados"];
         profileModules = ["work" "personal" "latam" "glados" "thoughtworks" "grainger" "company" "outer-heaven-workspaces" "terminal-tools"];
       }))
@@ -75,6 +75,7 @@ in {
             apps = {
               jira.enable = true;
               cliamp.enable = true;
+              tuifeed.enable = true;
               aws-cli.enable = true;
               gemini-cli.enable = true;
               glados-tts.enable = true;
