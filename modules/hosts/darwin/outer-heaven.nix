@@ -29,7 +29,7 @@ in {
       ++ (mkBundle (extendBundle bundles.darwin.base {
         commonModules = ["cloud-profiles" "secret-dotfiles"];
         darwinModules = ["linux-builder" "tiling"];
-        applicationModules = ["google-cloud.gemini" "jira" "ollama"];
+        applicationModules = ["google-cloud.gemini" "jira" "ollama" "cliamp"];
         userModules = ["work" "glados"];
         profileModules = ["work" "personal" "latam" "glados" "thoughtworks" "grainger" "company" "outer-heaven-workspaces" "terminal-tools"];
       }))
@@ -41,7 +41,6 @@ in {
             "/Applications/Bruno.app"
           ];
           my = {
-            apps.jira.enable = true;
             secretDotfiles.enable = true;
             linux-builder.enable = true;
             hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
@@ -63,7 +62,6 @@ in {
             packages = with pkgs; [
               terminal-notifier
               claude-code
-              unstable.cliamp
               jdk25
               argo-workflows
               rustc
@@ -75,6 +73,8 @@ in {
             services.tiling.enable = true;
 
             apps = {
+              jira.enable = true;
+              cliamp.enable = true;
               aws-cli.enable = true;
               gemini-cli.enable = true;
               glados-tts.enable = true;
