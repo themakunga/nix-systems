@@ -12,7 +12,7 @@
 name: Build & Cache Darwin hosts
 on:
   push:
-    branches: [develop]
+    branches: [main]
     paths:
       - flake.nix
       - flake.lock

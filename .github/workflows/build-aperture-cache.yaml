@@ -13,7 +13,7 @@
 name: Build & Cache aperture-science
 on:
   push:
-    branches: [develop]
+    branches: [main]
     paths:
       - flake.nix
       - flake.lock
