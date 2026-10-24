@@ -45,6 +45,7 @@ in {
           alejandra
           efm-langserver
           yaml-language-server
+          actionlint
           nodejs_24
           python3
         ]
