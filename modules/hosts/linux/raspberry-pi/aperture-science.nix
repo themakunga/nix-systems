@@ -183,6 +183,10 @@ in {
                   owner = "root"; # hashedPasswordFile debe ser legible por systemd-userdbd
                   neededForUsers = true;
                 };
+                "runner/token" = {
+                  key = "runner/token";
+                  owner = "nicolas";
+                };
               };
 
               # Contraseña de wheatley vía SOPS — necesaria para login con tuigreet.
@@ -278,14 +282,32 @@ in {
               wheatley.extraGroups = ["uinput"];
             };
 
-            # mDNS: Avahi permite resolver aperture-science.local en la red local.
-            services.avahi = {
-              enable = true;
-              nssmdns4 = true; # resolución .local vía NSS
-              publish = {
+            services = {
+              # mDNS: Avahi permite resolver aperture-science.local en la red local.
+              avahi = {
                 enable = true;
-                addresses = true; # anuncia IP en la red
-                domain = true;
+                nssmdns4 = true; # resolución .local vía NSS
+                publish = {
+                  enable = true;
+                  addresses = true; # anuncia IP en la red
+                  domain = true;
+                };
+              };
+
+              tailscale.extraUpFlags = ["--accept-dns=false"];
+
+              # GitHub Actions self-hosted runner — build nativo aarch64 + push a Cachix.
+              # Token de registro en secrets/hosts/aperture-science.yaml → runner/token.
+              # El runner corre como usuario nicolas; cachix usa CACHIX_AUTH_TOKEN inyectado
+              # por el workflow desde los GitHub Secrets del repo.
+              github-runners.aperture-science = {
+                enable = true;
+                name = "aperture-science";
+                url = "https://github.com/themakunga/nix-systems";
+                tokenFile = config.sops.secrets."runner/token".path;
+                user = "nicolas";
+                extraLabels = ["aarch64-linux" "aperture-science"];
+                extraPackages = [pkgs.cachix pkgs.git];
               };
             };
 
@@ -387,8 +409,6 @@ in {
               };
               defaultGateway = "192.168.4.1";
             };
-            services.tailscale.extraUpFlags = ["--accept-dns=false"];
-
             # wheel sin contraseña — necesario para nixos-rebuild remoto
             security.sudo.wheelNeedsPassword = false;
 
