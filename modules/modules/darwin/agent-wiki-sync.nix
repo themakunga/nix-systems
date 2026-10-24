@@ -24,7 +24,10 @@ _: {
       WIKI_DIR="${userHome}/.vaults/agent-wiki"
 
       [ -d "$WIKI_DIR/.git" ] || exit 0   # vault no clonado aún
-      ${pkgs.python3}/bin/python3 "$WIKI_DIR/scripts/journal_rollup.py" --sync
+      status=0
+      ${pkgs.python3}/bin/python3 "$WIKI_DIR/scripts/journal_rollup.py" --sync || status=$?
+      ${pkgs.python3}/bin/python3 "$WIKI_DIR/scripts/smart_content_sync.py" || status=$?
+      exit "$status"
     '';
   in
     mkIf (cfg.enable && cfg.autoSync.enable) {
