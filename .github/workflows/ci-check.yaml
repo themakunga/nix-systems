@@ -43,9 +43,14 @@ jobs:
     needs: lint
     steps:
       - uses: actions/checkout@v4
+      - name: Decode SSH key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/ssh_key
+          { printf 'DECODED_SSH_KEY<<EOF\n'; cat /tmp/ssh_key; printf '\nEOF\n'; } >> "$GITHUB_ENV"
+          rm /tmp/ssh_key
       - uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}
+          ssh-private-key: ${{ env.DECODED_SSH_KEY }}
       - uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
@@ -91,9 +96,14 @@ jobs:
           - valve
     steps:
       - uses: actions/checkout@v4
+      - name: Decode SSH key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/ssh_key
+          { printf 'DECODED_SSH_KEY<<EOF\n'; cat /tmp/ssh_key; printf '\nEOF\n'; } >> "$GITHUB_ENV"
+          rm /tmp/ssh_key
       - uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}
+          ssh-private-key: ${{ env.DECODED_SSH_KEY }}
       - uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
