@@ -34,7 +34,7 @@ jobs:
       - name: Build PR body, create PR and set tag
         id: meta
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN_SECRETS }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           TAG="pre-$(date +%Y%m%d%H%M)"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
@@ -66,7 +66,6 @@ jobs:
             --title "chore: promote develop → main" \
             --body-file /tmp/pr_body.md \
             --assignee themakunga \
-            2>/dev/null \
             || gh pr list --base main --head develop --json url -q '.[0].url')
 
           echo "=> PR: ${PR_URL}"
