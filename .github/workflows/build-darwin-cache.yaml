@@ -1,0 +1,71 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: build-darwin-cache.yaml
+# Path: ./.github/workflows/build-darwin-cache.yaml
+# Description: Build nativo aarch64-darwin de los hosts macOS y push del closure a Cachix.
+#              Corre en runners macOS ARM (macos-latest) para builds nativos sin emulación.
+# =====================
+name: Build & Cache Darwin hosts
+on:
+  push:
+    branches: [develop]
+    paths:
+      - flake.nix
+      - flake.lock
+      - modules/hosts/darwin/**
+      - modules/modules/darwin/**
+      - modules/modules/common/**
+      - modules/profiles/**
+      - modules/applications/**
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    name: darwin — ${{ matrix.host }}
+    # macos-latest en GitHub Actions es Apple Silicon (aarch64-darwin).
+    runs-on: macos-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        host:
+          - outer-heaven
+          - kanagawa
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}
+      - uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            extra-substituters = https://cache.nixos.org https://themakunga.cachix.org
+            extra-trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0=
+      - uses: cachix/cachix-action@v15
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Build ${{ matrix.host }}
+        run: |
+          echo "=> Architecture: $(uname -m)"
+          echo "=> Building darwinConfigurations.${{ matrix.host }}..."
+          nix build .#darwinConfigurations.${{ matrix.host }}.system \
+            --no-link \
+            --print-out-paths \
+            2>&1 | tee build.log
+
+          SYSTEM=$(grep "^/nix/store" build.log | tail -1)
+          echo "=> System: $SYSTEM"
+
+          echo "=> Pushing closure to Cachix..."
+          COUNT=$(nix-store -qR "$SYSTEM" | tee /tmp/closure.txt | wc -l | tr -d ' ')
+          cachix push themakunga < /tmp/closure.txt
+          echo "=> Done: ${COUNT} paths pushed to themakunga.cachix.org"
