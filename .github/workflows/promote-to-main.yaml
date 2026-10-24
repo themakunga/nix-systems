@@ -31,11 +31,10 @@ jobs:
         with:
           fetch-depth: 0
           ref: develop
-          token: ${{ secrets.RELEASE_TOKEN }}
       - name: Build PR body, create PR and set tag
         id: meta
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN_SECRETS }}
         run: |
           TAG="pre-$(date +%Y%m%d%H%M)"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
@@ -173,14 +172,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: develop
-          token: ${{ secrets.RELEASE_TOKEN }}
       - uses: actions/download-artifact@v4
         with:
           path: output
           merge-multiple: true
       - name: Tag and publish pre-release
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN_SECRETS }}
         run: |
           TAG="${{ needs.prepare.outputs.tag }}"
           git tag "$TAG"
