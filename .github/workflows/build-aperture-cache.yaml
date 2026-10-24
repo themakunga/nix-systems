@@ -1,33 +1,50 @@
-name: 'Build & Cache aperture-science'
+name: "Build & Cache aperture-science"
 on:
   push:
     branches: [develop]
     paths:
-      - 'flake.nix'
-      - 'flake.lock'
-      - 'modules/hosts/linux/raspberry-pi/aperture-science*.nix'
-      - 'modules/modules/rpi/**'
-      - 'modules/modules/nixos/**'
-      - 'modules/modules/common/**'
-      - 'modules/profiles/**'
-      - 'modules/applications/**'
+      - "flake.nix"
+      - "flake.lock"
+      - "modules/hosts/linux/raspberry-pi/aperture-science*.nix"
+      - "modules/modules/rpi/**"
+      - "modules/modules/nixos/**"
+      - "modules/modules/common/**"
+      - "modules/profiles/**"
+      - "modules/applications/**"
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   build-and-cache:
-    name: 'Build NixOS system and push to Cachix'
-    runs-on: [self-hosted, aarch64-linux, aperture-science]
+    name: "Build NixOS system and push to Cachix"
+    runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
           fetch-depth: 1
+      - name: Setup QEMU for aarch64 emulation
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
       - name: Setup SSH for private flake inputs
         uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}
+      - name: Install Nix with aarch64 support
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            extra-platforms = aarch64-linux
+            extra-substituters = https://themakunga.cachix.org
+            extra-trusted-public-keys = themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0=
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v15
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - name: Build aperture-science system
         run: |
           nix build .#nixosConfigurations.aperture-science.config.system.build.toplevel \
@@ -36,8 +53,6 @@ jobs:
             2>&1 | tee /tmp/build-out.txt
           echo "SYSTEM_PATH=$(tail -1 /tmp/build-out.txt)" >> "$GITHUB_ENV"
       - name: Push closure to Cachix
-        env:
-          CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
         run: |
           nix-store -qR "$SYSTEM_PATH" | cachix push themakunga
           echo "=> Pushed $(nix-store -qR "$SYSTEM_PATH" | wc -l) paths to themakunga.cachix.org"
