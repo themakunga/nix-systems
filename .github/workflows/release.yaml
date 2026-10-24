@@ -1,0 +1,188 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: release.yaml
+# Path: ./.github/workflows/release.yaml
+# Description: Release manual con semver — bump de versión, build de instaladores
+#              (RPi SD image + Linux x86_64 ISO) y publicación en GitHub Releases.
+#              Solo se ejecuta via workflow_dispatch desde main.
+# =====================
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: Version bump type
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: patch
+permissions:
+  contents: write
+jobs:
+  # ── 1. Calcular versión y crear tag ──────────────────────────────────────
+  version:
+    name: Bump version (${{ inputs.bump_type }})
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.bump.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+          token: ${{ secrets.RELEASE_TOKEN }}
+      - name: Setup git identity
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Calculate next version and tag
+        id: bump
+        run: |
+          LATEST=$(git tag -l "v*.*.*" --sort=-v:refname | grep -v '-' | head -1)
+          LATEST=${LATEST:-v0.0.0}
+          CORE="${LATEST#v}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CORE"
+
+          case "${{ inputs.bump_type }}" in
+            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH + 1)) ;;
+          esac
+
+          VERSION="v$MAJOR.$MINOR.$PATCH"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "=> $LATEST → $VERSION (${{ inputs.bump_type }})"
+
+          git tag -a "$VERSION" -m "Release $VERSION"
+          git push origin "$VERSION"
+  # ── 2a. Build: RPi bootstrap SD image (aarch64) ──────────────────────────
+  build-rpi:
+    name: Build — RPi bootstrap SD image
+    needs: version
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Decode SSH key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/ssh_key
+          { printf 'DECODED_SSH_KEY<<EOF\n'; cat /tmp/ssh_key; printf '\nEOF\n'; } >> "$GITHUB_ENV"
+          rm /tmp/ssh_key
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ env.DECODED_SSH_KEY }}
+      - uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            extra-platforms = aarch64-linux
+            extra-substituters = https://cache.nixos.org https://themakunga.cachix.org
+            extra-trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0=
+      - uses: cachix/cachix-action@v15
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Build aperture-bootstrap SD image
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
+        run: |
+          echo "=> Building aperture-bootstrap SD image on $(uname -m)..."
+          OUT=$(nix build .#nixosConfigurations.aperture-bootstrap.config.system.build.sdImage \
+            --no-link --print-out-paths 2>&1 | tail -1)
+          mkdir -p output
+          for f in "$OUT"/sd-image/*; do
+            [ -f "$f" ] && cp -L "$f" "output/aperture-bootstrap-${{ needs.version.outputs.version }}-$(basename "$f")"
+          done
+          ls -lh output/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rpi-sd-image
+          path: output/*
+          retention-days: 7
+  # ── 2b. Build: Linux x86_64 installer ISO ────────────────────────────────
+  build-linux:
+    name: Build — Linux x86_64 installer ISO
+    needs: version
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Decode SSH key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/ssh_key
+          { printf 'DECODED_SSH_KEY<<EOF\n'; cat /tmp/ssh_key; printf '\nEOF\n'; } >> "$GITHUB_ENV"
+          rm /tmp/ssh_key
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ env.DECODED_SSH_KEY }}
+      - uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            extra-substituters = https://cache.nixos.org https://themakunga.cachix.org
+            extra-trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0=
+      - uses: cachix/cachix-action@v15
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Build linux-bootstrap ISO
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
+        run: |
+          echo "=> Building linux-bootstrap ISO on $(uname -m)..."
+          OUT=$(nix build .#nixosConfigurations.linux-bootstrap.config.system.build.isoImage \
+            --no-link --print-out-paths 2>&1 | tail -1)
+          mkdir -p output
+          for f in "$OUT"/iso/*; do
+            [ -f "$f" ] && cp -L "$f" "output/linux-bootstrap-${{ needs.version.outputs.version }}-$(basename "$f")"
+          done
+          ls -lh output/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-iso
+          path: output/*
+          retention-days: 7
+  # ── 3. Publicar GitHub Release con los artefactos ────────────────────────
+  release:
+    name: Publish release ${{ needs.version.outputs.version }}
+    needs: [version, build-rpi, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+      - uses: actions/download-artifact@v4
+        with:
+          path: output
+          merge-multiple: true
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          VERSION="${{ needs.version.outputs.version }}"
+          echo "=> Publishing release $VERSION..."
+          ls -lh output/
+
+          if gh release view "$VERSION" &>/dev/null; then
+            echo "Release exists — uploading/updating artifacts..."
+            gh release upload "$VERSION" output/* --clobber
+          else
+            gh release create "$VERSION" output/* \
+              --title "Release $VERSION" \
+              --generate-notes \
+              --target main
+          fi
+
+          echo "=> Release published: $(gh release view "$VERSION" --json url -q .url)"
