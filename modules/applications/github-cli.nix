@@ -16,6 +16,7 @@ in {
       packages = with pkgs; [
         gh
         gama-tui
+        gh-dash
       ];
     };
     sysConfig = {config, ...}: {
