@@ -178,7 +178,7 @@ jobs:
           merge-multiple: true
       - name: Tag and publish pre-release
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN_SECRETS }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           TAG="${{ needs.prepare.outputs.tag }}"
           git tag "$TAG"
