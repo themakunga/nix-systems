@@ -17,17 +17,15 @@ permissions:
 jobs:
   build-and-cache:
     name: "Build NixOS system and push to Cachix"
-    runs-on: ubuntu-latest
+    # Namespace.so — runner aarch64 nativo gratuito (requiere GitHub App instalada).
+    # https://app.namespace.so → conectar themakunga/nix-systems
+    runs-on: nscloud-ubuntu-22.04-aarch64-4c8g
     timeout-minutes: 120
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
           fetch-depth: 1
-      - name: Setup QEMU for aarch64 emulation
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
       - name: Setup SSH for private flake inputs
         uses: webfactory/ssh-agent@v0.10.0
         with:
