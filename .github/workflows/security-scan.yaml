@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Scan dependencies and filesystem
-        uses: aquasecurity/trivy-action@0.36.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           scan-ref: .
@@ -76,8 +76,8 @@ jobs:
               `**Run:** ${runUrl}`,
               '',
               '### Failed jobs',
-              needs.secrets-scan.result === 'failure' ? '- ❌ **gitleaks** — exposed credentials detected' : '',
-              needs['vuln-scan'].result === 'failure'  ? '- ❌ **trivy**    — vulnerable or misconfigured dependencies detected' : '',
+              '${{ needs.secrets-scan.result }}' === 'failure' ? '- ❌ **gitleaks** — exposed credentials detected' : '',
+              '${{ needs.vuln-scan.result }}'    === 'failure' ? '- ❌ **trivy**    — vulnerable or misconfigured dependencies detected' : '',
               '',
               'Review the workflow run for details and download the Trivy report artifact.',
             ].filter(Boolean).join('\n');
