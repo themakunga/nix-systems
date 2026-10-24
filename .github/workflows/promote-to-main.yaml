@@ -34,7 +34,7 @@ jobs:
       - name: Build PR body, create PR and set tag
         id: meta
         env:
-          API_TOKEN: ${{ github.token }}
+          API_TOKEN: ${{ secrets.GH_TOKEN_SECRETS }}
           REPO: ${{ github.repository }}
           OWNER: ${{ github.repository_owner }}
         run: |
