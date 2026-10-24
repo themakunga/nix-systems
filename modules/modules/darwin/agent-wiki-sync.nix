@@ -24,34 +24,7 @@ _: {
       WIKI_DIR="${userHome}/.vaults/agent-wiki"
 
       [ -d "$WIKI_DIR/.git" ] || exit 0   # vault no clonado aún
-
-      cd "$WIKI_DIR"
-      [ "$(${pkgs.git}/bin/git symbolic-ref --quiet --short HEAD)" = main ] || exit 1
-
-      # Pull (rebase para evitar merge commits automáticos)
-      ${pkgs.git}/bin/git pull --rebase origin main
-
-      # Rollup: crea el archivo de hoy, mueve viejos a su semana, crea summaries
-      ${pkgs.python3}/bin/python3 "$WIKI_DIR/scripts/journal_rollup.py" --run
-
-      # Todos los vaults usan los plugins versionados por agent-wiki.
-      "$WIKI_DIR/scripts/link-obsidian-plugins.sh" || true
-
-      # Auto-commit del journal y los plugins compartidos (staged o untracked)
-      SYNC_PATHS=(journal/ .obsidian/community-plugins.json .obsidian/plugins/)
-      SYNC_DIRTY=$(${pkgs.git}/bin/git status --porcelain -- "''${SYNC_PATHS[@]}" 2>/dev/null || true)
-      if [ -n "$SYNC_DIRTY" ]; then
-        HOSTNAME=$(hostname -s)
-        ${pkgs.git}/bin/git add -- "''${SYNC_PATHS[@]}"
-        ${pkgs.git}/bin/git \
-          -c user.name="GLaDOS" \
-          -c user.email="GLaDOS@''${HOSTNAME}" \
-          commit -m "vault: auto-sync $(date '+%Y-%m-%d %H:%M:%S')" || true
-      fi
-
-      # Push si hay commits locales no enviados
-      AHEAD=$(${pkgs.git}/bin/git rev-list --count origin/main..HEAD)
-      [ "$AHEAD" -eq 0 ] || ${pkgs.git}/bin/git push origin main
+      ${pkgs.python3}/bin/python3 "$WIKI_DIR/scripts/journal_rollup.py" --sync
     '';
   in
     mkIf (cfg.enable && cfg.autoSync.enable) {
