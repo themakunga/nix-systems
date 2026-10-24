@@ -38,11 +38,17 @@ jobs:
           fetch-depth: 0
           ref: main
           token: ${{ secrets.RELEASE_TOKEN }}
+      - name: Guard — must run from main
+        run: |
+          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+            echo "❌ Release must be triggered from main (got: ${{ github.ref }})"
+            exit 1
+          fi
       - name: Setup git identity
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Calculate next version and tag
+      - name: Calculate next version
         id: bump
         run: |
           LATEST=$(git tag -l "v*.*.*" --sort=-v:refname | grep -v '-' | head -1)
@@ -58,8 +64,51 @@ jobs:
 
           VERSION="v$MAJOR.$MINOR.$PATCH"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "prev_version=$LATEST" >> "$GITHUB_OUTPUT"
           echo "=> $LATEST → $VERSION (${{ inputs.bump_type }})"
+      - name: Write git-cliff config
+        run: |
+          cat > cliff.toml << 'EOF'
+          [changelog]
+          header = ""
+          body = """
+          # [{{ version }}](https://github.com/themakunga/nix-systems/compare/{{ previous.version }}...{{ version }}) ({{ timestamp | date(format="%Y-%m-%d") }})
 
+          {% for group, commits in commits | group_by(attribute="group") %}\
+          ### {{ group | upper_first }}
+
+          {% for commit in commits %}\
+          * {{ commit.message | upper_first }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/themakunga/nix-systems/commit/{{ commit.id }}))
+          {% endfor %}
+          {% endfor %}
+          """
+          trim = true
+
+          [git]
+          conventional_commits = true
+          commit_parsers = [
+            { message = "^feat", group = "Features" },
+            { message = "^fix", group = "Bug Fixes" },
+            { message = "^docs", group = "Documentation" },
+            { message = "^refactor", group = "Refactor" },
+            { message = "^chore\\(release\\)", skip = true },
+            { message = "^chore", skip = true },
+            { message = "^ci", skip = true },
+            { message = "^style", skip = true },
+            { message = "^test", skip = true },
+          ]
+          filter_commits = true
+          EOF
+      - uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --tag ${{ steps.bump.outputs.version }} --unreleased --prepend CHANGELOG.md
+      - name: Commit CHANGELOG and create tag
+        run: |
+          VERSION="${{ steps.bump.outputs.version }}"
+          git add CHANGELOG.md
+          git diff --cached --quiet || git commit -m "chore(release): ${VERSION}"
+          git push origin main
           git tag -a "$VERSION" -m "Release $VERSION"
           git push origin "$VERSION"
   # ── 2a. Build: RPi bootstrap SD image (aarch64) ──────────────────────────
