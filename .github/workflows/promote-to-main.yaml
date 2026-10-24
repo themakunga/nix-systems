@@ -34,7 +34,9 @@ jobs:
       - name: Build PR body, create PR and set tag
         id: meta
         env:
-          GH_TOKEN: ${{ github.token }}
+          API_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          OWNER: ${{ github.repository_owner }}
         run: |
           TAG="pre-$(date +%Y%m%d%H%M)"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
@@ -42,13 +44,14 @@ jobs:
           # Commits en develop que aún no están en main
           COMMITS=$(git log origin/main..HEAD --oneline 2>/dev/null || echo "(no new commits)")
 
-          # Último issue de seguridad (label: security)
-          SEC=$(gh issue list \
-            --label security \
-            --state all \
-            --limit 1 \
-            --json number,title,url,state \
-            --jq '.[0] | if . then "Last scan: [#\(.number) — \(.title)](\(.url)) (\(.state))" else "No security issues on record." end')
+          # Último issue de seguridad via API REST
+          SEC_JSON=$(curl -s \
+            -H "Authorization: Bearer ${API_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${REPO}/issues?labels=security&state=all&per_page=1&sort=created&direction=desc")
+          SEC=$(echo "$SEC_JSON" | jq -r \
+            'if length > 0 then .[0] | "Last scan: [#\(.number) — \(.title)](\(.html_url)) (\(.state))" else "No security issues on record." end')
 
           {
             printf '## Commit Diff (develop → main)\n```\n%s\n```\n\n' "$COMMITS"
@@ -59,16 +62,47 @@ jobs:
           echo "=> PR body:"
           cat /tmp/pr_body.md
 
-          # Crear PR — si ya existe, obtener su URL
-          PR_URL=$(gh pr create \
-            --base main \
-            --head develop \
-            --title "chore: promote develop → main" \
-            --body-file /tmp/pr_body.md \
-            --assignee themakunga \
-            || gh pr list --base main --head develop --json url -q '.[0].url')
+          # Crear PR via API REST
+          BODY_JSON=$(jq -Rs . < /tmp/pr_body.md)
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -X POST \
+            -H "Authorization: Bearer ${API_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${REPO}/pulls" \
+            -d "{\"title\":\"chore: promote develop to main\",\"body\":${BODY_JSON},\"head\":\"develop\",\"base\":\"main\"}")
 
-          echo "=> PR: ${PR_URL}"
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+          echo "=> HTTP $HTTP_CODE"
+
+          if [ "$HTTP_CODE" = "201" ]; then
+            PR_NUMBER=$(echo "$BODY" | jq -r '.number')
+            PR_URL=$(echo "$BODY" | jq -r '.html_url')
+            echo "=> PR created: #${PR_NUMBER} ${PR_URL}"
+
+            # Asignar a themakunga
+            curl -s -X POST \
+              -H "Authorization: Bearer ${API_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${REPO}/issues/${PR_NUMBER}/assignees" \
+              -d "{\"assignees\":[\"${OWNER}\"]}" \
+              | jq -r '"=> Assigned: " + ([.assignees[].login] | join(", "))'
+          elif [ "$HTTP_CODE" = "422" ]; then
+            # Ya existe
+            EXISTING=$(curl -s \
+              -H "Authorization: Bearer ${API_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${REPO}/pulls?head=${OWNER}:develop&base=main&state=open" \
+              | jq -r '.[0].html_url // "not found"')
+            echo "=> PR already exists: ${EXISTING}"
+          else
+            echo "=> PR creation error:"
+            echo "$BODY" | jq .
+            exit 1
+          fi
   # ── 1. Build: RPi bootstrap SD image (aarch64) ──────────────────────────
   build-rpi:
     name: Pre-release — RPi SD image
