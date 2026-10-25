@@ -11,7 +11,7 @@ APERTURE_IP ?= 192.168.5.85
 # Por defecto vacío → cada switch-* buildea en el propio destino (sin cross-compile).
 BUILD_HOST ?=
 
-.PHONY: all test help install-nix bootstrap-darwin switch-outer-heaven switch-kanagawa switch-motherbase switch-msf switch-steamdeck deploy-aperture switch-aperture deploy-black-mesa switch-black-mesa deploy-valve switch-valve deploy-motherbase build-host build-vm build-sd build-bootstrap build-installer-x86 deploy-x86 check fmt sops-common sops-host update clean shell
+.PHONY: all test help install-nix bootstrap-darwin switch-outer-heaven switch-outer-heaven-fix switch-kanagawa switch-kanagawa-fix switch-motherbase switch-msf switch-steamdeck deploy-aperture switch-aperture deploy-black-mesa switch-black-mesa deploy-valve switch-valve deploy-motherbase build-host build-vm build-sd build-bootstrap build-installer-x86 deploy-x86 check fmt sops-common sops-host update clean shell
 
 all: ## Objetivo por defecto requerido por checkmake
 	@echo "No default 'all' target configured. Please specify a target like 'switch-outer-heaven'."
@@ -48,10 +48,28 @@ switch-outer-heaven: ## Aplica la configuración en outer-heaven (Mac Principal)
 	sudo nix-env -p /nix/var/nix/profiles/system --set ./result
 	sudo ./result/sw/bin/darwin-rebuild activate
 
+switch-outer-heaven-fix: ## Bootstrap fix: switch sin nixos-hardware.cachix.org (401)
+	@echo "=> Aplicando Nix-Darwin en outer-heaven (override substituters)..."
+	git add -A
+	darwin-rebuild build --flake .#outer-heaven \
+		--option extra-substituters "https://devenv.cachix.org https://themakunga.cachix.org" \
+		--option extra-trusted-public-keys "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw= themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0="
+	sudo nix-env -p /nix/var/nix/profiles/system --set ./result
+	sudo ./result/sw/bin/darwin-rebuild activate
+
 switch-kanagawa: ## Aplica la configuración en kanagawa
 	@echo "=> Aplicando Nix-Darwin en kanagawa..."
 	git add -A
 	darwin-rebuild build --flake .#kanagawa
+	sudo nix-env -p /nix/var/nix/profiles/system --set ./result
+	sudo ./result/sw/bin/darwin-rebuild activate
+
+switch-kanagawa-fix: ## Bootstrap fix: switch sin nixos-hardware.cachix.org (401)
+	@echo "=> Aplicando Nix-Darwin en kanagawa (override substituters)..."
+	git add -A
+	darwin-rebuild build --flake .#kanagawa \
+		--option extra-substituters "https://devenv.cachix.org https://themakunga.cachix.org" \
+		--option extra-trusted-public-keys "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw= themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0="
 	sudo nix-env -p /nix/var/nix/profiles/system --set ./result
 	sudo ./result/sw/bin/darwin-rebuild activate
 

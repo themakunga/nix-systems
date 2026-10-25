@@ -46,6 +46,7 @@ in {
           efm-langserver
           yaml-language-server
           actionlint
+          gitlab-ci-ls
           nodejs_24
           python3
         ]
