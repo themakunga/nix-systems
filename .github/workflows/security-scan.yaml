@@ -62,7 +62,7 @@ jobs:
     steps:
       - name: Create or update security issue on failure
         if: contains(needs.*.result, 'failure')
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const title = '[security] Vulnerabilities or exposed secrets detected';
@@ -111,7 +111,7 @@ jobs:
             }
       - name: Close security issue if all checks pass
         if: "!contains(needs.*.result, 'failure')"
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const title = '[security] Vulnerabilities or exposed secrets detected';
