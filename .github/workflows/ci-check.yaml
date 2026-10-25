@@ -61,7 +61,7 @@ jobs:
             extra-platforms = aarch64-linux
             extra-substituters = https://themakunga.cachix.org
             extra-trusted-public-keys = themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0=
-      - uses: cachix/cachix-action@v15
+      - uses: cachix/cachix-action@v17
         with:
           name: themakunga
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
@@ -114,7 +114,7 @@ jobs:
             extra-platforms = aarch64-linux
             extra-substituters = https://themakunga.cachix.org
             extra-trusted-public-keys = themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0=
-      - uses: cachix/cachix-action@v15
+      - uses: cachix/cachix-action@v17
         with:
           name: themakunga
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
