@@ -55,6 +55,9 @@ jobs:
             apt-get install -q -y curl xz-utils git openssh-client
 
             # Nix (single-user — sin systemd daemon en Docker)
+            # El installer usa sudo para crear /nix pero sudo no existe en la imagen base;
+            # pre-crearlo como root evita el fallo.
+            mkdir -m 0755 /nix
             curl -L https://nixos.org/nix/install | sh -s -- --no-daemon
             . /root/.nix-profile/etc/profile.d/nix.sh
 
