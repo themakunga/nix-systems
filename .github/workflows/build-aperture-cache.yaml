@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - uses: uraimo/run-on-arch-action@v2
+      - uses: uraimo/run-on-arch-action@v3
         name: Build aperture-science on aarch64 and push to Cachix
         with:
           arch: aarch64
