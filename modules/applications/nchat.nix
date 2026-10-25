@@ -9,7 +9,9 @@ in {
   flake.applicationModules.nchat = mkAppModule "nchat" "Enable nchat terminal messaging client" {
     meta = {pkgs, ...}: {
       level = "system";
-      packages = [pkgs.nchat];
+      packages = [
+        (pkgs.callPackage "${self}/packages/nchat/package.nix" {})
+      ];
     };
   };
 }

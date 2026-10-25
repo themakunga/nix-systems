@@ -48,7 +48,9 @@ in {
                 then plainItem.path
                 else "${plainItem.path}/${relFile}";
             in ''
-              mkdir -p "$(dirname "${actualDest}")"
+              _dest_parent="$(dirname "${actualDest}")"
+              { [ -L "$_dest_parent" ] || [ -f "$_dest_parent" ]; } && rm -f "$_dest_parent"
+              mkdir -p "$_dest_parent"
               cp -f "${actualSource}" "${actualDest}"
               chown ${plainItem.owner}${
                 if plainItem.group != null

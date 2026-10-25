@@ -1,0 +1,103 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: build-aperture-cache.yaml
+# Path: ./.github/workflows/build-aperture-cache.yaml
+# Description: Build nativo aarch64 de aperture-science en GitHub Actions usando
+#              uraimo/run-on-arch-action. Empuja el closure a Cachix para acelerar
+#              deploys desde el Pi y desde otros runners.
+# =====================
+name: Build & Cache aperture-science
+on:
+  push:
+    branches: [main]
+    paths:
+      - flake.nix
+      - flake.lock
+      - modules/hosts/linux/raspberry-pi/aperture-science*.nix
+      - modules/modules/rpi/**
+      - modules/modules/nixos/**
+      - modules/modules/common/**
+      - modules/profiles/**
+      - modules/applications/**
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    name: aarch64 native build → Cachix
+    runs-on: ubuntu-latest
+    # linux-rpi kernel compila from scratch cuando cambia la versión de nixpkgs.
+    # 180 min es el margen seguro para un build completo sin cache.
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: uraimo/run-on-arch-action@v3
+        name: Build aperture-science on aarch64 and push to Cachix
+        with:
+          arch: aarch64
+          distro: ubuntu22.04
+          githubToken: ${{ github.token }}
+          # Los env vars solo están disponibles en `run`, no en `install`.
+          # No exponer secrets en `install` (Docker build layer).
+          env: |
+            CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
+            SSH_PRIVATE_KEY_B64: ${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}
+            GH_ACCESS_TOKEN: ${{ secrets.GH_TOKEN_SECRETS }}
+          # install: prepara la imagen base (sin secrets, sin env vars de arriba).
+          install: |
+            apt-get update -q -y
+            apt-get install -q -y curl xz-utils git openssh-client
+
+            # Nix (single-user — sin systemd daemon en Docker)
+            curl -L https://nixos.org/nix/install | sh -s -- --no-daemon
+            . /root/.nix-profile/etc/profile.d/nix.sh
+
+            # Cachix CLI — habilita flakes via flag para no depender de nix.conf aún
+            nix --extra-experimental-features "nix-command flakes" \
+              profile install nixpkgs#cachix
+          # run: tiene acceso al workspace y a los env vars de arriba.
+          run: |
+            . /root/.nix-profile/etc/profile.d/nix.sh
+            cd "$GITHUB_WORKSPACE"
+
+            # Nix config permanente — sustituye la instalación mínima del install
+            mkdir -p /root/.config/nix
+            cat > /root/.config/nix/nix.conf <<EOF
+            experimental-features = nix-command flakes
+            extra-substituters = https://cache.nixos.org https://themakunga.cachix.org
+            extra-trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0=
+            access-tokens = github.com=${GH_ACCESS_TOKEN}
+            EOF
+
+            # SSH para flake inputs privados
+            mkdir -p /root/.ssh
+            printf '%s' "$SSH_PRIVATE_KEY_B64" | base64 -d > /root/.ssh/id_rsa
+            chmod 600 /root/.ssh/id_rsa
+            ssh-keyscan github.com >> /root/.ssh/known_hosts 2>/dev/null
+
+            # Cachix auth
+            cachix authtoken "$CACHIX_AUTH_TOKEN"
+            cachix use themakunga
+
+            # Build — nix descarga desde Cachix lo que ya está cacheado
+            echo "=> Architecture: $(uname -m)"
+            echo "=> Building aperture-science..."
+            nix build .#nixosConfigurations.aperture-science.config.system.build.toplevel \
+              --no-link \
+              --print-out-paths \
+              2>&1 | tee build.log
+
+            SYSTEM=$(grep "^/nix/store" build.log | tail -1)
+            echo "=> System path: $SYSTEM"
+
+            # Push del closure completo a Cachix
+            echo "=> Pushing closure to Cachix..."
+            nix-store -qR "$SYSTEM" | tee /tmp/closure.txt | wc -l | xargs -I{} echo "=> {} paths to push"
+            cachix push themakunga < /tmp/closure.txt
+            echo "=> Done."

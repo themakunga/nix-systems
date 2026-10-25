@@ -64,6 +64,14 @@
       '';
     };
     extras = {
+      lib,
+      pkgs,
+      ...
+    }: {
+      # pinentry-mac como "pinentry" en PATH para el GPG agent SSH support
+      environment.systemPackages = [
+        (pkgs.writeShellScriptBin "pinentry" ''exec ${pkgs.pinentry_mac}/bin/pinentry-mac "$@"'')
+      ];
       nix = {
         enable = true;
         # Gestión automática de espacio en el Nix store (macOS / nix-darwin)
@@ -90,6 +98,16 @@
         KeyRepeat = 1;
         _HIHideMenuBar = true;
       };
+
+      # GitHub token para que nix daemon use API autenticada (5000 req/h vs 60).
+      # /etc/nix/nix.conf es un symlink al store — no se edita en activación.
+      # builtins.readFile lo bake en el nix.conf que genera nix-darwin en eval-time.
+      # ponytail: token en nix store (world-readable), ok en máquina personal.
+      #           Migrar a sops si hay multi-usuario o si el token es de alto privilegio.
+      nix.settings.access-tokens =
+        lib.optional
+        (builtins.pathExists /etc/nix/github-token)
+        "github.com=${lib.fileContents /etc/nix/github-token}";
     };
   };
 }

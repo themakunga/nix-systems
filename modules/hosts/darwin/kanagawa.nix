@@ -28,21 +28,26 @@ in {
       ]
       ++ (mkBundle (extendBundle bundles.darwin.base {
         darwinModules = ["tiling"];
-        applicationModules = ["google-cloud.gcloud"];
+        applicationModules = ["google-cloud.gcloud" "hermes" "nlm"];
         developmentModules = ["ios-terminal"];
         userModules = ["personal"];
-        profileModules = ["personal" "bbook" "company"];
+        profileModules = ["personal" "bbook" "company" "terminal-tools"];
       }))
       ++ [
-        ({pkgs, ...}: {
+        {
           system.defaults.dock.persistent-apps = [
             "/Applications/WezTerm.app"
             "/Applications/Typora.app"
             "/Applications/Zen.app"
           ];
           my = {
+            apps = {
+              glados-tts.enable = true;
+              hermes.enable = true;
+              nlm.enable = true;
+            };
             services.tiling.enable = true;
-            packages = [pkgs.claude-code];
+            packages = [];
             hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
 
             wallpaper = {
@@ -60,7 +65,21 @@ in {
               ios-terminal.enable = true;
             };
           };
-        })
+
+          programs.git-identity.workspaces.personal = {
+            directory = "~/Projects/Personal";
+            realName = "Nicolas Villarroel Martinez";
+            email = "nmartinezv@icloud.com";
+            gpg = {
+              enable = true;
+              keyId = "/run/secrets/profiles/personal/gpg/key_id";
+            };
+            ssh = {
+              enable = true;
+              privateKey = "/run/secrets/profiles/personal/ssh/private_key";
+            };
+          };
+        }
       ];
   };
 }

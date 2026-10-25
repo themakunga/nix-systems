@@ -3,38 +3,38 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-# Tiling window manager module for macOS using yabai (BSP layout) and skhd.
+# Tiling window manager module for macOS using AeroSpace.
+# AeroSpace manages subsequent startups via start-at-login in aerospace.toml.
 {
   flake.darwinModules.tiling = {
     config,
     lib,
+    pkgs,
     ...
-  }: {
+  }: let
+    user = config.system.primaryUser;
+    userHome = "/Users/${user}";
+  in {
     options.my.services.tiling.enable = lib.mkEnableOption "Tiling window manager";
     config = lib.mkIf config.my.services.tiling.enable {
       my.dotfiles = {
         enable = true;
         packages = [
           {
-            name = "yabai";
-            isConfig = true;
-          }
-          {
-            name = "skhd";
-            isConfig = true;
+            name = "aerospace";
           }
         ];
       };
-      services = {
-        yabai = {
-          enable = true;
-          enableScriptingAddition = false;
-          extraConfig = ''
-            . "$HOME/.config/yabai/yabairc"
-          '';
-        };
-        skhd.enable = true;
-      };
+      environment.systemPackages = [pkgs.aerospace];
+
+      system.activationScripts.postActivation.text = lib.mkAfter ''
+        # Remove the path created by the old nested Stow target.
+        [ -L "${userHome}/.config/aerospace/.config" ] && rm -f "${userHome}/.config/aerospace/.config"
+
+        if ! pgrep -xq AeroSpace; then
+          sudo -H -u ${user} /usr/bin/open -a AeroSpace
+        fi
+      '';
     };
   };
 }

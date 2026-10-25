@@ -46,6 +46,10 @@ in {
           isConfig = true;
         }
         {
+          name = "htop";
+          isConfig = true;
+        }
+        {
           name = "fastfetch";
           isConfig = true;
         }

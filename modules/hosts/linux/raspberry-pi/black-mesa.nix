@@ -35,6 +35,8 @@ in {
       ++ (mkBundle {
         commonModules = [
           "dotfiles"
+          "agent-wiki"
+          "claude-hooks"
           "apps"
           "arch.nixos.rpi"
           "settings"

@@ -13,7 +13,6 @@ in {
   }: {
     imports = [
       commonModules.shared-secrets
-      commonModules.shared-plain
       commonModules.secret-dotfiles
       commonModules.home-secrets
     ];

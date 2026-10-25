@@ -27,7 +27,7 @@ in {
       ]
       ++ (mkBundle (extendBundle bundles.nixos.base {
         nixosModules = ["disko-x86" "nix-anywhere"];
-        applicationModules = ["podman" "container-stack" "samba-share" "traefik"];
+        applicationModules = ["podman" "docker-host" "samba-share"];
         userModules = ["nicolas-server"];
         profileModules = ["nicolas-server"];
       }))
@@ -52,18 +52,18 @@ in {
 
             apps = {
               podman.enable = true;
-              container-stack.enable = true;
-              traefik.enable = true;
+              docker-host.enable = true;
               samba-share.enable = true;
             };
 
             services = {
-              container-stack.portainer.enable = true;
-              samba-share.user = "admin";
-              traefik = {
-                acmeEmail = "tu_correo@ejemplo.com";
-                useCloudflare = true;
+              docker-host = {
+                # Un túnel por entrada; agregar más con un tokenSecret distinto en .secrets
+                tunnels.primary.tokenSecret = "cloudflare-tunnel-token";
+                # Proyectos: path estático en nix-systems. Traefik los descubre via labels.
+                projects.demo = "${self}/modules/applications/docker-host/demo";
               };
+              samba-share.user = "admin";
             };
           };
         }

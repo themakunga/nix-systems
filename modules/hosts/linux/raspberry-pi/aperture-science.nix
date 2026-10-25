@@ -37,6 +37,8 @@ in {
       ++ (mkBundle {
         commonModules = [
           "dotfiles"
+          "agent-wiki"
+          "claude-hooks"
           "apps"
           "arch.nixos.rpi"
           "authorized-keys"
@@ -82,6 +84,7 @@ in {
         ({
           pkgs,
           lib,
+          config,
           ...
         }: {
           # Declaramos primaryUser localmente para satisfacer al módulo nix-anywhere
@@ -95,34 +98,67 @@ in {
               primaryUser.username = "nicolas";
               dotfiles = {
                 enable = true;
-                # wheatley es el usuario autologin de Hyprland en aperture-science.
-                # Su home está en /opt/wheatley (convención kiosk/service del host).
+                # wheatley: usuario autologin de Hyprland.
+                # Home en /opt/wheatley (convención kiosk/service).
                 user = "wheatley";
                 home = "/opt/wheatley";
                 packages = [
                   {
                     name = "hypr";
                     isConfig = true;
-                  } # /opt/wheatley/.config/hypr/ — Hyprland config con TokyoNight Storm
-                  {
-                    name = "bash";
-                  } # /opt/wheatley/.bashrc — bash con oh-my-posh + fastfetch + aliases
+                  } # ~/.config/hypr/ — Hyprland TokyoNight Storm
+                  {name = "bash";} # ~/.bashrc — oh-my-posh + fastfetch + aliases
                   {
                     name = "fastfetch";
                     isConfig = true;
-                  } # /opt/wheatley/.config/fastfetch/ — incluye logo Aperture Laboratories
+                  } # ~/.config/fastfetch/ — logo Aperture
                   {
                     name = "ohmyposh";
                     isConfig = true;
-                  } # /opt/wheatley/.config/ohmyposh/config.yaml — prompt compartido bash/zsh
+                  } # ~/.config/ohmyposh/config.yaml
                   {
                     name = "wofi";
                     isConfig = true;
-                  } # /opt/wheatley/.config/wofi/ — lanzador Wayland con tema TokyoNight Storm
+                  } # ~/.config/wofi/
                   {
                     name = "waybar";
                     isConfig = true;
-                  } # /opt/wheatley/.config/waybar/ — barra de estado con módulo zeroclaw
+                  } # ~/.config/waybar/
+                ];
+                # nicolas: administrador con escritorio Hyprland independiente.
+                # Recibe tooling dev + config de terminal y editor.
+                additionalUsers = [
+                  {
+                    user = "nicolas";
+                    home = "/home/nicolas";
+                    packages = [
+                      {
+                        name = "nvim";
+                        isConfig = true;
+                      } # ~/.config/nvim/
+                      {name = "wezterm";} # ~/.wezterm.lua
+                      {name = "bash";} # ~/.bashrc
+                      {name = "git";} # ~/.gitconfig
+                      {
+                        name = "fastfetch";
+                        isConfig = true;
+                      } # ~/.config/fastfetch/
+                      {
+                        name = "ohmyposh";
+                        isConfig = true;
+                      } # ~/.config/ohmyposh/
+                      {name = "tmux";} # ~/.tmux.conf
+                      {name = "zoxide";} # ~/.config/zoxide/
+                      {
+                        name = "bat";
+                        isConfig = true;
+                      } # ~/.config/bat/
+                      {
+                        name = "yazi";
+                        isConfig = true;
+                      } # ~/.config/yazi/
+                    ];
+                  }
                 ];
               };
               wallpaper = {
@@ -139,8 +175,23 @@ in {
               };
               nix-anywhere.enable = true;
 
-              # Si ya configuraste sops para este host, descomenta la siguiente línea:
-              # hostSecrets.file = "${secrets.outPath}/hosts/aperture-science.yaml";
+              # SOPS: hosts/aperture-science.yaml contiene wheatley/password (SHA-512).
+              hostSecrets.file = "${inputs.secrets.outPath}/hosts/aperture-science.yaml";
+              hostSecrets.userSecrets = {
+                "wheatley-password" = {
+                  key = "wheatley/password";
+                  owner = "root"; # hashedPasswordFile debe ser legible por systemd-userdbd
+                  neededForUsers = true;
+                };
+                "runner/token" = {
+                  key = "runner/token";
+                  owner = "nicolas";
+                };
+              };
+
+              # Contraseña de wheatley vía SOPS — necesaria para login con tuigreet.
+              # Override del null default del userModule.
+              userProfiles.wheatley.hashedPasswordFile = config.sops.secrets."wheatley-password".path;
 
               base-machine = {
                 enable = true;
@@ -152,19 +203,24 @@ in {
                 wechat.enable = true;
                 hermes.enable = true; # Hermes AI Agent — solo en aperture-science
                 remote-touchpad.enable = true; # iPad como teclado/touchpad — solo en aperture-science
+                wezterm.enable = true; # Terminal principal con config TokyoNight Storm
+                neovim.enable = true; # Editor con LSP, treesitter, toolchain completo
               };
 
               # Ollama: servidor LLM local (CPU-only en RPi5, 8GB RAM)
               # API REST en :11434 — accesible por Tailscale y red local
               ollama.enable = true;
 
-              # Escritorio Wayland liviano: Hyprland con autologin como wheatley
+              # Escritorio Wayland: Hyprland multi-usuario con tuigreet.
+              # NOTA: multiUser requiere contraseña en wheatley vía SOPS.
+              # Mientras no esté el secrets file, dejar multiUser = false (autologin).
               hyprland-desktop = {
                 enable = true;
                 user = "wheatley";
                 # Los dotfiles (paquete "hypr") proveen ~/.config/hypr/hyprland.conf
                 # vía stow. El módulo gestiona waybar y foot, pero NO hyprland.conf.
                 manageConfig = false;
+                multiUser = true; # tuigreet — wheatley y nicolas se autentican con contraseña
                 vnc = {
                   enable = true;
                   # Escucha en todas las interfaces: accesible desde red local y Tailscale.
@@ -204,6 +260,7 @@ in {
               nodejs_22 # Node.js 22 LTS — tooling JS/TS
               go # Go — servicios, CLIs, infraestructura
               terraform # Terraform — IaC para homelab
+              cachix # Nix binary cache CLI — push builds a themakunga.cachix.org
             ];
 
             users.users = {
@@ -222,19 +279,35 @@ in {
                 # session bus que zeroclaw necesita para arrancar.
                 linger = true;
               };
-              # wheatley necesita el grupo uinput para escribir en /dev/uinput
-              # (regla udev creada por hardware.uinput.enable en remote-touchpad.nix)
               wheatley.extraGroups = ["uinput"];
             };
 
-            # mDNS: Avahi permite resolver aperture-science.local en la red local.
-            services.avahi = {
-              enable = true;
-              nssmdns4 = true; # resolución .local vía NSS
-              publish = {
+            services = {
+              # mDNS: Avahi permite resolver aperture-science.local en la red local.
+              avahi = {
                 enable = true;
-                addresses = true; # anuncia IP en la red
-                domain = true;
+                nssmdns4 = true; # resolución .local vía NSS
+                publish = {
+                  enable = true;
+                  addresses = true; # anuncia IP en la red
+                  domain = true;
+                };
+              };
+
+              tailscale.extraUpFlags = ["--accept-dns=false"];
+
+              # GitHub Actions self-hosted runner — build nativo aarch64 + push a Cachix.
+              # Token de registro en secrets/hosts/aperture-science.yaml → runner/token.
+              # El runner corre como usuario nicolas; cachix usa CACHIX_AUTH_TOKEN inyectado
+              # por el workflow desde los GitHub Secrets del repo.
+              github-runners.aperture-science = {
+                enable = true;
+                name = "aperture-science";
+                url = "https://github.com/themakunga/nix-systems";
+                tokenFile = config.sops.secrets."runner/token".path;
+                user = "nicolas";
+                extraLabels = ["aarch64-linux" "aperture-science"];
+                extraPackages = [pkgs.cachix pkgs.git];
               };
             };
 
@@ -276,35 +349,42 @@ in {
               };
             };
 
-            # ── GLaDOS agent dotfiles: stow agent/ → /opt/glados/.zeroclaw/ ──
-            # Clona public-dotfiles y aplica stow de la carpeta 'agent' al directorio
-            # de configuración de zeroclaw (~/.zeroclaw/ para el usuario glados).
+            # ── GLaDOS: clonar agent-wiki (vault) + stow scripts de agent/ ──
+            # agent-wiki es la fuente única de conocimiento (SOUL.md, IDENTITY.md, etc.)
+            # Los scripts bash (glados-say, glados-tts-setup) siguen en public-dotfiles/agent/.
             system.activationScripts."glados-agent-dotfiles" = {
               text = ''
                 DOTFILES_DIR="/opt/glados/.public-dotfiles"
-                REPO_URL="https://github.com/themakunga/public-dotfiles.git"
+                WIKI_DIR="/opt/glados/agent-wiki"
                 ZEROCLAW_DIR="/opt/glados/.zeroclaw"
 
-                echo "=> Sincronizando configuración del agente para GLaDOS..."
+                echo "=> Sincronizando agent-wiki y configuración de GLaDOS..."
 
-                mkdir -p "$ZEROCLAW_DIR"
-                chown glados:glados "$ZEROCLAW_DIR" 2>/dev/null || true
-
+                # 1. Clonar/actualizar public-dotfiles (para scripts bash de agent/)
                 if [ ! -d "$DOTFILES_DIR/.git" ]; then
-                  echo "Clonando public-dotfiles para glados..."
                   /run/wrappers/bin/sudo -H -u glados env HOME=/opt/glados \
-                    ${pkgs.git}/bin/git clone "$REPO_URL" "$DOTFILES_DIR" || true
+                    ${pkgs.git}/bin/git clone "https://github.com/themakunga/public-dotfiles.git" "$DOTFILES_DIR" 2>/dev/null || true
                 else
                   /run/wrappers/bin/sudo -H -u glados env HOME=/opt/glados \
                     ${pkgs.git}/bin/git -C "$DOTFILES_DIR" pull origin main 2>/dev/null || true
                 fi
 
+                # 2. Clonar/actualizar agent-wiki (vault — fuente de SOUL.md y demás)
+                if [ ! -d "$WIKI_DIR/.git" ]; then
+                  echo "Clonando agent-wiki para glados..."
+                  /run/wrappers/bin/sudo -H -u glados env HOME=/opt/glados \
+                    ${pkgs.git}/bin/git clone "git@github.com:themakunga/agent-wiki.git" "$WIKI_DIR" 2>/dev/null || true
+                else
+                  /run/wrappers/bin/sudo -H -u glados env HOME=/opt/glados \
+                    ${pkgs.git}/bin/git -C "$WIKI_DIR" pull origin main 2>/dev/null || true
+                fi
+
+                # 3. Stow scripts bash de agent/ → ~/.zeroclaw/
+                mkdir -p "$ZEROCLAW_DIR"
+                chown glados:glados "$ZEROCLAW_DIR" 2>/dev/null || true
                 if [ -d "$DOTFILES_DIR/agent" ]; then
-                  echo "Desplegando configuración agent/ → $ZEROCLAW_DIR..."
                   /run/wrappers/bin/sudo -H -u glados env HOME=/opt/glados \
                     ${pkgs.stow}/bin/stow -t "$ZEROCLAW_DIR" -d "$DOTFILES_DIR" --adopt agent
-                else
-                  echo "Advertencia: carpeta 'agent' no encontrada en $DOTFILES_DIR"
                 fi
               '';
             };
@@ -329,8 +409,6 @@ in {
               };
               defaultGateway = "192.168.4.1";
             };
-            services.tailscale.extraUpFlags = ["--accept-dns=false"];
-
             # wheel sin contraseña — necesario para nixos-rebuild remoto
             security.sudo.wheelNeedsPassword = false;
 

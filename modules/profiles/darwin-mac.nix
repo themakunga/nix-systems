@@ -45,14 +45,18 @@ _: {
         tailscale-core.enable = true;
         tailscale-gui.enable = true;
         neovim.enable = true;
+        obsidian.enable = true;
         terminal-zsh.enable = true;
         gcloud.enable = true;
         ghostty.enable = true;
         wezterm.enable = true;
         halloy.enable = true;
+        beeptui.enable = true;
         irssi.enable = true;
+        weechat.enable = true;
         nchat.enable = true;
         wechat.enable = true;
+        cspell.enable = true;
       };
 
       tools.devenv.enable = true;

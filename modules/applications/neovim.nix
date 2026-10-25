@@ -37,12 +37,16 @@ in {
           gh
           pandoc
           texliveSmall
+          imagemagick # snacks.image: convert/magick para rendering
+          ghostscript # snacks.image: gs para PDFs
           lua-language-server
           stylua
           nixd
           alejandra
           efm-langserver
           yaml-language-server
+          actionlint
+          gitlab-ci-ls
           nodejs_24
           python3
         ]

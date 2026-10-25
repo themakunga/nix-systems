@@ -10,6 +10,9 @@
     base = {
       commonModules = [
         "dotfiles"
+        "agent-wiki"
+        "claude-hooks"
+        "shared-plain"
         "apps"
         "arch.darwin.silicon"
         "host-secrets"
@@ -27,6 +30,7 @@
 
       darwinModules = [
         "extras"
+        "locale"
         "dock"
         "finder"
         "mail"
@@ -35,22 +39,30 @@
         "primaryUser"
         "security"
         "janitor"
+        "agent-wiki-sync"
       ];
 
       applicationModules = [
         "glados-tts"
         "bat"
+        "qmk"
         "glow"
         "yazi"
         "zoxide"
         "github-cli"
         "ghostty"
         "halloy"
+        "nchat"
+        "beeptui"
+        "weechat"
         "neovim"
+        "obsidian"
         "openconnect"
         "tailscale.core"
         "tailscale.gui"
         "terminal-zsh"
+        "newsboat"
+        "token-counter"
         "wezterm"
       ];
 

@@ -26,8 +26,8 @@
     my = {
       packages = with pkgs; [
         lynx
-        unstable.nchat
         btop
+        htop
         ctop
         glab
         unstable.typescript # tsc LSP (TypeScript 7 Go rewrite) requires TS 7 on PATH
@@ -57,22 +57,8 @@
         ];
       };
 
-      git-identity = {
-        enable = true;
-        workspaces.personal = {
-          directory = "~/Projects/personal/**";
-          realName = "Nicolas Villarroel Martinez.";
-          email = "nmartinezv@icloud.com";
-          gpg = {
-            enable = true;
-            keyId = config.sops.secrets."profiles/personal/gpg/key_id".path;
-          };
-          ssh = {
-            enable = true;
-            privateKey = config.sops.secrets."profiles/personal/ssh/private_key".path;
-          };
-        };
-      };
+      # workspaces declarados en el archivo de identidades del host
+      git-identity.enable = true;
     };
   };
 }

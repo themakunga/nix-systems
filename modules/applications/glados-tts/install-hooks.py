@@ -1,4 +1,4 @@
-"""Merge the shared Stop hook without replacing other agent settings."""
+"""Merge short status speech hooks without replacing other agent settings."""
 
 import json
 from pathlib import Path
@@ -17,15 +17,16 @@ def install(home, bin_dir):
     for name in (".codex/hooks.json", ".claude/settings.json"):
         path = (home / name).resolve()
         data = json.loads(path.read_text()) if path.exists() else {}
-        groups = data.setdefault("hooks", {}).setdefault("Stop", [])
-        if not any(
-            hook.get("command") == COMMAND
-            for group in groups
-            for hook in group.get("hooks", [])
-        ):
-            groups.append(
-                {"hooks": [{"type": "command", "command": COMMAND, "async": True}]}
-            )
+        events = ["UserPromptSubmit", "PreToolUse", "PermissionRequest", "Stop"]
+        if name == ".claude/settings.json":
+            events.append("Notification")
+        for event in events:
+            groups = data.setdefault("hooks", {}).setdefault(event, [])
+            if not any(hook.get("command") == COMMAND for group in groups for hook in group.get("hooks", [])):
+                group = {"hooks": [{"type": "command", "command": COMMAND, "async": True, "timeout": 300}]}
+                if event == "Notification":
+                    group["matcher"] = "permission_prompt|elicitation_dialog"
+                groups.append(group)
         configs.append((path, json.dumps(data, indent=2, ensure_ascii=False) + "\n"))
     local_bin = home / ".local/bin"
     local_bin.mkdir(parents=True, exist_ok=True)

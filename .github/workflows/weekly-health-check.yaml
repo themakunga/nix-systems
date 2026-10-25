@@ -1,0 +1,208 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: weekly-health-check.yaml
+# Path: ./.github/workflows/weekly-health-check.yaml
+# Description: Revisión semanal de salud — versiones de GitHub Actions y flake inputs.
+#              Abre un issue si algo está desactualizado; lo cierra si todo está al día.
+# =====================
+name: Weekly Pipeline Health Check
+on:
+  schedule:
+    - cron: 0 6 * * 1
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  # ── 1. Versiones de GitHub Actions ───────────────────────────────────────
+  check-actions:
+    name: Action versions
+    runs-on: ubuntu-latest
+    outputs:
+      has_outdated: ${{ steps.check.outputs.has_outdated }}
+      report: ${{ steps.check.outputs.report }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare action versions against latest releases
+        id: check
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('fs');
+
+            const workflowDir = '.github/workflows';
+            const files = fs.readdirSync(workflowDir)
+              .filter(f => f.endsWith('.yaml') || f.endsWith('.yml'));
+
+            // Collect unique action@version references
+            const seen = new Map();
+            for (const file of files) {
+              const content = fs.readFileSync(`${workflowDir}/${file}`, 'utf8');
+              for (const [, action, version] of content.matchAll(
+                /uses:\s+([a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+)@([^\s#\n]+)/g
+              )) {
+                if (!action.startsWith('./') && !seen.has(action)) {
+                  seen.set(action, { version, file });
+                }
+              }
+            }
+
+            // Compare major versions against latest GitHub release
+            const outdated = [];
+            for (const [action, { version, file }] of seen) {
+              const [owner, repo] = action.split('/');
+              try {
+                const { data } = await github.rest.repos.listReleases({ owner, repo, per_page: 1 });
+                if (!data.length) continue;
+                const latest = data[0].tag_name;
+                const curMajor  = parseInt(version.replace(/^v/, '').split('.')[0]);
+                const lastMajor = parseInt(latest.replace(/^v/, '').split('.')[0]);
+                if (!isNaN(curMajor) && !isNaN(lastMajor) && lastMajor > curMajor) {
+                  outdated.push(`- \`${action}\`: **${version}** → ${latest}  _(${file})_`);
+                }
+              } catch (_) { /* action may not have releases */ }
+            }
+
+            const hasOutdated = outdated.length > 0;
+            core.setOutput('has_outdated', String(hasOutdated));
+            core.setOutput('report', outdated.join('\n'));
+            if (hasOutdated) core.warning(`Outdated actions:\n${outdated.join('\n')}`);
+            else core.info('All actions are on the latest major version.');
+  # ── 2. Flake inputs ───────────────────────────────────────────────────────
+  check-flake:
+    name: Flake inputs
+    runs-on: ubuntu-latest
+    outputs:
+      has_outdated: ${{ steps.check.outputs.has_outdated }}
+      diff: ${{ steps.check.outputs.diff }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode SSH key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/ssh_key
+          { printf 'DECODED_SSH_KEY<<EOF\n'; cat /tmp/ssh_key; printf '\nEOF\n'; } >> "$GITHUB_ENV"
+          rm /tmp/ssh_key
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ env.DECODED_SSH_KEY }}
+      - uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            extra-substituters = https://themakunga.cachix.org
+            extra-trusted-public-keys = themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0=
+      - name: Run nix flake update and diff
+        id: check
+        run: |
+          nix flake update 2>&1
+          DIFF=$(git diff flake.lock)
+
+          if [ -n "$DIFF" ]; then
+            echo "has_outdated=true" >> "$GITHUB_OUTPUT"
+            DELIM=$(openssl rand -hex 8)
+            {
+              echo "diff<<${DELIM}"
+              echo "$DIFF"
+              echo "${DELIM}"
+            } >> "$GITHUB_OUTPUT"
+            git restore flake.lock
+          else
+            echo "has_outdated=false" >> "$GITHUB_OUTPUT"
+            echo "diff=" >> "$GITHUB_OUTPUT"
+          fi
+  # ── 3. Issue management ───────────────────────────────────────────────────
+  report:
+    name: Open or close issue
+    runs-on: ubuntu-latest
+    needs: [check-actions, check-flake]
+    if: always()
+    steps:
+      - name: Create or update issue on outdated dependencies
+        if: needs.check-actions.outputs.has_outdated == 'true' || needs.check-flake.outputs.has_outdated == 'true'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const title  = '[health] Pipeline dependencies are outdated';
+            const label  = 'maintenance';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const actionsReport = `${{ needs.check-actions.outputs.report }}`;
+            const flakeDiff     = `${{ needs.check-flake.outputs.diff }}`;
+
+            const sections = [
+              '## Pipeline Health — outdated dependencies detected',
+              '',
+              `**Run:** ${runUrl}`,
+              `**Date:** ${new Date().toISOString().slice(0, 10)}`,
+              '',
+            ];
+
+            if ('${{ needs.check-actions.outputs.has_outdated }}' === 'true') {
+              sections.push('### GitHub Actions with newer major versions available', '', actionsReport, '');
+            }
+            if ('${{ needs.check-flake.outputs.has_outdated }}' === 'true') {
+              sections.push('### Nix flake inputs with available updates', '', '```diff', flakeDiff, '```', '');
+            }
+
+            const body = sections.join('\n');
+
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              state: 'open',
+              labels: label,
+            });
+            const existing = issues.data.find(i => i.title === title);
+
+            if (existing) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo:  context.repo.repo,
+                issue_number: existing.number,
+                body: `### Update — ${new Date().toISOString().slice(0, 10)}\n\n${body}`,
+              });
+              core.info(`Updated issue #${existing.number}`);
+            } else {
+              const created = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo:  context.repo.repo,
+                title,
+                body,
+                labels: [label],
+              });
+              core.info(`Created issue #${created.data.number}`);
+            }
+      - name: Close issue if everything is up to date
+        if: needs.check-actions.outputs.has_outdated == 'false' && needs.check-flake.outputs.has_outdated == 'false'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const title = '[health] Pipeline dependencies are outdated';
+            const label = 'maintenance';
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              state: 'open',
+              labels: label,
+            });
+            const existing = issues.data.find(i => i.title === title);
+            if (existing) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo:  context.repo.repo,
+                issue_number: existing.number,
+                body: `✅ All dependencies are up to date as of ${new Date().toISOString().slice(0, 10)}. Closing.`,
+              });
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo:  context.repo.repo,
+                issue_number: existing.number,
+                state: 'closed',
+              });
+              core.info(`Closed issue #${existing.number}`);
+            } else {
+              core.info('Everything is up to date. No open issue to close.');
+            }

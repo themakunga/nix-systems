@@ -479,6 +479,87 @@ true
 
 
 
+## my\.services\.docker-host\.projects
+
+
+
+Proyectos adicionales: nombre → directorio con compose\.yaml\.
+Cada entrada crea /opt/\<name> y un servicio compose-\<name>\.
+Los servicios se autoregistran en Traefik via labels Docker\.
+
+
+
+*Type:*
+attribute set of absolute path
+
+
+
+*Default:*
+
+```nix
+{ }
+```
+
+
+
+*Example:*
+
+```nix
+{ demo = "${self}/modules/applications/docker-host/demo"; }
+
+```
+
+
+
+## my\.services\.docker-host\.tunnels
+
+
+
+Túneles Cloudflare a desplegar\. Cada entrada crea un servicio
+cloudflared-\<name> con su propio token, en main_ingress + cloudflared_wan\.
+
+
+
+*Type:*
+attribute set of (submodule)
+
+
+
+*Default:*
+
+```nix
+{ }
+```
+
+
+
+*Example:*
+
+```nix
+{
+  primary   = { tokenSecret = "cloudflare-tunnel-token"; };
+  secondary = { tokenSecret = "cloudflare-tunnel-token-cdn"; };
+}
+
+```
+
+
+
+## my\.services\.docker-host\.tunnels\.\<name>\.tokenSecret
+
+
+
+Nombre del secreto SOPS que contiene el token del túnel\.
+El valor cifrado debe existir en el sopsFile del host\.
+Ejemplo: “cloudflare-tunnel-token-primary”
+
+
+
+*Type:*
+string
+
+
+
 ## my\.services\.samba-share\.user
 
 

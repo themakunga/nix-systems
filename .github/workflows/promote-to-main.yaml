@@ -1,0 +1,236 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: promote-to-main.yaml
+# Path: ./.github/workflows/promote-to-main.yaml
+# Description: Promueve develop a main creando un PR con el último informe de
+#              seguridad y la lista de commits diferencia. Genera un pre-release
+#              con los instaladores (RPi SD + Linux ISO) desde develop, sin
+#              modificar el CHANGELOG ni re-ejecutar checks.
+#              Solo se ejecuta vía workflow_dispatch.
+# =====================
+name: Promote develop to main
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+  issues: read
+jobs:
+  # ── 0. Preparar: calcular tag, crear PR ──────────────────────────────────
+  prepare:
+    name: Prepare — PR + tag
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: develop
+          token: ${{ github.token }}
+      - name: Setup git identity
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Sync develop with main
+        run: |
+          git merge --no-edit origin/main || {
+            echo "=> Merge conflict — resolve manually before promoting"
+            exit 1
+          }
+          git push origin develop
+      - name: Build PR body, create PR and set tag
+        id: meta
+        env:
+          API_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          TAG="pre-$(date +%Y%m%d%H%M)"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+          # Commits en develop que aún no están en main
+          COMMITS=$(git log origin/main..HEAD --oneline 2>/dev/null || echo "(no new commits)")
+
+          # Último issue de seguridad via API REST
+          SEC_JSON=$(curl -s \
+            -H "Authorization: Bearer ${API_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${REPO}/issues?labels=security&state=all&per_page=1&sort=created&direction=desc")
+          SEC=$(echo "$SEC_JSON" | jq -r \
+            'if length > 0 then .[0] | "Last scan: [#\(.number) — \(.title)](\(.html_url)) (\(.state))" else "No security issues on record." end')
+
+          {
+            printf '## Commit Diff (develop → main)\n```\n%s\n```\n\n' "$COMMITS"
+            printf '## Security Report\n%s\n' "$SEC"
+          } > /tmp/pr_body.md
+
+          echo "=> Tag: ${TAG}"
+          echo "=> PR body:"
+          cat /tmp/pr_body.md
+
+          # Crear PR via API REST
+          BODY_JSON=$(jq -Rs . < /tmp/pr_body.md)
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -X POST \
+            -H "Authorization: Bearer ${API_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${REPO}/pulls" \
+            -d "{\"title\":\"chore: promote develop to main\",\"body\":${BODY_JSON},\"head\":\"develop\",\"base\":\"main\"}")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+          echo "=> HTTP $HTTP_CODE"
+
+          if [ "$HTTP_CODE" = "201" ]; then
+            PR_NUMBER=$(echo "$BODY" | jq -r '.number')
+            PR_URL=$(echo "$BODY" | jq -r '.html_url')
+            echo "=> PR created: #${PR_NUMBER} ${PR_URL}"
+
+            # Asignar a themakunga
+            curl -s -X POST \
+              -H "Authorization: Bearer ${API_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${REPO}/issues/${PR_NUMBER}/assignees" \
+              -d "{\"assignees\":[\"${OWNER}\"]}" \
+              | jq -r '"=> Assigned: " + ([.assignees[].login] | join(", "))'
+          elif [ "$HTTP_CODE" = "422" ]; then
+            # Ya existe
+            EXISTING=$(curl -s \
+              -H "Authorization: Bearer ${API_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${REPO}/pulls?head=${OWNER}:develop&base=main&state=open" \
+              | jq -r '.[0].html_url // "not found"')
+            echo "=> PR already exists: ${EXISTING}"
+          else
+            echo "=> PR creation error:"
+            echo "$BODY" | jq .
+            exit 1
+          fi
+  # ── 1. Build: RPi bootstrap SD image (aarch64) ──────────────────────────
+  build-rpi:
+    name: Pre-release — RPi SD image
+    needs: prepare
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+      - name: Decode SSH key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/ssh_key
+          { printf 'DECODED_SSH_KEY<<EOF\n'; cat /tmp/ssh_key; printf '\nEOF\n'; } >> "$GITHUB_ENV"
+          rm /tmp/ssh_key
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ env.DECODED_SSH_KEY }}
+      - uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            extra-platforms = aarch64-linux
+            extra-substituters = https://cache.nixos.org https://themakunga.cachix.org
+            extra-trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0=
+      - uses: cachix/cachix-action@v17
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Build aperture-bootstrap SD image
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
+        run: |
+          TAG="${{ needs.prepare.outputs.tag }}"
+          echo "=> Building aperture-bootstrap on $(uname -m)..."
+          OUT=$(nix build .#nixosConfigurations.aperture-bootstrap.config.system.build.sdImage \
+            --no-link --print-out-paths 2>&1 | tail -1)
+          mkdir -p output
+          for f in "$OUT"/sd-image/*; do
+            [ -f "$f" ] && cp -L "$f" "output/aperture-bootstrap-${TAG}-$(basename "$f")"
+          done
+          ls -lh output/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pre-rpi-sd-image
+          path: output/*
+          retention-days: 3
+  # ── 2. Build: Linux x86_64 ISO ──────────────────────────────────────────
+  build-linux:
+    name: Pre-release — Linux ISO
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+      - name: Decode SSH key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/ssh_key
+          { printf 'DECODED_SSH_KEY<<EOF\n'; cat /tmp/ssh_key; printf '\nEOF\n'; } >> "$GITHUB_ENV"
+          rm /tmp/ssh_key
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ env.DECODED_SSH_KEY }}
+      - uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            extra-substituters = https://cache.nixos.org https://themakunga.cachix.org
+            extra-trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0=
+      - uses: cachix/cachix-action@v17
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Build linux-bootstrap ISO
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
+        run: |
+          TAG="${{ needs.prepare.outputs.tag }}"
+          echo "=> Building linux-bootstrap on $(uname -m)..."
+          OUT=$(nix build .#nixosConfigurations.linux-bootstrap.config.system.build.isoImage \
+            --no-link --print-out-paths 2>&1 | tail -1)
+          mkdir -p output
+          for f in "$OUT"/iso/*; do
+            [ -f "$f" ] && cp -L "$f" "output/linux-bootstrap-${TAG}-$(basename "$f")"
+          done
+          ls -lh output/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pre-linux-iso
+          path: output/*
+          retention-days: 3
+  # ── 3. Publicar pre-release (sin CHANGELOG) ──────────────────────────────
+  pre-release:
+    name: Publish pre-release ${{ needs.prepare.outputs.tag }}
+    needs: [prepare, build-rpi, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+      - uses: actions/download-artifact@v4
+        with:
+          path: output
+          merge-multiple: true
+      - name: Tag and publish pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ needs.prepare.outputs.tag }}"
+          git tag "$TAG"
+          git push origin "$TAG"
+          gh release create "$TAG" output/* \
+            --title "Pre-release ${TAG} (develop)" \
+            --prerelease \
+            --target develop \
+            --generate-notes
+          echo "=> $(gh release view "$TAG" --json url -q .url)"

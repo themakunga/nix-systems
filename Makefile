@@ -5,10 +5,13 @@
 # --- VARIABLES DE ENTORNO ---
 TARGET_IP ?= 192.168.1.100
 HOST ?= aperture-science
+# IPs fijas de hosts RPi
+APERTURE_IP ?= 192.168.5.85
 # BUILD_HOST=builder@linux-builder para compilar en la VM de outer-heaven.
+# Por defecto vacío → cada switch-* buildea en el propio destino (sin cross-compile).
 BUILD_HOST ?=
 
-.PHONY: all test help install-nix bootstrap-darwin switch-outer-heaven switch-kanagawa switch-motherbase switch-msf switch-steamdeck deploy-aperture switch-aperture deploy-black-mesa switch-black-mesa deploy-valve switch-valve deploy-motherbase build-host build-vm build-sd build-bootstrap build-installer-x86 deploy-x86 check fmt sops-common sops-host update clean shell
+.PHONY: all test help install-nix bootstrap-darwin switch-outer-heaven switch-outer-heaven-fix switch-kanagawa switch-kanagawa-fix switch-motherbase switch-msf switch-steamdeck deploy-aperture switch-aperture deploy-black-mesa switch-black-mesa deploy-valve switch-valve deploy-motherbase build-host build-vm build-sd build-bootstrap build-installer-x86 deploy-x86 check fmt sops-common sops-host update clean shell
 
 all: ## Objetivo por defecto requerido por checkmake
 	@echo "No default 'all' target configured. Please specify a target like 'switch-outer-heaven'."
@@ -41,12 +44,34 @@ bootstrap-darwin: ## Primera instalación de Nix-Darwin en un Mac virgen. Uso: m
 switch-outer-heaven: ## Aplica la configuración en outer-heaven (Mac Principal)
 	@echo "=> Aplicando Nix-Darwin en outer-heaven..."
 	git add -A
-	sudo darwin-rebuild switch --flake .#outer-heaven
+	darwin-rebuild build --flake .#outer-heaven
+	sudo nix-env -p /nix/var/nix/profiles/system --set ./result
+	sudo ./result/sw/bin/darwin-rebuild activate
+
+switch-outer-heaven-fix: ## Bootstrap fix: switch sin nixos-hardware.cachix.org (401)
+	@echo "=> Aplicando Nix-Darwin en outer-heaven (override substituters)..."
+	git add -A
+	darwin-rebuild build --flake .#outer-heaven \
+		--option extra-substituters "https://devenv.cachix.org https://themakunga.cachix.org" \
+		--option extra-trusted-public-keys "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw= themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0="
+	sudo nix-env -p /nix/var/nix/profiles/system --set ./result
+	sudo ./result/sw/bin/darwin-rebuild activate
 
 switch-kanagawa: ## Aplica la configuración en kanagawa
 	@echo "=> Aplicando Nix-Darwin en kanagawa..."
 	git add -A
-	sudo darwin-rebuild switch --flake .#kanagawa
+	darwin-rebuild build --flake .#kanagawa
+	sudo nix-env -p /nix/var/nix/profiles/system --set ./result
+	sudo ./result/sw/bin/darwin-rebuild activate
+
+switch-kanagawa-fix: ## Bootstrap fix: switch sin nixos-hardware.cachix.org (401)
+	@echo "=> Aplicando Nix-Darwin en kanagawa (override substituters)..."
+	git add -A
+	darwin-rebuild build --flake .#kanagawa \
+		--option extra-substituters "https://devenv.cachix.org https://themakunga.cachix.org" \
+		--option extra-trusted-public-keys "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw= themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0="
+	sudo nix-env -p /nix/var/nix/profiles/system --set ./result
+	sudo ./result/sw/bin/darwin-rebuild activate
 
 # =========================================================
 # 🐧 DESPLIEGUES NIXOS LOCALES (X86_64)
@@ -76,18 +101,18 @@ switch-steamdeck: ## Aplica la configuración en steamdeck
 #             Build en el destino por defecto — sin cross-compile.
 #             En outer-heaven: BUILD_HOST=builder@linux-builder para usar la VM.
 
-deploy-aperture: ## [INICIAL] Instala aperture-science vía nixos-anywhere (desde bootstrap SD). Uso: make deploy-aperture TARGET_IP=192.168.x.x
-	@echo "=> Instalación inicial de aperture-science en $(TARGET_IP) (bootstrap → NVMe)..."
+deploy-aperture: ## [INICIAL] Instala aperture-science vía nixos-anywhere (desde bootstrap SD). Uso: make deploy-aperture [TARGET_IP=192.168.x.x]
+	@echo "=> Instalación inicial de aperture-science en $(or $(TARGET_IP),$(APERTURE_IP)) (bootstrap → NVMe)..."
 	git add -A
-	./scripts/deploy.sh $(TARGET_IP) .#aperture-science
+	./scripts/deploy.sh $(or $(TARGET_IP),$(APERTURE_IP)) .#aperture-science
 
-switch-aperture: ## [UPDATE] Actualiza aperture-science en ejecución vía nixos-rebuild. Uso: make switch-aperture TARGET_IP=192.168.x.x
-	@echo "=> Actualizando aperture-science en $(TARGET_IP)..."
+switch-aperture: ## [UPDATE] Actualiza aperture-science — buildea en el propio Pi (sin cross-compile). Uso: make switch-aperture
+	@echo "=> Actualizando aperture-science en $(APERTURE_IP) (build en destino)..."
 	git add -A
 	nix run nixpkgs#nixos-rebuild -- switch \
 	  --flake .#aperture-science \
-	  --target-host root@$(TARGET_IP) \
-	  --build-host $(or $(BUILD_HOST),root@$(TARGET_IP))
+	  --target-host root@$(APERTURE_IP) \
+	  --build-host $(or $(BUILD_HOST),root@$(APERTURE_IP))
 
 build-installer-x86: ## Genera ISO de instalación x86_64 con llaves SSH pre-cargadas. Flashear a USB para bare metal. Uso: make build-installer-x86
 	@echo "=> Generando ISO de instalación x86_64..."
@@ -191,8 +216,12 @@ fmt: ## Fuerza el formateo de todo el código Nix usando Alejandra
 	nix fmt
 
 update: ## Actualiza las dependencias en flake.lock (nixpkgs, home-manager, etc.)
+	git add -A
+	@git diff --cached --quiet || git commit -m "chore: auto - $$(date '+%Y-%m-%d %H:%M:%S') - save changes"
 	@echo "=> Actualizando Flake Inputs..."
 	nix flake update
+	git add flake.lock
+	@git diff --cached --quiet || git commit -m "chore: auto - $$(date '+%Y-%m-%d %H:%M:%S') - update packages"
 
 clean: ## Recolecta basura y optimiza el Nix Store
 	@echo "=> Vaciando papelera de Nix..."

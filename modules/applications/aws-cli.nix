@@ -27,18 +27,25 @@ in {
         then "/Users/${user}"
         else "/home/${user}";
 
-      # Generate AWS credentials file content
-      awsCredentialsContent = builtins.concatStringsSep "\n" (builtins.map (p: ''
-          [${p}]
-          aws_access_key_id = ''${config.sops.placeholder."cloud/aws/${p}/access_key_id"}
-          aws_secret_access_key = ''${config.sops.placeholder."cloud/aws/${p}/secret_access_key"}
-        '')
+      # Credentials: sensible → sops placeholders
+      # Note: use string concatenation to avoid ''${} escaping the interpolation
+      awsCredentialsContent = builtins.concatStringsSep "\n" (builtins.map (
+          p:
+            "[${p.name}]\n"
+            + "aws_access_key_id = "
+            + config.sops.placeholder."aws/credentials/${p.name}/access_key_id"
+            + "\n"
+            + "aws_secret_access_key = "
+            + config.sops.placeholder."aws/credentials/${p.name}/secret_access_key"
+            + "\n"
+        )
         cfg.aws);
 
-      # Generate AWS config file content
+      # Config: region y output no son sensibles → van directo desde Nix
       awsConfigContent = builtins.concatStringsSep "\n" (builtins.map (p: ''
-          [profile ${p}]
-          region = ''${config.sops.placeholder."cloud/aws/${p}/region"}
+          [profile ${p.name}]
+          region = ${p.region}
+          output = ${p.output}
         '')
         cfg.aws);
     in

@@ -1,0 +1,137 @@
+# =========================================================
+# Archivo de Configuración de NixOS / Home Manager
+# Repositorio: TheMakunga Infrastructure
+# Módulo auto-gestionado.
+# =========================================================
+# === DOCUMENTATION ===
+# File: ci-check.yaml
+# Path: ./.github/workflows/ci-check.yaml
+# Description: CI de verificación — lint, evaluación del flake y dry-run de todos los hosts.
+#              Solo se ejecuta en develop. El informe queda en el Job Summary de GitHub Actions.
+# =====================
+name: CI — Check & Dry-run
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+env:
+  PRE_COMMIT_HOME: ${{ github.workspace }}/.pre-commit-cache
+jobs:
+  # ── 1. Lint & format ──────────────────────────────────────────────────────
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - uses: actions/cache@v6
+        with:
+          path: ${{ env.PRE_COMMIT_HOME }}
+          key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: ${{ runner.os }}-pre-commit-
+      - name: Run pre-commit hooks
+        run: nix run nixpkgs#pre-commit -- run --all-files --color=always
+  # ── 2. Evaluación completa del flake (sin build) ─────────────────────────
+  flake-eval:
+    name: Flake Evaluation
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode SSH key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/ssh_key
+          { printf 'DECODED_SSH_KEY<<EOF\n'; cat /tmp/ssh_key; printf '\nEOF\n'; } >> "$GITHUB_ENV"
+          rm /tmp/ssh_key
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ env.DECODED_SSH_KEY }}
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+      - uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            extra-platforms = aarch64-linux
+            extra-substituters = https://themakunga.cachix.org
+            extra-trusted-public-keys = themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0=
+      - uses: cachix/cachix-action@v17
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Evaluate flake (no-build)
+        run: |
+          nix flake check --no-build 2>&1 | tee flake-eval.log
+          {
+            echo "## Flake Evaluation"
+            echo '```'
+            cat flake-eval.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flake-eval-log
+          path: flake-eval.log
+  # ── 3. Dry-run por host ───────────────────────────────────────────────────
+  dry-run:
+    name: Dry-run — ${{ matrix.host }}
+    runs-on: ubuntu-latest
+    needs: flake-eval
+    strategy:
+      fail-fast: false
+      matrix:
+        host:
+          - motherbase
+          - msf
+          - steamdeck
+          - aperture-science
+          - black-mesa
+          - valve
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode SSH key
+        run: |
+          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/ssh_key
+          { printf 'DECODED_SSH_KEY<<EOF\n'; cat /tmp/ssh_key; printf '\nEOF\n'; } >> "$GITHUB_ENV"
+          rm /tmp/ssh_key
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ env.DECODED_SSH_KEY }}
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+      - uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
+          extra_nix_config: |
+            extra-platforms = aarch64-linux
+            extra-substituters = https://themakunga.cachix.org
+            extra-trusted-public-keys = themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0=
+      - uses: cachix/cachix-action@v17
+        with:
+          name: themakunga
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Dry-run ${{ matrix.host }}
+        continue-on-error: true
+        run: |
+          nix build --dry-run \
+            .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel \
+            2>&1 | tee dry-run.log
+          {
+            echo "## Dry-run: ${{ matrix.host }}"
+            echo '```'
+            cat dry-run.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dry-run-${{ matrix.host }}
+          path: dry-run.log

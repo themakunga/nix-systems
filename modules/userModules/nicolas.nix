@@ -9,7 +9,6 @@
 #              Password hash almacenado en SOPS (secrets/users/nicolas.yaml).
 {inputs, ...}: {
   flake.userModules.nicolas = {
-    lib,
     pkgs,
     config,
     ...
@@ -30,23 +29,11 @@
       isSystem = false;
       isAdmin = true; # → grupo wheel (sudo)
       isNetworkManager = false;
-      createHome = false; # sin home directory
+      createHome = true;
       shell = pkgs.bashInteractive;
       extraGroups = ["docker"];
       # Propagar vía userProfiles para no conflictuar con el default null
       hashedPasswordFile = config.sops.secrets."nicolas-password".path;
     };
-
-    # Sin home directory: redirigir a /var/empty (convención UNIX)
-    users.users.nicolas.home = lib.mkForce "/var/empty";
-
-    # Expirar la contraseña inmediatamente para forzar cambio en el primer
-    # login interactivo (consola o SSH con PasswordAuthentication).
-    # El acceso via llave SSH no se ve afectado por esto.
-    system.activationScripts.nicolas-expire-password.text = ''
-      if id nicolas &>/dev/null && [ -f /etc/shadow ]; then
-        chage -d 0 nicolas 2>/dev/null || true
-      fi
-    '';
   };
 }

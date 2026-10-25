@@ -10,6 +10,8 @@ _: {
     base = {
       commonModules = [
         "dotfiles"
+        "agent-wiki"
+        "claude-hooks"
         "arch.nixos.x64"
         "authorized-keys"
         "host-secrets"
@@ -27,7 +29,7 @@ _: {
         "keyboard"
       ];
 
-      applicationModules = ["bat" "yazi" "zoxide" "tailscale.core"];
+      applicationModules = ["bat" "newsboat" "yazi" "zoxide" "tailscale.core"];
 
       profileModules = ["terminal-tools" "nixos-x64"];
     };

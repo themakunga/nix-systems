@@ -27,11 +27,11 @@ in {
         mac-app-util.darwinModules.default
       ]
       ++ (mkBundle (extendBundle bundles.darwin.base {
-        commonModules = ["cloud-profiles"];
+        commonModules = ["cloud-profiles" "secret-dotfiles"];
         darwinModules = ["linux-builder" "tiling"];
-        applicationModules = ["google-cloud.gemini" "ollama"];
+        applicationModules = ["google-cloud.gemini" "jira" "ollama" "cliamp" "tuifeed"];
         userModules = ["work" "glados"];
-        profileModules = ["work" "personal" "latam" "glados" "thoughtworks"];
+        profileModules = ["work" "personal" "latam" "glados" "thoughtworks" "grainger" "company" "outer-heaven-workspaces" "terminal-tools"];
       }))
       ++ [
         ({pkgs, ...}: {
@@ -41,6 +41,7 @@ in {
             "/Applications/Bruno.app"
           ];
           my = {
+            secretDotfiles.enable = true;
             linux-builder.enable = true;
             hostSecrets.file = "${secrets.outPath}/hosts/outer-heaven.yaml";
 
@@ -61,18 +62,44 @@ in {
             packages = with pkgs; [
               terminal-notifier
               claude-code
-              unstable.cliamp
               jdk25
               argo-workflows
               rustc
             ];
 
-            casks = ["tigervnc" "miniconda" "claude-code"];
+            casks = ["tigervnc" "miniconda" "claude-code" "qmk-toolbox"];
+            brews = ["googleworkspace-cli"];
+
+            services.tiling.enable = true;
 
             apps = {
+              jira.enable = true;
+              cliamp.enable = true;
+              tuifeed.enable = true;
               aws-cli.enable = true;
               gemini-cli.enable = true;
+              glados-tts.enable = true;
+              qmk.enable = true;
+              # nlm.enable = true; # disabled — hash mismatch, re-enable when fixed
             };
+
+            cloudProfiles.aws = [
+              {
+                name = "nicolas";
+                region = "us-east-1";
+                output = "yaml";
+              }
+              {
+                name = "default";
+                region = "us-east-1";
+                output = "yaml";
+              }
+              {
+                name = "bbook";
+                region = "us-east-1";
+                output = "yaml";
+              }
+            ];
           };
         })
       ];
