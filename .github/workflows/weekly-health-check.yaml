@@ -26,7 +26,7 @@ jobs:
       has_outdated: ${{ steps.check.outputs.has_outdated }}
       report: ${{ steps.check.outputs.report }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Compare action versions against latest releases
         id: check
         uses: actions/github-script@v9
@@ -80,7 +80,7 @@ jobs:
       has_outdated: ${{ steps.check.outputs.has_outdated }}
       diff: ${{ steps.check.outputs.diff }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Decode SSH key
         run: |
           echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/ssh_key
