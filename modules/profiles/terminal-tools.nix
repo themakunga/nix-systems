@@ -73,7 +73,7 @@
           output-name = "scripts";
         }
       ];
-      packages = [pkgs.unstable.tuxedo gws-tui pkgs.cmatrix pkgs.cbonsai pkgs.pipes pkgs.nyancat];
+      packages = [pkgs.unstable.tuxedo gws-tui pkgs.cmatrix pkgs.cbonsai pkgs.pipes pkgs.nyancat pkgs.uv];
       apps = {
         bat.enable = true;
         newsboat.enable = true;

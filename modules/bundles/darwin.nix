@@ -82,6 +82,7 @@
         "groovy"
         "iac"
         "java"
+        "lua"
         "nodejs"
         "python"
         "ruby"

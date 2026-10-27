@@ -31,6 +31,8 @@ _: {
 
       applicationModules = ["bat" "newsboat" "yazi" "zoxide" "tailscale.core"];
 
+      developmentModules = ["lua"];
+
       profileModules = ["terminal-tools" "nixos-x64"];
     };
   };

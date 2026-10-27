@@ -124,6 +124,22 @@ in {
                     name = "waybar";
                     isConfig = true;
                   } # ~/.config/waybar/
+                  {name = "wezterm";} # ~/.wezterm.lua
+                  {name = "git";} # ~/.gitconfig
+                  {name = "tmux";} # ~/.tmux.conf
+                  {
+                    name = "nvim";
+                    isConfig = true;
+                  } # ~/.config/nvim/
+                  {
+                    name = "bat";
+                    isConfig = true;
+                  } # ~/.config/bat/
+                  {
+                    name = "yazi";
+                    isConfig = true;
+                  } # ~/.config/yazi/
+                  {name = "zoxide";} # ~/.config/zoxide/
                 ];
                 # nicolas: administrador con escritorio Hyprland independiente.
                 # Recibe tooling dev + config de terminal y editor.
@@ -182,10 +198,6 @@ in {
                   key = "wheatley/password";
                   owner = "root"; # hashedPasswordFile debe ser legible por systemd-userdbd
                   neededForUsers = true;
-                };
-                "runner/token" = {
-                  key = "runner/token";
-                  owner = "nicolas";
                 };
               };
 
@@ -295,20 +307,6 @@ in {
               };
 
               tailscale.extraUpFlags = ["--accept-dns=false"];
-
-              # GitHub Actions self-hosted runner — build nativo aarch64 + push a Cachix.
-              # Token de registro en secrets/hosts/aperture-science.yaml → runner/token.
-              # El runner corre como usuario nicolas; cachix usa CACHIX_AUTH_TOKEN inyectado
-              # por el workflow desde los GitHub Secrets del repo.
-              github-runners.aperture-science = {
-                enable = true;
-                name = "aperture-science";
-                url = "https://github.com/themakunga/nix-systems";
-                tokenFile = config.sops.secrets."runner/token".path;
-                user = "nicolas";
-                extraLabels = ["aarch64-linux" "aperture-science"];
-                extraPackages = [pkgs.cachix pkgs.git];
-              };
             };
 
             # ── ZeroClaw: AI agent gateway ─────────────────────────────────────
