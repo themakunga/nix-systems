@@ -42,7 +42,6 @@ in {
           ];
           my = {
             apps = {
-              glados-tts.enable = true;
               hermes.enable = true;
               nlm.enable = true;
             };
