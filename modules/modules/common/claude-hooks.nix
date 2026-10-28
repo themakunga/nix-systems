@@ -4,9 +4,7 @@
 # Módulo auto-gestionado.
 # =========================================================
 # Módulo: commonModules.claude-hooks
-# Registra el Stop hook de Claude Code en ~/.claude/settings.json
-# para guardar automáticamente un resumen de sesión en el vault.
-# Idempotente: solo escribe si el hook no está ya configurado.
+# Retira el Stop hook obsoleto de journal de Claude Code en ~/.claude/settings.json.
 _: {
   flake.commonModules.claude-hooks = {
     config,
@@ -34,29 +32,23 @@ _: {
       }
 
             if [ -f "$SETTINGS" ]; then
-              echo "=> Configurando Claude Code Stop hook para ${user}..."
               run_as_user ${pkgs.python3}/bin/python3 -c "
-      import json, os, sys
+      import json, os
 
       settings_path = os.environ['HOME'] + '/.claude/settings.json'
-      hook_script   = os.environ['HOME'] + '/.claude/scripts/save-session.py'
-
       with open(settings_path) as f:
-          d = json.load(f)
+          data = json.load(f)
 
-      expected_hook = {
-          'hooks': [{'type': 'command', 'command': f'python3 {hook_script}'}]
-      }
-      stop_hooks = d.setdefault('hooks', {}).setdefault('Stop', [])
-
-      if expected_hook in stop_hooks:
-          print('hooks ya configurados')
-          sys.exit(0)
-
-      stop_hooks.append(expected_hook)
-      with open(settings_path, 'w') as f:
-          json.dump(d, f, indent=2)
-      print('hooks actualizados')
+      hooks = data.get('hooks', {})
+      current = hooks.get('Stop', [])
+      remaining = [entry for entry in current if not any('save-session.py' in hook.get('command', str()) for hook in entry.get('hooks', []))]
+      if len(remaining) != len(current):
+          if remaining:
+              hooks['Stop'] = remaining
+          else:
+              del hooks['Stop']
+          with open(settings_path, 'w') as f:
+              print(json.dumps(data, indent=2), file=f)
               "
             fi
 
@@ -70,7 +62,7 @@ _: {
     '';
   in {
     options.my.claudeHooks = {
-      enable = mkEnableOption "Registrar Stop hook de Claude Code para guardar sesiones en agent-wiki";
+      enable = mkEnableOption "Retirar el Stop hook obsoleto de journal de Claude Code";
     };
 
     config = mkIf cfg.enable {
