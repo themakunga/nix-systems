@@ -22,7 +22,9 @@ def _project_context(cwd: str = "") -> str:
 
 
 def pick_phrase(event: str, context: str = "") -> str:
-    vault = Path(os.environ.get("AGENT_WIKI_PATH", Path.home() / ".vaults/agent-wiki"))
+    # ponytail: first existing root wins; amgmt replaced the old agent-wiki vault.
+    roots = [os.environ.get("AGENT_WIKI_PATH"), Path.home() / "Projects/personal/amgmt", Path.home() / ".vaults/agent-wiki"]
+    vault = next((Path(r) for r in roots if r and (Path(r) / "scripts").is_dir()), Path(roots[1]))
     pool: list[str] = []
 
     # Base phrase pool (first file that loads wins)
