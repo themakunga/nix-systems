@@ -58,14 +58,6 @@
       dotfiles.enable = true;
       dotfiles.packages = [
         {
-          name = "codex";
-          output-name = ".codex";
-        }
-        {
-          name = "claude";
-          output-name = ".claude";
-        }
-        {
           name = "scripts";
           output-name = "scripts";
         }

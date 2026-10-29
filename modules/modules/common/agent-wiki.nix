@@ -48,6 +48,17 @@ _: {
         run_as_user mkdir -p "$USER_HOME/.public-dotfiles/agent"
         run_as_user ln -sf "$WIKI_DIR/agents/SOUL.md" "$SOUL_LINK"
       fi
+
+      # Config de agentes: todo vive en amgmt; ~/.claude y ~/.codex solo enlazan.
+      if [ -d "$WIKI_DIR/hooks" ]; then
+        run_as_user mkdir -p "$USER_HOME/.claude/skills" "$USER_HOME/.codex"
+        run_as_user ln -sfn "$WIKI_DIR/agents/SOUL.md" "$USER_HOME/.claude/CLAUDE.md"
+        run_as_user ln -sfn "$WIKI_DIR/agents/SOUL.md" "$USER_HOME/.codex/AGENTS.md"
+        run_as_user ln -sfn "$WIKI_DIR/hooks" "$USER_HOME/.claude/scripts"
+        run_as_user ln -sfn "$WIKI_DIR/claude/commands" "$USER_HOME/.claude/commands"
+        run_as_user ln -sfn "$WIKI_DIR/codex/hooks.json" "$USER_HOME/.codex/hooks.json"
+        run_as_user ln -sfn "$WIKI_DIR/skills/obsidian-journal/SKILL.md" "$USER_HOME/.claude/skills/obsidian-journal.md"
+      fi
     '';
   in {
     options.my.agentWiki = {
