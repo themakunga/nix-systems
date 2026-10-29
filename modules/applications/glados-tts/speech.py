@@ -35,8 +35,9 @@ def pick_phrase(event: str, context: str = "") -> str:
             continue
         if not isinstance(catalog, dict):
             continue
-        phrases = catalog.get(event, catalog.get("stop"))
-        if isinstance(phrases, list):
+        # No cross-event fallback: a "decision" cue must never sound like "stop".
+        phrases = catalog.get(event)
+        if isinstance(phrases, list) and phrases:
             pool = [p for p in phrases if isinstance(p, str) and len(p) <= 200]
             break
 
@@ -52,7 +53,22 @@ def pick_phrase(event: str, context: str = "") -> str:
         except (OSError, ValueError):
             pass
 
-    return random.choice(pool) if pool else ""
+    if not pool:
+        return ""
+    # Never repeat the previous phrase for this event (each hook is a new process).
+    last_file = Path.home() / ".config/glados-tts" / f"last-{event}.txt"
+    try:
+        last = last_file.read_text()
+    except OSError:
+        last = ""
+    choices = [p for p in pool if p != last] or pool
+    phrase = random.choice(choices)
+    try:
+        last_file.parent.mkdir(parents=True, exist_ok=True)
+        last_file.write_text(phrase)
+    except OSError:
+        pass
+    return phrase
 
 
 def spoken_text(text):
