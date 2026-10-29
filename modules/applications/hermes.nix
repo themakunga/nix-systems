@@ -51,7 +51,7 @@
         system.activationScripts.postActivation.text = lib.mkAfter ''
           HERMES_HOME="${userHome}/.hermes"
           DOTFILES_CONFIG="${userHome}/.public-dotfiles/hermes/config.kanagawa.yaml"
-          WIKI_SOUL="${userHome}/.vaults/agent-wiki/agents/SOUL.md"
+          WIKI_SOUL="${userHome}/Projects/personal/amgmt/agents/SOUL.md"
 
           install -d -m 700 -o ${user} -g staff "$HERMES_HOME"
           if [ -f "$DOTFILES_CONFIG" ]; then

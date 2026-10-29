@@ -25,8 +25,8 @@ _: {
 
     script = ''
       USER_HOME="${userHome}"
-      WIKI_DIR="$USER_HOME/.vaults/agent-wiki"
-      WIKI_REPO="git@github.com:themakunga/agent-wiki.git"
+      WIKI_DIR="$USER_HOME/Projects/personal/amgmt"
+      WIKI_REPO="git@github.com:themakunga/amgmt.git"
       SOUL_LINK="$USER_HOME/.public-dotfiles/agent/SOUL.md"
       ${
         if isDarwin
@@ -36,7 +36,8 @@ _: {
 
       # Clone o pull — tolerante a fallo de red (offline, sin SSH key lista)
       if [ ! -d "$WIKI_DIR/.git" ]; then
-        echo "=> Clonando agent-wiki para ${user}..."
+        echo "=> Clonando amgmt para ${user}..."
+        run_as_user mkdir -p "$(dirname "$WIKI_DIR")"
         run_as_user ${pkgs.git}/bin/git clone "$WIKI_REPO" "$WIKI_DIR" 2>/dev/null || true
       else
         run_as_user ${pkgs.git}/bin/git -C "$WIKI_DIR" pull origin main 2>/dev/null || true

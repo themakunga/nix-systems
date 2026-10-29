@@ -16,7 +16,7 @@ se emiten en inglés. No cambia el idioma de las respuestas del agente.
 
 Las frases son casuales, sarcásticas y breves. Se descartan eventos no reconocidos, paradas de subagentes y continuaciones de Stop. Los hooks no aprueban ni rechazan operaciones. El audio se reproduce en segundo plano y sus errores no bloquean el agente. La cola de audio es compartida por usuario.
 
-Las frases base están en `agent-wiki/scripts/glados-phrases-base.json`. El rollup del journal genera `agent-wiki/scripts/glados-phrases.json` con esas frases y las de temas recientes. `speech.py` lee el catálogo generado en cada aviso y usa el base si falta; actualizar frases no requiere `nix switch`.
+Las frases base están en `amgmt/scripts/glados-phrases-base.json`. El rollup del journal genera `amgmt/scripts/glados-phrases.json` con esas frases y las de temas recientes. `speech.py` lee el catálogo generado en cada aviso y usa el base si falta; actualizar frases no requiere `nix switch`.
 
 Emite una frase breve al terminar cada turno, en segundo plano; no lee la
 respuesta completa. Las respuestas de varias sesiones se reproducen una a la
