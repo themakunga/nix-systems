@@ -104,7 +104,7 @@ def hook_text(payload):
         saved = file.read()
         timings = json.loads(saved) if saved else {}
         now = time.time()
-        interval = 45 if event == "notify" else 5 if event == "decision" else 2
+        interval = 90 if event == "notify" else 15 if event == "decision" else 5
         if now - timings.get(event, 0) < interval:
             return ""
         timings[event] = now
