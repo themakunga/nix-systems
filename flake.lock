@@ -765,8 +765,7 @@
         "nixpkgs-unstable": "nixpkgs-unstable",
         "secrets": "secrets",
         "sops-nix": "sops-nix",
-        "tofu-dns": "tofu-dns",
-        "token-counter": "token-counter"
+        "tofu-dns": "tofu-dns"
       }
     },
     "rust-analyzer-src": {
@@ -931,27 +930,6 @@
       "original": {
         "owner": "TheMakunga",
         "repo": "tofu-dns",
-        "type": "github"
-      }
-    },
-    "token-counter": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs-unstable"
-        ]
-      },
-      "locked": {
-        "lastModified": 1790995681,
-        "narHash": "sha256-EVMEQMkkexlctAlCGDezA65If+WQF8n9+4XNHIuQ5yw=",
-        "owner": "TheMakunga",
-        "repo": "token-counter",
-        "rev": "c8616fb88cd5cedbd5599587ab391ba3ccbd7ff0",
-        "type": "github"
-      },
-      "original": {
-        "owner": "TheMakunga",
-        "ref": "v0.3.1",
-        "repo": "token-counter",
         "type": "github"
       }
     },

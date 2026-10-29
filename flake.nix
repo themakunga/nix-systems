@@ -79,11 +79,6 @@
       flake = false;
     };
 
-    token-counter = {
-      url = "github:TheMakunga/token-counter/v0.3.1";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
     globalprotect-openconnect.url = "github:yuezk/GlobalProtect-openconnect";
 
     lazyjira.url = "github:textfuel/lazyjira";

@@ -62,7 +62,6 @@
         "tailscale.gui"
         "terminal-zsh"
         "newsboat"
-        "token-counter"
         "wezterm"
       ];
 

@@ -67,7 +67,6 @@
         bat.enable = true;
         newsboat.enable = true;
         glow.enable = true;
-        token-counter.enable = true;
         yazi.enable = true;
         zoxide.enable = true;
       };
