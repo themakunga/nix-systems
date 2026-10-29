@@ -80,6 +80,7 @@ in {
               tuifeed.enable = true;
               aws-cli.enable = true;
               gemini-cli.enable = true;
+              glados-tts.enable = true;
               qmk.enable = true;
               # nlm.enable = true; # disabled — hash mismatch, re-enable when fixed
             };

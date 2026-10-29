@@ -1,6 +1,6 @@
 # Avisos GLaDOS para Codex y Claude Code
 
-Activado para `kanagawa` y `outer-heaven` mediante `my.apps.glados-tts.enable`.
+El motor está declarado para `outer-heaven` mediante `my.apps.glados-tts.enable`. Los hooks de agentes se instalan manualmente; el journal controla sus propios avisos.
 Piper genera la voz localmente con el modelo
 [GLaDOS de DavesArmoury](https://huggingface.co/DavesArmoury/GLaDOS_TTS)
 (CC BY 4.0, versión fijada en Nix). No requiere API ni envía las respuestas a
@@ -22,7 +22,7 @@ Emite una frase breve al terminar cada turno, en segundo plano; no lee la
 respuesta completa. Las respuestas de varias sesiones se reproducen una a la
 vez. Los errores del audio no bloquean al agente.
 
-`my.apps.glados-tts.enable` en Nix instala motor, modelo y comandos. La activación macOS combina los hooks con los ajustes existentes, conservando una copia `.before-glados`. No reemplaza otros hooks ni el `notify` de Codex.
+`my.apps.glados-tts.enable` en Nix instala el motor, el modelo y los comandos con Python y PyYAML. No instala hooks automáticamente. El instalador manual combina los hooks con los ajustes existentes, conservando una copia `.before-glados`.
 
 Para aplicar sólo los hooks cuando los comandos ya están instalados:
 
