@@ -65,6 +65,8 @@ in {
               jdk25
               argo-workflows
               rustc
+              lua5_4
+              taplo
             ];
 
             casks = ["tigervnc" "miniconda" "claude-code" "qmk-toolbox"];
