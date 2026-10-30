@@ -78,6 +78,7 @@ in {
           "neovim" # Editor — instala neovim 0.12 + stow ~/.config/nvim/ desde public-dotfiles
           "hermes" # Hermes AI Agent con Obsidian oficial en Podman rootless (/opt/hermes)
           "remote-touchpad" # iPad como teclado/touchpad via uinput — Safari en :9100
+          "glados-tts" # Voz GLaDOS para hooks de agentes (Piper + mpv); wheatley necesita salida de audio
         ];
       })
       ++ [
@@ -214,6 +215,7 @@ in {
                 tailscale-core.enable = true;
                 wechat.enable = true;
                 hermes.enable = true; # Hermes AI Agent — solo en aperture-science
+                glados-tts.enable = true; # Voz GLaDOS para hooks de agentes de wheatley
                 remote-touchpad.enable = true; # iPad como teclado/touchpad — solo en aperture-science
                 wezterm.enable = true; # Terminal principal con config TokyoNight Storm
                 neovim.enable = true; # Editor con LSP, treesitter, toolchain completo

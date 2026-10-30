@@ -15,9 +15,12 @@ _: {
     inherit (lib) mkEnableOption mkIf;
     cfg = config.my.claudeHooks;
     isDarwin = pkgs.stdenv.isDarwin;
-    user = config.system.primaryUser or "nicolas";
+    # Mismo usuario/home que agent-wiki: my.dotfiles (wheatley en aperture-science).
+    user = config.my.dotfiles.user;
     userHome =
-      if isDarwin
+      if config.my.dotfiles.home != null
+      then config.my.dotfiles.home
+      else if isDarwin
       then "/Users/${user}"
       else "/home/${user}";
 

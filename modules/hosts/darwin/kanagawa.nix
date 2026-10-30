@@ -43,6 +43,7 @@ in {
           my = {
             apps = {
               hermes.enable = true;
+              glados-tts.enable = true;
               nlm.enable = true;
             };
             services.tiling.enable = true;

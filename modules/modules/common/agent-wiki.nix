@@ -17,9 +17,12 @@ _: {
     inherit (lib) mkEnableOption mkOption mkIf types;
     cfg = config.my.agentWiki;
     isDarwin = pkgs.stdenv.isDarwin;
-    user = config.system.primaryUser or "nicolas";
+    # Usuario y home salen de my.dotfiles: nicolas en Darwin, wheatley (/opt/wheatley) en aperture-science.
+    user = config.my.dotfiles.user;
     userHome =
-      if isDarwin
+      if config.my.dotfiles.home != null
+      then config.my.dotfiles.home
+      else if isDarwin
       then "/Users/${user}"
       else "/home/${user}";
 
@@ -45,7 +48,8 @@ _: {
       if [ ! -d "$WIKI_DIR/.git" ]; then
         echo "=> Clonando amgmt para ${user}..."
         run_as_user mkdir -p "$(dirname "$WIKI_DIR")"
-        run_as_user ${pkgs.git}/bin/git clone "$WIKI_REPO" "$WIKI_DIR" 2>/dev/null || true
+        run_as_user ${pkgs.git}/bin/git clone "$WIKI_REPO" "$WIKI_DIR" 2>/dev/null \
+          || echo "=> AVISO: no se pudo clonar amgmt para ${user} (¿falta llave SSH de GitHub?); config de agentes sin enlazar."
       else
         run_as_user ${pkgs.git}/bin/git -C "$WIKI_DIR" pull origin main 2>/dev/null || true
       fi
