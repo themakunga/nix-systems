@@ -353,7 +353,13 @@ in {
             system.activationScripts."glados-agent-dotfiles" = {
               text = ''
                 DOTFILES_DIR="/opt/glados/.public-dotfiles"
-                WIKI_DIR="/opt/glados/agent-wiki"
+                WIKI_DIR="/opt/glados/.vaults/agent-wiki"
+                LEGACY_WIKI_DIR="/opt/glados/agent-wiki"
+                install -d -m 700 -o glados -g glados /opt/glados/.vaults
+                if [ ! -e "$WIKI_DIR" ] && [ ! -L "$WIKI_DIR" ] && [ -d "$LEGACY_WIKI_DIR/.git" ]; then
+                  /run/wrappers/bin/sudo -H -u glados mv "$LEGACY_WIKI_DIR" "$WIKI_DIR"
+                  /run/wrappers/bin/sudo -H -u glados ln -s "$WIKI_DIR" "$LEGACY_WIKI_DIR"
+                fi
                 ZEROCLAW_DIR="/opt/glados/.zeroclaw"
 
                 echo "=> Sincronizando agent-wiki y configuración de GLaDOS..."

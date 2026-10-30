@@ -25,7 +25,8 @@ _: {
 
     script = ''
       USER_HOME="${userHome}"
-      WIKI_DIR="$USER_HOME/Projects/personal/amgmt"
+      WIKI_DIR="$USER_HOME/.vaults/amgmt"
+      LEGACY_WIKI_DIR="$USER_HOME/Projects/personal/amgmt"
       WIKI_REPO="git@github.com:themakunga/amgmt.git"
       SOUL_LINK="$USER_HOME/.public-dotfiles/agent/SOUL.md"
       ${
@@ -33,6 +34,12 @@ _: {
         then ''run_as_user() { sudo -H -u "${user}" env HOME="$USER_HOME" "$@"; }''
         else ''run_as_user() { /run/wrappers/bin/sudo -H -u "${user}" env HOME="$USER_HOME" "$@"; }''
       }
+
+      run_as_user mkdir -p "$USER_HOME/.vaults"
+      if [ ! -e "$WIKI_DIR" ] && [ ! -L "$WIKI_DIR" ] && [ -d "$LEGACY_WIKI_DIR/.git" ]; then
+        run_as_user mv "$LEGACY_WIKI_DIR" "$WIKI_DIR"
+        run_as_user ln -s "$WIKI_DIR" "$LEGACY_WIKI_DIR"
+      fi
 
       # Clone o pull — tolerante a fallo de red (offline, sin SSH key lista)
       if [ ! -d "$WIKI_DIR/.git" ]; then

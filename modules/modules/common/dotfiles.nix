@@ -78,6 +78,9 @@ _: {
             TARGET_DIR="$TARGET_DIR/$PKG_NAME"
           fi
           if [ -d "$DOTFILES_DIR/$PKG_NAME" ]; then
+            if [ -L "$TARGET_DIR" ] && [ ! -e "$TARGET_DIR" ]; then
+              run_as_user unlink "$TARGET_DIR"
+            fi
             run_as_user mkdir -p "$TARGET_DIR"
             CONFLICTS=$(run_as_user ${pkgs.stow}/bin/stow -n -t "$TARGET_DIR" -d "$DOTFILES_DIR" "$PKG_NAME" 2>&1 | grep "existing target is" | ${pkgs.gawk}/bin/awk '{print $NF}' || true)
             if [ -n "$CONFLICTS" ]; then

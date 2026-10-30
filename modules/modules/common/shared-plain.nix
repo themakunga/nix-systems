@@ -51,7 +51,7 @@ in {
               _dest_parent="$(dirname "${actualDest}")"
               { [ -L "$_dest_parent" ] || [ -f "$_dest_parent" ]; } && rm -f "$_dest_parent"
               mkdir -p "$_dest_parent"
-              cp -f "${actualSource}" "${actualDest}"
+              ${pkgs.coreutils}/bin/cp --remove-destination "${actualSource}" "${actualDest}"
               chown ${plainItem.owner}${
                 if plainItem.group != null
                 then ":${plainItem.group}"

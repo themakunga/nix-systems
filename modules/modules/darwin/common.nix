@@ -64,14 +64,28 @@
       '';
     };
     extras = {
+      config,
       lib,
       pkgs,
       ...
-    }: {
+    }: let
+      user = config.system.primaryUser;
+      userHome = config.users.users.${user}.home;
+    in {
       # pinentry-mac como "pinentry" en PATH para el GPG agent SSH support
       environment.systemPackages = [
         (pkgs.writeShellScriptBin "pinentry" ''exec ${pkgs.pinentry_mac}/bin/pinentry-mac "$@"'')
       ];
+      system.activationScripts.postActivation.text = lib.mkAfter ''
+        GPG_AGENT_CONFIG="${userHome}/.gnupg/gpg-agent.conf"
+        if ! grep -Eq '^[[:space:]]*pinentry-program[[:space:]]' "$GPG_AGENT_CONFIG" 2>/dev/null; then
+          install -d -m 700 -o ${user} "${userHome}/.gnupg"
+          printf '\npinentry-program /run/current-system/sw/bin/pinentry\n' >> "$GPG_AGENT_CONFIG"
+          chmod 600 "$GPG_AGENT_CONFIG"
+          chown ${user} "$GPG_AGENT_CONFIG"
+          sudo -H -u ${user} ${pkgs.gnupg}/bin/gpgconf --reload gpg-agent
+        fi
+      '';
       nix = {
         enable = true;
         # Gestión automática de espacio en el Nix store (macOS / nix-darwin)

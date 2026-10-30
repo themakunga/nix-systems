@@ -21,7 +21,7 @@ _: {
 
     syncScript = pkgs.writeShellScript "agent-wiki-sync" ''
       set -euo pipefail
-      WIKI_DIR="${userHome}/Projects/personal/amgmt"
+      WIKI_DIR="${userHome}/.vaults/amgmt"
 
       [ -d "$WIKI_DIR/.git" ] || exit 0   # amgmt no clonado aún
       [ -f "$WIKI_DIR/scripts/journal_rollup.py" ] || exit 0   # rollup aún no migrado a amgmt

@@ -31,7 +31,7 @@ _: {
       }
 
       # Garantiza el Stop hook del journal; el script vive en amgmt.
-      HOOK="$USER_HOME/Projects/personal/amgmt/hooks/ensure-claude-hook.py"
+      HOOK="$USER_HOME/.vaults/amgmt/hooks/ensure-claude-hook.py"
       if [ -f "$HOOK" ]; then
         run_as_user ${pkgs.python3}/bin/python3 "$HOOK" || true
       fi

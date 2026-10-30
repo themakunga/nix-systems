@@ -51,7 +51,7 @@
         system.activationScripts.postActivation.text = lib.mkAfter ''
           HERMES_HOME="${userHome}/.hermes"
           DOTFILES_CONFIG="${userHome}/.public-dotfiles/hermes/config.kanagawa.yaml"
-          WIKI_SOUL="${userHome}/Projects/personal/amgmt/agents/SOUL.md"
+          WIKI_SOUL="${userHome}/.vaults/amgmt/agents/SOUL.md"
 
           install -d -m 700 -o ${user} -g staff "$HERMES_HOME"
           if [ -f "$DOTFILES_CONFIG" ]; then
@@ -109,7 +109,13 @@
 
           # agent-wiki: clonar o actualizar el vault compartido
           # El vault es el mismo repo que usan los demás agentes (ZeroClaw, Claude, Codex).
-          WIKI_DIR="/opt/hermes/vault"
+          WIKI_DIR="/opt/hermes/.vaults/agent-wiki"
+          LEGACY_WIKI_DIR="/opt/hermes/vault"
+          install -d -m 700 -o hermes -g hermes /opt/hermes/.vaults
+          if [ ! -e "$WIKI_DIR" ] && [ ! -L "$WIKI_DIR" ] && [ -d "$LEGACY_WIKI_DIR/.git" ]; then
+            /run/wrappers/bin/sudo -H -u hermes mv "$LEGACY_WIKI_DIR" "$WIKI_DIR"
+            /run/wrappers/bin/sudo -H -u hermes ln -s "$WIKI_DIR" "$LEGACY_WIKI_DIR"
+          fi
           WIKI_REPO="git@github.com:themakunga/agent-wiki.git"
           if [ ! -d "$WIKI_DIR/.git" ]; then
             echo "=> Clonando agent-wiki para hermes..."
