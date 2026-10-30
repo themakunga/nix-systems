@@ -34,7 +34,7 @@ in {
         profileModules = ["personal" "bbook" "company" "terminal-tools"];
       }))
       ++ [
-        {
+        ({pkgs, ...}: {
           system.defaults.dock.persistent-apps = [
             "/Applications/WezTerm.app"
             "/Applications/Typora.app"
@@ -46,7 +46,7 @@ in {
               nlm.enable = true;
             };
             services.tiling.enable = true;
-            packages = [];
+            packages = with pkgs; [lua5_4 taplo];
             hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
 
             wallpaper = {
@@ -81,7 +81,7 @@ in {
             };
             vaults = personal // {directory = "~/.vaults";};
           };
-        }
+        })
       ];
   };
 }
