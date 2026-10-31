@@ -5,7 +5,6 @@ import hashlib
 import json
 import os
 from pathlib import Path
-import random
 import re
 import subprocess
 import sys
@@ -15,59 +14,22 @@ import time
 _EVENTS = ("start", "stop", "notify")
 
 
-def _project_context(cwd: str = "") -> str:
-    """Return the lowercase project directory name for phrase selection."""
-    path = cwd or os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()
-    return Path(path).name.lower() if path else ""
-
-
-def pick_phrase(event: str, context: str = "") -> str:
-    roots = [os.environ.get("AGENT_WIKI_PATH"), Path.home() / ".vaults/amgmt", Path.home() / ".vaults/agent-wiki"]
-    vault = next((Path(r) for r in roots if r and (Path(r) / "scripts").is_dir()), Path(roots[1]))
-    pool: list[str] = []
-
-    # Base phrase pool (first file that loads wins)
-    for name in ("glados-phrases.json", "glados-phrases-base.json"):
-        try:
-            catalog = json.loads((vault / "scripts" / name).read_text())
-        except (OSError, ValueError):
-            continue
-        if not isinstance(catalog, dict):
-            continue
-        # No cross-event fallback: a "decision" cue must never sound like "stop".
-        phrases = catalog.get(event)
-        if isinstance(phrases, list) and phrases:
-            pool = [p for p in phrases if isinstance(p, str) and len(p) <= 200]
-            break
-
-    # Context-specific phrases: weighted 3:1 over base
-    if context:
-        try:
-            ctx = json.loads((vault / "scripts" / "glados-phrases-context.json").read_text())
-            for pattern, buckets in ctx.get("patterns", {}).items():
-                if pattern in context:
-                    ctx_phrases = [p for p in buckets.get(event, []) if isinstance(p, str) and len(p) <= 200]
-                    pool += ctx_phrases * 3
-                    break
-        except (OSError, ValueError):
-            pass
-
-    if not pool:
+def pick_phrase(event: str, cwd: str = "") -> str:
+    home = Path.home()
+    candidates = [
+        home / ".agents/skills/obsidian-journal/scripts/glados.py",
+        home / ".vaults/amgmt/skills/obsidian-journal/scripts/glados.py",
+        home / ".vaults/agent-wiki/skills/obsidian-journal/scripts/glados.py",
+    ]
+    script = next((path for path in candidates if path.is_file()), None)
+    if not script:
         return ""
-    # Never repeat the previous phrase for this event (each hook is a new process).
-    last_file = Path.home() / ".config/glados-tts" / f"last-{event}.txt"
-    try:
-        last = last_file.read_text()
-    except OSError:
-        last = ""
-    choices = [p for p in pool if p != last] or pool
-    phrase = random.choice(choices)
-    try:
-        last_file.parent.mkdir(parents=True, exist_ok=True)
-        last_file.write_text(phrase)
-    except OSError:
-        pass
-    return phrase
+    result = subprocess.run(
+        [sys.executable, str(script), "phrase", "success" if event == "stop" else event,
+         cwd or os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()],
+        text=True, capture_output=True, timeout=10,
+    )
+    return result.stdout.strip() if result.returncode == 0 else ""
 
 
 def spoken_text(text):
@@ -84,20 +46,8 @@ def spoken_text(text):
 def event_for(payload):
     if not isinstance(payload, dict) or payload.get("stop_hook_active"):
         return None
-    event = payload.get("hook_event_name")
-    if event == "UserPromptSubmit":
-        return "start"
-    if event == "Stop":
+    if payload.get("hook_event_name") == "Stop":
         return "stop"
-    if event == "PermissionRequest":
-        return "decision"
-    if event == "PreToolUse":
-        tool = str(payload.get("tool_name") or "").lower()
-        if any(name in tool for name in ("askuserquestion", "request_user_input", "elicitation")):
-            return "decision"
-        return "notify"
-    if event == "Notification" and payload.get("notification_type") in ("permission_prompt", "elicitation_dialog"):
-        return "decision"
     return None
 
 
@@ -105,7 +55,7 @@ def response(payload):
     event = event_for(payload)
     if not event:
         return ""
-    return pick_phrase(event, _project_context(payload.get("cwd", "")))
+    return pick_phrase(event, payload.get("cwd", ""))
 
 
 def hook_text(payload):
@@ -121,16 +71,13 @@ def hook_text(payload):
         saved = file.read()
         timings = json.loads(saved) if saved else {}
         now = time.time()
-        interval = 90 if event == "notify" else 15 if event == "decision" else 5
-        if now - timings.get(event, 0) < interval:
+        if now - timings.get(event, 0) < 90:
             return ""
         timings[event] = now
-        if event == "start":
-            timings["notify"] = now
         file.seek(0)
         file.truncate()
         json.dump(timings, file)
-    return pick_phrase(event, _project_context(payload.get("cwd", "")))
+    return pick_phrase(event, payload.get("cwd", ""))
 
 
 def render(text, wav):
@@ -178,7 +125,7 @@ def main():
         text = hook_text(json.load(sys.stdin))
     elif sys.argv[2:] and sys.argv[2] in _EVENTS:
         # glados-say start|stop|notify → random phrase
-        text = pick_phrase(sys.argv[2], _project_context())
+        text = pick_phrase(sys.argv[2])
     else:
         text = spoken_text(" ".join(sys.argv[2:]) if sys.argv[2:] else sys.stdin.read())
     speak(text)

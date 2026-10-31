@@ -9,18 +9,14 @@ se emiten en inglés. No cambia el idioma de las respuestas del agente.
 
 ## Comportamiento
 
-- `UserPromptSubmit`: frase breve al comenzar.
-- `PreToolUse`: aviso de trabajo como máximo cada 45 segundos por sesión; no suena inmediatamente después del inicio.
-- `Stop`: frase de finalización; nunca lee el contenido de la respuesta.
-- `PermissionRequest` y herramientas de preguntas reconocidas: frase solicitando una decisión. Claude también utiliza `Notification` para solicitudes de permisos e información.
+- `Stop`: una frase breve al finalizar, como máximo cada 90 segundos por sesión.
+- Inicio, herramientas y solicitudes de autorización: silencio.
 
 Las frases son casuales, sarcásticas y breves. Se descartan eventos no reconocidos, paradas de subagentes y continuaciones de Stop. Los hooks no aprueban ni rechazan operaciones. El audio se reproduce en segundo plano y sus errores no bloquean el agente. La cola de audio es compartida por usuario.
 
-Las frases base están en `amgmt/scripts/glados-phrases-base.json`. El rollup del journal genera `amgmt/scripts/glados-phrases.json` con esas frases y las de temas recientes. `speech.py` lee el catálogo generado en cada aviso y usa el base si falta; actualizar frases no requiere `nix switch`.
+Las frases provienen exclusivamente de `.glados/phrases.yaml` en el vault seleccionado por `~/.obsidian-journal-vault`. La skill `obsidian-journal` las genera con actividad reciente de los directorios habilitados en `authorized_dirs`. El hook delega la selección a `scripts/glados.py` de la skill instalada y conserva el directorio de la sesión. Fuera de esos directorios, con GLaDOS deshabilitada o sin una frase pertinente, permanece en silencio. No utiliza los catálogos generales de `amgmt/scripts/`.
 
-Emite una frase breve al terminar cada turno, en segundo plano; no lee la
-respuesta completa. Las respuestas de varias sesiones se reproducen una a la
-vez. Los errores del audio no bloquean al agente.
+El audio se reproduce en segundo plano y no lee la respuesta del agente.
 
 `my.apps.glados-tts.enable` en Nix instala el motor, el modelo y los comandos con Python y PyYAML. No instala hooks automáticamente. El instalador manual combina los hooks con los ajustes existentes, conservando una copia `.before-glados`.
 

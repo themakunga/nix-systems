@@ -20,19 +20,20 @@ def load(name):
 
 speech = load("speech")
 installer = load("install-hooks")
-phrase_dir = tempfile.TemporaryDirectory()
-phrase_scripts = Path(phrase_dir.name) / "scripts"
-phrase_scripts.mkdir()
-(phrase_scripts / "glados-phrases.json").write_text(json.dumps({
-    "start": ["Starting."], "stop": ["Stopping."], "notify": ["Working."]
-}))
-speech.os.environ["AGENT_WIKI_PATH"] = phrase_dir.name
-assert speech.response({"hook_event_name": "Stop"}) == "Stopping."
-for payload in (None, []):
-    assert speech.response(payload) == ""
-assert speech.response({"hook_event_name": "PreToolUse", "tool_name": "AskUserQuestion"}) == "Stopping."
-assert speech.response({"hook_event_name": "PreToolUse", "tool_name": "mcp__tools__request_user_input_async"}) == "Stopping."
-assert speech.response({"hook_event_name": "Notification", "notification_type": "idle_prompt"}) == ""
+with patch.object(speech, "pick_phrase", return_value="Scoped phrase.") as pick:
+    assert speech.response({"hook_event_name": "Stop", "cwd": "/project"}) == "Scoped phrase."
+    pick.assert_called_once_with("stop", "/project")
+    pick.reset_mock()
+    for payload in (
+        None, [], {"hook_event_name": "UserPromptSubmit"},
+        {"hook_event_name": "PreToolUse", "tool_name": "AskUserQuestion"},
+        {"hook_event_name": "PreToolUse", "tool_name": "mcp__tools__request_user_input_async"},
+        {"hook_event_name": "PermissionRequest"},
+        {"hook_event_name": "Notification", "notification_type": "permission_prompt"},
+        {"hook_event_name": "Stop", "stop_hook_active": True},
+    ):
+        assert speech.response(payload) == ""
+    pick.assert_not_called()
 assert speech.spoken_text("```python\nunfinished code") == ""
 assert (
     speech.spoken_text("Hola, Nicolás. ¡Prueba lista!")
@@ -54,6 +55,15 @@ with tempfile.TemporaryDirectory() as directory:
         },
     }
     settings.write_text(json.dumps(original))
+    skill = home / ".agents/skills/obsidian-journal/scripts/glados.py"
+    skill.parent.mkdir(parents=True)
+    skill.touch()
+    with patch.object(Path, "home", return_value=home), patch.object(speech.subprocess, "run") as run:
+        run.return_value = subprocess.CompletedProcess([], 0, "Scoped phrase.\n")
+        assert speech.pick_phrase("stop", "/project") == "Scoped phrase."
+        assert run.call_args.args[0] == [sys.executable, str(skill), "phrase", "success", "/project"]
+        run.return_value = subprocess.CompletedProcess([], 1, "")
+        assert speech.pick_phrase("stop", "/project") == ""
     installer.install(home, bin_dir)
     first = settings.read_text()
     installer.install(home, bin_dir)
@@ -61,13 +71,16 @@ with tempfile.TemporaryDirectory() as directory:
     data = json.loads(first)
     for event in ("UserPromptSubmit", "PreToolUse", "PermissionRequest", "Stop"):
         assert sum(h.get("command") == installer.COMMAND for g in data["hooks"][event] for h in g["hooks"]) == 1
-    with patch.object(Path, "home", return_value=home), patch.object(speech.time, "time", return_value=100):
-        assert speech.hook_text({"hook_event_name": "UserPromptSubmit", "session_id": "s"})
+    with patch.object(Path, "home", return_value=home), patch.object(speech.time, "time", return_value=100), patch.object(speech, "pick_phrase", return_value="Scoped phrase."):
+        assert not speech.hook_text({"hook_event_name": "UserPromptSubmit", "session_id": "s"})
         assert not speech.hook_text({"hook_event_name": "PreToolUse", "session_id": "s"})
-        assert speech.hook_text({"hook_event_name": "PermissionRequest", "session_id": "s"})
         assert not speech.hook_text({"hook_event_name": "PermissionRequest", "session_id": "s"})
-    with patch.object(Path, "home", return_value=home), patch.object(speech.time, "time", return_value=146):
-        assert speech.hook_text({"hook_event_name": "PreToolUse", "session_id": "s"})
+        assert speech.hook_text({"hook_event_name": "Stop", "session_id": "s"})
+        assert not speech.hook_text({"hook_event_name": "Stop", "session_id": "s"})
+    with patch.object(Path, "home", return_value=home), patch.object(speech.time, "time", return_value=146), patch.object(speech, "pick_phrase", return_value="Scoped phrase."):
+        assert not speech.hook_text({"hook_event_name": "Stop", "session_id": "s"})
+    with patch.object(Path, "home", return_value=home), patch.object(speech.time, "time", return_value=191), patch.object(speech, "pick_phrase", return_value="Scoped phrase."):
+        assert speech.hook_text({"hook_event_name": "Stop", "session_id": "s"})
     assert data["permissions"] == original["permissions"]
     assert data["hooks"]["Stop"][0] == original["hooks"]["Stop"][0]
     assert len(data["hooks"]["Stop"]) == 2
@@ -119,7 +132,6 @@ bad = subprocess.run(
     capture_output=True,
 )
 assert bad.returncode == 0 and not bad.stdout and "GLaDOS speech:" in bad.stderr
-phrase_dir.cleanup()
 print(
     "GLaDOS: hook payloads, Markdown, safe speech invocation, mute, cleanup and settings merge passed."
 )
