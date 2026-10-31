@@ -47,7 +47,13 @@ in {
               nlm.enable = true;
             };
             services.tiling.enable = true;
-            packages = with pkgs; [lua5_4 taplo];
+            packages = with pkgs; [
+              lua5_4
+              taplo
+              (unstable.markitdown.overridePythonAttrs (old: {
+                dependencies = old.dependencies ++ (with unstable.markitdown.optional-dependencies; docx ++ pdf ++ pptx ++ xlsx ++ xls);
+              }))
+            ];
             hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
 
             wallpaper = {
