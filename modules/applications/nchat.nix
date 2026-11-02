@@ -13,5 +13,17 @@ in {
         (pkgs.callPackage "${self}/packages/nchat/package.nix" {})
       ];
     };
+    sysConfig = {
+      pkgs,
+      lib,
+      ...
+    }: {
+      my.dotfiles.packages = lib.optionals pkgs.stdenv.isDarwin [
+        {
+          name = "nchat";
+          isConfig = true;
+        }
+      ];
+    };
   };
 }
