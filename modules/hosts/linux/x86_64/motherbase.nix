@@ -57,6 +57,11 @@ in {
               neovim.enable = true;
             };
 
+            # nicolas-server es isSystem=true → home real es /opt/nicolas, no
+            # /home/nicolas. Sin esto, dotfiles.nix usa su default /home/<user>
+            # y los stows quedan huérfanos fuera del $HOME real del usuario.
+            dotfiles.home = "/opt/nicolas";
+
             services = {
               docker-host = {
                 # ponytail: tunnel deshabilitado — falta cloudflare-tunnel-token en
