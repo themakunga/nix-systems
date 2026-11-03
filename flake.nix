@@ -53,6 +53,7 @@
 
     mac-app-util = {
       url = "github:hraban/mac-app-util";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     nixos-hardware.url = "github:NixOS/nixos-hardware";
