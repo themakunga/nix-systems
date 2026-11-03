@@ -29,6 +29,11 @@ in {
       extraGroups = ["podman"];
     };
 
+    # Podman rootless necesita rangos sub-UID/GID para mapear namespaces de
+    # usuario dentro de los contenedores; sin esto /etc/subuid queda vacío
+    # y "podman compose up" falla con "no subuid ranges found".
+    users.users.nicolas.autoSubUidGidRange = true;
+
     programs.gnupg.agent = {
       enable = true;
       enableSSHSupport = true;
