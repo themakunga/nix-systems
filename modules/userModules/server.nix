@@ -24,7 +24,9 @@ in {
       isAdmin = true;
       isNetworkManager = true;
       hashedPasswordFile = config.sops.secrets."passwords/nicolas/hashed".path;
-      extraGroups = ["docker"];
+      # Runtime es Podman con dockerCompat (ver applicationModules.podman);
+      # el grupo real del socket es "podman", no "docker".
+      extraGroups = ["podman"];
     };
 
     programs.gnupg.agent = {

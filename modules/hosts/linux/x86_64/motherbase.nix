@@ -58,8 +58,10 @@ in {
 
             services = {
               docker-host = {
-                # Un túnel por entrada; agregar más con un tokenSecret distinto en .secrets
-                tunnels.primary.tokenSecret = "cloudflare-tunnel-token";
+                # ponytail: tunnel deshabilitado — falta cloudflare-tunnel-token en
+                # hosts/motherbase.yaml tras la reinstalación. Re-agregar con
+                # `make sops-host HOST=motherbase` y restaurar esta línea:
+                # tunnels.primary.tokenSecret = "cloudflare-tunnel-token";
                 # Proyectos: path estático en nix-systems. Traefik los descubre via labels.
                 projects.demo = "${self}/modules/applications/docker-host/demo";
               };
