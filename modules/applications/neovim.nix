@@ -49,6 +49,9 @@ in {
           gitlab-ci-ls
           nodejs_24
           python3
+          jq
+          go
+          jdk
         ]
         ++ lib.optionals (options ? system.nixos) [wl-clipboard xclip];
     };
