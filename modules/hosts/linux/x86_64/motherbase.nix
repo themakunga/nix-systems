@@ -27,7 +27,7 @@ in {
       ]
       ++ (mkBundle (extendBundle bundles.nixos.base {
         nixosModules = ["disko-x86" "nix-anywhere"];
-        applicationModules = ["podman" "docker-host" "samba-share"];
+        applicationModules = ["podman" "docker-host" "samba-share" "neovim"];
         userModules = ["nicolas-server"];
         profileModules = ["nicolas-server"];
       }))
@@ -54,6 +54,7 @@ in {
               podman.enable = true;
               docker-host.enable = true;
               samba-share.enable = true;
+              neovim.enable = true;
             };
 
             services = {
