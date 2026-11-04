@@ -47,9 +47,12 @@ _: {
 
     # Todas las mas apps combinadas — se instalan vía script para que fallen sin romper la activación
     allMasApps = appsMasApps // config.my.masApps;
+    # nix-darwin clears the environment; mas 7 needs sudo IDs to access the user's App Store context.
     masInstallScript = concatStringsSep "\n" (mapAttrsToList (name: id: ''
         echo "  -> ${name} (${toString id})"
-        /opt/homebrew/bin/mas install ${toString id} 2>&1 || echo "  WARNING: ${name} (${toString id}) omitida"
+        SUDO_UID="$(/usr/bin/id -u ${lib.escapeShellArg config.system.primaryUser})" \
+          SUDO_GID="$(/usr/bin/id -g ${lib.escapeShellArg config.system.primaryUser})" \
+          /opt/homebrew/bin/mas install ${toString id} 2>&1 || echo "  WARNING: ${name} (${toString id}) omitida"
       '')
       allMasApps);
   in {
