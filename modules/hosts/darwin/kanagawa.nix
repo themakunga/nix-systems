@@ -31,7 +31,7 @@ in {
         applicationModules = ["google-cloud.gcloud" "hermes" "nlm"];
         developmentModules = ["ios-terminal"];
         userModules = ["personal"];
-        profileModules = ["personal" "bbook" "company" "terminal-tools"];
+        profileModules = ["personal" "bbook" "company" "terminal-tools" "aws-credentials"];
       }))
       ++ [
         ({pkgs, ...}: {

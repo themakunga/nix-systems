@@ -27,11 +27,11 @@ in {
         mac-app-util.darwinModules.default
       ]
       ++ (mkBundle (extendBundle bundles.darwin.base {
-        commonModules = ["cloud-profiles" "secret-dotfiles"];
+        commonModules = ["secret-dotfiles"];
         darwinModules = ["linux-builder" "tiling"];
         applicationModules = ["google-cloud.gemini" "jira" "ollama" "cliamp" "tuifeed"];
         userModules = ["work" "glados"];
-        profileModules = ["work" "personal" "latam" "glados" "thoughtworks" "grainger" "company" "outer-heaven-workspaces" "terminal-tools"];
+        profileModules = ["work" "personal" "latam" "glados" "thoughtworks" "grainger" "company" "outer-heaven-workspaces" "terminal-tools" "aws-credentials"];
       }))
       ++ [
         ({pkgs, ...}: {
@@ -84,24 +84,6 @@ in {
               qmk.enable = true;
               # nlm.enable = true; # disabled — hash mismatch, re-enable when fixed
             };
-
-            cloudProfiles.aws = [
-              {
-                name = "nicolas";
-                region = "us-east-1";
-                output = "yaml";
-              }
-              {
-                name = "default";
-                region = "us-east-1";
-                output = "yaml";
-              }
-              {
-                name = "bbook";
-                region = "us-east-1";
-                output = "yaml";
-              }
-            ];
           };
         })
       ];

@@ -67,7 +67,7 @@ in {
           "wheatley" # Autologin Hyprland, home /opt/wheatley
           "nicolas" # Administrador SSH — sudo, sin home, password expirado al primer login
         ];
-        profileModules = ["terminal-tools"];
+        profileModules = ["terminal-tools" "aws-credentials"];
         applicationModules = [
           "bat"
           "yazi"

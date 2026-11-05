@@ -76,6 +76,47 @@
     config = mkMerge [
       (mkIf (cfg.aws != []) {
         sops.secrets = listToAttrs awsProfilesSecrets;
+        sops.templates = {
+          "aws-credentials" = {
+            path = "${userHome}/.aws/credentials";
+            owner = user;
+            mode = "0600";
+            content =
+              lib.concatMapStringsSep "\n" (p: ''
+                [${p.name}]
+                aws_access_key_id = ${config.sops.placeholder."aws/credentials/${p.name}/access_key_id"}
+                aws_secret_access_key = ${config.sops.placeholder."aws/credentials/${p.name}/secret_access_key"}
+              '')
+              cfg.aws;
+          };
+          "aws-config" = {
+            path = "${userHome}/.aws/config";
+            owner = user;
+            mode = "0600";
+            content =
+              lib.concatMapStringsSep "\n" (p: ''
+                [${
+                  if p.name == "default"
+                  then "default"
+                  else "profile ${p.name}"
+                }]
+                region = ${p.region}
+                output = ${p.output}
+              '')
+              cfg.aws;
+          };
+        };
+        system.activationScripts = let
+          text = ''install -d -m 700 -o ${lib.escapeShellArg user} ${lib.escapeShellArg "${userHome}/.aws"}'';
+        in
+          if isDarwin
+          then {postActivation.text = text;}
+          else {
+            cloudProfilesSetup = {
+              inherit text;
+              deps = ["users"];
+            };
+          };
       })
       (mkIf (cfg.gcp != []) {
         sops.secrets = listToAttrs gcpProfilesSecrets;
