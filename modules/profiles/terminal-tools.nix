@@ -3,7 +3,7 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-{
+{inputs, ...}: {
   flake.profileModules.terminal-tools = {pkgs, ...}: let
     # gws-tui — not in nixpkgs; patches in tokyonight-storm palette
     gws-tui = pkgs.buildGoModule rec {
@@ -62,7 +62,7 @@
           output-name = "scripts";
         }
       ];
-      packages = [pkgs.unstable.tuxedo gws-tui pkgs.cmatrix pkgs.cbonsai pkgs.pipes pkgs.nyancat pkgs.uv];
+      packages = [inputs.claws.packages.${pkgs.stdenv.hostPlatform.system}.default pkgs.unstable.tuxedo gws-tui pkgs.cmatrix pkgs.cbonsai pkgs.pipes pkgs.nyancat pkgs.uv];
       apps = {
         bat.enable = true;
         newsboat.enable = true;

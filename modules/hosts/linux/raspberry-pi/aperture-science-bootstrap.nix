@@ -40,8 +40,10 @@ in {
         ];
       })
       ++ [
-        (_: {
+        ({pkgs, ...}: {
           networking.hostName = "aperture-bootstrap";
+
+          environment.systemPackages = [inputs.claws.packages.${pkgs.stdenv.hostPlatform.system}.default];
 
           sops = {
             defaultSopsFile = "${inputs.secrets}/common.yaml";

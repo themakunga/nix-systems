@@ -38,8 +38,14 @@ in {
         ];
       })
       ++ [
-        ({lib, ...}: {
+        ({
+          lib,
+          pkgs,
+          ...
+        }: {
           networking.hostName = lib.mkForce "nixos-installer";
+
+          environment.systemPackages = [inputs.claws.packages.${pkgs.stdenv.hostPlatform.system}.default];
 
           # SSH habilitado, acceso root sin contraseña (solo llaves)
           services.openssh = {

@@ -84,6 +84,11 @@
 
     lazyjira.url = "github:textfuel/lazyjira";
 
+    claws = {
+      url = "github:clawscli/claws/v0.18.1";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     hermes-agent = {
       url = "github:NousResearch/hermes-agent";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
