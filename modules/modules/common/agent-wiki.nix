@@ -69,6 +69,23 @@ _: {
         run_as_user ln -sfn "$WIKI_DIR/claude/commands" "$USER_HOME/.claude/commands"
         run_as_user ln -sfn "$WIKI_DIR/codex/hooks.json" "$USER_HOME/.codex/hooks.json"
         run_as_user ln -sfn "$WIKI_DIR/skills/obsidian-journal/SKILL.md" "$USER_HOME/.claude/skills/obsidian-journal.md"
+
+        # The standalone skill owns voice; persisted configuration is confirmed during installation.
+        if [ -f "$WIKI_DIR/.glados.config.yaml" ] && [ -x /run/current-system/sw/bin/glados-agent ]; then
+          run_as_user mkdir -p "$USER_HOME/.local/bin" "$USER_HOME/.agents/skills"
+          run_as_user ln -sfn /run/current-system/sw/bin/glados-agent "$USER_HOME/.local/bin/glados-agent"
+          for agent_home in .agents .claude .hermes .gemini .openclaw .zeroclaw; do
+            if [ -d "$USER_HOME/$agent_home" ] && [ ! -e "$USER_HOME/$agent_home/skills/glados" ]; then
+              run_as_user mkdir -p "$USER_HOME/$agent_home/skills"
+              run_as_user ln -s "$WIKI_DIR/skills/glados" "$USER_HOME/$agent_home/skills/glados"
+            fi
+          done
+          for agent in codex claude-code hermes; do
+            run_as_user ${pkgs.python3.withPackages (ps: [ps.pyyaml ps.jsonschema])}/bin/python3 \
+              "$WIKI_DIR/skills/glados/scripts/integrate.py" --vault "$WIKI_DIR" --agent "$agent" --apply --migrate-legacy \
+              || echo "GLaDOS integration pending for $agent" >&2
+          done
+        fi
       fi
     '';
   in {

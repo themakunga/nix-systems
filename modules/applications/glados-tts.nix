@@ -6,7 +6,7 @@
 {self, ...}: {
   flake.applicationModules.glados-tts = self.lib.mkAppModule "glados-tts" "Local GLaDOS speech for coding agents" {
     meta = {pkgs, ...}: let
-      python = pkgs.python3.withPackages (ps: [ps.pyyaml]);
+      python = pkgs.python3.withPackages (ps: [ps.pyyaml ps.jsonschema]);
       piper = pkgs.piper-tts.override {
         withTrain = false;
         withHTTP = false;
@@ -45,7 +45,18 @@
         '';
     in {
       level = "system";
-      packages = [(command "say") (command "hook")];
+      packages = [
+        (command "say")
+        (pkgs.writeShellScriptBin "glados-agent" ''
+          for vault in "$HOME/.vaults/amgmt" "$HOME/.vaults/agent-wiki"; do
+            if [ -f "$vault/skills/glados/scripts/glados.py" ]; then
+              exec ${python}/bin/python3 "$vault/skills/glados/scripts/glados.py" --vault "$vault" "$@"
+            fi
+          done
+          echo "GLaDOS skill is unavailable beneath ~/.vaults" >&2
+          exit 1
+        '')
+      ];
     };
   };
 }
