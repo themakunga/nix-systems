@@ -107,15 +107,24 @@
           };
         };
         system.activationScripts = let
-          text = ''install -d -m 700 -o ${lib.escapeShellArg user} ${lib.escapeShellArg "${userHome}/.aws"}'';
+          text = ''
+            AWS_DIR=${lib.escapeShellArg "${userHome}/.aws"}
+            if [ -L "$AWS_DIR" ] && [ ! -e "$AWS_DIR" ]; then
+              mv "$AWS_DIR" "$AWS_DIR.broken-link.$(date +%Y%m%d%H%M%S).$$"
+            fi
+            mkdir -p "$AWS_DIR"
+            chmod 700 "$AWS_DIR"
+            chown ${lib.escapeShellArg user} "$AWS_DIR/"
+          '';
         in
           if isDarwin
-          then {postActivation.text = text;}
+          then {postActivation.text = lib.mkBefore text;}
           else {
             cloudProfilesSetup = {
               inherit text;
               deps = ["users"];
             };
+            setupSecrets.deps = ["cloudProfilesSetup"];
           };
       })
       (mkIf (cfg.gcp != []) {
