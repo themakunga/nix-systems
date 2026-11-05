@@ -53,7 +53,7 @@ with tempfile.TemporaryDirectory() as directory:
     env = dict(os.environ, GIT_CONFIG_GLOBAL=str(root / ".gitconfig"), GIT_CONFIG_NOSYSTEM="1")
     env["HOME"] = directory
     subprocess.run(["git", "init", "-q", str(project)], check=True, env=env)
-    for _ in range(2):
+    for iteration in range(2):
         subprocess.run(["bash", "-eu", "-c", script], check=True, env=env)
         def config(key):
             return subprocess.check_output(["git", "-C", str(project), "config", "--get", key], env=env, text=True).strip()
@@ -61,6 +61,17 @@ with tempfile.TemporaryDirectory() as directory:
         assert config("alias.kept") == "status"
         assert config("user.email") == "test@example.invalid"
         assert config("core.sshCommand") == "ssh -i /test/personal-key -o IdentitiesOnly=yes -o AddKeysToAgent=yes -o UseKeychain=yes"
+        new_project = root / f"new-{iteration}"
+        initialized = subprocess.run(
+            ["git", "init", str(new_project)], check=True, env=env,
+            text=True, capture_output=True,
+        )
+        branch = subprocess.check_output(
+            ["git", "-C", str(new_project), "symbolic-ref", "--short", "HEAD"],
+            env=env, text=True,
+        ).strip()
+        assert branch == "main", initialized.stderr
+        assert "hint:" not in initialized.stderr, initialized.stderr
     assert (root / ".gitconfig").is_symlink()
     assert source.read_text().count("[include]") == 1
     source.write_text('[include]\n  path = ~/.gitconfig.nix-managed\n')
