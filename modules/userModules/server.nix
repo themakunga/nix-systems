@@ -34,6 +34,11 @@ in {
     # y "podman compose up" falla con "no subuid ranges found".
     users.users.nicolas.autoSubUidGidRange = true;
 
+    # Rootless Podman containers (restart: unless-stopped) live in nicolas's user
+    # manager. Without linger, systemd stops it when the last SSH session closes
+    # and every container dies (cloudflared tunnels included).
+    users.users.nicolas.linger = true;
+
     programs.gnupg.agent = {
       enable = true;
       enableSSHSupport = true;
