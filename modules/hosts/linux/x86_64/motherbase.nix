@@ -74,6 +74,19 @@ in {
               samba-share.user = "admin";
             };
           };
+
+          # mDNS: Avahi publishes motherbase.local on the LAN and resolves *.local via NSS.
+          # openFirewall opens UDP 5353; there is no resolved/NetworkManager to conflict with.
+          config.services.avahi = {
+            enable = true;
+            nssmdns4 = true;
+            openFirewall = true;
+            publish = {
+              enable = true;
+              addresses = true;
+              domain = true;
+            };
+          };
         }
       ];
   };
