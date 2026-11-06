@@ -81,7 +81,9 @@ _: {
             fi
           done
           for agent in codex claude-code hermes; do
-            run_as_user ${pkgs.python3.withPackages (ps: [ps.pyyaml ps.jsonschema])}/bin/python3 \
+            # The activation PATH is minimal; integrate.py resolves glados-agent with shutil.which.
+            run_as_user env PATH="/run/current-system/sw/bin:$USER_HOME/.local/bin:$PATH" \
+              ${pkgs.python3.withPackages (ps: [ps.pyyaml ps.jsonschema])}/bin/python3 \
               "$WIKI_DIR/skills/glados/scripts/integrate.py" --vault "$WIKI_DIR" --agent "$agent" --apply --migrate-legacy \
               || echo "GLaDOS integration pending for $agent" >&2
           done
