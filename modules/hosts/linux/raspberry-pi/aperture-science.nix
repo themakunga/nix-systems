@@ -191,6 +191,7 @@ in {
                 forecast = ["d" "w"];
               };
               nix-anywhere.enable = true;
+              packages = [pkgs.rclone];
 
               # SOPS: hosts/aperture-science.yaml contiene wheatley/password (SHA-512).
               hostSecrets.file = "${inputs.secrets.outPath}/hosts/aperture-science.yaml";

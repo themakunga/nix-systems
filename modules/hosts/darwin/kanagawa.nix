@@ -51,6 +51,7 @@ in {
             packages = with pkgs; [
               lua5_4
               taplo
+              rclone
               (unstable.markitdown.overridePythonAttrs (old: {
                 dependencies = old.dependencies ++ (with unstable.markitdown.optional-dependencies; docx ++ pdf ++ pptx ++ xlsx ++ xls);
               }))

@@ -67,6 +67,7 @@ in {
               rustc
               lua5_4
               taplo
+              rclone
             ];
 
             casks = ["tigervnc" "miniconda" "claude-code" "qmk-toolbox"];
