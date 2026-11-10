@@ -28,7 +28,7 @@ in {
       ]
       ++ (mkBundle (extendBundle bundles.darwin.base {
         darwinModules = ["tiling"];
-        applicationModules = ["google-cloud.gcloud" "hermes" "matcha" "nlm"];
+        applicationModules = ["google-cloud.gcloud" "hermes" "matcha" "nlm" "cliamp"];
         developmentModules = ["ios-terminal"];
         userModules = ["personal"];
         profileModules = ["personal" "bbook" "company" "terminal-tools" "aws-credentials"];
@@ -42,6 +42,7 @@ in {
           ];
           my = {
             apps = {
+              cliamp.enable = true;
               hermes.enable = true;
               matcha.enable = true;
               glados-tts.enable = true;
