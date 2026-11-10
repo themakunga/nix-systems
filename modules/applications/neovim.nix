@@ -53,6 +53,7 @@ in {
           go
           jdk
         ]
+        ++ lib.optionals pkgs.stdenv.isDarwin [pngpaste]
         ++ lib.optionals (options ? system.nixos) [wl-clipboard xclip];
     };
     sysConfig = {
