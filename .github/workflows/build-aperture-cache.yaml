@@ -34,7 +34,7 @@ jobs:
     # 180 min es el margen seguro para un build completo sin cache.
     timeout-minutes: 180
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
       - uses: uraimo/run-on-arch-action@v3

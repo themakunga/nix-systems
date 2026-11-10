@@ -24,7 +24,7 @@ jobs:
     name: Secrets — gitleaks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Scan for exposed secrets
@@ -37,7 +37,7 @@ jobs:
     name: Vulnerabilities — trivy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Scan dependencies and filesystem
         uses: aquasecurity/trivy-action@v0.36.0
         with:
