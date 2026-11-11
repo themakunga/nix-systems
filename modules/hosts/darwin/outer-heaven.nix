@@ -27,9 +27,9 @@ in {
         mac-app-util.darwinModules.default
       ]
       ++ (mkBundle (extendBundle bundles.darwin.base {
-        commonModules = ["secret-dotfiles"];
+        commonModules = ["secret-dotfiles" "shared-secrets"];
         darwinModules = ["linux-builder" "tiling"];
-        applicationModules = ["google-cloud.gemini" "jira" "ollama" "cliamp" "tuifeed"];
+        applicationModules = ["google-cloud.gemini" "jira" "ollama" "cliamp" "tuifeed" "matcha"];
         userModules = ["work" "glados"];
         profileModules = ["work" "personal" "latam" "glados" "thoughtworks" "grainger" "company" "outer-heaven-workspaces" "terminal-tools" "aws-credentials"];
       }))
@@ -76,6 +76,7 @@ in {
             services.tiling.enable = true;
 
             apps = {
+              matcha.enable = true;
               jira.enable = true;
               cliamp.enable = true;
               tuifeed.enable = true;
