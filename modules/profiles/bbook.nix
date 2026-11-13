@@ -12,12 +12,15 @@
   }: let
     inherit (lib) mkIf;
     inherit (pkgs.stdenv.hostPlatform) isDarwin;
+    sopsConf = {
+      owner = config.my.userProfiles.bbook.username or "nicolas";
+    };
   in {
     sops.secrets = {
-      "profiles/bbook/ssh/private_key" = {};
-      "profiles/bbook/gpg/private_key" = {};
-      "profiles/bbook/gpg/public_key" = {};
-      "profiles/bbook/gpg/key_id" = {};
+      "profiles/bbook/ssh/private_key" = sopsConf;
+      "profiles/bbook/gpg/private_key" = sopsConf;
+      "profiles/bbook/gpg/public_key" = sopsConf;
+      "profiles/bbook/gpg/key_id" = sopsConf;
     };
 
     my.casks = mkIf isDarwin [

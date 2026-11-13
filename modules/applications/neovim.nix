@@ -40,6 +40,7 @@ in {
           imagemagick # snacks.image: convert/magick para rendering
           ghostscript # snacks.image: gs para PDFs
           lua-language-server
+          unstable.codebook
           stylua
           nixd
           alejandra
