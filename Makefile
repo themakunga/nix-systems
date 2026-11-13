@@ -77,11 +77,6 @@ switch-kanagawa-fix: ## Bootstrap fix: switch sin nixos-hardware.cachix.org (401
 # 🐧 DESPLIEGUES NIXOS LOCALES (X86_64)
 # =========================================================
 
-switch-motherbase: ## Aplica la configuración en motherbase (KVM/Server)
-	@echo "=> Aplicando NixOS en motherbase..."
-	git add -A
-	sudo nixos-rebuild switch --flake .#motherbase
-
 switch-msf: ## Aplica la configuración en msf (Media Server)
 	@echo "=> Aplicando NixOS en msf..."
 	git add -A
@@ -160,10 +155,18 @@ switch-valve: ## [UPDATE] Actualiza valve en ejecución vía nixos-rebuild. Uso:
 # 🌍 DESPLIEGUE REMOTO X86_64
 # ==========================================
 
-deploy-motherbase: ## Despliega motherbase remoto compilando en el destino
-	@echo "=> Desplegando configuración en motherbase.local..."
-	git add -A
-	nix run nixpkgs#nixos-rebuild -- switch --flake .#motherbase --target-host root@192.168.5.153 --build-host $(or $(BUILD_HOST),root@192.168.5.153) --fast
+# Keep other targets' legacy default while honoring explicit TARGET_IP overrides.
+MOTHERBASE_TARGET = $(if $(filter file,$(origin TARGET_IP)),motherbase.local,$(TARGET_IP))
+
+switch-motherbase: ## Switch motherbase over SSH. Usage: make switch-motherbase TARGET_IP=motherbase.local
+	@echo "=> Switching motherbase at $(MOTHERBASE_TARGET)..."
+	nix run nixpkgs#nixos-rebuild -- switch \
+	  --flake .#motherbase \
+	  --target-host "root@$(MOTHERBASE_TARGET)" \
+	  --build-host "$(or $(BUILD_HOST),root@$(MOTHERBASE_TARGET))" \
+	  --fast
+
+deploy-motherbase: switch-motherbase ## Compatibility alias for switch-motherbase
 
 # =========================================================
 # 🧪 PRUEBAS Y CONSTRUCCIÓN (TESTING)

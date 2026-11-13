@@ -10,6 +10,7 @@
   - [Overview](#overview)
   - [Hosts Description](#hosts-description)
   - [Installation Guide](#installation-guide)
+  - [Switch motherbase remotely](#switch-motherbase-remotely)
   - [Raspberry Pi: Download & Flash SD Images](#raspberry-pi-download--flash-sd-images)
   - [Repository Workflow (GitFlow)](#repository-workflow-gitflow)
   - [Local Development](#local-development)
@@ -76,6 +77,26 @@ sudo nixos-rebuild switch --flake github:themakunga/nix-systems#<hostname>
 
 ```bash
 darwin-rebuild switch --flake github:themakunga/nix-systems#<hostname>
+```
+
+### Switch motherbase remotely
+
+From the repository on macOS or Linux, apply motherbase's configuration over SSH:
+
+```bash
+make switch-motherbase TARGET_IP=motherbase.local
+```
+
+`TARGET_IP` defaults to `motherbase.local` for this target and also accepts an IP address.
+The build and activation run on `root@TARGET_IP`, requiring root SSH access. To use another
+builder, add `BUILD_HOST=builder@linux-builder`. `deploy-motherbase` is a compatibility alias.
+Neither target stages files in Git. Existing tracked worktree changes are still part of the flake;
+review them before applying. This switches the complete host configuration.
+
+Check command routing without contacting or activating any host:
+
+```bash
+python3 scripts/check-motherbase-switch.py
 ```
 
 ### Raspberry Pi: Download & Flash SD Images
