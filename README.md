@@ -99,6 +99,29 @@ Check command routing without contacting or activating any host:
 python3 scripts/check-motherbase-switch.py
 ```
 
+### Umami on Motherbase
+
+The Motherbase-only `applicationModules.umami` module declares a Compose project at
+`/opt/umami`, managed by `compose-umami.service` through the existing Podman Docker API.
+It serves `http://motherbase.local:8989`, bound to the current LAN address
+`192.168.5.153`; firewall access is limited to `enp2s0` and `192.168.4.0/22`.
+Update both the Compose binding and firewall rule if the LAN address changes.
+
+Umami 3.5.0 runs with PostgreSQL 15 on an internal database network. PostgreSQL has no
+published port, and its data persists in the `umami_umami-db-data` volume. Never use
+`docker compose down -v` unless intentionally deleting the analytics database.
+Back up that database before upgrading either image.
+
+SOPS renders a root-only environment file from the encrypted secrets input; no
+credentials belong in the Compose file or Nix store. The service waits for SOPS
+and `podman.socket`, independently of the ingress/demo stack.
+
+This declaration requires host activation before the URL is available. After activation,
+check `systemctl status compose-umami` and `curl --fail http://motherbase.local:8989/api/heartbeat`.
+The first login is `admin` / `umami`; replace the default password immediately.
+The requested LAN endpoint uses HTTP. Trackers embedded in public HTTPS websites
+need a separately configured HTTPS endpoint reachable by their visitors.
+
 ### Raspberry Pi: Download & Flash SD Images
 
 SD Card images for ARM64 hosts (`aperture-science`, `black-mesa`, `valve`) are

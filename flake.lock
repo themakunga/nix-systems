@@ -814,11 +814,11 @@
     "secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1793731235,
-        "narHash": "sha256-nm/Mw2USxERc2L8Zd8bpRGaWKth5/DOKaBSfplsgxA8=",
+        "lastModified": 1794572554,
+        "narHash": "sha256-D9WeKy6ptsjABxilsjq38d7SbL+pJUQaqLP4P2OVfLw=",
         "ref": "refs/heads/main",
-        "rev": "bdbf95ff4dfb9cc55ee8b7b64a195a5fbe1c8dc1",
-        "revCount": 182,
+        "rev": "8dae7b8507d2d9a012251d2150cb8f76af2c823e",
+        "revCount": 183,
         "type": "git",
         "url": "ssh://git@github.com/TheMakunga/.secrets.git"
       },
