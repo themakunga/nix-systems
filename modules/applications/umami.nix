@@ -21,6 +21,7 @@
     }: let
       project = "${self}/modules/applications/docker-host/umami";
       secretNames = ["postgres_password" "app_secret" "two_factor_key"];
+      secretUnits = lib.optional config.sops.useSystemdActivation "sops-install-secrets.service";
     in {
       my.services.docker-host.projects.umami = project;
 
@@ -43,8 +44,8 @@
       # This LAN-only project uses Podman's socket and needs no ingress stack.
       systemd.services.compose-umami = {
         wants = ["network-online.target"];
-        requires = lib.mkForce ["podman.socket" "sops-nix.service"];
-        after = lib.mkForce ["podman.socket" "sops-nix.service" "network-online.target"];
+        requires = lib.mkForce (["podman.socket"] ++ secretUnits);
+        after = lib.mkForce (["podman.socket" "network-online.target"] ++ secretUnits);
         restartTriggers = [project];
         serviceConfig.EnvironmentFile = config.sops.templates."umami-env".path;
       };

@@ -114,7 +114,15 @@ Back up that database before upgrading either image.
 
 SOPS renders a root-only environment file from the encrypted secrets input; no
 credentials belong in the Compose file or Nix store. The service waits for SOPS
-and `podman.socket`, independently of the ingress/demo stack.
+and `podman.socket`, independently of the ingress/demo stack. SOPS normally renders
+secrets during system activation; an explicit dependency on `sops-install-secrets.service`
+is added only when `sops.useSystemdActivation` enables that unit.
+
+Check both SOPS activation modes without starting containers or switching the host:
+
+```sh
+nix eval --impure --json --file scripts/check-umami-systemd.nix
+```
 
 This declaration requires host activation before the URL is available. After activation,
 check `systemctl status compose-umami` and `curl --fail http://motherbase.local:8989/api/heartbeat`.
