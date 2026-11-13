@@ -88,6 +88,17 @@ in {
             };
           };
         }
+        {
+          # Private HTTPS comment moderation: accept only the directly connected LAN.
+          networking.firewall = {
+            extraCommands = ''
+              iptables -w -A nixos-fw -i enp2s0 -s 192.168.4.0/22 -d 192.168.5.153 -p tcp --dport 3443 -j nixos-fw-accept
+            '';
+            extraStopCommands = ''
+              iptables -w -D nixos-fw -i enp2s0 -s 192.168.4.0/22 -d 192.168.5.153 -p tcp --dport 3443 -j nixos-fw-accept 2>/dev/null || true
+            '';
+          };
+        }
       ];
   };
 }
