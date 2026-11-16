@@ -52,6 +52,7 @@
         "github-cli"
         "ghostty"
         "halloy"
+        "handy"
         "nchat"
         "beeptui"
         "weechat"

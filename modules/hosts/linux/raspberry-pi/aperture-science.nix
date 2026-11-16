@@ -70,6 +70,7 @@ in {
         profileModules = ["terminal-tools" "aws-credentials"];
         applicationModules = [
           "bat"
+          "handy"
           "yazi"
           "zoxide"
           "tailscale.core"
@@ -214,6 +215,7 @@ in {
 
               apps = {
                 tailscale-core.enable = true;
+                handy.enable = true;
                 wechat.enable = true;
                 hermes.enable = true; # Hermes AI Agent — solo en aperture-science
                 glados-tts.enable = true; # Voz GLaDOS para hooks de agentes de wheatley

@@ -6,7 +6,19 @@
 # Common configuration for all of Nicolas's macOS workstations.
 # Included automatically via darwin.base bundle → profileModules.
 _: {
-  flake.profileModules.darwin-mac = {pkgs, ...}: {
+  flake.profileModules.darwin-mac = {
+    config,
+    lib,
+    pkgs,
+    ...
+  }: {
+    launchd.user.agents.handy = lib.mkIf config.my.apps.handy.enable {
+      serviceConfig = {
+        ProgramArguments = ["/Applications/Handy.app/Contents/MacOS/handy" "--start-hidden"];
+        RunAtLoad = true;
+        ProcessType = "Interactive";
+      };
+    };
     my = {
       dotfiles.enable = true;
       primaryUser = {
@@ -51,6 +63,7 @@ _: {
         ghostty.enable = true;
         wezterm.enable = true;
         halloy.enable = true;
+        handy.enable = true;
         beeptui.enable = true;
         irssi.enable = true;
         weechat.enable = true;
