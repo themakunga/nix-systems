@@ -79,18 +79,22 @@ sudo nixos-rebuild switch --flake github:themakunga/nix-systems#<hostname>
 darwin-rebuild switch --flake github:themakunga/nix-systems#<hostname>
 ```
 
-### Switch motherbase remotely
+### Switch Linux hosts remotely
 
-From the repository on macOS or Linux, apply motherbase's configuration over SSH:
+From the repository on macOS or Linux, apply these hosts' configurations over SSH:
 
 ```bash
 make switch-motherbase TARGET_IP=motherbase.local
+make switch-msf TARGET_IP=msf.local
+make switch-aperture TARGET_IP=aperture-science.local
 ```
 
-`TARGET_IP` defaults to `motherbase.local` for this target and also accepts an IP address.
+Each target defaults to its host's `.local` name; `TARGET_IP` also accepts an IP address.
+For `switch-aperture`, the existing `APERTURE_IP` override remains supported when
+`TARGET_IP` is not explicitly supplied. Its default is now `aperture-science.local`.
 The build and activation run on `root@TARGET_IP`, requiring root SSH access. To use another
 builder, add `BUILD_HOST=builder@linux-builder`. `deploy-motherbase` is a compatibility alias.
-Neither target stages files in Git. Existing tracked worktree changes are still part of the flake;
+These targets do not stage files in Git or use local `sudo`. Existing tracked worktree changes are still part of the flake;
 review them before applying. This switches the complete host configuration.
 
 Check command routing without contacting or activating any host:

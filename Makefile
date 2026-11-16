@@ -5,8 +5,8 @@
 # --- VARIABLES DE ENTORNO ---
 TARGET_IP ?= 192.168.1.100
 HOST ?= aperture-science
-# IPs fijas de hosts RPi
-APERTURE_IP ?= 192.168.5.85
+# Default address for aperture-science; TARGET_IP takes precedence for switching.
+APERTURE_IP ?= aperture-science.local
 # BUILD_HOST=builder@linux-builder para compilar en la VM de outer-heaven.
 # Por defecto vacío → cada switch-* buildea en el propio destino (sin cross-compile).
 BUILD_HOST ?=
@@ -74,13 +74,18 @@ switch-kanagawa-fix: ## Bootstrap fix: switch sin nixos-hardware.cachix.org (401
 	sudo ./result/sw/bin/darwin-rebuild activate
 
 # =========================================================
-# 🐧 DESPLIEGUES NIXOS LOCALES (X86_64)
+# 🐧 NIXOS DEPLOYMENTS (X86_64)
 # =========================================================
 
-switch-msf: ## Aplica la configuración en msf (Media Server)
-	@echo "=> Aplicando NixOS en msf..."
-	git add -A
-	sudo nixos-rebuild switch --flake .#msf
+MSF_TARGET = $(if $(filter file,$(origin TARGET_IP)),msf.local,$(TARGET_IP))
+
+switch-msf: ## Switch msf over SSH. Usage: make switch-msf [TARGET_IP=msf.local]
+	@echo "=> Switching msf at $(MSF_TARGET)..."
+	nix run nixpkgs#nixos-rebuild -- switch \
+	  --flake .#msf \
+	  --target-host "root@$(MSF_TARGET)" \
+	  --build-host "$(or $(BUILD_HOST),root@$(MSF_TARGET))" \
+	  --fast
 
 switch-steamdeck: ## Aplica la configuración en steamdeck
 	@echo "=> Aplicando NixOS en steamdeck..."
@@ -101,13 +106,15 @@ deploy-aperture: ## [INICIAL] Instala aperture-science vía nixos-anywhere (desd
 	git add -A
 	./scripts/deploy.sh $(or $(TARGET_IP),$(APERTURE_IP)) .#aperture-science
 
-switch-aperture: ## [UPDATE] Actualiza aperture-science — buildea en el propio Pi (sin cross-compile). Uso: make switch-aperture
-	@echo "=> Actualizando aperture-science en $(APERTURE_IP) (build en destino)..."
-	git add -A
+APERTURE_TARGET = $(if $(filter file,$(origin TARGET_IP)),$(APERTURE_IP),$(TARGET_IP))
+
+switch-aperture: ## Switch aperture-science over SSH. Usage: make switch-aperture [TARGET_IP=aperture-science.local]
+	@echo "=> Switching aperture-science at $(APERTURE_TARGET)..."
 	nix run nixpkgs#nixos-rebuild -- switch \
 	  --flake .#aperture-science \
-	  --target-host root@$(APERTURE_IP) \
-	  --build-host $(or $(BUILD_HOST),root@$(APERTURE_IP))
+	  --target-host "root@$(APERTURE_TARGET)" \
+	  --build-host "$(or $(BUILD_HOST),root@$(APERTURE_TARGET))" \
+	  --fast
 
 build-installer-x86: ## Genera ISO de instalación x86_64 con llaves SSH pre-cargadas. Flashear a USB para bare metal. Uso: make build-installer-x86
 	@echo "=> Generando ISO de instalación x86_64..."
