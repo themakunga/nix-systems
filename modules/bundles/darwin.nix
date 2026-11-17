@@ -43,6 +43,7 @@
       ];
 
       applicationModules = [
+        "point-reader"
         "glados-tts"
         "bat"
         "qmk"

@@ -54,6 +54,7 @@ _: {
 
       # github-cli already enabled by the personal profile
       apps = {
+        point-reader.enable = true;
         tailscale-core.enable = true;
         tailscale-gui.enable = true;
         neovim.enable = true;
