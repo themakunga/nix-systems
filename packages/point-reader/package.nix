@@ -6,6 +6,7 @@
 {
   lib,
   swiftPackages,
+  rcodesign,
 }: let
   inherit (swiftPackages) stdenv swift;
 in
@@ -13,7 +14,7 @@ in
     pname = "point-reader";
     version = "1.0.0";
     src = ./.;
-    nativeBuildInputs = [swift];
+    nativeBuildInputs = [swift rcodesign];
     buildPhase = ''
       runHook preBuild
       swiftc -O Reader.swift main.swift -o point-reader
@@ -33,6 +34,9 @@ in
       cp point-reader "$app/MacOS/point-reader"
       cp Info.plist "$app/Info.plist"
       runHook postInstall
+    '';
+    postFixup = ''
+      rcodesign sign "$out/Applications/Point Reader.app"
     '';
     meta = {
       description = "Read selected text or the accessible block under the pointer";
