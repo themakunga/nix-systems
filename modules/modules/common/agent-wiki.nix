@@ -82,10 +82,14 @@ _: {
           done
           for agent in codex claude-code hermes; do
             # The activation PATH is minimal; integrate.py resolves glados-agent with shutil.which.
-            run_as_user env PATH="/run/current-system/sw/bin:$USER_HOME/.local/bin:$PATH" \
+            if integration_output=$(run_as_user env PATH="/run/current-system/sw/bin:$USER_HOME/.local/bin:$PATH" \
               ${pkgs.python3.withPackages (ps: [ps.pyyaml ps.jsonschema])}/bin/python3 \
-              "$WIKI_DIR/skills/glados/scripts/integrate.py" --vault "$WIKI_DIR" --agent "$agent" --apply --migrate-legacy \
-              || echo "GLaDOS integration pending for $agent" >&2
+              "$WIKI_DIR/skills/glados/scripts/integrate.py" --vault "$WIKI_DIR" --agent "$agent" --apply --migrate-legacy 2>&1); then
+              echo "  OK: GLaDOS $agent"
+            else
+              printf '%s\n' "$integration_output" >&2
+              echo "GLaDOS integration pending for $agent" >&2
+            fi
           done
         fi
       fi
