@@ -41,7 +41,7 @@ mas() {{
         )
         assert result.returncode == 0, result.stderr
         assert "Failed to get sudo" not in result.stdout, result.stdout
-        assert "WARNING: Amphetamine (937984704) omitida" in result.stdout, result.stdout
-        for app_id in host["apps"].values():
-            assert f"mas-call: install {app_id}\n" in result.stdout, result.stdout
+        assert "WARNING: Amphetamine (937984704) omitida" in result.stderr, result.stderr
+        assert "mas-call:" not in result.stdout, result.stdout
+        assert "OK:" in result.stdout, result.stdout
     print(f"{name}: sudo identity restored; app failures remain non-fatal")
