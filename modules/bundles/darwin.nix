@@ -43,6 +43,7 @@
       ];
 
       applicationModules = [
+        "point-reader"
         "glados-tts"
         "bat"
         "qmk"
@@ -52,6 +53,7 @@
         "github-cli"
         "ghostty"
         "halloy"
+        "handy"
         "nchat"
         "beeptui"
         "weechat"
@@ -62,7 +64,6 @@
         "tailscale.gui"
         "terminal-zsh"
         "newsboat"
-        "token-counter"
         "wezterm"
       ];
 
@@ -82,6 +83,7 @@
         "groovy"
         "iac"
         "java"
+        "lua"
         "nodejs"
         "python"
         "ruby"

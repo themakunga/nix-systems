@@ -67,9 +67,10 @@ in {
           "wheatley" # Autologin Hyprland, home /opt/wheatley
           "nicolas" # Administrador SSH — sudo, sin home, password expirado al primer login
         ];
-        profileModules = ["terminal-tools"];
+        profileModules = ["terminal-tools" "aws-credentials"];
         applicationModules = [
           "bat"
+          "handy"
           "yazi"
           "zoxide"
           "tailscale.core"
@@ -78,6 +79,7 @@ in {
           "neovim" # Editor — instala neovim 0.12 + stow ~/.config/nvim/ desde public-dotfiles
           "hermes" # Hermes AI Agent con Obsidian oficial en Podman rootless (/opt/hermes)
           "remote-touchpad" # iPad como teclado/touchpad via uinput — Safari en :9100
+          "glados-tts" # Voz GLaDOS para hooks de agentes (Piper + mpv); wheatley necesita salida de audio
         ];
       })
       ++ [
@@ -124,6 +126,22 @@ in {
                     name = "waybar";
                     isConfig = true;
                   } # ~/.config/waybar/
+                  {name = "wezterm";} # ~/.wezterm.lua
+                  {name = "git";} # ~/.gitconfig
+                  {name = "tmux";} # ~/.tmux.conf
+                  {
+                    name = "nvim";
+                    isConfig = true;
+                  } # ~/.config/nvim/
+                  {
+                    name = "bat";
+                    isConfig = true;
+                  } # ~/.config/bat/
+                  {
+                    name = "yazi";
+                    isConfig = true;
+                  } # ~/.config/yazi/
+                  {name = "zoxide";} # ~/.config/zoxide/
                 ];
                 # nicolas: administrador con escritorio Hyprland independiente.
                 # Recibe tooling dev + config de terminal y editor.
@@ -174,6 +192,7 @@ in {
                 forecast = ["d" "w"];
               };
               nix-anywhere.enable = true;
+              packages = [pkgs.rclone];
 
               # SOPS: hosts/aperture-science.yaml contiene wheatley/password (SHA-512).
               hostSecrets.file = "${inputs.secrets.outPath}/hosts/aperture-science.yaml";
@@ -182,10 +201,6 @@ in {
                   key = "wheatley/password";
                   owner = "root"; # hashedPasswordFile debe ser legible por systemd-userdbd
                   neededForUsers = true;
-                };
-                "runner/token" = {
-                  key = "runner/token";
-                  owner = "nicolas";
                 };
               };
 
@@ -200,8 +215,10 @@ in {
 
               apps = {
                 tailscale-core.enable = true;
+                handy.enable = true;
                 wechat.enable = true;
                 hermes.enable = true; # Hermes AI Agent — solo en aperture-science
+                glados-tts.enable = true; # Voz GLaDOS para hooks de agentes de wheatley
                 remote-touchpad.enable = true; # iPad como teclado/touchpad — solo en aperture-science
                 wezterm.enable = true; # Terminal principal con config TokyoNight Storm
                 neovim.enable = true; # Editor con LSP, treesitter, toolchain completo
@@ -295,20 +312,6 @@ in {
               };
 
               tailscale.extraUpFlags = ["--accept-dns=false"];
-
-              # GitHub Actions self-hosted runner — build nativo aarch64 + push a Cachix.
-              # Token de registro en secrets/hosts/aperture-science.yaml → runner/token.
-              # El runner corre como usuario nicolas; cachix usa CACHIX_AUTH_TOKEN inyectado
-              # por el workflow desde los GitHub Secrets del repo.
-              github-runners.aperture-science = {
-                enable = true;
-                name = "aperture-science";
-                url = "https://github.com/themakunga/nix-systems";
-                tokenFile = config.sops.secrets."runner/token".path;
-                user = "nicolas";
-                extraLabels = ["aarch64-linux" "aperture-science"];
-                extraPackages = [pkgs.cachix pkgs.git];
-              };
             };
 
             # ── ZeroClaw: AI agent gateway ─────────────────────────────────────
@@ -355,7 +358,13 @@ in {
             system.activationScripts."glados-agent-dotfiles" = {
               text = ''
                 DOTFILES_DIR="/opt/glados/.public-dotfiles"
-                WIKI_DIR="/opt/glados/agent-wiki"
+                WIKI_DIR="/opt/glados/.vaults/agent-wiki"
+                LEGACY_WIKI_DIR="/opt/glados/agent-wiki"
+                install -d -m 700 -o glados -g glados /opt/glados/.vaults
+                if [ ! -e "$WIKI_DIR" ] && [ ! -L "$WIKI_DIR" ] && [ -d "$LEGACY_WIKI_DIR/.git" ]; then
+                  /run/wrappers/bin/sudo -H -u glados mv "$LEGACY_WIKI_DIR" "$WIKI_DIR"
+                  /run/wrappers/bin/sudo -H -u glados ln -s "$WIKI_DIR" "$LEGACY_WIKI_DIR"
+                fi
                 ZEROCLAW_DIR="/opt/glados/.zeroclaw"
 
                 echo "=> Sincronizando agent-wiki y configuración de GLaDOS..."

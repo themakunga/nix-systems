@@ -6,6 +6,7 @@
 {self, ...}: {
   flake.applicationModules.glados-tts = self.lib.mkAppModule "glados-tts" "Local GLaDOS speech for coding agents" {
     meta = {pkgs, ...}: let
+      python = pkgs.python3.withPackages (ps: [ps.pyyaml ps.jsonschema]);
       piper = pkgs.piper-tts.override {
         withTrain = false;
         withHTTP = false;
@@ -40,24 +41,22 @@
           export GLADOS_PIPER=${piper}/bin/piper
           export GLADOS_MODEL=${voice}/glados.onnx
           export GLADOS_PLAYER=${player}
-          exec ${pkgs.python3}/bin/python3 ${./glados-tts/speech.py} ${mode} "$@"
+          exec ${python}/bin/python3 ${./glados-tts/speech.py} ${mode} "$@"
         '';
     in {
       level = "system";
-      packages = [(command "say") (command "hook")];
+      packages = [
+        (command "say")
+        (pkgs.writeShellScriptBin "glados-agent" ''
+          for vault in "$HOME/.vaults/amgmt" "$HOME/.vaults/agent-wiki"; do
+            if [ -f "$vault/skills/glados/scripts/glados.py" ]; then
+              exec ${python}/bin/python3 "$vault/skills/glados/scripts/glados.py" --vault "$vault" "$@"
+            fi
+          done
+          echo "GLaDOS skill is unavailable beneath ~/.vaults" >&2
+          exit 1
+        '')
+      ];
     };
-
-    sysConfig = {
-      config,
-      lib,
-      pkgs,
-      ...
-    }:
-      lib.mkIf pkgs.stdenv.isDarwin {
-        system.activationScripts.postActivation.text = lib.mkAfter ''
-          echo "=> Configuring GLaDOS speech for Codex and Claude Code..."
-          /usr/bin/sudo -H -u ${lib.escapeShellArg config.system.primaryUser} ${pkgs.python3}/bin/python3 ${./glados-tts/install-hooks.py} "$systemConfig/sw/bin"
-        '';
-      };
   };
 }

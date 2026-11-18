@@ -1,0 +1,89 @@
+Preserve RPC replies received immediately before the socket closes.
+Connection failures already reach pending requests through their reply channels.
+
+--- a/internal/api/remote.go
++++ b/internal/api/remote.go
+@@ -504,7 +504,4 @@
+ 		c.removePending(id)
+ 		return ctx.Err()
+-	case <-c.done:
+-		c.removePending(id)
+-		return c.closeErrOrDefault()
+ 	}
+ }
+--- /dev/null
++++ b/internal/api/remote_disconnect_test.go
+@@ -0,0 +1,73 @@
++package api
++
++import (
++	"context"
++	"errors"
++	"net"
++	"testing"
++)
++
++type writeAfterDisconnectConn struct {
++	net.Conn
++	done   <-chan struct{}
++	writes int
++}
++
++func (c *writeAfterDisconnectConn) Write(p []byte) (int, error) {
++	n, err := c.Conn.Write(p)
++	c.writes++
++	// Resume the requester only after the reader has processed the response and EOF.
++	if c.writes == 2 && err == nil {
++		<-c.done
++	}
++	return n, err
++}
++
++func TestRemoteClientKeepsReplyBeforeDisconnect(t *testing.T) {
++	for _, kind := range []string{"success", "rpc-error", "no-response"} {
++		t.Run(kind, func(t *testing.T) {
++			clientConn, serverConn := net.Pipe()
++			defer serverConn.Close()
++			conn := &writeAfterDisconnectConn{Conn: clientConn}
++			client := NewRemoteClientConn(conn)
++			defer client.Close()
++			conn.done = client.done
++			serverErr := make(chan error, 1)
++			go func() {
++				defer serverConn.Close()
++				env, err := ReadFrame(serverConn)
++				if err != nil || kind == "no-response" {
++					serverErr <- err
++					return
++				}
++				response := Envelope{ID: env.ID, Kind: "response"}
++				if kind == "rpc-error" {
++					response.Error = &ProtocolError{Code: "rejected", Message: "request rejected"}
++				} else {
++					response.Result, _ = MarshalRaw("received")
++				}
++				serverErr <- WriteFrame(serverConn, response)
++			}()
++			var result string
++			err := client.request(context.Background(), "Ping", nil, &result)
++			switch kind {
++			case "success":
++				if err != nil || result != "received" {
++					t.Fatalf("response lost on disconnect: result=%q err=%v", result, err)
++				}
++			case "rpc-error":
++				var protocolErr *ProtocolError
++				if !errors.As(err, &protocolErr) || protocolErr.Code != "rejected" {
++					t.Fatalf("RPC error lost on disconnect: %v", err)
++				}
++			case "no-response":
++				if !errors.Is(err, ErrRemoteClosed) {
++					t.Fatalf("disconnect without response: %v", err)
++				}
++			}
++			if err := <-serverErr; err != nil {
++				t.Fatal(err)
++			}
++		})
++	}
++}

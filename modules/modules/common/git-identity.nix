@@ -149,6 +149,8 @@
           # ── Cabecera del config global gestionado por Nix ──────────────
           cat > "$GIT_NIX_CONF" << 'NIXEOF'
           # Archivo autogenerado por Nix. NO EDITAR DIRECTAMENTE.
+          [init]
+            defaultBranch = main
           [pull]
             rebase = false
           NIXEOF

@@ -52,6 +52,11 @@
     config = mkIf cfg.enable {
       services.openssh.enable = true;
 
+      # Permite correr binarios Linux genéricos (dinámicamente enlazados
+      # para glibc/FHS estándar) como los que descarga mason.nvim —
+      # sin esto fallan con "Could not start dynamically linked executable".
+      programs.nix-ld.enable = true;
+
       sops.age.sshKeyPaths = [
         "/etc/ssh/ssh_host_ed25519_key"
       ];

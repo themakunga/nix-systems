@@ -28,13 +28,13 @@ in {
       ]
       ++ (mkBundle (extendBundle bundles.darwin.base {
         darwinModules = ["tiling"];
-        applicationModules = ["google-cloud.gcloud" "hermes" "nlm"];
+        applicationModules = ["google-cloud.gcloud" "matcha" "nlm" "cliamp"];
         developmentModules = ["ios-terminal"];
         userModules = ["personal"];
-        profileModules = ["personal" "bbook" "company" "terminal-tools"];
+        profileModules = ["personal" "bbook" "company" "terminal-tools" "aws-credentials"];
       }))
       ++ [
-        {
+        ({pkgs, ...}: {
           system.defaults.dock.persistent-apps = [
             "/Applications/WezTerm.app"
             "/Applications/Typora.app"
@@ -42,12 +42,20 @@ in {
           ];
           my = {
             apps = {
+              cliamp.enable = true;
+              matcha.enable = true;
               glados-tts.enable = true;
-              hermes.enable = true;
               nlm.enable = true;
             };
             services.tiling.enable = true;
-            packages = [];
+            packages = with pkgs; [
+              lua5_4
+              taplo
+              rclone
+              (unstable.markitdown.overridePythonAttrs (old: {
+                dependencies = old.dependencies ++ (with unstable.markitdown.optional-dependencies; docx ++ pdf ++ pptx ++ xlsx ++ xls);
+              }))
+            ];
             hostSecrets.file = "${secrets.outPath}/hosts/kanagawa.yaml";
 
             wallpaper = {
@@ -66,20 +74,23 @@ in {
             };
           };
 
-          programs.git-identity.workspaces.personal = {
-            directory = "~/Projects/Personal";
-            realName = "Nicolas Villarroel Martinez";
-            email = "nmartinezv@icloud.com";
-            gpg = {
-              enable = true;
-              keyId = "/run/secrets/profiles/personal/gpg/key_id";
+          programs.git-identity.workspaces = rec {
+            personal = {
+              directory = "~/Projects/Personal";
+              realName = "Nicolas Villarroel Martinez";
+              email = "nmartinezv@icloud.com";
+              gpg = {
+                enable = true;
+                keyId = "/run/secrets/profiles/personal/gpg/key_id";
+              };
+              ssh = {
+                enable = true;
+                privateKey = "/run/secrets/profiles/personal/ssh/private_key";
+              };
             };
-            ssh = {
-              enable = true;
-              privateKey = "/run/secrets/profiles/personal/ssh/private_key";
-            };
+            vaults = personal // {directory = "~/.vaults";};
           };
-        }
+        })
       ];
   };
 }

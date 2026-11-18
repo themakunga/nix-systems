@@ -76,6 +76,56 @@
     config = mkMerge [
       (mkIf (cfg.aws != []) {
         sops.secrets = listToAttrs awsProfilesSecrets;
+        sops.templates = {
+          "aws-credentials" = {
+            path = "${userHome}/.aws/credentials";
+            owner = user;
+            mode = "0600";
+            content =
+              lib.concatMapStringsSep "\n" (p: ''
+                [${p.name}]
+                aws_access_key_id = ${config.sops.placeholder."aws/credentials/${p.name}/access_key_id"}
+                aws_secret_access_key = ${config.sops.placeholder."aws/credentials/${p.name}/secret_access_key"}
+              '')
+              cfg.aws;
+          };
+          "aws-config" = {
+            path = "${userHome}/.aws/config";
+            owner = user;
+            mode = "0600";
+            content =
+              lib.concatMapStringsSep "\n" (p: ''
+                [${
+                  if p.name == "default"
+                  then "default"
+                  else "profile ${p.name}"
+                }]
+                region = ${p.region}
+                output = ${p.output}
+              '')
+              cfg.aws;
+          };
+        };
+        system.activationScripts = let
+          text = ''
+            AWS_DIR=${lib.escapeShellArg "${userHome}/.aws"}
+            if [ -L "$AWS_DIR" ] && [ ! -e "$AWS_DIR" ]; then
+              mv "$AWS_DIR" "$AWS_DIR.broken-link.$(date +%Y%m%d%H%M%S).$$"
+            fi
+            mkdir -p "$AWS_DIR"
+            chmod 700 "$AWS_DIR"
+            chown ${lib.escapeShellArg user} "$AWS_DIR/"
+          '';
+        in
+          if isDarwin
+          then {postActivation.text = lib.mkBefore text;}
+          else {
+            cloudProfilesSetup = {
+              inherit text;
+              deps = ["users"];
+            };
+            setupSecrets.deps = ["cloudProfilesSetup"];
+          };
       })
       (mkIf (cfg.gcp != []) {
         sops.secrets = listToAttrs gcpProfilesSecrets;

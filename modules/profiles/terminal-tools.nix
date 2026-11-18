@@ -3,7 +3,7 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-{
+{inputs, ...}: {
   flake.profileModules.terminal-tools = {pkgs, ...}: let
     # gws-tui — not in nixpkgs; patches in tokyonight-storm palette
     gws-tui = pkgs.buildGoModule rec {
@@ -18,6 +18,8 @@
       };
 
       vendorHash = "sha256-MYkYfyXQ+YDKwZGVvAkZFDBRSyh9o4STrSCGBZMGbHo=";
+
+      patches = [../../packages/gws-tui/remote-disconnect.patch];
 
       # Inject Tokyo Night Storm palette — bg #24283b vs Night #1a1b26
       postPatch = ''
@@ -53,32 +55,20 @@
     };
   in {
     my = {
-      agentWiki = {
-        enable = true;
-        autoSync.enable = true; # launchd agent: sync cada 5 min en background
-      };
+      agentWiki.enable = true;
       claudeHooks.enable = true;
       dotfiles.enable = true;
       dotfiles.packages = [
-        {
-          name = "codex";
-          output-name = ".codex";
-        }
-        {
-          name = "claude";
-          output-name = ".claude";
-        }
         {
           name = "scripts";
           output-name = "scripts";
         }
       ];
-      packages = [pkgs.unstable.tuxedo gws-tui pkgs.cmatrix pkgs.cbonsai pkgs.pipes pkgs.nyancat];
+      packages = [inputs.claws.packages.${pkgs.stdenv.hostPlatform.system}.default pkgs.unstable.tuxedo gws-tui pkgs.cmatrix pkgs.cbonsai pkgs.pipes pkgs.nyancat pkgs.uv];
       apps = {
         bat.enable = true;
         newsboat.enable = true;
         glow.enable = true;
-        token-counter.enable = true;
         yazi.enable = true;
         zoxide.enable = true;
       };

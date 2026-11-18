@@ -29,8 +29,24 @@
 
       system.activationScripts.postActivation.text = lib.mkAfter ''
         echo "=> Configurando perfiles de audio en macOS..."
-        ${pkgs.switchaudio-osx}/bin/SwitchAudioSource -t input -s "HyperX QuadCast" 2>/dev/null || true
-        ${pkgs.switchaudio-osx}/bin/SwitchAudioSource -t output -s "head radio" 2>/dev/null || true
+        configure_audio_device() {
+          audio_type="$1"
+          audio_name="$2"
+          if audio_devices=$(${pkgs.switchaudio-osx}/bin/SwitchAudioSource -a -t "$audio_type" 2>&1); then
+            if printf '%s\n' "$audio_devices" | /usr/bin/grep -Fxq "$audio_name"; then
+              if audio_output=$(${pkgs.switchaudio-osx}/bin/SwitchAudioSource -t "$audio_type" -s "$audio_name" 2>&1); then
+                echo "  OK: $audio_name"
+              else
+                printf '%s\n' "$audio_output" >&2
+              fi
+            fi
+          else
+            printf '%s\n' "$audio_devices" >&2
+          fi
+          return 0
+        }
+        configure_audio_device input "HyperX QuadCast"
+        configure_audio_device output "head radio"
       '';
     };
   };
