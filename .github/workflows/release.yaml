@@ -152,7 +152,7 @@ jobs:
             [ -f "$f" ] && cp -L "$f" "output/aperture-bootstrap-${{ needs.version.outputs.version }}-$(basename "$f")"
           done
           ls -lh output/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: rpi-sd-image
           path: output/*
@@ -197,7 +197,7 @@ jobs:
             [ -f "$f" ] && cp -L "$f" "output/linux-bootstrap-${{ needs.version.outputs.version }}-$(basename "$f")"
           done
           ls -lh output/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: linux-iso
           path: output/*
