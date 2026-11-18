@@ -10,9 +10,11 @@
   - [Overview](#overview)
   - [Hosts Description](#hosts-description)
   - [Installation Guide](#installation-guide)
-  - [Switch motherbase remotely](#switch-motherbase-remotely)
+  - [Switch Linux hosts remotely](#switch-linux-hosts-remotely)
+  - [Umami on Motherbase](#umami-on-motherbase)
   - [Raspberry Pi: Download & Flash SD Images](#raspberry-pi-download--flash-sd-images)
   - [Repository Workflow (GitFlow)](#repository-workflow-gitflow)
+  - [Recent features and configuration](#recent-features-and-configuration)
   - [Local Development](#local-development)
 - [Español](#español)
   - [Descripción](#descripción)
@@ -20,6 +22,7 @@
   - [Guía de Instalación](#guía-de-instalación)
   - [Raspberry Pi: Descarga y Grabación de Imágenes SD](#raspberry-pi-descarga-y-grabación-de-imágenes-sd)
   - [Flujo de Repositorio (GitFlow)](#flujo-de-repositorio-gitflow)
+  - [Funciones y configuración recientes](#funciones-y-configuración-recientes)
   - [Desarrollo Local](#desarrollo-local)
 
 <!-- mtoc-end -->
@@ -175,6 +178,63 @@ Rulesets:
    **Semantic Release** pipeline, which publishes the final artifacts, generates
    the `CHANGELOG.md`, and creates the GitHub Release.
 
+### Recent features and configuration
+
+| Feature | Declared scope | Configuration |
+| --- | --- | --- |
+| Point Reader | `kanagawa`, `outer-heaven` | `my.apps.point-reader.enable` |
+| Handy dictation | Both Macs and `aperture-science` | `my.apps.handy.enable` |
+| Agent vault integration | Hosts enabling the agent wiki | `my.agentWiki.enable`, `my.agentWiki.autoSync.enable` |
+| Optional macOS audio devices | Hosts enabling the audio module | `my.devices.audio.enable` |
+
+**Point Reader:** Shift + Command + Space reads the selected text, or the accessible
+text block under the pointer when there is no selection. Repeat the shortcut to stop.
+The app starts at login and uses the system voice. After host activation, grant the
+Point Reader app Accessibility permission in System Settings. There is no OCR; block
+boundaries depend on the target app. See [permissions and checks](docs/point-reader.md).
+
+**Handy:** offline English/Spanish dictation uses Whisper medium Q8 on macOS and
+Whisper small Q8 on Linux. On macOS, Ctrl + Alt + Space toggles transcription;
+Handy starts hidden at login. Grant microphone and Accessibility permissions when
+requested. Models are fetched during provisioning; transcription runs locally.
+Activation seeds settings from `public-dotfiles/handy/` only when absent and preserves
+existing preferences. Translation, post-processing and automatic submission are
+disabled initially. Linux defaults use `wtype` and Ctrl + Shift + V for pasting.
+
+**Agent integration:** the shared vault beneath `~/.vaults/` supplies agent instructions
+and the standalone GLaDOS skill. Activation registers configured hooks for Codex,
+Claude Code and Hermes, reporting `OK: GLaDOS <agent>` on success instead of full JSON.
+Hook registration and voice authorization are separate; existing runtime permissions
+still apply. Optional vault synchronization defaults to a 300-second interval.
+
+**Quieter macOS activation:** successful Mac App Store operations report `OK: <app>`;
+already-installed chatter is suppressed. Audio selects `HyperX QuadCast` as input and
+`head radio` as output only when present. Missing optional devices are silent;
+successful selection prints OK and actual failures retain their diagnostics.
+Both normal and bootstrap-fix Mac targets use `sudo -H` for profile updates and
+activation so root does not inherit the user's HOME:
+
+```sh
+make switch-kanagawa
+make switch-outer-heaven
+```
+
+These commands build and activate the complete host configuration and run `git add -A`.
+Review pending work first. A dirty Git warning remains expected with uncommitted files.
+Validate the output behavior without installing apps or changing audio devices:
+
+```sh
+python3 scripts/check-mas-activation.py
+python3 scripts/check-quiet-activation.py
+```
+
+**Reproducible CI:** `CI — Check & Dry-run` runs lint, flake evaluation and dry-runs
+for the six Linux hosts on pushes and pull requests to `develop`. Lint resolves
+`pre-commit`, Statix and Alejandra from the primary nixpkgs revision in `flake.lock`.
+Its environment cache is keyed by both the hook configuration and lockfile, preventing
+reuse across incompatible toolchain revisions. Security scanning runs separately.
+CI checks and dry-runs do not activate any host.
+
 ### Local Development
 
 To enter the development environment with all required tools (`alejandra`,
@@ -327,6 +387,42 @@ Rulesets de GitHub:
 4. **Rama `main`:** Rama de producción protegida. Al fusionar (merge) el PR, se
    dispara el pipeline de **Semantic Release**, el cual publica los artefactos
    finales, genera el `CHANGELOG.md` y crea el Release oficial en GitHub.
+
+### Funciones y configuración recientes
+
+- **Point Reader:** declarado en ambos Mac con `my.apps.point-reader.enable`.
+  Shift + Command + Space lee la selección o el bloque accesible bajo el puntero;
+  repetir el atajo detiene la lectura. Inicia al entrar a la sesión y necesita permiso
+  de Accesibilidad para la aplicación. No incluye OCR. Consulta la
+  [guía de permisos y comprobaciones](docs/point-reader.md).
+- **Handy:** `my.apps.handy.enable` declara dictado local en inglés y español en
+  ambos Mac y `aperture-science`. Usa Whisper medium Q8 en macOS y small Q8 en Linux.
+  En macOS, Ctrl + Alt + Space alterna la transcripción y la app inicia oculta.
+  Requiere los permisos de micrófono y Accesibilidad correspondientes. La configuración
+  inicial procede de `public-dotfiles/handy/` y conserva las preferencias existentes.
+  Los modelos se descargan al preparar el sistema; la transcripción es local.
+- **Agentes:** `my.agentWiki.enable` conecta el vault de `~/.vaults/` y sus instrucciones.
+  La integración de Codex, Claude Code y Hermes muestra una línea OK por agente.
+  Registrar hooks no concede autorización de voz. `my.agentWiki.autoSync.enable`
+  controla la sincronización periódica; el intervalo predeterminado es 300 segundos.
+- **Activación macOS:** MAS muestra `OK: nombre` cuando termina correctamente.
+  `my.devices.audio.enable` selecciona HyperX QuadCast y head radio solo si están
+  presentes. Los dispositivos ausentes son silenciosos; los errores reales conservan
+  su diagnóstico. Los cuatro destinos Mac usan `sudo -H` para el perfil y la activación.
+- **CI:** las herramientas de lint usan la revisión primaria de nixpkgs de `flake.lock`.
+  La caché incluye el archivo de bloqueo y la configuración de hooks. CI comprueba
+  formato, evaluación y dry-runs de los seis hosts Linux; seguridad se ejecuta aparte.
+
+Las opciones anteriores describen la configuración declarada; requieren activación
+para aplicarse. `make switch-kanagawa` y `make switch-outer-heaven` construyen y
+activan el sistema completo, y ejecutan `git add -A`: revisa los cambios pendientes
+antes de usarlos. El aviso de Git sucio permanece mientras haya archivos sin commit.
+Las comprobaciones de MAS y audio no instalan aplicaciones ni cambian dispositivos:
+
+```sh
+python3 scripts/check-mas-activation.py
+python3 scripts/check-quiet-activation.py
+```
 
 ### Desarrollo Local
 
