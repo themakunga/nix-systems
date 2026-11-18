@@ -4,9 +4,7 @@
 # Módulo auto-gestionado.
 # =========================================================
 # Módulo: commonModules.claude-hooks
-# Registra el Stop hook de Claude Code en ~/.claude/settings.json
-# para guardar automáticamente un resumen de sesión en el vault.
-# Idempotente: solo escribe si el hook no está ya configurado.
+# Asegura el Stop hook de journal de Claude Code en ~/.claude/settings.json.
 _: {
   flake.commonModules.claude-hooks = {
     config,
@@ -17,60 +15,33 @@ _: {
     inherit (lib) mkEnableOption mkIf;
     cfg = config.my.claudeHooks;
     isDarwin = pkgs.stdenv.isDarwin;
-    user = config.system.primaryUser or "nicolas";
+    # Mismo usuario/home que agent-wiki: my.dotfiles (wheatley en aperture-science).
+    user = config.my.dotfiles.user;
     userHome =
-      if isDarwin
+      if config.my.dotfiles.home != null
+      then config.my.dotfiles.home
+      else if isDarwin
       then "/Users/${user}"
       else "/home/${user}";
 
     script = ''
-            USER_HOME="${userHome}"
-            SETTINGS="$USER_HOME/.claude/settings.json"
+      USER_HOME="${userHome}"
 
-            ${
+      ${
         if isDarwin
         then ''run_as_user() { sudo -H -u "${user}" env HOME="$USER_HOME" "$@"; }''
         else ''run_as_user() { /run/wrappers/bin/sudo -H -u "${user}" env HOME="$USER_HOME" "$@"; }''
       }
 
-            if [ -f "$SETTINGS" ]; then
-              echo "=> Configurando Claude Code Stop hook para ${user}..."
-              run_as_user ${pkgs.python3}/bin/python3 -c "
-      import json, os, sys
-
-      settings_path = os.environ['HOME'] + '/.claude/settings.json'
-      hook_script   = os.environ['HOME'] + '/.claude/scripts/save-session.py'
-
-      with open(settings_path) as f:
-          d = json.load(f)
-
-      expected_hook = {
-          'hooks': [{'type': 'command', 'command': f'python3 {hook_script}'}]
-      }
-      stop_hooks = d.setdefault('hooks', {}).setdefault('Stop', [])
-
-      if expected_hook in stop_hooks:
-          print('hooks ya configurados')
-          sys.exit(0)
-
-      stop_hooks.append(expected_hook)
-      with open(settings_path, 'w') as f:
-          json.dump(d, f, indent=2)
-      print('hooks actualizados')
-              "
-            fi
-
-            # Codex: enlazar hooks.json si el dotfile existe y el symlink no
-            CODEX_HOOKS_SRC="$USER_HOME/.public-dotfiles/codex/hooks.json"
-            CODEX_HOOKS_DST="$USER_HOME/.codex/hooks.json"
-            if [ -f "$CODEX_HOOKS_SRC" ] && [ ! -e "$CODEX_HOOKS_DST" ]; then
-              echo "=> Enlazando Codex hooks.json para ${user}..."
-              run_as_user ln -s ../.public-dotfiles/codex/hooks.json "$CODEX_HOOKS_DST"
-            fi
+      # Garantiza el Stop hook del journal; el script vive en amgmt.
+      HOOK="$USER_HOME/.vaults/amgmt/hooks/ensure-claude-hook.py"
+      if [ -f "$HOOK" ]; then
+        run_as_user ${pkgs.python3}/bin/python3 "$HOOK" || true
+      fi
     '';
   in {
     options.my.claudeHooks = {
-      enable = mkEnableOption "Registrar Stop hook de Claude Code para guardar sesiones en agent-wiki";
+      enable = mkEnableOption "Asegurar el Stop hook de journal de Claude Code";
     };
 
     config = mkIf cfg.enable {

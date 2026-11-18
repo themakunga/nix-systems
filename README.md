@@ -10,6 +10,7 @@
   - [Overview](#overview)
   - [Hosts Description](#hosts-description)
   - [Installation Guide](#installation-guide)
+  - [Switch motherbase remotely](#switch-motherbase-remotely)
   - [Raspberry Pi: Download & Flash SD Images](#raspberry-pi-download--flash-sd-images)
   - [Repository Workflow (GitFlow)](#repository-workflow-gitflow)
   - [Local Development](#local-development)
@@ -77,6 +78,61 @@ sudo nixos-rebuild switch --flake github:themakunga/nix-systems#<hostname>
 ```bash
 darwin-rebuild switch --flake github:themakunga/nix-systems#<hostname>
 ```
+
+### Switch Linux hosts remotely
+
+From the repository on macOS or Linux, apply these hosts' configurations over SSH:
+
+```bash
+make switch-motherbase TARGET_IP=motherbase.local
+make switch-msf TARGET_IP=msf.local
+make switch-aperture TARGET_IP=aperture-science.local
+```
+
+Each target defaults to its host's `.local` name; `TARGET_IP` also accepts an IP address.
+For `switch-aperture`, the existing `APERTURE_IP` override remains supported when
+`TARGET_IP` is not explicitly supplied. Its default is now `aperture-science.local`.
+The build and activation run on `root@TARGET_IP`, requiring root SSH access. To use another
+builder, add `BUILD_HOST=builder@linux-builder`. `deploy-motherbase` is a compatibility alias.
+These targets do not stage files in Git or use local `sudo`. Existing tracked worktree changes are still part of the flake;
+review them before applying. This switches the complete host configuration.
+
+Check command routing without contacting or activating any host:
+
+```bash
+python3 scripts/check-motherbase-switch.py
+```
+
+### Umami on Motherbase
+
+The Motherbase-only `applicationModules.umami` module declares a Compose project at
+`/opt/umami`, managed by `compose-umami.service` through the existing Podman Docker API.
+It serves `http://motherbase.local:8989`, bound to the current LAN address
+`192.168.5.153`; firewall access is limited to `enp2s0` and `192.168.4.0/22`.
+Update both the Compose binding and firewall rule if the LAN address changes.
+
+Umami 3.5.0 runs with PostgreSQL 15 on an internal database network. PostgreSQL has no
+published port, and its data persists in the `umami_umami-db-data` volume. Never use
+`docker compose down -v` unless intentionally deleting the analytics database.
+Back up that database before upgrading either image.
+
+SOPS renders a root-only environment file from the encrypted secrets input; no
+credentials belong in the Compose file or Nix store. The service waits for SOPS
+and `podman.socket`, independently of the ingress/demo stack. SOPS normally renders
+secrets during system activation; an explicit dependency on `sops-install-secrets.service`
+is added only when `sops.useSystemdActivation` enables that unit.
+
+Check both SOPS activation modes without starting containers or switching the host:
+
+```sh
+nix eval --impure --json --file scripts/check-umami-systemd.nix
+```
+
+This declaration requires host activation before the URL is available. After activation,
+check `systemctl status compose-umami` and `curl --fail http://motherbase.local:8989/api/heartbeat`.
+The first login is `admin` / `umami`; replace the default password immediately.
+The requested LAN endpoint uses HTTP. Trackers embedded in public HTTPS websites
+need a separately configured HTTPS endpoint reachable by their visitors.
 
 ### Raspberry Pi: Download & Flash SD Images
 

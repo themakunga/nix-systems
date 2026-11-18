@@ -23,17 +23,20 @@ jobs:
     name: Lint & Format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: cachix/install-nix-action@v31
         with:
           nix_path: nixpkgs=channel:nixos-unstable
+      - name: Use the locked nixpkgs toolchain
+        run: |
+          revision=$(jq -r '.nodes.root.inputs.nixpkgs as $input | .nodes[$input].locked.rev' flake.lock)
+          nix registry add nixpkgs "github:NixOS/nixpkgs/$revision"
       - uses: actions/cache@v6
         with:
           path: ${{ env.PRE_COMMIT_HOME }}
-          key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
-          restore-keys: ${{ runner.os }}-pre-commit-
+          key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml', 'flake.lock') }}
       - name: Run pre-commit hooks
         run: nix run nixpkgs#pre-commit -- run --all-files --color=always
   # ── 2. Evaluación completa del flake (sin build) ─────────────────────────
@@ -42,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: lint
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Decode SSH key
         run: |
           echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/ssh_key
@@ -51,7 +54,7 @@ jobs:
       - uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ env.DECODED_SSH_KEY }}
-      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-qemu-action@v4
         with:
           platforms: arm64
       - uses: cachix/install-nix-action@v31
@@ -74,7 +77,7 @@ jobs:
             cat flake-eval.log
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: flake-eval-log
@@ -95,7 +98,7 @@ jobs:
           - black-mesa
           - valve
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Decode SSH key
         run: |
           echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/ssh_key
@@ -104,7 +107,7 @@ jobs:
       - uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ env.DECODED_SSH_KEY }}
-      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-qemu-action@v4
         with:
           platforms: arm64
       - uses: cachix/install-nix-action@v31
@@ -130,7 +133,7 @@ jobs:
             cat dry-run.log
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: dry-run-${{ matrix.host }}

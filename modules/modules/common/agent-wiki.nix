@@ -17,16 +17,20 @@ _: {
     inherit (lib) mkEnableOption mkOption mkIf types;
     cfg = config.my.agentWiki;
     isDarwin = pkgs.stdenv.isDarwin;
-    user = config.system.primaryUser or "nicolas";
+    # Usuario y home salen de my.dotfiles: nicolas en Darwin, wheatley (/opt/wheatley) en aperture-science.
+    user = config.my.dotfiles.user;
     userHome =
-      if isDarwin
+      if config.my.dotfiles.home != null
+      then config.my.dotfiles.home
+      else if isDarwin
       then "/Users/${user}"
       else "/home/${user}";
 
     script = ''
       USER_HOME="${userHome}"
-      WIKI_DIR="$USER_HOME/.vaults/agent-wiki"
-      WIKI_REPO="git@github.com:themakunga/agent-wiki.git"
+      WIKI_DIR="$USER_HOME/.vaults/amgmt"
+      LEGACY_WIKI_DIR="$USER_HOME/Projects/personal/amgmt"
+      WIKI_REPO="git@github.com:themakunga/amgmt.git"
       SOUL_LINK="$USER_HOME/.public-dotfiles/agent/SOUL.md"
       ${
         if isDarwin
@@ -34,10 +38,18 @@ _: {
         else ''run_as_user() { /run/wrappers/bin/sudo -H -u "${user}" env HOME="$USER_HOME" "$@"; }''
       }
 
+      run_as_user mkdir -p "$USER_HOME/.vaults"
+      if [ ! -e "$WIKI_DIR" ] && [ ! -L "$WIKI_DIR" ] && [ -d "$LEGACY_WIKI_DIR/.git" ]; then
+        run_as_user mv "$LEGACY_WIKI_DIR" "$WIKI_DIR"
+        run_as_user ln -s "$WIKI_DIR" "$LEGACY_WIKI_DIR"
+      fi
+
       # Clone o pull — tolerante a fallo de red (offline, sin SSH key lista)
       if [ ! -d "$WIKI_DIR/.git" ]; then
-        echo "=> Clonando agent-wiki para ${user}..."
-        run_as_user ${pkgs.git}/bin/git clone "$WIKI_REPO" "$WIKI_DIR" 2>/dev/null || true
+        echo "=> Clonando amgmt para ${user}..."
+        run_as_user mkdir -p "$(dirname "$WIKI_DIR")"
+        run_as_user ${pkgs.git}/bin/git clone "$WIKI_REPO" "$WIKI_DIR" 2>/dev/null \
+          || echo "=> AVISO: no se pudo clonar amgmt para ${user} (¿falta llave SSH de GitHub?); config de agentes sin enlazar."
       else
         run_as_user ${pkgs.git}/bin/git -C "$WIKI_DIR" pull origin main 2>/dev/null || true
       fi
@@ -46,6 +58,40 @@ _: {
       if [ -f "$WIKI_DIR/agents/SOUL.md" ]; then
         run_as_user mkdir -p "$USER_HOME/.public-dotfiles/agent"
         run_as_user ln -sf "$WIKI_DIR/agents/SOUL.md" "$SOUL_LINK"
+      fi
+
+      # Config de agentes: todo vive en amgmt; ~/.claude y ~/.codex solo enlazan.
+      if [ -d "$WIKI_DIR/hooks" ]; then
+        run_as_user mkdir -p "$USER_HOME/.claude/skills" "$USER_HOME/.codex"
+        run_as_user ln -sfn "$WIKI_DIR/agents/SOUL.md" "$USER_HOME/.claude/CLAUDE.md"
+        run_as_user ln -sfn "$WIKI_DIR/agents/SOUL.md" "$USER_HOME/.codex/AGENTS.md"
+        run_as_user ln -sfn "$WIKI_DIR/hooks" "$USER_HOME/.claude/scripts"
+        run_as_user ln -sfn "$WIKI_DIR/claude/commands" "$USER_HOME/.claude/commands"
+        run_as_user ln -sfn "$WIKI_DIR/codex/hooks.json" "$USER_HOME/.codex/hooks.json"
+        run_as_user ln -sfn "$WIKI_DIR/skills/obsidian-journal/SKILL.md" "$USER_HOME/.claude/skills/obsidian-journal.md"
+
+        # The standalone skill owns voice; persisted configuration is confirmed during installation.
+        if [ -f "$WIKI_DIR/.glados.config.yaml" ] && [ -x /run/current-system/sw/bin/glados-agent ]; then
+          run_as_user mkdir -p "$USER_HOME/.local/bin" "$USER_HOME/.agents/skills"
+          run_as_user ln -sfn /run/current-system/sw/bin/glados-agent "$USER_HOME/.local/bin/glados-agent"
+          for agent_home in .agents .claude .hermes .gemini .openclaw .zeroclaw; do
+            if [ -d "$USER_HOME/$agent_home" ] && [ ! -e "$USER_HOME/$agent_home/skills/glados" ]; then
+              run_as_user mkdir -p "$USER_HOME/$agent_home/skills"
+              run_as_user ln -s "$WIKI_DIR/skills/glados" "$USER_HOME/$agent_home/skills/glados"
+            fi
+          done
+          for agent in codex claude-code hermes; do
+            # The activation PATH is minimal; integrate.py resolves glados-agent with shutil.which.
+            if integration_output=$(run_as_user env PATH="/run/current-system/sw/bin:$USER_HOME/.local/bin:$PATH" \
+              ${pkgs.python3.withPackages (ps: [ps.pyyaml ps.jsonschema])}/bin/python3 \
+              "$WIKI_DIR/skills/glados/scripts/integrate.py" --vault "$WIKI_DIR" --agent "$agent" --apply --migrate-legacy 2>&1); then
+              echo "  OK: GLaDOS $agent"
+            else
+              printf '%s\n' "$integration_output" >&2
+              echo "GLaDOS integration pending for $agent" >&2
+            fi
+          done
+        fi
       fi
     '';
   in {

@@ -24,8 +24,20 @@ in {
       isAdmin = true;
       isNetworkManager = true;
       hashedPasswordFile = config.sops.secrets."passwords/nicolas/hashed".path;
-      extraGroups = ["docker"];
+      # Runtime es Podman con dockerCompat (ver applicationModules.podman);
+      # el grupo real del socket es "podman", no "docker".
+      extraGroups = ["podman"];
     };
+
+    # Podman rootless necesita rangos sub-UID/GID para mapear namespaces de
+    # usuario dentro de los contenedores; sin esto /etc/subuid queda vacío
+    # y "podman compose up" falla con "no subuid ranges found".
+    users.users.nicolas.autoSubUidGidRange = true;
+
+    # Rootless Podman containers (restart: unless-stopped) live in nicolas's user
+    # manager. Without linger, systemd stops it when the last SSH session closes
+    # and every container dies (cloudflared tunnels included).
+    users.users.nicolas.linger = true;
 
     programs.gnupg.agent = {
       enable = true;

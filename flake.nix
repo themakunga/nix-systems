@@ -53,6 +53,7 @@
 
     mac-app-util = {
       url = "github:hraban/mac-app-util";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
     nixos-hardware.url = "github:NixOS/nixos-hardware";
@@ -79,14 +80,14 @@
       flake = false;
     };
 
-    token-counter = {
-      url = "github:TheMakunga/token-counter/v0.3.1";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
     globalprotect-openconnect.url = "github:yuezk/GlobalProtect-openconnect";
 
     lazyjira.url = "github:textfuel/lazyjira";
+
+    claws = {
+      url = "github:clawscli/claws/v0.18.1";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
 
     hermes-agent = {
       url = "github:NousResearch/hermes-agent";

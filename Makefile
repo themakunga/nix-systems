@@ -5,8 +5,8 @@
 # --- VARIABLES DE ENTORNO ---
 TARGET_IP ?= 192.168.1.100
 HOST ?= aperture-science
-# IPs fijas de hosts RPi
-APERTURE_IP ?= 192.168.5.85
+# Default address for aperture-science; TARGET_IP takes precedence for switching.
+APERTURE_IP ?= aperture-science.local
 # BUILD_HOST=builder@linux-builder para compilar en la VM de outer-heaven.
 # Por defecto vacío → cada switch-* buildea en el propio destino (sin cross-compile).
 BUILD_HOST ?=
@@ -45,8 +45,8 @@ switch-outer-heaven: ## Aplica la configuración en outer-heaven (Mac Principal)
 	@echo "=> Aplicando Nix-Darwin en outer-heaven..."
 	git add -A
 	darwin-rebuild build --flake .#outer-heaven
-	sudo nix-env -p /nix/var/nix/profiles/system --set ./result
-	sudo ./result/sw/bin/darwin-rebuild activate
+	sudo -H nix-env -p /nix/var/nix/profiles/system --set ./result
+	sudo -H ./result/sw/bin/darwin-rebuild activate
 
 switch-outer-heaven-fix: ## Bootstrap fix: switch sin nixos-hardware.cachix.org (401)
 	@echo "=> Aplicando Nix-Darwin en outer-heaven (override substituters)..."
@@ -54,15 +54,15 @@ switch-outer-heaven-fix: ## Bootstrap fix: switch sin nixos-hardware.cachix.org 
 	darwin-rebuild build --flake .#outer-heaven \
 		--option extra-substituters "https://devenv.cachix.org https://themakunga.cachix.org" \
 		--option extra-trusted-public-keys "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw= themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0="
-	sudo nix-env -p /nix/var/nix/profiles/system --set ./result
-	sudo ./result/sw/bin/darwin-rebuild activate
+	sudo -H nix-env -p /nix/var/nix/profiles/system --set ./result
+	sudo -H ./result/sw/bin/darwin-rebuild activate
 
 switch-kanagawa: ## Aplica la configuración en kanagawa
 	@echo "=> Aplicando Nix-Darwin en kanagawa..."
 	git add -A
 	darwin-rebuild build --flake .#kanagawa
-	sudo nix-env -p /nix/var/nix/profiles/system --set ./result
-	sudo ./result/sw/bin/darwin-rebuild activate
+	sudo -H nix-env -p /nix/var/nix/profiles/system --set ./result
+	sudo -H ./result/sw/bin/darwin-rebuild activate
 
 switch-kanagawa-fix: ## Bootstrap fix: switch sin nixos-hardware.cachix.org (401)
 	@echo "=> Aplicando Nix-Darwin en kanagawa (override substituters)..."
@@ -70,22 +70,22 @@ switch-kanagawa-fix: ## Bootstrap fix: switch sin nixos-hardware.cachix.org (401
 	darwin-rebuild build --flake .#kanagawa \
 		--option extra-substituters "https://devenv.cachix.org https://themakunga.cachix.org" \
 		--option extra-trusted-public-keys "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw= themakunga.cachix.org-1:6G4uSeEclXBILBnmlbDsTAapL2vE0ndx4laL02AzzR0="
-	sudo nix-env -p /nix/var/nix/profiles/system --set ./result
-	sudo ./result/sw/bin/darwin-rebuild activate
+	sudo -H nix-env -p /nix/var/nix/profiles/system --set ./result
+	sudo -H ./result/sw/bin/darwin-rebuild activate
 
 # =========================================================
-# 🐧 DESPLIEGUES NIXOS LOCALES (X86_64)
+# 🐧 NIXOS DEPLOYMENTS (X86_64)
 # =========================================================
 
-switch-motherbase: ## Aplica la configuración en motherbase (KVM/Server)
-	@echo "=> Aplicando NixOS en motherbase..."
-	git add -A
-	sudo nixos-rebuild switch --flake .#motherbase
+MSF_TARGET = $(if $(filter file,$(origin TARGET_IP)),msf.local,$(TARGET_IP))
 
-switch-msf: ## Aplica la configuración en msf (Media Server)
-	@echo "=> Aplicando NixOS en msf..."
-	git add -A
-	sudo nixos-rebuild switch --flake .#msf
+switch-msf: ## Switch msf over SSH. Usage: make switch-msf [TARGET_IP=msf.local]
+	@echo "=> Switching msf at $(MSF_TARGET)..."
+	nix run nixpkgs#nixos-rebuild -- switch \
+	  --flake .#msf \
+	  --target-host "root@$(MSF_TARGET)" \
+	  --build-host "$(or $(BUILD_HOST),root@$(MSF_TARGET))" \
+	  --fast
 
 switch-steamdeck: ## Aplica la configuración en steamdeck
 	@echo "=> Aplicando NixOS en steamdeck..."
@@ -106,13 +106,15 @@ deploy-aperture: ## [INICIAL] Instala aperture-science vía nixos-anywhere (desd
 	git add -A
 	./scripts/deploy.sh $(or $(TARGET_IP),$(APERTURE_IP)) .#aperture-science
 
-switch-aperture: ## [UPDATE] Actualiza aperture-science — buildea en el propio Pi (sin cross-compile). Uso: make switch-aperture
-	@echo "=> Actualizando aperture-science en $(APERTURE_IP) (build en destino)..."
-	git add -A
+APERTURE_TARGET = $(if $(filter file,$(origin TARGET_IP)),$(APERTURE_IP),$(TARGET_IP))
+
+switch-aperture: ## Switch aperture-science over SSH. Usage: make switch-aperture [TARGET_IP=aperture-science.local]
+	@echo "=> Switching aperture-science at $(APERTURE_TARGET)..."
 	nix run nixpkgs#nixos-rebuild -- switch \
 	  --flake .#aperture-science \
-	  --target-host root@$(APERTURE_IP) \
-	  --build-host $(or $(BUILD_HOST),root@$(APERTURE_IP))
+	  --target-host "root@$(APERTURE_TARGET)" \
+	  --build-host "$(or $(BUILD_HOST),root@$(APERTURE_TARGET))" \
+	  --fast
 
 build-installer-x86: ## Genera ISO de instalación x86_64 con llaves SSH pre-cargadas. Flashear a USB para bare metal. Uso: make build-installer-x86
 	@echo "=> Generando ISO de instalación x86_64..."
@@ -160,10 +162,18 @@ switch-valve: ## [UPDATE] Actualiza valve en ejecución vía nixos-rebuild. Uso:
 # 🌍 DESPLIEGUE REMOTO X86_64
 # ==========================================
 
-deploy-motherbase: ## Despliega motherbase remoto compilando en el destino
-	@echo "=> Desplegando configuración en motherbase.local..."
-	git add -A
-	nix run nixpkgs#nixos-rebuild -- switch --flake .#motherbase --target-host root@192.168.5.153 --build-host $(or $(BUILD_HOST),root@192.168.5.153) --fast
+# Keep other targets' legacy default while honoring explicit TARGET_IP overrides.
+MOTHERBASE_TARGET = $(if $(filter file,$(origin TARGET_IP)),motherbase.local,$(TARGET_IP))
+
+switch-motherbase: ## Switch motherbase over SSH. Usage: make switch-motherbase TARGET_IP=motherbase.local
+	@echo "=> Switching motherbase at $(MOTHERBASE_TARGET)..."
+	nix run nixpkgs#nixos-rebuild -- switch \
+	  --flake .#motherbase \
+	  --target-host "root@$(MOTHERBASE_TARGET)" \
+	  --build-host "$(or $(BUILD_HOST),root@$(MOTHERBASE_TARGET))" \
+	  --fast
+
+deploy-motherbase: switch-motherbase ## Compatibility alias for switch-motherbase
 
 # =========================================================
 # 🧪 PRUEBAS Y CONSTRUCCIÓN (TESTING)

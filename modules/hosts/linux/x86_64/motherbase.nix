@@ -27,7 +27,7 @@ in {
       ]
       ++ (mkBundle (extendBundle bundles.nixos.base {
         nixosModules = ["disko-x86" "nix-anywhere"];
-        applicationModules = ["podman" "docker-host" "samba-share"];
+        applicationModules = ["podman" "docker-host" "umami" "samba-share" "neovim"];
         userModules = ["nicolas-server"];
         profileModules = ["nicolas-server"];
       }))
@@ -53,18 +53,51 @@ in {
             apps = {
               podman.enable = true;
               docker-host.enable = true;
+              umami.enable = true;
               samba-share.enable = true;
+              neovim.enable = true;
             };
+
+            # nicolas-server es isSystem=true → home real es /opt/nicolas, no
+            # /home/nicolas. Sin esto, dotfiles.nix usa su default /home/<user>
+            # y los stows quedan huérfanos fuera del $HOME real del usuario.
+            dotfiles.home = "/opt/nicolas";
 
             services = {
               docker-host = {
-                # Un túnel por entrada; agregar más con un tokenSecret distinto en .secrets
-                tunnels.primary.tokenSecret = "cloudflare-tunnel-token";
+                # ponytail: tunnel deshabilitado — falta cloudflare-tunnel-token en
+                # hosts/motherbase.yaml tras la reinstalación. Re-agregar con
+                # `make sops-host HOST=motherbase` y restaurar esta línea:
+                # tunnels.primary.tokenSecret = "cloudflare-tunnel-token";
                 # Proyectos: path estático en nix-systems. Traefik los descubre via labels.
                 projects.demo = "${self}/modules/applications/docker-host/demo";
               };
               samba-share.user = "admin";
             };
+          };
+
+          # mDNS: Avahi publishes motherbase.local on the LAN and resolves *.local via NSS.
+          # openFirewall opens UDP 5353; there is no resolved/NetworkManager to conflict with.
+          config.services.avahi = {
+            enable = true;
+            nssmdns4 = true;
+            openFirewall = true;
+            publish = {
+              enable = true;
+              addresses = true;
+              domain = true;
+            };
+          };
+        }
+        {
+          # Private HTTPS comment moderation: accept only the directly connected LAN.
+          networking.firewall = {
+            extraCommands = ''
+              iptables -w -A nixos-fw -i enp2s0 -s 192.168.4.0/22 -d 192.168.5.153 -p tcp --dport 3443 -j nixos-fw-accept
+            '';
+            extraStopCommands = ''
+              iptables -w -D nixos-fw -i enp2s0 -s 192.168.4.0/22 -d 192.168.5.153 -p tcp --dport 3443 -j nixos-fw-accept 2>/dev/null || true
+            '';
           };
         }
       ];
