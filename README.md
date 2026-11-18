@@ -14,6 +14,8 @@
   - [Umami on Motherbase](#umami-on-motherbase)
   - [Raspberry Pi: Download & Flash SD Images](#raspberry-pi-download--flash-sd-images)
   - [Repository Workflow (GitFlow)](#repository-workflow-gitflow)
+  - [Accessibility](#accessibility)
+    - [First use and limitations](#first-use-and-limitations)
   - [Recent features and configuration](#recent-features-and-configuration)
   - [Local Development](#local-development)
 - [Español](#español)
@@ -22,6 +24,8 @@
   - [Guía de Instalación](#guía-de-instalación)
   - [Raspberry Pi: Descarga y Grabación de Imágenes SD](#raspberry-pi-descarga-y-grabación-de-imágenes-sd)
   - [Flujo de Repositorio (GitFlow)](#flujo-de-repositorio-gitflow)
+  - [Accesibilidad](#accesibilidad)
+    - [Primer uso y límites](#primer-uso-y-límites)
   - [Funciones y configuración recientes](#funciones-y-configuración-recientes)
   - [Desarrollo Local](#desarrollo-local)
 
@@ -178,14 +182,17 @@ Rulesets:
    **Semantic Release** pipeline, which publishes the final artifacts, generates
    the `CHANGELOG.md`, and creates the GitHub Release.
 
-### Recent features and configuration
+### Accessibility
 
-| Feature | Declared scope | Configuration |
+Point Reader and Handy provide complementary ways to read and enter text. Both are
+declared on `kanagawa` and `outer-heaven`; Handy is also declared on `aperture-science`.
+
+| Task on macOS | Shortcut | Behavior |
 | --- | --- | --- |
-| Point Reader | `kanagawa`, `outer-heaven` | `my.apps.point-reader.enable` |
-| Handy dictation | Both Macs and `aperture-science` | `my.apps.handy.enable` |
-| Agent vault integration | Hosts enabling the agent wiki | `my.agentWiki.enable`, `my.agentWiki.autoSync.enable` |
-| Optional macOS audio devices | Hosts enabling the audio module | `my.devices.audio.enable` |
+| Read selected text | Shift + Command + Space | Point Reader speaks the active selection using the system voice. |
+| Read text under the pointer | Shift + Command + Space, without a selection | Reads the accessible block under the pointer. |
+| Stop reading | Repeat Shift + Command + Space | Stops current speech; Stop Reading is also available in the Read menu. |
+| Dictate text | Ctrl + Alt + Space | Handy toggles recording for local transcription. |
 
 **Point Reader:** Shift + Command + Space reads the selected text, or the accessible
 text block under the pointer when there is no selection. Repeat the shortcut to stop.
@@ -200,6 +207,36 @@ requested. Models are fetched during provisioning; transcription runs locally.
 Activation seeds settings from `public-dotfiles/handy/` only when absent and preserves
 existing preferences. Translation, post-processing and automatic submission are
 disabled initially. Linux defaults use `wtype` and Ctrl + Shift + V for pasting.
+
+#### First use and limitations
+
+1. Activate the host configuration separately; Point Reader and Handy start at login on macOS.
+2. Grant **Point Reader** permission under **System Settings → Privacy & Security → Accessibility**.
+   Grant permissions to the app itself, not Terminal; restart if requested. App updates may
+   require renewed permission.
+3. Grant **Handy** microphone and Accessibility permissions when requested. Test dictation
+   in a text editor before using it in another app; automatic submission is initially disabled.
+4. Select a paragraph and test reading, repeat the shortcut to stop, then clear the selection
+   and test a text block under the pointer. Resolve any shortcut conflict before retrying.
+
+Point Reader excludes protected fields and their descendants. It neither logs text nor copies
+it to the clipboard. It requires accessible text: images, canvas content and apps without
+accessible text are unsupported. When an app exposes an entire document instead of a block,
+select the exact text first. Missing readable text produces a brief system sound.
+
+These declarations do not grant macOS permissions automatically. Physical microphone, audio,
+shortcut and multi-display acceptance must be checked on each host after activation.
+
+### Recent features and configuration
+
+| Feature | Declared scope | Configuration |
+| --- | --- | --- |
+| Point Reader | `kanagawa`, `outer-heaven` | `my.apps.point-reader.enable` |
+| Handy dictation | Both Macs and `aperture-science` | `my.apps.handy.enable` |
+| Agent vault integration | Hosts enabling the agent wiki | `my.agentWiki.enable`, `my.agentWiki.autoSync.enable` |
+| Optional macOS audio devices | Hosts enabling the audio module | `my.devices.audio.enable` |
+
+See [Accessibility](#accessibility) for reading, dictation, shortcuts and permissions.
 
 **Agent integration:** the shared vault beneath `~/.vaults/` supplies agent instructions
 and the standalone GLaDOS skill. Activation registers configured hooks for Codex,
@@ -388,7 +425,18 @@ Rulesets de GitHub:
    dispara el pipeline de **Semantic Release**, el cual publica los artefactos
    finales, genera el `CHANGELOG.md` y crea el Release oficial en GitHub.
 
-### Funciones y configuración recientes
+### Accesibilidad
+
+Point Reader permite escuchar texto y Handy permite introducirlo mediante dictado.
+Ambos están declarados en `kanagawa` y `outer-heaven`; Handy también está en
+`aperture-science`.
+
+| Acción en macOS | Atajo | Resultado |
+| --- | --- | --- |
+| Leer la selección | Shift + Command + Space | Lee el texto seleccionado con la voz del sistema. |
+| Leer bajo el puntero | Mismo atajo, sin selección | Lee el bloque de texto accesible señalado. |
+| Detener la lectura | Repetir el atajo | También disponible en Read → Stop Reading. |
+| Dictar texto | Ctrl + Alt + Space | Handy alterna la grabación para transcribir localmente. |
 
 - **Point Reader:** declarado en ambos Mac con `my.apps.point-reader.enable`.
   Shift + Command + Space lee la selección o el bloque accesible bajo el puntero;
@@ -401,6 +449,30 @@ Rulesets de GitHub:
   Requiere los permisos de micrófono y Accesibilidad correspondientes. La configuración
   inicial procede de `public-dotfiles/handy/` y conserva las preferencias existentes.
   Los modelos se descargan al preparar el sistema; la transcripción es local.
+#### Primer uso y límites
+
+1. Activa la configuración del host por separado. Ambas aplicaciones inician al entrar
+   en la sesión de macOS.
+2. Autoriza **Point Reader** en **Ajustes del Sistema → Privacidad y seguridad → Accesibilidad**.
+   El permiso corresponde a la aplicación, no a Terminal. Reiníciala si macOS lo solicita;
+   una actualización puede requerir renovar el permiso.
+3. Autoriza micrófono y Accesibilidad para **Handy** cuando lo solicite. Prueba primero
+   en un editor de texto; el envío automático está desactivado inicialmente.
+4. Prueba lectura de una selección, detención con el mismo atajo y lectura bajo el puntero
+   sin selección. Resuelve cualquier conflicto de atajos antes de repetir la prueba.
+
+Point Reader excluye campos protegidos y sus descendientes. No registra el texto ni lo copia
+al portapapeles. No lee imágenes, contenido de canvas ni aplicaciones sin texto accesible.
+Si una aplicación expone el documento completo en lugar de un bloque, selecciona el texto
+exacto. Cuando no encuentra texto legible, emite un sonido breve.
+
+La configuración no concede permisos de macOS automáticamente. Micrófono, audio, atajos y
+comportamiento con varias pantallas requieren comprobación física en cada host tras activarlo.
+
+### Funciones y configuración recientes
+
+Consulta [Accesibilidad](#accesibilidad) para lectura, dictado, atajos y permisos.
+
 - **Agentes:** `my.agentWiki.enable` conecta el vault de `~/.vaults/` y sus instrucciones.
   La integración de Codex, Claude Code y Hermes muestra una línea OK por agente.
   Registrar hooks no concede autorización de voz. `my.agentWiki.autoSync.enable`
