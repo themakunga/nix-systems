@@ -75,6 +75,13 @@ repos:
         language: system
         files: '\.nix$'
         stages: [pre-commit]
+      - id: release-pipeline-tests
+        name: 'Checker - release pipeline regression tests'
+        entry: python3 -m unittest discover -s tests -p test_release_pipeline.py
+        language: system
+        stages: [pre-commit]
+        files: '^(scripts/(release_version.py|collect-release-artifacts.sh|publish-release.sh)|tests/test_release_pipeline.py|.github/workflows/release.yaml)$'
+        pass_filenames: false
       - id: nix-flake-check
         name: 'Checker - nix flake check - flake.nix - pre-push'
         entry: nix flake check
