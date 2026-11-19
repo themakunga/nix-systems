@@ -1,126 +1,108 @@
-# =========================================================
-# Archivo de Configuración de NixOS / Home Manager
-# Repositorio: TheMakunga Infrastructure
-# Módulo auto-gestionado.
-# =========================================================
-# === DOCUMENTATION ===
-# File: release.yaml
-# Path: ./.github/workflows/release.yaml
-# Description: Release manual con semver — bump de versión, build de instaladores
-#              (RPi SD image + Linux x86_64 ISO) y publicación en GitHub Releases.
-#              Solo se ejecuta via workflow_dispatch desde main.
-# =====================
 name: Release
 on:
   workflow_dispatch:
     inputs:
       bump_type:
-        description: Version bump type
+        description: Version bump (auto follows Conventional Commits)
         required: true
         type: choice
-        options:
-          - patch
-          - minor
-          - major
-        default: patch
+        options: [auto, patch, minor, major]
+        default: auto
+  schedule:
+    - cron: '0 10 * * 1'
+  pull_request:
+    paths:
+      - .github/workflows/release.yaml
+      - scripts/release_version.py
+      - scripts/collect-release-artifacts.sh
+      - scripts/publish-release.sh
+      - tests/test_release_pipeline.py
 permissions:
-  contents: write
+  contents: read
+concurrency:
+  group: release-${{ github.event_name == 'pull_request' && github.ref || 'stable' }}
+  cancel-in-progress: false
 jobs:
-  # ── 1. Calcular versión y crear tag ──────────────────────────────────────
+  checks:
+    name: Release regression checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check release planning and publication
+        run: python3 -m unittest discover -s tests -p test_release_pipeline.py
   version:
-    name: Bump version (${{ inputs.bump_type }})
+    name: Plan release from main
+    if: github.event_name != 'pull_request'
+    needs: checks
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.bump.outputs.version }}
+      version: ${{ steps.plan.outputs.version }}
+      previous: ${{ steps.plan.outputs.previous }}
+      sha: ${{ steps.plan.outputs.sha }}
+      changed: ${{ steps.plan.outputs.changed }}
     steps:
+      - name: Validate manual source branch
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          SOURCE_REF: ${{ github.ref }}
+        run: |
+          if [[ "$SOURCE_REF" != refs/heads/main && "$SOURCE_REF" != refs/heads/develop ]]; then
+            echo 'Run Release from main or develop; installers always use main.' >&2
+            exit 1
+          fi
+      - uses: actions/checkout@v7
+        with:
+          path: release-tools
+          persist-credentials: false
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          path: source
           ref: main
-          token: ${{ secrets.RELEASE_TOKEN }}
-      - name: Guard — must run from main
+          persist-credentials: false
+      - id: plan
+        working-directory: source
+        env:
+          BUMP_TYPE: ${{ inputs.bump_type || 'auto' }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
-            echo "❌ Release must be triggered from main (got: ${{ github.ref }})"
-            exit 1
+          set -euo pipefail
+          python3 ../release-tools/scripts/release_version.py "$BUMP_TYPE" > release-plan.json
+          version=$(jq -r .version release-plan.json)
+          changed=$(jq -r .changed release-plan.json)
+          previous=$(gh release list --exclude-drafts --exclude-pre-releases --limit 1 \
+            --json tagName --jq '.[0].tagName // ""')
+          if [[ -n "$previous" ]]; then
+            git merge-base --is-ancestor "$previous" HEAD
           fi
-      - name: Setup git identity
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Calculate next version
-        id: bump
-        run: |
-          LATEST=$(git tag -l "v*.*.*" --sort=-v:refname | grep -v '-' | head -1)
-          LATEST=${LATEST:-v0.0.0}
-          CORE="${LATEST#v}"
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$CORE"
-
-          case "${{ inputs.bump_type }}" in
-            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
-            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
-            patch) PATCH=$((PATCH + 1)) ;;
-          esac
-
-          VERSION="v$MAJOR.$MINOR.$PATCH"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "prev_version=$LATEST" >> "$GITHUB_OUTPUT"
-          echo "=> $LATEST → $VERSION (${{ inputs.bump_type }})"
-      - name: Write git-cliff config
-        run: |
-          cat > cliff.toml << 'EOF'
-          [changelog]
-          header = ""
-          body = """
-          # [{{ version }}](https://github.com/themakunga/nix-systems/compare/{{ previous.version }}...{{ version }}) ({{ timestamp | date(format="%Y-%m-%d") }})
-
-          {% for group, commits in commits | group_by(attribute="group") %}\
-          ### {{ group | upper_first }}
-
-          {% for commit in commits %}\
-          * {{ commit.message | upper_first }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/themakunga/nix-systems/commit/{{ commit.id }}))
-          {% endfor %}
-          {% endfor %}
-          """
-          trim = true
-
-          [git]
-          conventional_commits = true
-          commit_parsers = [
-            { message = "^feat", group = "Features" },
-            { message = "^fix", group = "Bug Fixes" },
-            { message = "^docs", group = "Documentation" },
-            { message = "^refactor", group = "Refactor" },
-            { message = "^chore\\(release\\)", skip = true },
-            { message = "^chore", skip = true },
-            { message = "^ci", skip = true },
-            { message = "^style", skip = true },
-            { message = "^test", skip = true },
-          ]
-          filter_commits = true
-          EOF
-      - uses: orhun/git-cliff-action@v4
-        with:
-          config: cliff.toml
-          args: --tag ${{ steps.bump.outputs.version }} --unreleased --prepend CHANGELOG.md
-      - name: Commit CHANGELOG and create tag
-        run: |
-          VERSION="${{ steps.bump.outputs.version }}"
-          git add CHANGELOG.md
-          git diff --cached --quiet || git commit -m "chore(release): ${VERSION}"
-          git push origin main
-          git tag -a "$VERSION" -m "Release $VERSION"
-          git push origin "$VERSION"
-  # ── 2a. Build: RPi bootstrap SD image (aarch64) ──────────────────────────
+          if [[ "$changed" == false ]]; then
+            if gh release view "$version" --json isDraft --jq .isDraft > release-draft.txt; then
+              [[ $(cat release-draft.txt) == false ]] || changed=true
+            else
+              changed=true
+            fi
+          fi
+          {
+            jq -r '"version=\(.version)\nsha=\(.sha)"' release-plan.json
+            echo "previous=$previous"
+            echo "changed=$changed"
+          } >> "$GITHUB_OUTPUT"
+          echo "Release $version, main commit $(jq -r .sha release-plan.json), pending=$changed" >> "$GITHUB_STEP_SUMMARY"
   build-rpi:
     name: Build — RPi bootstrap SD image
     needs: version
+    if: needs.version.outputs.changed == 'true'
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: main
+          path: release-tools
+          persist-credentials: false
+      - uses: actions/checkout@v7
+        with:
+          path: source
+          ref: ${{ needs.version.outputs.sha }}
       - name: Decode SSH key
         run: |
           echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/ssh_key
@@ -141,32 +123,39 @@ jobs:
           name: themakunga
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - name: Build aperture-bootstrap SD image
+        working-directory: source
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: |
+          set -euo pipefail
           echo "=> Building aperture-bootstrap SD image on $(uname -m)..."
           OUT=$(nix build .#nixosConfigurations.aperture-bootstrap.config.system.build.sdImage \
-            --no-link --print-out-paths 2>&1 | tail -1)
-          mkdir -p output
-          for f in "$OUT"/sd-image/*; do
-            [ -f "$f" ] && cp -L "$f" "output/aperture-bootstrap-${{ needs.version.outputs.version }}-$(basename "$f")"
-          done
+            --no-link --print-out-paths)
+          bash ../release-tools/scripts/collect-release-artifacts.sh rpi "$OUT/sd-image" \
+            "${{ needs.version.outputs.version }}" output
           ls -lh output/
       - uses: actions/upload-artifact@v7
         with:
-          name: rpi-sd-image
-          path: output/*
+          name: installer-rpi
+          path: source/output/*
           retention-days: 7
+          if-no-files-found: error
   # ── 2b. Build: Linux x86_64 installer ISO ────────────────────────────────
   build-linux:
     name: Build — Linux x86_64 installer ISO
     needs: version
+    if: needs.version.outputs.changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: main
+          path: release-tools
+          persist-credentials: false
+      - uses: actions/checkout@v7
+        with:
+          path: source
+          ref: ${{ needs.version.outputs.sha }}
       - name: Decode SSH key
         run: |
           echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/ssh_key
@@ -186,52 +175,50 @@ jobs:
           name: themakunga
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - name: Build linux-bootstrap ISO
+        working-directory: source
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: |
+          set -euo pipefail
           echo "=> Building linux-bootstrap ISO on $(uname -m)..."
           OUT=$(nix build .#nixosConfigurations.linux-bootstrap.config.system.build.isoImage \
-            --no-link --print-out-paths 2>&1 | tail -1)
-          mkdir -p output
-          for f in "$OUT"/iso/*; do
-            [ -f "$f" ] && cp -L "$f" "output/linux-bootstrap-${{ needs.version.outputs.version }}-$(basename "$f")"
-          done
+            --no-link --print-out-paths)
+          bash ../release-tools/scripts/collect-release-artifacts.sh linux "$OUT/iso" \
+            "${{ needs.version.outputs.version }}" output
           ls -lh output/
       - uses: actions/upload-artifact@v7
         with:
-          name: linux-iso
-          path: output/*
+          name: installer-linux
+          path: source/output/*
           retention-days: 7
-  # ── 3. Publicar GitHub Release con los artefactos ────────────────────────
+          if-no-files-found: error
   release:
-    name: Publish release ${{ needs.version.outputs.version }}
+    name: Publish completed installers
     needs: [version, build-rpi, build-linux]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v7
         with:
+          path: release-tools
+          persist-credentials: false
+      - uses: actions/checkout@v7
+        with:
           fetch-depth: 0
-          ref: main
+          path: source
+          ref: ${{ needs.version.outputs.sha }}
+          persist-credentials: false
       - uses: actions/download-artifact@v8
         with:
-          path: output
+          pattern: installer-*
+          path: source/output
           merge-multiple: true
-      - name: Create GitHub Release
+      - name: Publish verified release
+        working-directory: source
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-        run: |
-          VERSION="${{ needs.version.outputs.version }}"
-          echo "=> Publishing release $VERSION..."
-          ls -lh output/
-
-          if gh release view "$VERSION" &>/dev/null; then
-            echo "Release exists — uploading/updating artifacts..."
-            gh release upload "$VERSION" output/* --clobber
-          else
-            gh release create "$VERSION" output/* \
-              --title "Release $VERSION" \
-              --generate-notes \
-              --target main
-          fi
-
-          echo "=> Release published: $(gh release view "$VERSION" --json url -q .url)"
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.version.outputs.version }}
+          RELEASE_SHA: ${{ needs.version.outputs.sha }}
+          PREVIOUS_TAG: ${{ needs.version.outputs.previous }}
+        run: bash ../release-tools/scripts/publish-release.sh
