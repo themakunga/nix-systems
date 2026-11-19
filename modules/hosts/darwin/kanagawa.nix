@@ -42,6 +42,7 @@ in {
           ];
           my = {
             apps = {
+              qmk.enable = true;
               cliamp.enable = true;
               matcha.enable = true;
               glados-tts.enable = true;
