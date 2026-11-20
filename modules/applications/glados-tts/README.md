@@ -2,7 +2,7 @@
 
 This module provides `glados-say` (Piper/model/player) and `glados-agent`
 (Python with PyYAML and jsonschema). It does not register agent hooks.
-`glados-agent` loads the standalone skill from `~/.vaults/amgmt/skills/glados`.
+`glados-agent` loads the standalone skill from `~/.vaults/amgmt/skills/agent-glados`.
 The standalone skill owns configuration, phrases, renewal and session throttling.
 Legacy journal settings and legacy hook registration are retired.
 
