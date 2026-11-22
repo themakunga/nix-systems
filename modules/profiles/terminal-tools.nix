@@ -19,7 +19,10 @@
 
       vendorHash = "sha256-MYkYfyXQ+YDKwZGVvAkZFDBRSyh9o4STrSCGBZMGbHo=";
 
-      patches = [../../packages/gws-tui/remote-disconnect.patch];
+      patches = [
+        ../../packages/gws-tui/remote-disconnect.patch
+        ../../packages/gws-tui/space-activity-fixture.patch
+      ];
 
       # Inject Tokyo Night Storm palette — bg #24283b vs Night #1a1b26
       postPatch = ''

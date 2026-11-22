@@ -49,8 +49,8 @@
         (command "say")
         (pkgs.writeShellScriptBin "glados-agent" ''
           for vault in "$HOME/.vaults/amgmt" "$HOME/.vaults/agent-wiki"; do
-            if [ -f "$vault/skills/glados/scripts/glados.py" ]; then
-              exec ${python}/bin/python3 "$vault/skills/glados/scripts/glados.py" --vault "$vault" "$@"
+            if [ -f "$vault/skills/agent-glados/scripts/glados.py" ]; then
+              exec ${python}/bin/python3 "$vault/skills/agent-glados/scripts/glados.py" --vault "$vault" "$@"
             fi
           done
           echo "GLaDOS skill is unavailable beneath ~/.vaults" >&2

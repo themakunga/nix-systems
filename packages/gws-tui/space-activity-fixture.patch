@@ -1,0 +1,11 @@
+--- a/internal/daemon/test_client_test.go
++++ b/internal/daemon/test_client_test.go
+@@ -52,0 +53 @@
++// Bootstrap ranks spaces while message history is still loading asynchronously.
+@@ -55,3 +56,3 @@
+-		{Name: "spaces/alice", DisplayName: "Alice", SpaceType: "DM"},
+-		{Name: "spaces/engineering", DisplayName: "#engineering", SpaceType: "SPACE"},
+-		{Name: "spaces/design", DisplayName: "#design", SpaceType: "SPACE"},
++		{LastActiveTime: c.now.Add(-35*time.Minute), Name: "spaces/alice", DisplayName: "Alice", SpaceType: "DM"},
++		{LastActiveTime: c.now.Add(-100*time.Minute), Name: "spaces/engineering", DisplayName: "#engineering", SpaceType: "SPACE"},
++		{LastActiveTime: c.now.Add(-4*time.Hour), Name: "spaces/design", DisplayName: "#design", SpaceType: "SPACE"},

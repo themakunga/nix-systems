@@ -56,8 +56,7 @@
             # Linter para CloudFormation (Soporte para NeoVim)
             python3Packages.cfn-lint
           ]
-          ++ optional cfg.enableSSM ssm-session-manager-plugin
-          ++ optional cfg.enableLocalStack localstack;
+          ++ optional cfg.enableSSM ssm-session-manager-plugin;
 
         interactiveShellInit = ''
           ${optionalString cfg.useSecrets ''
