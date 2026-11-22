@@ -4,7 +4,7 @@ kind=$1
 source_dir=$2
 version=$3
 output_dir=$4
-[[ "$version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+[[ "$version" =~ ^(v[0-9]+\.[0-9]+\.[0-9]+|pre-[0-9]{12})$ ]]
 shopt -s nullglob
 case "$kind" in
   rpi) files=("$source_dir"/*.img "$source_dir"/*.img.zst "$source_dir"/*.img.gz); prefix=aperture-bootstrap ;;

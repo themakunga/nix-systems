@@ -20,6 +20,24 @@ any changes, you can manually run the formatting and linting hooks using:
 pre-commit run --all-files
 ```
 
+### Private CI inputs
+
+Workflows pass the base64 SSH secret only to `scripts/setup-ci-ssh.sh`. The helper
+loads it through stdin into an ephemeral SSH agent and exports only `SSH_AUTH_SOCK`
+and `SSH_AGENT_PID`; it never writes the decoded private key to a file or job environment.
+An always-run cleanup step stops the agent. Do not enable shell tracing around secret handling.
+
+Run the regression checks without using production credentials:
+
+```sh
+python3 -m unittest discover -s tests -p test_ci_secret_handling.py
+actionlint .github/workflows/*.yaml
+```
+
+If a private key appeared in an earlier log, revoke/replace that key, update
+`SECRETS_REPO_SSH_KEY_BASE64`, and remove the affected workflow logs. This code change
+does not revoke old credentials or remove historical logs.
+
 ### CI
 
 `CI — Check & Dry-run` runs lint, flake evaluation and dry-runs

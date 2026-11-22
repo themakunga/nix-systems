@@ -81,14 +81,10 @@ jobs:
       diff: ${{ steps.check.outputs.diff }}
     steps:
       - uses: actions/checkout@v7
-      - name: Decode SSH key
-        run: |
-          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/ssh_key
-          { printf 'DECODED_SSH_KEY<<EOF\n'; cat /tmp/ssh_key; printf '\nEOF\n'; } >> "$GITHUB_ENV"
-          rm /tmp/ssh_key
-      - uses: webfactory/ssh-agent@v0.10.0
-        with:
-          ssh-private-key: ${{ env.DECODED_SSH_KEY }}
+      - name: Load private-input SSH key
+        env:
+          CI_SSH_KEY_BASE64: ${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}
+        run: bash scripts/setup-ci-ssh.sh
       - uses: cachix/install-nix-action@v31
         with:
           github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
@@ -114,6 +110,9 @@ jobs:
             echo "has_outdated=false" >> "$GITHUB_OUTPUT"
             echo "diff=" >> "$GITHUB_OUTPUT"
           fi
+      - name: Stop SSH agent
+        if: always() && env.SSH_AGENT_PID != ''
+        run: ssh-agent -k >/dev/null
   # ── 3. Issue management ───────────────────────────────────────────────────
   report:
     name: Open or close issue
