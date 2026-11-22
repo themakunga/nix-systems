@@ -75,16 +75,22 @@ _: {
           run_as_user mkdir -p "$USER_HOME/.local/bin" "$USER_HOME/.agents/skills"
           run_as_user ln -sfn /run/current-system/sw/bin/glados-agent "$USER_HOME/.local/bin/glados-agent"
           for agent_home in .agents .claude .hermes .gemini .openclaw .zeroclaw; do
-            if [ -d "$USER_HOME/$agent_home" ] && [ ! -e "$USER_HOME/$agent_home/skills/glados" ]; then
+            skill_link="$USER_HOME/$agent_home/skills/glados"
+            if [ ! -d "$USER_HOME/$agent_home" ]; then
+              continue
+            fi
+            if [ -L "$skill_link" ] && [ "$(readlink "$skill_link")" = "$WIKI_DIR/skills/glados" ]; then
+              run_as_user ln -sfn "$WIKI_DIR/skills/agent-glados" "$skill_link"
+            elif [ ! -e "$skill_link" ] && [ ! -L "$skill_link" ]; then
               run_as_user mkdir -p "$USER_HOME/$agent_home/skills"
-              run_as_user ln -s "$WIKI_DIR/skills/glados" "$USER_HOME/$agent_home/skills/glados"
+              run_as_user ln -s "$WIKI_DIR/skills/agent-glados" "$skill_link"
             fi
           done
           for agent in codex claude-code hermes; do
             # The activation PATH is minimal; integrate.py resolves glados-agent with shutil.which.
             if integration_output=$(run_as_user env PATH="/run/current-system/sw/bin:$USER_HOME/.local/bin:$PATH" \
               ${pkgs.python3.withPackages (ps: [ps.pyyaml ps.jsonschema])}/bin/python3 \
-              "$WIKI_DIR/skills/glados/scripts/integrate.py" --vault "$WIKI_DIR" --agent "$agent" --apply --migrate-legacy 2>&1); then
+              "$WIKI_DIR/skills/agent-glados/scripts/integrate.py" --vault "$WIKI_DIR" --agent "$agent" --apply --migrate-legacy 2>&1); then
               echo "  OK: GLaDOS $agent"
             else
               printf '%s\n' "$integration_output" >&2
