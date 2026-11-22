@@ -82,6 +82,13 @@ repos:
         stages: [pre-commit]
         files: '^(scripts/(release_version.py|collect-release-artifacts.sh|publish-release.sh)|tests/test_release_pipeline.py|.github/workflows/release.yaml)$'
         pass_filenames: false
+      - id: ci-secret-handling-tests
+        name: 'Checker - CI SSH secrecy and prerelease failure tests'
+        entry: python3 -m unittest discover -s tests -p test_ci_secret_handling.py
+        language: system
+        stages: [pre-commit]
+        files: '^(scripts/(setup-ci-ssh|collect-release-artifacts).sh|tests/test_ci_secret_handling.py|.github/workflows/.*\.yaml)$'
+        pass_filenames: false
       - id: nix-flake-check
         name: 'Checker - nix flake check - flake.nix - pre-push'
         entry: nix flake check

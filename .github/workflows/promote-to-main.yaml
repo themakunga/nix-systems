@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.meta.outputs.tag }}
+      sha: ${{ steps.meta.outputs.sha }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -52,6 +53,7 @@ jobs:
         run: |
           TAG="pre-$(date +%Y%m%d%H%M)"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
           # Commits en develop que aún no están en main
           COMMITS=$(git log origin/main..HEAD --oneline 2>/dev/null || echo "(no new commits)")
@@ -66,6 +68,8 @@ jobs:
             'if length > 0 then .[0] | "Last scan: [#\(.number) — \(.title)](\(.html_url)) (\(.state))" else "No security issues on record." end')
 
           {
+            # Markdown backticks are literal.
+            # shellcheck disable=SC2016
             printf '## Commit Diff (develop → main)\n```\n%s\n```\n\n' "$COMMITS"
             printf '## Security Report\n%s\n' "$SEC"
           } > /tmp/pr_body.md
@@ -124,15 +128,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: develop
-      - name: Decode SSH key
-        run: |
-          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/ssh_key
-          { printf 'DECODED_SSH_KEY<<EOF\n'; cat /tmp/ssh_key; printf '\nEOF\n'; } >> "$GITHUB_ENV"
-          rm /tmp/ssh_key
-      - uses: webfactory/ssh-agent@v0.10.0
-        with:
-          ssh-private-key: ${{ env.DECODED_SSH_KEY }}
+          ref: ${{ needs.prepare.outputs.sha }}
+      - name: Load private-input SSH key
+        env:
+          CI_SSH_KEY_BASE64: ${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}
+        run: bash scripts/setup-ci-ssh.sh
       - uses: cachix/install-nix-action@v31
         with:
           github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
@@ -148,20 +148,22 @@ jobs:
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: |
+          set -euo pipefail
           TAG="${{ needs.prepare.outputs.tag }}"
           echo "=> Building aperture-bootstrap on $(uname -m)..."
           OUT=$(nix build .#nixosConfigurations.aperture-bootstrap.config.system.build.sdImage \
-            --no-link --print-out-paths 2>&1 | tail -1)
-          mkdir -p output
-          for f in "$OUT"/sd-image/*; do
-            [ -f "$f" ] && cp -L "$f" "output/aperture-bootstrap-${TAG}-$(basename "$f")"
-          done
+            --no-link --print-out-paths)
+          bash scripts/collect-release-artifacts.sh rpi "$OUT/sd-image" "$TAG" output
           ls -lh output/
       - uses: actions/upload-artifact@v7
         with:
           name: pre-rpi-sd-image
           path: output/*
           retention-days: 3
+          if-no-files-found: error
+      - name: Stop SSH agent
+        if: always() && env.SSH_AGENT_PID != ''
+        run: ssh-agent -k >/dev/null
   # ── 2. Build: Linux x86_64 ISO ──────────────────────────────────────────
   build-linux:
     name: Pre-release — Linux ISO
@@ -171,15 +173,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: develop
-      - name: Decode SSH key
-        run: |
-          echo "${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}" | base64 -d > /tmp/ssh_key
-          { printf 'DECODED_SSH_KEY<<EOF\n'; cat /tmp/ssh_key; printf '\nEOF\n'; } >> "$GITHUB_ENV"
-          rm /tmp/ssh_key
-      - uses: webfactory/ssh-agent@v0.10.0
-        with:
-          ssh-private-key: ${{ env.DECODED_SSH_KEY }}
+          ref: ${{ needs.prepare.outputs.sha }}
+      - name: Load private-input SSH key
+        env:
+          CI_SSH_KEY_BASE64: ${{ secrets.SECRETS_REPO_SSH_KEY_BASE64 }}
+        run: bash scripts/setup-ci-ssh.sh
       - uses: cachix/install-nix-action@v31
         with:
           github_access_token: ${{ secrets.GH_TOKEN_SECRETS }}
@@ -194,20 +192,22 @@ jobs:
         env:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY_CI }}
         run: |
+          set -euo pipefail
           TAG="${{ needs.prepare.outputs.tag }}"
           echo "=> Building linux-bootstrap on $(uname -m)..."
           OUT=$(nix build .#nixosConfigurations.linux-bootstrap.config.system.build.isoImage \
-            --no-link --print-out-paths 2>&1 | tail -1)
-          mkdir -p output
-          for f in "$OUT"/iso/*; do
-            [ -f "$f" ] && cp -L "$f" "output/linux-bootstrap-${TAG}-$(basename "$f")"
-          done
+            --no-link --print-out-paths)
+          bash scripts/collect-release-artifacts.sh linux "$OUT/iso" "$TAG" output
           ls -lh output/
       - uses: actions/upload-artifact@v7
         with:
           name: pre-linux-iso
           path: output/*
           retention-days: 3
+          if-no-files-found: error
+      - name: Stop SSH agent
+        if: always() && env.SSH_AGENT_PID != ''
+        run: ssh-agent -k >/dev/null
   # ── 3. Publicar pre-release (sin CHANGELOG) ──────────────────────────────
   pre-release:
     name: Publish pre-release ${{ needs.prepare.outputs.tag }}
@@ -216,7 +216,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: develop
+          ref: ${{ needs.prepare.outputs.sha }}
       - uses: actions/download-artifact@v8
         with:
           path: output
