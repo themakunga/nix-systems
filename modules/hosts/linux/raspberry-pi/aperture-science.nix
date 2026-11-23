@@ -266,6 +266,7 @@ in {
             environment.systemPackages = with pkgs; [
               # ── Terminal & prompt ───────────────────────────────────────────
               fastfetch # panel de sistema — config en ~/.config/fastfetch/
+              tmux # Persistent terminal session for Wheatley's desktop login.
               oh-my-posh # prompt para bash (y zsh) — config en ~/.config/ohmyposh/
               fzf # fuzzy finder — integrado en .bashrc
 

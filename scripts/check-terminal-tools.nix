@@ -22,6 +22,7 @@ let
       assert cfg.my.apps.bat.enable;
       assert cfg.my.apps.yazi.enable && cfg.my.apps.zoxide.enable;
       assert cfg.my.dotfiles.enable;
+      assert name != "aperture-science" || builtins.elem "tmux" packages;
       assert lib.hasInfix "/bat/init.sh" cfg.environment.interactiveShellInit;
       assert builtins.all (p: builtins.elem p packages) ["bat" "yazi" "zoxide" "fzf"];
       assert builtins.all (p: builtins.elem p dotfiles) ["bat" "yazi" "zoxide"];
