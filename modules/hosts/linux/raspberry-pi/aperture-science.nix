@@ -192,7 +192,7 @@ in {
                 forecast = ["d" "w"];
               };
               nix-anywhere.enable = true;
-              packages = [pkgs.rclone];
+              packages = [pkgs.rclone pkgs.tmux];
 
               # SOPS: hosts/aperture-science.yaml contiene wheatley/password (SHA-512).
               hostSecrets.file = "${inputs.secrets.outPath}/hosts/aperture-science.yaml";
@@ -266,7 +266,6 @@ in {
             environment.systemPackages = with pkgs; [
               # ── Terminal & prompt ───────────────────────────────────────────
               fastfetch # panel de sistema — config en ~/.config/fastfetch/
-              tmux # Persistent terminal session for Wheatley's desktop login.
               oh-my-posh # prompt para bash (y zsh) — config en ~/.config/ohmyposh/
               fzf # fuzzy finder — integrado en .bashrc
 
