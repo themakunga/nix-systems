@@ -207,6 +207,7 @@ in {
               # Contraseña de wheatley vía SOPS — necesaria para login con tuigreet.
               # Override del null default del userModule.
               userProfiles.wheatley.hashedPasswordFile = config.sops.secrets."wheatley-password".path;
+              userProfiles.wheatley.isAdmin = lib.mkForce true;
 
               base-machine = {
                 enable = true;
