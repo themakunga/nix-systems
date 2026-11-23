@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -15,10 +16,20 @@ let
   spec = (import (ROOT + "/modules/applications/handy.nix") {
     self.lib.mkAppModule = _: _: value: value;
   }).flake.applicationModules.handy;
+  native = f.inputs.nixpkgs.legacyPackages.${builtins.currentSystem};
   inspect = host: let
     inherit (host) config pkgs;
     darwin = pkgs.stdenv.isDarwin;
     standalone = spec.sysConfig { inherit config pkgs; lib = pkgs.lib; };
+    sync = (import (ROOT + "/modules/modules/common/dotfiles.nix") {})
+      .flake.commonModules.dotfiles {
+        lib = pkgs.lib;
+        pkgs = pkgs // { git = native.git; };
+        config.my.dotfiles = config.my.dotfiles // {
+          packages = [];
+          additionalUsers = map (u: u // { packages = []; }) config.my.dotfiles.additionalUsers;
+        };
+      };
   in {
     enabled = config.my.apps.handy.enable;
     platform = if darwin then "macos" else "linux";
@@ -28,6 +39,7 @@ let
     seed = if darwin then standalone.system.activationScripts.postActivation.text.content
       else standalone.system.activationScripts.seedHandy.text;
     deps = if darwin then [] else config.system.activationScripts.seedHandy.deps;
+    sync = map (s: s.text) (builtins.attrValues sync.config.content.system.activationScripts);
   };
 in (builtins.mapAttrs (_: inspect) f.darwinConfigurations) // {
   aperture-science = inspect f.nixosConfigurations.aperture-science;
@@ -55,12 +67,35 @@ for hostname, host in hosts.items():
         script = host['seed'].replace('/usr/bin/sudo', str(sudo)).replace('/run/wrappers/bin/sudo', str(sudo))
         homes = sorted(set(re.findall(r'"([^"\n]+)/\.public-dotfiles/handy/', script)))
         assert len(homes) == (1 if macos else 2), (hostname, homes)
+        upstream = directory / 'upstream'
+        upstream.mkdir()
+        def git(*args, cwd=upstream):
+            return subprocess.check_output([
+                'git', '-c', 'user.name=Handy Test', '-c', 'user.email=test@example.invalid',
+                '-c', 'commit.gpgsign=false', '-c', 'core.hooksPath=/dev/null',
+                '-C', str(cwd), *args,
+            ], text=True, stderr=subprocess.STDOUT)
+        git('init', '-q', '-b', 'main')
+        git('commit', '-q', '--allow-empty', '-m', 'Before Handy')
+        git('branch', 'develop')
+        sync = '\n'.join(host['sync'])
+        sync = re.sub(r'run_as_user\(\) \{[^\n]+\}', 'run_as_user() { "$@"; }', sync)
+        sync = 'chown() { :; }\n' + sync
+        sync = sync.replace('https://github.com/themakunga/public-dotfiles.git', str(upstream))
         for index, original in enumerate(homes):
             home = directory / f'home space {index}'
             home.mkdir()
-            (home / '.public-dotfiles').symlink_to(dotfiles, target_is_directory=True)
+            subprocess.run(['git', 'clone', '-q', str(upstream), str(home / '.public-dotfiles')], check=True)
+            if not macos and index == 0:
+                subprocess.run(['git', '-C', str(home / '.public-dotfiles'), 'checkout', '-qb', 'develop'], check=True)
             script = script.replace(original, str(home))
-        subprocess.run(['bash', '-e', '-c', script], check=True, capture_output=True)
+            sync = sync.replace(original, str(home))
+        shutil.copytree(dotfiles / 'handy', upstream / 'handy')
+        git('add', 'handy')
+        git('commit', '-q', '-m', 'Publish Handy settings on main')
+        subprocess.run(['bash', '-e', '-c', sync], check=True, capture_output=True)
+        seeded = subprocess.run(['bash', '-e', '-c', script], text=True, capture_output=True)
+        assert seeded.returncode == 0, f'{hostname}: {seeded.stderr}'
         stores = list(directory.rglob('settings_store.json'))
         assert len(stores) == len(homes), hostname
         for store in stores:
@@ -77,10 +112,35 @@ for hostname, host in hosts.items():
         for store in stores:
             assert json.loads(store.read_text()) == {'preserve': True}
             assert next((store.parent / 'models').iterdir()).read_text() == 'existing user model'
+        checkout = directory / 'home space 0/.public-dotfiles'
+        assert git('branch', '--show-current', cwd=checkout).strip() == ('main' if macos else 'develop')
+        source = checkout / f"handy/{host['platform']}-settings.json"
+        source.write_text(source.read_text() + '\n')
+        local_settings = source.read_bytes()
+        published = upstream / source.relative_to(checkout)
+        published.write_text(published.read_text() + '\n\n')
+        git('commit', '-qam', 'Update public settings')
+        original_head = git('rev-parse', 'HEAD', cwd=checkout)
+        result = subprocess.run(['bash', '-e', '-c', sync], text=True, capture_output=True)
+        assert result.returncode == 0 and 'could not fast-forward' in result.stderr
+        assert source.read_bytes() == local_settings
+        assert git('rev-parse', 'HEAD', cwd=checkout) == original_head
+        git('commit', '-qam', 'Keep local settings', cwd=checkout)
+        divergent_head = git('rev-parse', 'HEAD', cwd=checkout)
+        result = subprocess.run(['bash', '-e', '-c', sync], text=True, capture_output=True)
+        assert result.returncode == 0 and 'could not fast-forward' in result.stderr
+        assert git('rev-parse', 'HEAD', cwd=checkout) == divergent_head
+        assert source.read_bytes() == local_settings
+        git('remote', 'set-url', 'origin', str(directory / 'unavailable'), cwd=checkout)
+        result = subprocess.run(['bash', '-e', '-c', sync], text=True, capture_output=True)
+        assert result.returncode == 0 and 'could not fast-forward' in result.stderr
+        assert source.read_bytes() == local_settings
         for store in stores:
             store.unlink()
-        for link in directory.glob('home space */.public-dotfiles'):
-            link.unlink()
+        for checkout in directory.glob('home space */.public-dotfiles'):
+            shutil.rmtree(checkout)
         failed = subprocess.run(['bash', '-e', '-c', script], capture_output=True)
         assert failed.returncode != 0, 'Missing public settings must not succeed silently'
-    print(f'{hostname}: integration, first-run seeding, permissions, preservation and missing-source failure pass')
+        subprocess.run(['bash', '-e', '-c', sync], check=True, capture_output=True)
+        subprocess.run(['bash', '-e', '-c', script], check=True, capture_output=True)
+    print(f'{hostname}: sync, seeding, permissions, local edits, divergence, offline and fresh clone pass')

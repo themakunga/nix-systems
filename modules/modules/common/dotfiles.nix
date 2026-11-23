@@ -94,7 +94,7 @@ _: {
         packages);
 
     # Generate a full deployment script for a single user.
-    # Clones the repo if missing, fetches from origin, stows packages.
+    # Fast-forward to published main before stowing packages, preserving local edits.
     # No auto-commit/push: dotfiles are managed via PRs, not activation scripts.
     mkUserScript = {
       user,
@@ -121,7 +121,8 @@ _: {
         echo "=> Clonando dotfiles para ${user}..."
         run_as_user ${pkgs.git}/bin/git clone "$REPO_URL" "$DOTFILES_DIR"
       fi
-      run_as_user ${pkgs.git}/bin/git -C "$DOTFILES_DIR" fetch origin 2>/dev/null || true
+      run_as_user ${pkgs.git}/bin/git -C "$DOTFILES_DIR" pull --ff-only origin main \
+        || echo "Dotfiles: could not fast-forward ${user} from origin/main; keeping the local checkout." >&2
       echo "=> Desplegando dotfiles para ${user}..."
       ${stowLoop}
       echo "=> Dotfiles para ${user} desplegados."

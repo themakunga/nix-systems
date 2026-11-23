@@ -12,6 +12,8 @@ let
     keys = cfg.sops.age.sshKeyPaths;
   in
     assert keys == lib.unique keys;
+    assert builtins.elem "/etc/ssh/ssh_host_ed25519_key" keys;
+    assert builtins.elem "/Users/${cfg.system.primaryUser}/.ssh/id_ed25519" keys;
     assert builtins.all (secret: !secret.neededForUsers) (builtins.attrValues cfg.sops.secrets);
     assert !(cfg.launchd.daemons ? sops-install-secrets-for-users);
     assert !(lib.hasInfix "Setting up secrets for users" cfg.system.activationScripts.postActivation.text);
@@ -23,7 +25,9 @@ let
     };
   in
     assert profile.sops.secrets."passwords/nicolas/hashed".neededForUsers; true;
+  checkLinuxHost = host: assert host.config.sops.age.sshKeyPaths == ["/etc/ssh/ssh_host_ed25519_key"]; true;
 in {
   darwin = builtins.mapAttrs (_: checkDarwin) flake.darwinConfigurations;
+  linuxHostKeys = builtins.mapAttrs (_: checkLinuxHost) (lib.filterAttrs (_: host: host.config ? my.hostSecrets) flake.nixosConfigurations);
   linuxPasswordPhase = map checkLinux ["personal" "work"];
 }

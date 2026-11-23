@@ -43,10 +43,9 @@
         # Esto evita que SOPS intente crear /var/root/.gnupg en macOS
         gnupg.sshKeyPaths = [];
 
-        age.sshKeyPaths = [
-          "/etc/ssh/ssh_host_ed25519_key"
-          "${userHome}/.ssh/id_ed25519"
-        ];
+        age.sshKeyPaths =
+          ["/etc/ssh/ssh_host_ed25519_key"]
+          ++ lib.optionals pkgs.stdenv.isDarwin ["${userHome}/.ssh/id_ed25519"];
         secrets = mapAttrs (_name: value:
           value
           // {
