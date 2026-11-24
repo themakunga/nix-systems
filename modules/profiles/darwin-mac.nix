@@ -49,6 +49,7 @@ _: {
       masApps = {
         "Amphetamine" = 937984704;
         "Magnet" = 441258766;
+        "Parcel" = 375589283;
         "Xcode" = 497799835;
       };
 
