@@ -75,6 +75,7 @@ in {
           "zoxide"
           "tailscale.core"
           "ollama"
+          "terminal-zsh"
           "wezterm" # Terminal principal — instala wezterm + stow ~/.wezterm.lua (TokyoNight Storm)
           "neovim" # Editor — instala neovim 0.12 + stow ~/.config/nvim/ desde public-dotfiles
           "hermes" # Hermes AI Agent con Obsidian oficial en Podman rootless (/opt/hermes)
@@ -192,7 +193,7 @@ in {
                 forecast = ["d" "w"];
               };
               nix-anywhere.enable = true;
-              packages = [pkgs.rclone pkgs.tmux];
+              packages = [pkgs.rclone];
 
               # SOPS: hosts/aperture-science.yaml contiene wheatley/password (SHA-512).
               hostSecrets.file = "${inputs.secrets.outPath}/hosts/aperture-science.yaml";
@@ -206,8 +207,11 @@ in {
 
               # Contraseña de wheatley vía SOPS — necesaria para login con tuigreet.
               # Override del null default del userModule.
-              userProfiles.wheatley.hashedPasswordFile = config.sops.secrets."wheatley-password".path;
-              userProfiles.wheatley.isAdmin = lib.mkForce true;
+              userProfiles.wheatley = {
+                hashedPasswordFile = config.sops.secrets."wheatley-password".path;
+                isAdmin = lib.mkForce true;
+                shell = lib.mkForce pkgs.zsh;
+              };
 
               base-machine = {
                 enable = true;
@@ -215,6 +219,7 @@ in {
               };
 
               apps = {
+                terminal-zsh.enable = true;
                 tailscale-core.enable = true;
                 handy.enable = true;
                 wechat.enable = true;
@@ -262,14 +267,7 @@ in {
               };
             };
 
-            # Paquetes del stack terminal (fastfetch, oh-my-posh, fzf).
-            # wezterm y neovim los instalan sus respectivos applicationModules.
             environment.systemPackages = with pkgs; [
-              # ── Terminal & prompt ───────────────────────────────────────────
-              fastfetch # panel de sistema — config en ~/.config/fastfetch/
-              oh-my-posh # prompt para bash (y zsh) — config en ~/.config/ohmyposh/
-              fzf # fuzzy finder — integrado en .bashrc
-
               # ── Lanzador Wayland ────────────────────────────────────────────
               wofi # launcher Wayland (reemplaza rofi) — config en ~/.config/wofi/
 

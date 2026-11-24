@@ -27,5 +27,21 @@ let
       assert builtins.all (p: builtins.elem p packages) ["bat" "yazi" "zoxide" "fzf"];
       assert builtins.all (p: builtins.elem p dotfiles) ["bat" "yazi" "zoxide"];
       assert lib.hasInfix "/zoxide/init.sh" cfg.environment.interactiveShellInit; true;
+  aperture = flake.nixosConfigurations.aperture-science.config;
+  aperturePackages = map lib.getName aperture.environment.systemPackages;
+  apertureDotfiles = map (p: p.name) aperture.my.dotfiles.packages;
 in
-  builtins.mapAttrs check (flake.darwinConfigurations // flake.nixosConfigurations)
+  assert aperture.my.apps.terminal-zsh.enable;
+  assert aperture.programs.zsh.enable;
+  assert lib.getName aperture.users.users.wheatley.shell == "zsh";
+  assert lib.getName aperture.users.users.nicolas.shell == "bash-interactive";
+  assert builtins.all (p: builtins.elem p aperturePackages) ["zsh" "tmux" "fzf" "oh-my-posh" "fastfetch" "lazygit"];
+  assert builtins.all (p: builtins.elem p apertureDotfiles) ["zsh" "tmux" "wezterm" "ohmyposh" "fastfetch"];
+  assert builtins.elem flake.nixosConfigurations.aperture-science.pkgs.nerd-fonts.hack aperture.fonts.packages;
+  assert lib.hasInfix "fzf-tab.plugin.zsh" aperture.environment.etc."zsh/plugins.zsh".text;
+  assert lib.hasInfix "zsh-autosuggestions.zsh" aperture.environment.etc."zsh/plugins.zsh".text;
+  assert lib.hasInfix "zsh-syntax-highlighting.zsh" aperture.environment.etc."zsh/plugins.zsh".text;
+  assert lib.hasInfix "TMUX_PLUGIN_MANAGER_PATH /etc/tmux/plugins/" aperture.environment.etc."tmux/plugins.conf".text;
+  assert builtins.all (plugin: lib.hasInfix plugin aperture.environment.etc."tmux/plugins.conf".text) ["resurrect.tmux" "continuum.tmux" "vim-tmux-navigator.tmux" "sessionx.tmux" "plugin.sh.tmux"];
+  assert lib.hasInfix "PKG_NAME=\"zsh\"" aperture.system.activationScripts.stowDotfiles.text;
+    builtins.mapAttrs check (flake.darwinConfigurations // flake.nixosConfigurations)
