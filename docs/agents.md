@@ -29,12 +29,15 @@ GitHub and Codex credentials are encrypted in the private secrets repository wit
 Aperture and administrator recipients, excluding CI. Runtime SOPS files are
 readable only by root and the interactive users' private group. Codex authentication
 is seeded into each user's writable `~/.codex/auth.json` with mode 0600; later
-activations preserve refreshed credentials. Gemini and Hermes use the existing
+activations preserve refreshed credentials. A copied OAuth session can require
+fresh per-host login after server-side expiration or refresh-token rotation. Gemini and Hermes use the existing
 Gemini secret through a private runtime environment.
 
 Each interactive user receives a separate `~/.vaults/amgmt` checkout over HTTPS.
 The Git credential helper reads the runtime token; no token is placed in the Git
-URL or repository configuration. Public Hermes settings come from
+URL or repository configuration. GitHub CLI settings are seeded from
+`public-dotfiles/gh/config.aperture-science.yml` into `~/.config/gh/config.yml`,
+using HTTPS and the system Git credential helper. Public Hermes settings come from
 `public-dotfiles/hermes/config.aperture-science.yaml` and are seeded into
 `~/.hermes/config.yaml`. Claude Code still requires its own account login.
 

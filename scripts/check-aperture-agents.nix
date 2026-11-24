@@ -14,6 +14,9 @@ let
     s.owner == "root" && s.group == "coding-agents" && s.mode == "0440";
 in
   assert builtins.all (name: builtins.elem name names) ["codex" "claude-code" "gemini-cli" "hermes-agent" "btop" "htop" "gh" "glab" "newsboat" "glow" "crapper" "dryer" "mutator" "uml-viewer"];
+  assert cfg.programs.git.enable;
+  assert builtins.any (git: builtins.match ".*gh auth git-credential" (git.credential."https://github.com".helper or "") != null) cfg.programs.git.config;
+  assert !(builtins.any (p: p.name == "gh") cfg.my.dotfiles.packages);
   assert cfg.users.groups.coding-agents.members == ["wheatley" "nicolas"];
   assert builtins.all private ["applications/gh/token" "codex-auth" "agents/gemini-personal/api_key"];
   assert cfg.sops.secrets.codex-auth.format == "binary";

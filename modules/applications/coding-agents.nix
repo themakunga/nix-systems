@@ -33,8 +33,11 @@
         commands = ''
           set -eu
           umask 077
-          mkdir -p "${home}/.codex" "${home}/.hermes" "${home}/.gemini"
-          chmod 700 "${home}/.codex" "${home}/.hermes" "${home}/.gemini"
+          mkdir -p "${home}/.codex" "${home}/.hermes" "${home}/.gemini" "${home}/.config/gh"
+          chmod 700 "${home}/.codex" "${home}/.hermes" "${home}/.gemini" "${home}/.config/gh"
+          if [ ! -e "${home}/.config/gh/config.yml" ] && [ ! -L "${home}/.config/gh/config.yml" ]; then
+            install -m 600 "${home}/.public-dotfiles/gh/config.aperture-science.yml" "${home}/.config/gh/config.yml"
+          fi
           # OAuth refresh rewrites this file; seed once and preserve runtime credentials.
           if [ ! -e "${home}/.codex/auth.json" ] && [ ! -L "${home}/.codex/auth.json" ]; then
             install -m 600 ${config.sops.secrets.codex-auth.path} "${home}/.codex/auth.json"
@@ -48,6 +51,10 @@
         /run/wrappers/bin/sudo -H -u ${lib.escapeShellArg target.user} ${pkgs.runtimeShell} -c ${lib.escapeShellArg commands}
       '';
     in {
+      programs.git = {
+        enable = true;
+        config.credential."https://github.com".helper = "!${pkgs.gh}/bin/gh auth git-credential";
+      };
       users.groups.coding-agents.members = map (target: target.user) targets;
       sops.secrets = {
         "applications/gh/token" = {

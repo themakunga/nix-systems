@@ -78,6 +78,9 @@ with tempfile.TemporaryDirectory(prefix='agent-auth-') as temporary:
         source = home / '.public-dotfiles/hermes/config.aperture-science.yaml'
         source.parent.mkdir(parents=True)
         source.write_text('model:\n  provider: gemini\n')
+        gh_source = home / '.public-dotfiles/gh/config.aperture-science.yml'
+        gh_source.parent.mkdir(parents=True)
+        gh_source.write_text('git_protocol: https\n')
     existing_skill = homes[0] / '.claude/skills/ub-mode/SKILL.md'
     existing_skill.parent.mkdir(parents=True)
     existing_skill.write_text('Local skill preserved\n')
@@ -92,6 +95,10 @@ with tempfile.TemporaryDirectory(prefix='agent-auth-') as temporary:
         destination = home / '.codex/auth.json'
         assert destination.read_bytes() == auth.read_bytes()
         assert destination.stat().st_mode & 0o777 == 0o600
+        gh_config = home / '.config/gh/config.yml'
+        assert gh_config.read_text() == 'git_protocol: https\n'
+        assert gh_config.stat().st_mode & 0o777 == 0o600
+        gh_config.write_text('local: preserved\n')
         assert not destination.is_symlink()
         repository = home / '.vaults/amgmt'
         credential = subprocess.check_output(['git', '-C', str(repository), 'config',
@@ -108,6 +115,7 @@ with tempfile.TemporaryDirectory(prefix='agent-auth-') as temporary:
     for home in homes:
         assert (home / '.codex/auth.json').read_text() == '{"test": "refreshed"}\n'
         assert (home / '.hermes/config.yaml').read_text() == 'local: preserved\n'
+        assert (home / '.config/gh/config.yml').read_text() == 'local: preserved\n'
     # A missing symlink target must not cause credential restoration over a runtime link.
     destination = homes[0] / '.codex/auth.json'
     destination.unlink()

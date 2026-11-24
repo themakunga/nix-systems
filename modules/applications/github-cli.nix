@@ -19,8 +19,13 @@ in {
         gh-dash
       ];
     };
-    sysConfig = {config, ...}: {
-      my.dotfiles.packages = [
+    sysConfig = {
+      config,
+      lib,
+      ...
+    }: {
+      # Coding hosts seed writable per-user CLI settings instead of stowing the legacy file.
+      my.dotfiles.packages = lib.optionals (!(config.my.apps.coding-agents.enable or false)) [
         {
           name = "gh";
         }
