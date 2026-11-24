@@ -26,7 +26,10 @@ in {
   in {
     sops = {
       age = {
-        sshKeyPaths = ["${userHome}/.ssh/id_ed25519"];
+        sshKeyPaths =
+          if pkgs.stdenv.isDarwin
+          then ["${userHome}/.ssh/id_ed25519"]
+          else ["/etc/ssh/ssh_host_ed25519_key"];
         generateKey = false;
       };
 

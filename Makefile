@@ -85,7 +85,7 @@ switch-msf: ## Switch msf over SSH. Usage: make switch-msf [TARGET_IP=msf.local]
 	  --flake .#msf \
 	  --target-host "root@$(MSF_TARGET)" \
 	  --build-host "$(or $(BUILD_HOST),root@$(MSF_TARGET))" \
-	  --fast
+	  --no-reexec
 
 switch-steamdeck: ## Aplica la configuración en steamdeck
 	@echo "=> Aplicando NixOS en steamdeck..."
@@ -114,7 +114,7 @@ switch-aperture: ## Switch aperture-science over SSH. Usage: make switch-apertur
 	  --flake .#aperture-science \
 	  --target-host "root@$(APERTURE_TARGET)" \
 	  --build-host "$(or $(BUILD_HOST),root@$(APERTURE_TARGET))" \
-	  --fast
+	  --no-reexec
 
 build-installer-x86: ## Genera ISO de instalación x86_64 con llaves SSH pre-cargadas. Flashear a USB para bare metal. Uso: make build-installer-x86
 	@echo "=> Generando ISO de instalación x86_64..."
@@ -171,7 +171,7 @@ switch-motherbase: ## Switch motherbase over SSH. Usage: make switch-motherbase 
 	  --flake .#motherbase \
 	  --target-host "root@$(MOTHERBASE_TARGET)" \
 	  --build-host "$(or $(BUILD_HOST),root@$(MOTHERBASE_TARGET))" \
-	  --fast
+	  --no-reexec
 
 deploy-motherbase: switch-motherbase ## Compatibility alias for switch-motherbase
 

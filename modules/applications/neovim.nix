@@ -40,7 +40,10 @@ in {
           imagemagick # snacks.image: convert/magick para rendering
           ghostscript # snacks.image: gs para PDFs
           lua-language-server
-          unstable.codebook
+          (pkgs.callPackage ../../packages/agnix-lsp/package.nix {})
+          (writeShellScriptBin "cspell-language-server" ''
+            exec ${nodejs_24}/bin/node ${unstable.vscode-extensions.streetsidesoftware.code-spell-checker}/share/vscode/extensions/streetsidesoftware.code-spell-checker/packages/_server/dist/main.cjs "$@"
+          '')
           stylua
           nixd
           alejandra

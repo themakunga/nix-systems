@@ -29,7 +29,64 @@ in {
       pkgs,
       lib,
       ...
-    }: {
+    }: let
+      tmuxPlugins = with pkgs.tmuxPlugins; [
+        {
+          name = "tmux-resurrect";
+          plugin = resurrect;
+        }
+        {
+          name = "tmux-continuum";
+          plugin = continuum;
+        }
+        {
+          name = "vim-tmux-navigator";
+          plugin = vim-tmux-navigator;
+        }
+        {
+          name = "tmux-sessionx";
+          plugin = tmux-sessionx;
+        }
+        {
+          name = "tmux-which-key";
+          plugin = tmux-which-key;
+        }
+      ];
+    in {
+      programs.zsh = lib.mkIf pkgs.stdenv.isLinux {
+        enable = true;
+        enableGlobalCompInit = false;
+        promptInit = "";
+      };
+
+      environment.etc = lib.mkIf pkgs.stdenv.isLinux {
+        "zsh/plugins.zsh".text = ''
+          fpath=(${pkgs.zsh-completions}/share/zsh/site-functions $fpath)
+          export ZSH="${pkgs.oh-my-zsh}/share/oh-my-zsh"
+          ZSH_CACHE_DIR="''${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh"
+          ZSH_THEME=""
+          zstyle ':omz:update' mode disabled
+          plugins=(git sudo aws docker gitignore node)
+          source "$ZSH/oh-my-zsh.sh"
+          source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
+          source ${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+          source ${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+        '';
+        "tmux/plugins".source = pkgs.linkFarm "tmux-plugins" (map (entry: {
+            inherit (entry) name;
+            path = builtins.dirOf entry.plugin.rtp;
+          })
+          tmuxPlugins);
+        "tmux/plugins.conf".text = ''
+          set-environment -g TMUX_PLUGIN_MANAGER_PATH /etc/tmux/plugins/
+          set -g @tmux-which-key-xdg-enable true
+          run-shell 'mkdir -p "''${XDG_CONFIG_HOME:-$HOME/.config}/tmux/plugins/tmux-which-key" "''${XDG_DATA_HOME:-$HOME/.local/share}/tmux/plugins/tmux-which-key"'
+          # The packaged example is read-only; seed a writable generated menu.
+          run-shell 'touch "''${XDG_DATA_HOME:-$HOME/.local/share}/tmux/plugins/tmux-which-key/init.tmux" && chmod u+w "''${XDG_DATA_HOME:-$HOME/.local/share}/tmux/plugins/tmux-which-key/init.tmux"'
+          ${lib.concatMapStringsSep "\n" (entry: "run-shell ${entry.plugin.rtp}") tmuxPlugins}
+        '';
+      };
+
       my.dotfiles.packages = [
         {
           name = "git";
