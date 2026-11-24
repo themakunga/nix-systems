@@ -96,11 +96,13 @@ _: {
         run_as_user mkdir -p "$USER_HOME/.claude/skills" "$USER_HOME/.codex"
         run_as_user ln -sfn "$WIKI_DIR/agents/SOUL.md" "$USER_HOME/.claude/CLAUDE.md"
         run_as_user ln -sfn "$WIKI_DIR/agents/SOUL.md" "$USER_HOME/.codex/AGENTS.md"
+        ${lib.optionalString (config.my.apps.coding-agents.enable or false) ''
         for identity in .hermes/SOUL.md .gemini/GEMINI.md; do
           if [ -d "$USER_HOME/$(dirname "$identity")" ]; then
             run_as_user ln -sfn "$WIKI_DIR/agents/SOUL.md" "$USER_HOME/$identity"
           fi
         done
+      ''}
         run_as_user ln -sfn "$WIKI_DIR/hooks" "$USER_HOME/.claude/scripts"
         run_as_user ln -sfn "$WIKI_DIR/claude/commands" "$USER_HOME/.claude/commands"
         run_as_user ln -sfn "$WIKI_DIR/codex/hooks.json" "$USER_HOME/.codex/hooks.json"

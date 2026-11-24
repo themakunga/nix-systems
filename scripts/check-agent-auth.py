@@ -22,11 +22,15 @@ let
     self.lib.mkAppModule = _: _: value: value;
   }).flake.applicationModules.ub-mode;
   ubModule = ub.sysConfig {inherit config pkgs; inherit (pkgs) lib;};
-  wiki = (import (ROOT + "/modules/modules/common/agent-wiki.nix") {}).flake.commonModules.agent-wiki {
-    inherit config pkgs; inherit (pkgs) lib;
+  wikiModule = (import (ROOT + "/modules/modules/common/agent-wiki.nix") {}).flake.commonModules.agent-wiki;
+  wiki = wikiModule {inherit config pkgs; inherit (pkgs) lib;};
+  otherWiki = wikiModule {
+    inherit pkgs; inherit (pkgs) lib;
+    config = config // {my = config.my // {apps = config.my.apps // {coding-agents.enable = false;};};};
   };
 in {
   wiki = wiki.config.content.system.activationScripts.postActivation.text.content;
+  otherWiki = otherWiki.config.content.system.activationScripts.postActivation.text.content;
   skillSeed = ubModule.system.activationScripts.seedUbMode.text;
   token = config.sops.secrets."applications/gh/token".path;
   seed = module.system.activationScripts.seedCodingAgents.text;
@@ -48,6 +52,8 @@ with tempfile.TemporaryDirectory(prefix='agent-auth-') as temporary:
     skill_seed = output['skillSeed'].replace('/run/wrappers/bin/sudo', str(sudo))
     script = output['seed'].replace('/run/wrappers/bin/sudo', str(sudo))
     script = script.replace(output['auth'], str(auth)).replace(output['env'], str(environment))
+    other_wiki = output['otherWiki'].replace(output['token'], str(auth))
+    other_wiki = re.sub(r'run_as_user\(\) \{[^\n]+\}', 'run_as_user() { env HOME="$USER_HOME" "$@"; }', other_wiki)
     wiki = output['wiki'].replace(output['token'], str(auth))
     wiki = re.sub(r'run_as_user\(\) \{[^\n]+\}', 'run_as_user() { env HOME="$USER_HOME" "$@"; }', wiki)
     upstream = directory / 'upstream'
@@ -62,10 +68,12 @@ with tempfile.TemporaryDirectory(prefix='agent-auth-') as temporary:
                     'user.email=test@example.invalid', '-c', 'commit.gpgsign=false',
                     '-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'fixture'], check=True, env=env)
     wiki = wiki.replace('https://github.com/themakunga/amgmt.git', str(upstream))
+    other_wiki = other_wiki.replace('https://github.com/themakunga/amgmt.git', str(upstream))
     homes = [directory / 'wheatley', directory / 'nicolas']
     for original, home in zip(['/opt/wheatley', '/home/nicolas'], homes):
         script = script.replace(original, str(home))
         wiki = wiki.replace(original, str(home))
+        other_wiki = other_wiki.replace(original, str(home))
         skill_seed = skill_seed.replace(original, str(home))
         source = home / '.public-dotfiles/hermes/config.aperture-science.yaml'
         source.parent.mkdir(parents=True)
@@ -106,4 +114,13 @@ with tempfile.TemporaryDirectory(prefix='agent-auth-') as temporary:
     destination.symlink_to(directory / 'absent-runtime-auth')
     activate()
     assert destination.is_symlink() and not destination.exists()
+    for home in homes:
+        for identity in ['.hermes/SOUL.md', '.gemini/GEMINI.md']:
+            path = home / identity
+            path.unlink()
+            path.write_text('Other host identity preserved\n')
+    subprocess.run(['bash', '-eu', '-c', other_wiki], check=True, env=env, capture_output=True)
+    for home in homes:
+        for identity in ['.hermes/SOUL.md', '.gemini/GEMINI.md']:
+            assert (home / identity).read_text() == 'Other host identity preserved\n'
 print('Agent setup: private auth, writable refresh, vault clone, identities and preserved skills OK')
