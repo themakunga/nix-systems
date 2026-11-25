@@ -80,6 +80,7 @@ in {
           "neovim" # Editor — instala neovim 0.12 + stow ~/.config/nvim/ desde public-dotfiles
           "github-cli"
           "coding-agents"
+          "agent-workspace"
           "ub-mode"
           "newsboat"
           "glow"
@@ -247,6 +248,7 @@ in {
                 wechat.enable = true;
                 github-cli.enable = true;
                 coding-agents.enable = true;
+                agent-workspace.enable = true;
                 ub-mode.enable = true;
                 hermes.enable = true; # Hermes AI Agent — solo en aperture-science
                 glados-tts.enable = true; # Voz GLaDOS para hooks de agentes de wheatley

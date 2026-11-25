@@ -14,6 +14,33 @@ Claude Code and Hermes, reporting `OK: GLaDOS <agent>` on success instead of ful
 Hook registration and voice authorization are separate; existing runtime permissions
 still apply. Optional vault synchronization defaults to a 300-second interval.
 
+### Wheatley's journal and installed skills
+
+`applicationModules.agent-workspace` is enabled only for Aperture's primary
+user, Wheatley. It supplies Lua, Taplo and jq, links 45 pinned portable skills
+from the current workstation's catalog, and adds the existing journal and GLaDOS
+skills from `~/.vaults/amgmt`. The separately declared ub-mode skill completes
+48 user skills; Codex supplies its five bundled system skills. Native discovery
+retains upstream plugin namespaces, such as `mattpocock-skills:tdd` and
+`ponytail:ponytail`, while vault skills keep `obsidian-journal` and `glados`.
+
+The journal uses the existing private repository at `~/.vaults/journal` and a
+runtime-local `~/.config/obsidian-journal/config.toml`. Its installer renders the
+skill's own template from `public-dotfiles/agent/journal-settings.json` and writes
+`~/.obsidian-journal-vault`. The shared tracked configuration retains the other
+host's path. Existing skills, journal configuration and Codex authentication are
+preserved; no lifecycle hook approval or extra voice authorization is granted.
+
+Pinned skill bodies match the installed workstation versions, including retro
+and the explicit-invocation setting of code-simplification. App-specific plugin
+connectors and credentials are not transferred. Installation makes skills
+available in a new Codex session after owner activation.
+
+```sh
+nix eval --impure --json --file scripts/check-aperture-workspace.nix
+python3 scripts/check-agent-workspace.py /path/to/public-dotfiles /path/to/obsidian-journal
+```
+
 ### Aperture Science
 
 The host bundle imports `applicationModules.coding-agents`, `github-cli` and
