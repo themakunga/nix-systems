@@ -4,21 +4,16 @@
 # Módulo auto-gestionado.
 # =========================================================
 # Módulo: applicationModules.hermes
-# Hermes AI Agent: paquete nativo en Darwin y contenedor rootless en NixOS.
+# Native Hermes CLI; existing Linux rootless container data is retained.
 {
   self,
   inputs,
   ...
 }: {
-  flake.applicationModules.hermes = self.lib.mkAppModule "hermes" "Hermes AI Agent con Obsidian en Podman rootless" {
-    meta = {
-      pkgs,
-      lib,
-      options,
-      ...
-    }: {
+  flake.applicationModules.hermes = self.lib.mkAppModule "hermes" "Native Hermes AI Agent" {
+    meta = {pkgs, ...}: {
       level = "system";
-      packages = lib.optionals (options ? homebrew) [
+      packages = [
         inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.minimal
       ];
     };
