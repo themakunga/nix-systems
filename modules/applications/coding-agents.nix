@@ -11,7 +11,7 @@
   flake.applicationModules.coding-agents = self.lib.mkAppModule "coding-agents" "Interactive coding agents with private runtime authentication" {
     meta = {pkgs, ...}: {
       level = "system";
-      packages = with pkgs; [unstable.codex claude-code gemini-cli];
+      packages = with pkgs; [claude-code gemini-cli];
     };
     sysConfig = {
       config,
@@ -51,6 +51,12 @@
         /run/wrappers/bin/sudo -H -u ${lib.escapeShellArg target.user} ${pkgs.runtimeShell} -c ${lib.escapeShellArg commands}
       '';
     in {
+      assertions = [
+        {
+          assertion = config.my.apps.codex.enable or false;
+          message = "coding-agents requires applicationModules.codex with my.apps.codex.enable.";
+        }
+      ];
       programs.git = {
         enable = true;
         config.credential."https://github.com".helper = "!${pkgs.gh}/bin/gh auth git-credential";
