@@ -79,6 +79,7 @@ in {
           "wezterm" # Terminal principal — instala wezterm + stow ~/.wezterm.lua (TokyoNight Storm)
           "neovim" # Editor — instala neovim 0.12 + stow ~/.config/nvim/ desde public-dotfiles
           "github-cli"
+          "codex"
           "coding-agents"
           "agent-workspace"
           "ub-mode"
@@ -247,6 +248,7 @@ in {
                 handy.enable = true;
                 wechat.enable = true;
                 github-cli.enable = true;
+                codex.enable = true;
                 coding-agents.enable = true;
                 agent-workspace.enable = true;
                 ub-mode.enable = true;

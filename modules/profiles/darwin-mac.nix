@@ -41,7 +41,7 @@ _: {
         forecast = ["d" "w"];
       };
 
-      packages = with pkgs; [stow pre-commit unstable.codex];
+      packages = with pkgs; [stow pre-commit];
 
       # zen + ghostty already come from the personal profile
       casks = ["iterm2" "wezterm" "ferdium" "reminders-menubar" "chatgpt" "claude" "okta-verify"];
@@ -55,6 +55,7 @@ _: {
 
       # github-cli already enabled by the personal profile
       apps = {
+        codex.enable = true;
         point-reader.enable = true;
         tailscale-core.enable = true;
         tailscale-gui.enable = true;

@@ -14,6 +14,26 @@ Claude Code and Hermes, reporting `OK: GLaDOS <agent>` on success instead of ful
 Hook registration and voice authorization are separate; existing runtime permissions
 still apply. Optional vault synchronization defaults to a 300-second interval.
 
+### Codex installation and journal permissions
+
+Install Codex through `applicationModules.codex` and `my.apps.codex.enable`,
+including when adding another coding host. The module installs Codex and its
+journal prerequisites and enables the shared amgmt integration. Activation links
+`~/.codex/AGENTS.md` to `~/.vaults/amgmt/agents/SOUL.md` for the primary user and
+each configured `my.agentWiki.additionalUsers` entry. The private vault must be
+accessible through that user's configured Git credentials.
+
+Publish the amgmt `stow/codex` package before activating this Nix revision.
+Activation runs Stow with `--no-folding` to link its journal command and separate
+`~/.codex/rules/journal.rules`; existing `default.rules`, authentication and
+Codex settings remain user-owned. Conflicting files stop Stow instead of being
+adopted or overwritten. Start a new Codex session to load the global rule.
+
+Run `journal-maintenance` by command name from any working directory, following
+the installed journal skill and amgmt instructions. Its rule authorizes only
+routine journal operations, including their Git subprocesses. Other commands
+retain their existing approval policy; managed restrictions still apply.
+
 ### Wheatley's journal and installed skills
 
 `applicationModules.agent-workspace` is enabled only for Aperture's primary

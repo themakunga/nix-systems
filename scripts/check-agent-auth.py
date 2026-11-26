@@ -3,6 +3,7 @@
 import json
 import os
 import re
+import shutil
 from pathlib import Path
 import subprocess
 import tempfile
@@ -61,6 +62,13 @@ with tempfile.TemporaryDirectory(prefix='agent-auth-') as temporary:
     (upstream / 'agents/SOUL.md').write_text('Test identity\n')
     (upstream / 'hooks').mkdir()
     (upstream / 'hooks/test').write_text('fixture\n')
+    rules = upstream / 'stow/codex/.codex/rules/journal.rules'
+    rules.parent.mkdir(parents=True)
+    rules.write_text('# Managed journal rules fixture\n')
+    command = upstream / 'stow/codex/.local/bin/journal-maintenance'
+    command.parent.mkdir(parents=True)
+    command.write_text('#!/bin/sh\nexit 0\n')
+    command.chmod(0o755)
     env = dict(os.environ, GIT_CONFIG_GLOBAL='/dev/null', GIT_CONFIG_NOSYSTEM='1')
     subprocess.run(['git', 'init', '-q', '-b', 'main', str(upstream)], check=True, env=env)
     subprocess.run(['git', '-C', str(upstream), 'add', '.'], check=True, env=env)
@@ -81,6 +89,9 @@ with tempfile.TemporaryDirectory(prefix='agent-auth-') as temporary:
         gh_source = home / '.public-dotfiles/gh/config.aperture-science.yml'
         gh_source.parent.mkdir(parents=True)
         gh_source.write_text('git_protocol: https\n')
+        local_rules = home / '.codex/rules/default.rules'
+        local_rules.parent.mkdir(parents=True)
+        local_rules.write_text('# Local rules preserved\n')
     existing_skill = homes[0] / '.claude/skills/ub-mode/SKILL.md'
     existing_skill.parent.mkdir(parents=True)
     existing_skill.write_text('Local skill preserved\n')
@@ -106,6 +117,10 @@ with tempfile.TemporaryDirectory(prefix='agent-auth-') as temporary:
         assert 'gh auth git-credential' in credential
         assert 'initial' not in (repository / '.git/config').read_text()
         assert (home / '.codex').stat().st_mode & 0o777 == 0o700
+        assert (home / '.codex/AGENTS.md').resolve() == repository / 'agents/SOUL.md'
+        assert (home / '.codex/rules/journal.rules').resolve() == repository / 'stow/codex/.codex/rules/journal.rules'
+        assert (home / '.local/bin/journal-maintenance').resolve() == repository / 'stow/codex/.local/bin/journal-maintenance'
+        assert (home / '.codex/rules/default.rules').read_text() == '# Local rules preserved\n'
         assert (home / '.hermes/.env').resolve() == environment
         assert (home / '.hermes/SOUL.md').read_text() == 'Test identity\n'
         assert (home / '.gemini/GEMINI.md').read_text() == 'Test identity\n'
@@ -131,4 +146,10 @@ with tempfile.TemporaryDirectory(prefix='agent-auth-') as temporary:
     for home in homes:
         for identity in ['.hermes/SOUL.md', '.gemini/GEMINI.md']:
             assert (home / identity).read_text() == 'Other host identity preserved\n'
+        # Codex instructions must not depend on unrelated hook installation.
+        (home / '.codex/AGENTS.md').unlink()
+        shutil.rmtree(home / '.vaults/amgmt/hooks')
+    subprocess.run(['bash', '-eu', '-c', wiki], check=True, env=env, capture_output=True)
+    for home in homes:
+        assert (home / '.codex/AGENTS.md').read_text() == 'Test identity\n'
 print('Agent setup: private auth, writable refresh, vault clone, identities and preserved skills OK')

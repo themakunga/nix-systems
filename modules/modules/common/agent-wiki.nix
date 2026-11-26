@@ -86,16 +86,30 @@ _: {
       ''}
 
       # Symlink SOUL.md solo cuando el vault existe
+      ${lib.optionalString (config.my.apps.codex.enable or false) ''
+        if [ ! -f "$WIKI_DIR/agents/SOUL.md" ]; then
+          echo "Codex instructions are missing from $WIKI_DIR/agents/SOUL.md" >&2
+          exit 1
+        fi
+      ''}
       if [ -f "$WIKI_DIR/agents/SOUL.md" ]; then
-        run_as_user mkdir -p "$USER_HOME/.public-dotfiles/agent"
+        run_as_user mkdir -p "$USER_HOME/.public-dotfiles/agent" "$USER_HOME/.codex"
         run_as_user ln -sf "$WIKI_DIR/agents/SOUL.md" "$SOUL_LINK"
+        run_as_user ln -sfn "$WIKI_DIR/agents/SOUL.md" "$USER_HOME/.codex/AGENTS.md"
+        ${lib.optionalString (config.my.apps.codex.enable or false) ''
+        if [ -d "$WIKI_DIR/stow/codex" ]; then
+          run_as_user ${pkgs.stow}/bin/stow --no-folding --dir "$WIKI_DIR/stow" --target "$USER_HOME" codex || exit 1
+        else
+          echo "Codex journal configuration is missing from $WIKI_DIR/stow/codex" >&2
+          exit 1
+        fi
+      ''}
       fi
 
       # Config de agentes: todo vive en amgmt; ~/.claude y ~/.codex solo enlazan.
       if [ -d "$WIKI_DIR/hooks" ]; then
         run_as_user mkdir -p "$USER_HOME/.claude/skills" "$USER_HOME/.codex"
         run_as_user ln -sfn "$WIKI_DIR/agents/SOUL.md" "$USER_HOME/.claude/CLAUDE.md"
-        run_as_user ln -sfn "$WIKI_DIR/agents/SOUL.md" "$USER_HOME/.codex/AGENTS.md"
         ${lib.optionalString (config.my.apps.coding-agents.enable or false) ''
         for identity in .hermes/SOUL.md .gemini/GEMINI.md; do
           if [ -d "$USER_HOME/$(dirname "$identity")" ]; then
