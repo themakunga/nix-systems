@@ -96,11 +96,11 @@ _: {
         run_as_user mkdir -p "$USER_HOME/.public-dotfiles/agent" "$USER_HOME/.codex"
         run_as_user ln -sf "$WIKI_DIR/agents/SOUL.md" "$SOUL_LINK"
         run_as_user ln -sfn "$WIKI_DIR/agents/SOUL.md" "$USER_HOME/.codex/AGENTS.md"
-        ${lib.optionalString (config.my.apps.codex.enable or false) ''
+        ${lib.optionalString (builtins.any (name: config.my.apps.${name}.enable or false) ["codex" "claude-code" "opencode" "gemini-cli"]) ''
         if [ -d "$WIKI_DIR/stow/codex" ]; then
           run_as_user ${pkgs.stow}/bin/stow --no-folding --dir "$WIKI_DIR/stow" --target "$USER_HOME" codex || exit 1
         else
-          echo "Codex journal configuration is missing from $WIKI_DIR/stow/codex" >&2
+          echo "Shared journal configuration is missing from $WIKI_DIR/stow/codex" >&2
           exit 1
         fi
       ''}
@@ -110,8 +110,15 @@ _: {
       if [ -d "$WIKI_DIR/hooks" ]; then
         run_as_user mkdir -p "$USER_HOME/.claude/skills" "$USER_HOME/.codex"
         run_as_user ln -sfn "$WIKI_DIR/agents/SOUL.md" "$USER_HOME/.claude/CLAUDE.md"
+        ${lib.optionalString (config.my.apps.gemini-cli.enable or false) ''
+        run_as_user mkdir -p "$USER_HOME/.gemini"
+        run_as_user ln -sfn "$WIKI_DIR/agents/SOUL.md" "$USER_HOME/.gemini/GEMINI.md"
+        if [ ! -e "$USER_HOME/.gemini/settings.json" ] && [ ! -L "$USER_HOME/.gemini/settings.json" ]; then
+          run_as_user install -m 600 "$USER_HOME/.public-dotfiles/local-ai/templates/gemini-settings.json" "$USER_HOME/.gemini/settings.json"
+        fi
+      ''}
         ${lib.optionalString (config.my.apps.coding-agents.enable or false) ''
-        for identity in .hermes/SOUL.md .gemini/GEMINI.md; do
+        for identity in .hermes/SOUL.md; do
           if [ -d "$USER_HOME/$(dirname "$identity")" ]; then
             run_as_user ln -sfn "$WIKI_DIR/agents/SOUL.md" "$USER_HOME/$identity"
           fi

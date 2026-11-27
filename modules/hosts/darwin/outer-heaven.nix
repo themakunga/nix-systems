@@ -29,12 +29,17 @@ in {
       ++ (mkBundle (extendBundle bundles.darwin.base {
         commonModules = ["secret-dotfiles" "shared-secrets"];
         darwinModules = ["linux-builder" "tiling"];
-        applicationModules = ["google-cloud.gemini" "jira" "ollama" "cliamp" "tuifeed" "matcha"];
+        applicationModules = ["jira" "ollama" "cliamp" "tuifeed" "matcha"];
         userModules = ["work" "glados"];
         profileModules = ["work" "personal" "latam" "glados" "thoughtworks" "grainger" "company" "outer-heaven-workspaces" "terminal-tools" "aws-credentials"];
       }))
       ++ [
-        ({pkgs, ...}: {
+        ({
+          config,
+          pkgs,
+          ...
+        }: {
+          sops.secrets."applications/gemini/api-key".owner = "nicolas";
           system.defaults.dock.persistent-apps = [
             "/Applications/Firefox.app"
             "/Applications/WezTerm.app"
@@ -61,7 +66,6 @@ in {
             # work-only packages (stow/pre-commit/btop/ctop come from darwin-mac/personal profiles)
             packages = with pkgs; [
               terminal-notifier
-              claude-code
               jdk25
               argo-workflows
               rustc
@@ -70,18 +74,20 @@ in {
               rclone
             ];
 
-            casks = ["tigervnc" "miniconda" "claude-code" "qmk-toolbox"];
+            casks = ["tigervnc" "miniconda" "qmk-toolbox"];
             brews = ["googleworkspace-cli"];
 
             services.tiling.enable = true;
 
             apps = {
+              claude-code.enable = true;
               matcha.enable = true;
               jira.enable = true;
               cliamp.enable = true;
               tuifeed.enable = true;
               aws-cli.enable = true;
               gemini-cli.enable = true;
+              gemini-cli.apiKeyFile = config.sops.secrets."applications/gemini/api-key".path;
               glados-tts.enable = true;
               qmk.enable = true;
               # nlm.enable = true; # disabled — hash mismatch, re-enable when fixed

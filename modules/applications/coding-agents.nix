@@ -9,9 +9,8 @@
   ...
 }: {
   flake.applicationModules.coding-agents = self.lib.mkAppModule "coding-agents" "Interactive coding agents with private runtime authentication" {
-    meta = {pkgs, ...}: {
+    meta = {
       level = "system";
-      packages = with pkgs; [claude-code gemini-cli];
     };
     sysConfig = {
       config,
@@ -53,8 +52,8 @@
     in {
       assertions = [
         {
-          assertion = config.my.apps.codex.enable or false;
-          message = "coding-agents requires applicationModules.codex with my.apps.codex.enable.";
+          assertion = config.my.apps.codex.enable && config.my.apps.claude-code.enable && config.my.apps.gemini-cli.enable;
+          message = "coding-agents requires applicationModules.ai with Codex, Claude Code and Gemini CLI enabled.";
         }
       ];
       programs.git = {

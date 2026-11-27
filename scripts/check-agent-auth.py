@@ -27,7 +27,7 @@ let
   wiki = wikiModule {inherit config pkgs; inherit (pkgs) lib;};
   otherWiki = wikiModule {
     inherit pkgs; inherit (pkgs) lib;
-    config = config // {my = config.my // {apps = config.my.apps // {coding-agents.enable = false;};};};
+    config = config // {my = config.my // {apps = config.my.apps // {coding-agents.enable = false; gemini-cli.enable = false;};};};
   };
 in {
   wiki = wiki.config.content.system.activationScripts.postActivation.text.content;
@@ -89,6 +89,9 @@ with tempfile.TemporaryDirectory(prefix='agent-auth-') as temporary:
         gh_source = home / '.public-dotfiles/gh/config.aperture-science.yml'
         gh_source.parent.mkdir(parents=True)
         gh_source.write_text('git_protocol: https\n')
+        gemini_source = home / '.public-dotfiles/local-ai/templates/gemini-settings.json'
+        gemini_source.parent.mkdir(parents=True)
+        gemini_source.write_text('{"context":{"fileName":["AGENTS.md","GEMINI.md"]}}\n')
         local_rules = home / '.codex/rules/default.rules'
         local_rules.parent.mkdir(parents=True)
         local_rules.write_text('# Local rules preserved\n')
@@ -124,6 +127,10 @@ with tempfile.TemporaryDirectory(prefix='agent-auth-') as temporary:
         assert (home / '.hermes/.env').resolve() == environment
         assert (home / '.hermes/SOUL.md').read_text() == 'Test identity\n'
         assert (home / '.gemini/GEMINI.md').read_text() == 'Test identity\n'
+        gemini_settings = home / '.gemini/settings.json'
+        assert json.loads(gemini_settings.read_text())['context']['fileName'] == ['AGENTS.md', 'GEMINI.md']
+        assert gemini_settings.stat().st_mode & 0o777 == 0o600
+        gemini_settings.write_text('{"local":"preserved"}\n')
         destination.write_text('{"test": "refreshed"}\n')
         (home / '.hermes/config.yaml').write_text('local: preserved\n')
     activate()
@@ -131,6 +138,7 @@ with tempfile.TemporaryDirectory(prefix='agent-auth-') as temporary:
         assert (home / '.codex/auth.json').read_text() == '{"test": "refreshed"}\n'
         assert (home / '.hermes/config.yaml').read_text() == 'local: preserved\n'
         assert (home / '.config/gh/config.yml').read_text() == 'local: preserved\n'
+        assert (home / '.gemini/settings.json').read_text() == '{"local":"preserved"}\n'
     # A missing symlink target must not cause credential restoration over a runtime link.
     destination = homes[0] / '.codex/auth.json'
     destination.unlink()

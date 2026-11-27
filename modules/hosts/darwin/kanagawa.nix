@@ -28,7 +28,6 @@ in {
       ]
       ++ (mkBundle (extendBundle bundles.darwin.base {
         darwinModules = ["tiling"];
-        commonModules = ["local-ai"];
         applicationModules = ["google-cloud.gcloud" "matcha" "nlm" "cliamp"];
         developmentModules = ["ios-terminal"];
         userModules = ["personal"];
@@ -48,8 +47,18 @@ in {
               matcha.enable = true;
               glados-tts.enable = true;
               nlm.enable = true;
+              claude-code.enable = true;
+              opencode.enable = true;
+              gemini-cli.enable = true;
+              llama = {
+                enable = true;
+                package = pkgs.unstable.llama-cpp;
+                server.enable = true;
+                host = "127.0.0.1";
+                port = 8080;
+                maxModels = 1;
+              };
             };
-            localAI.enable = true;
 
             services.tiling.enable = true;
             packages = with pkgs; [

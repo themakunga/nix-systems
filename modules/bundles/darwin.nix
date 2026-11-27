@@ -43,7 +43,7 @@
       ];
 
       applicationModules = [
-        "codex"
+        "ai"
         "point-reader"
         "glados-tts"
         "bat"

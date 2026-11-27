@@ -16,7 +16,39 @@ still apply. Optional vault synchronization defaults to a 300-second interval.
 
 ### Codex installation and journal permissions
 
-Install Codex through `applicationModules.codex` and `my.apps.codex.enable`,
+Import `applicationModules.ai` once and select the required tools independently:
+
+```nix
+my.apps = {
+  codex.enable = true;
+  claude-code.enable = true;
+  opencode.enable = true;
+  gemini-cli.enable = true;
+  llama = {
+    enable = true;
+    server.enable = true;
+    host = "127.0.0.1";
+    port = 8080;
+    maxModels = 1;
+    extraArgs = ["--cache-type-k" "q8_0" "--cache-type-v" "q8_0"];
+  };
+};
+```
+
+`my.apps.llama.package` selects the llama.cpp build. `server.enable` declares a
+launchd user agent on macOS or a systemd user service on Linux; enabling the
+package alone does not start a server. Router parameters stay under
+`my.apps.llama`. Model presets, OpenCode configuration, Gemini's settings template
+and CLI scripts live in `public-dotfiles/local-ai`; Stow maps its hidden paths
+into the user's home. Gemini's template is copied only when settings are absent.
+OpenCode uses shared SOUL/JOURNAL instructions and portable skill discovery.
+Runtime authentication, Codex settings and existing Gemini settings remain private.
+An optional `my.apps.gemini-cli.apiKeyFile` reads an existing private runtime file;
+it never embeds a credential in the Nix store. Aperture retains its existing
+separate credential provisioning. Kanagawa enables all five tools; Outer Heaven
+and Aperture retain Codex, Claude Code and Gemini without a new local model service.
+
+Install Codex through `applicationModules.ai` and `my.apps.codex.enable`,
 including when adding another coding host. The module installs Codex and its
 journal prerequisites and enables the shared amgmt integration. Activation links
 `~/.codex/AGENTS.md` to `~/.vaults/amgmt/agents/SOUL.md` for the primary user and
@@ -63,7 +95,7 @@ python3 scripts/check-agent-workspace.py /path/to/public-dotfiles /path/to/obsid
 
 ### Aperture Science
 
-The host bundle imports `applicationModules.coding-agents`, `github-cli` and
+The host bundle imports `applicationModules.ai`, `coding-agents`, `github-cli` and
 `hermes`. Wheatley and Nicolas receive Codex, Claude Code, Gemini CLI and native
 Hermes, plus btop, htop, glab, newsboat and glow. The `ub-mode` application module installs
 the pinned skill for the interactive agents and the Crapper, Dryer, Mutator and
