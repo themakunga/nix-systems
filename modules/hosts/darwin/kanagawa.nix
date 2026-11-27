@@ -28,6 +28,7 @@ in {
       ]
       ++ (mkBundle (extendBundle bundles.darwin.base {
         darwinModules = ["tiling"];
+        commonModules = ["local-ai"];
         applicationModules = ["google-cloud.gcloud" "matcha" "nlm" "cliamp"];
         developmentModules = ["ios-terminal"];
         userModules = ["personal"];
@@ -48,6 +49,8 @@ in {
               glados-tts.enable = true;
               nlm.enable = true;
             };
+            localAI.enable = true;
+
             services.tiling.enable = true;
             packages = with pkgs; [
               lua5_4
