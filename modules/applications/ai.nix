@@ -3,7 +3,7 @@
 # Repositorio: TheMakunga Infrastructure
 # Módulo auto-gestionado.
 # =========================================================
-_: {
+{self, ...}: {
   flake.applicationModules.ai = {
     config,
     lib,
@@ -26,7 +26,7 @@ _: {
           else "/home/${user}"
         );
     tools = with pkgs;
-      [jq curl coreutils gnugrep bash]
+      [jq curl coreutils gnugrep bash python3]
       ++ lib.optionals llama.enable [llama.package unstable.stable-diffusion-cpp unstable.whisper-cpp ffmpeg]
       ++ lib.optional apps.opencode.enable unstable.opencode;
     commands = ["ai" "ai-route" "ai-model" "ai-server" "ai-image" "ai-vision" "ai-transcribe" "ai-speak" "ai-embed"];
@@ -57,6 +57,7 @@ _: {
       ]
       ++ llama.extraArgs;
   in {
+    imports = [self.applicationModules.agent-workspace];
     # Extend the existing named-app submodule instead of declaring a second app tree.
     options.my.apps = lib.mkOption {
       type = lib.types.attrsOf (lib.types.submodule {

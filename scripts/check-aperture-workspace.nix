@@ -10,11 +10,10 @@ let
   names = map (p: p.pname or p.name) cfg.environment.systemPackages;
 in
   assert cfg.my.apps.coding-agents.enable;
-  assert cfg.my.apps.agent-workspace.enable;
   assert cfg.my.dotfiles.user == "wheatley";
   assert cfg.my.dotfiles.home == "/opt/wheatley";
   assert builtins.all (n: builtins.elem n names) ["codex" "lua" "taplo" "jq"];
   assert builtins.all (d: builtins.elem d cfg.system.activationScripts.seedAgentWorkspace.deps)
   ["setupSecrets" "stowDotfiles" "agent-wiki-setup" "seedUbMode"];
-  assert builtins.all (h: !(f.darwinConfigurations.${h}.config.my.apps.agent-workspace.enable or false))
-  ["kanagawa" "outer-heaven"]; {wheatleyCodexWorkspace = true;}
+  assert builtins.all (h: builtins.match ".*shared-workspace.py.*" f.darwinConfigurations.${h}.config.system.activationScripts.postActivation.text != null)
+  ["kanagawa" "outer-heaven"]; {sharedAgentWorkspaceAcrossHosts = true;}

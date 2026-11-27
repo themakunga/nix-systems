@@ -24,10 +24,19 @@ let
                 type = lib.types.lines;
                 default = "";
               };
+              system.activationScripts = lib.mkOption {
+                type = lib.types.attrs;
+                default = {};
+              };
               my = {
-                agentWiki.enable = lib.mkEnableOption "test vault";
+                agentWiki = {
+                  enable = lib.mkEnableOption "test vault";
+                  additionalUsers = lib.mkOption {default = [];};
+                  githubTokenFile = lib.mkOption {default = null;};
+                };
                 claudeHooks.enable = lib.mkEnableOption "test hooks";
                 dotfiles = {
+                  repository = lib.mkOption {default = "https://github.com/themakunga/public-dotfiles.git";};
                   enable = lib.mkEnableOption "test dotfiles";
                   user = lib.mkOption {default = "test";};
                   home = lib.mkOption {default = "/tmp/ai-test";};

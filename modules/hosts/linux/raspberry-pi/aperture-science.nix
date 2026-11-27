@@ -81,7 +81,6 @@ in {
           "github-cli"
           "ai"
           "coding-agents"
-          "agent-workspace"
           "ub-mode"
           "newsboat"
           "glow"
@@ -252,7 +251,6 @@ in {
                 claude-code.enable = true;
                 gemini-cli.enable = true;
                 coding-agents.enable = true;
-                agent-workspace.enable = true;
                 ub-mode.enable = true;
                 hermes.enable = true; # Hermes AI Agent — solo en aperture-science
                 glados-tts.enable = true; # Voz GLaDOS para hooks de agentes de wheatley
@@ -412,7 +410,7 @@ in {
                 if [ ! -d "$WIKI_DIR/.git" ]; then
                   echo "Clonando agent-wiki para glados..."
                   /run/wrappers/bin/sudo -H -u glados env HOME=/opt/glados \
-                    ${pkgs.git}/bin/git clone "git@github.com:themakunga/agent-wiki.git" "$WIKI_DIR" 2>/dev/null || true
+                    ${pkgs.git}/bin/git clone "git@github.com:themakunga/amgmt.git" "$WIKI_DIR" 2>/dev/null || true
                 else
                   /run/wrappers/bin/sudo -H -u glados env HOME=/opt/glados \
                     ${pkgs.git}/bin/git -C "$WIKI_DIR" pull origin main 2>/dev/null || true

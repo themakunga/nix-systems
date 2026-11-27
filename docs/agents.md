@@ -66,31 +66,44 @@ the installed journal skill and amgmt instructions. Its rule authorizes only
 routine journal operations, including their Git subprocesses. Other commands
 retain their existing approval policy; managed restrictions still apply.
 
-### Wheatley's journal and installed skills
+### Shared skills and journal for every runtime
 
-`applicationModules.agent-workspace` is enabled only for Aperture's primary
-user, Wheatley. It supplies Lua, Taplo and jq, links 45 pinned portable skills
-from the current workstation's catalog, and adds the existing journal and GLaDOS
-skills from `~/.vaults/amgmt`. The separately declared ub-mode skill completes
-48 user skills; Codex supplies its five bundled system skills. Native discovery
-retains upstream plugin namespaces, such as `mattpocock-skills:tdd` and
-`ponytail:ponytail`, while vault skills keep `obsidian-journal` and `glados`.
+`applicationModules.ai` imports the shared workspace setup automatically. It
+covers the primary and additional agent users on both Macs and Aperture, including
+Aperture's existing glados/zeroclaw and legacy hermes service accounts. The setup
+runs after the shared vault and public dotfiles are ready. It reuses the pinned
+portable skill catalog, ub-mode, the local capability skills and the shared
+GLaDOS/journal skills. Each native skill directory links to `~/.agents/skills`.
+Existing canonical overrides win; conflicting runtime copies are preserved in
+`~/.local/state/agent-workspace/backups`. Runtime built-ins and connector access
+remain native and are not made portable by copying instructions.
 
-The journal uses the existing private repository at `~/.vaults/journal` and a
-runtime-local `~/.config/obsidian-journal/config.toml`. Its installer renders the
-skill's own template from `public-dotfiles/agent/journal-settings.json` and writes
-`~/.obsidian-journal-vault`. The shared tracked configuration retains the other
-host's path. Existing skills, journal configuration and Codex authentication are
-preserved; no lifecycle hook approval or extra voice authorization is granted.
+Every runtime uses the same journal upstream beneath its user's `~/.vaults/`.
+The setup validates an existing selected repository, preserves tracked/shared
+configuration and writes host paths and all seven agent names into the runtime's
+local `~/.config/obsidian-journal/config.toml`. New configurations use the
+installed obsidian-journal skill's own template. The shared dispatcher and SOUL
+links are installed for every user; the mandatory workflow is documented in
+`public-dotfiles/agent/WORKSPACE.md`. Credentials and refreshed settings remain
+private. Missing repository access stops setup instead of creating another vault.
 
-Pinned skill bodies match the installed workstation versions, including retro
-and the explicit-invocation setting of code-simplification. App-specific plugin
-connectors and credentials are not transferred. Installation makes skills
-available in a new Codex session after owner activation.
+OpenCode defaults to `local/auto`. The native router classifies the task and
+reported context, then tries eligible local Qwen models before the current user's
+configured `openai/gpt-6.1-sol` connection. The native retry hook changes models
+without replaying tools or starting another session. Manual model choices bypass
+routing. Availability fallback cannot identify a plausible but incorrect answer.
+Coder/reasoning use 131,072-token YaRN 4 contexts; fast uses 65,536 with YaRN 2,
+and flash retains 32,768. KV caches are quantized and the router loads one model.
+Actual memory use and model quality require inference checks on the target host.
+
+Validation without activation:
 
 ```sh
 nix eval --impure --json --file scripts/check-aperture-workspace.nix
-python3 scripts/check-agent-workspace.py /path/to/public-dotfiles /path/to/obsidian-journal
+python3 scripts/check-agent-workspace.py /path/to/public-dotfiles
+python3 /path/to/public-dotfiles/agent/test_shared_workspace.py
+node --test /path/to/public-dotfiles/local-ai/tests/router.test.mjs
+python3 /path/to/public-dotfiles/local-ai/tests/native-router.py
 ```
 
 ### Aperture Science

@@ -111,7 +111,7 @@
             /run/wrappers/bin/sudo -H -u hermes mv "$LEGACY_WIKI_DIR" "$WIKI_DIR"
             /run/wrappers/bin/sudo -H -u hermes ln -s "$WIKI_DIR" "$LEGACY_WIKI_DIR"
           fi
-          WIKI_REPO="git@github.com:themakunga/agent-wiki.git"
+          WIKI_REPO="git@github.com:themakunga/amgmt.git"
           if [ ! -d "$WIKI_DIR/.git" ]; then
             echo "=> Clonando agent-wiki para hermes..."
             /run/wrappers/bin/sudo -H -u hermes env HOME=/opt/hermes \

@@ -127,7 +127,6 @@ _: {
         run_as_user ln -sfn "$WIKI_DIR/hooks" "$USER_HOME/.claude/scripts"
         run_as_user ln -sfn "$WIKI_DIR/claude/commands" "$USER_HOME/.claude/commands"
         run_as_user ln -sfn "$WIKI_DIR/codex/hooks.json" "$USER_HOME/.codex/hooks.json"
-        run_as_user ln -sfn "$WIKI_DIR/skills/obsidian-journal/SKILL.md" "$USER_HOME/.claude/skills/obsidian-journal.md"
 
         # The standalone skill owns voice; persisted configuration is confirmed during installation.
         if [ -f "$WIKI_DIR/.glados.config.yaml" ] && [ -x /run/current-system/sw/bin/glados-agent ]; then
